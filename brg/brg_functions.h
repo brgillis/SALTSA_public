@@ -30,6 +30,7 @@ brg_functions.h
 #include <cmath>
 #include <iostream>
 #include <memory>
+
 #include "brg_units.h"
 #include "brg_functions.hpp"
 
@@ -302,6 +303,16 @@ const int print_table( std::ostream & out_stream, const int num_columns,
 		const int num_rows,
 		const std::vector< std::vector< std::string > > & data,
 		const bool silent = false );
+
+// Load table, either loading in the entire table, or only loading in certain columns into pointed-to
+// variables, found by matching header entries to the strings passed
+const int load_table( const std::string & table_file_name, std::vector<std::vector<double> > & table_data,
+		const bool silent=false);
+const int load_table( const std::string & table_file_name, std::vector<std::vector<double> > & table_data,
+		std::vector<std::string> & header, const bool silent=false);
+const int load_table_columns( const std::string & table_file_name,
+		std::vector< std::pair< const std::string, std::vector<double>* > > & header_links,
+		const bool case_sensitive=false, const bool silent=false);
 
 // Functions to open a file and check that it's been opened successfully. An error message will be printed if it can't be opened,
 // and the functions will return 1. Otherwise they'll return 0.
