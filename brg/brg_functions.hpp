@@ -38,7 +38,7 @@
 namespace brgastro
 {
 
-// Functions
+// Generic functions
 #if (1)
 inline const int errorNOS( const bool silent = false )
 {

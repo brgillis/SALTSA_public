@@ -15,6 +15,7 @@
 #include <cmath>
 #include "brg_units.h"
 #include "brg_functions.h"
+#include "brg_vector.hpp"
 
 namespace brgastro
 {
@@ -1038,6 +1039,196 @@ const int solve_MCMC( const f * func, const T init_in_param, const T init_min_in
 	if(func(test_in_param, out_param, silent))
 		throw std::runtime_error("Cannot execute solve_MCMC at initial point.");
 	best_out_param = out_param;
+	double last_likelihood = std::exp(-annealing*out_param/2);
+
+	for(unsigned int step = 0; step < max_steps; step++)
+	{
+		// Get a new value
+		test_in_param = current_in_param + in_param_step_sigma*brgastro::Gaus_rand()/annealing;
+
+		// Check if it's in bounds
+		if(bounds_check)
+			test_in_param = brgastro::bound(min_in_param,test_in_param,max_in_param);
+
+		// Find the result for this value
+		bool good_result = true;
+		try
+		{
+			if(func(test_in_param, out_param, silent))
+				good_result = false;
+		}
+		catch(std::exception &e)
+		{
+			good_result = false;
+		}
+		double new_likelihood = std::exp(-annealing*out_param/2);
+
+		// If it's usable, check if we should step to it
+		if(good_result)
+		{
+			bool step_to_it = false;
+			if(new_likelihood>=last_likelihood)
+			{
+				step_to_it = true;
+			}
+			else
+			{
+				if(drand48() < new_likelihood/last_likelihood)
+					step_to_it = true;
+			}
+			if(step_to_it)
+			{
+				last_likelihood = new_likelihood;
+				current_in_param = test_in_param;
+
+				// Check if we have a new best point
+				if(out_param < best_out_param)
+				{
+					best_out_param = out_param;
+					best_in_param = current_in_param;
+				}
+			}
+		}
+
+		// If we're on the last cycle, add to the mean
+		if(last_cycle)
+		{
+			mean_in_param += current_in_param;
+			last_cycle_count += 1;
+		}
+
+		if(brgastro::divisible(annealing_period,step))
+		{
+			annealing *= annealing_factor;
+
+			// Recalculate likelihood
+			last_likelihood = std::exp(-annealing*out_param/2);
+
+			// Check if we're going into the last cycle
+			if(max_steps-step<=annealing_period)
+				last_cycle = true;
+		}
+	} // for(unsigned int step = 0; step < max_steps; step++)
+
+	// Calculate mean now
+	mean_in_param /= last_cycle_count;
+
+	// Check if mean actually gives a better best
+	try
+	{
+		if(!(func(mean_in_param,out_param,silent)))
+		{
+			if(out_param < best_out_param)
+			{
+				best_in_param = mean_in_param;
+			}
+		}
+	}
+	catch(std::exception &e)
+	{
+		// Just leave it, no need to do anything
+	}
+
+	result_in_param = best_in_param;
+
+	return 0;
+}
+
+/** Attempts to find the minimum output value for the passed function using a Metropolis-Hastings
+ *  MCMC algorithm with simulated annealing. Vector version
+ *
+ * @param func
+ * @param init_in_param
+ * @param init_min_in_param
+ * @param init_max_in_param
+ * @param init_in_param_step_sigma
+ * @param result_in_param
+ * @param result_out_param
+ * @param max_steps
+ * @param annealing_period
+ * @param annealing_factor
+ * @param silent
+ * @return
+ */
+template< typename f, typename T >
+const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
+		const std::vector<T> & init_min_in_params,
+		const std::vector<T> & init_max_in_params,
+		const std::vector<T> & init_in_param_step_sigmas,
+		std::vector<T> & result_in_param, std::vector<T> & result_out_param, const int max_steps=1000000,
+		const int annealing_period=100000, const double annealing_factor=4,
+		const bool silent = false)
+{
+	int step_num = 0;
+	bool bounds_check = true;
+
+	// Check how bounds were passed in
+	if((init_min_in_params.size()==0) and (init_max_in_params.size()==0))
+		bounds_check = false;
+
+	std::vector<T> min_in_params = init_min_in_params;
+	std::vector<T> max_in_params = init_max_in_params;
+
+	if(min_in_params.size() < max_in_params.size())
+	{
+		min_in_params.resize(max_in_params.size(),-DBL_MAX);
+	}
+	if(max_in_params.size() < min_in_params.size())
+	{
+		max_in_params.resize(min_in_params.size(),DBL_MAX);
+	}
+
+	// Check if any of the params likely have max and min mixed up
+	if(bounds_check)
+	{
+		for(unsigned int i = 0; i < max_in_params.size(); i++)
+		{
+			if(min_in_params.at(i)>max_in_params.at(i))
+			{
+				// Swap them
+				T temp = min_in_params.at(i);
+				min_in_params.at(i) = max_in_params.at(i);
+				max_in_params.at(i) = temp;
+			} // if(min_in_params.at(i)>max_in_params.at(i))
+		} // for(unsigned int i = 0; i < max_in_params.size(); i++)
+	} // if(bounds_check)
+
+	// Check step sizes
+
+	std::vector<T> in_param_step_sigmas = init_in_param_step_sigmas;
+
+	if(in_param_step_sigmas.size() < min_in_params.size())
+		in_param_step_sigmas.resize(min_in_params.size(),0);
+
+	for(unsigned int i = 0; i < in_param_step_sigmas.size(); i++)
+	{
+		if(init_in_param_step_sigmas.at(i) <= 0)
+		{
+			if(bounds_check)
+			{
+				init_in_param_step_sigmas.at(i) =
+						(max_in_params.at(i)-min_in_params.at(i))/10.;
+			}
+			else
+			{
+				init_in_param_step_sigmas.at(i) = 1; // Default behavior
+			}
+		}
+	}
+
+	// Initialise
+	double annealing = 1;
+	bool last_cycle = false;
+	std::vector<T> current_in_params = init_in_params, test_in_params = init_in_params,
+			best_in_params = init_in_params;
+	std::vector<T> out_params, best_out_params;
+	std::vector<T> mean_in_params = 0;
+	int last_cycle_count = 0;
+
+	// Get value at initial point
+	if(func(test_in_params, out_params, silent))
+		throw std::runtime_error("Cannot execute solve_MCMC at initial point.");
+	best_out_params = out_params;
 	double last_likelihood = std::exp(-annealing*out_param/2);
 
 	for(unsigned int step = 0; step < max_steps; step++)
