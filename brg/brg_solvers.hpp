@@ -966,6 +966,173 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 			out_params_weight );
 } // const int solve_grid(...)
 
+/** Attempts to find the minimum output value for the passed function using a Metropolis-Hastings
+ *  MCMC algorithm with simulated annealing.
+ *
+ * @param func
+ * @param init_in_param
+ * @param init_min_in_param
+ * @param init_max_in_param
+ * @param init_in_param_step_sigma
+ * @param result_in_param
+ * @param result_out_param
+ * @param max_steps
+ * @param annealing_period
+ * @param annealing_factor
+ * @param silent
+ * @return
+ */
+template< typename f, typename T >
+const int solve_MCMC( const f * func, const T init_in_param, const T init_min_in_param,
+		const T init_max_in_param, const T init_in_param_step_sigma,
+		T & result_in_param, T & result_out_param, const int max_steps=1000000,
+		const int annealing_period=100000, const double annealing_factor=4,
+		const bool silent = false)
+{
+	int step_num = 0;
+	bool bounds_check = true;
+
+	// Check how bounds were passed in
+	if(init_min_in_param==init_max_in_param) bounds_check = false;
+
+	T min_in_param, max_in_param;
+	if(init_min_in_param>init_max_in_param)
+	{
+		// Swap them
+		max_in_param = init_min_in_param;
+		min_in_param = init_max_in_param;
+	}
+	else
+	{
+		min_in_param = init_min_in_param;
+		max_in_param = init_max_in_param;
+	}
+	T in_param_step_sigma;
+
+	// Check step size
+	if(init_in_param_step_sigma <= 0)
+	{
+		if(bounds_check)
+		{
+			in_param_step_sigma = (max_in_param-min_in_param)/10.;
+		}
+		else
+		{
+			in_param_step_sigma = 1; // Default behavior
+		}
+	}
+	else
+	{
+		in_param_step_sigma = init_in_param_step_sigma;
+	}
+
+	// Initialise
+	double annealing = 1;
+	bool last_cycle = false;
+	T current_in_param = init_in_param, test_in_param = init_in_param, best_in_param = init_in_param;
+	T out_param, best_out_param;
+	T mean_in_param = 0;
+	int last_cycle_count = 0;
+
+	// Get value at initial point
+	if(func(test_in_param, out_param, silent))
+		throw std::runtime_error("Cannot execute solve_MCMC at initial point.");
+	best_out_param = out_param;
+	double last_likelihood = std::exp(-annealing*out_param/2);
+
+	for(unsigned int step = 0; step < max_steps; step++)
+	{
+		// Get a new value
+		test_in_param = current_in_param + in_param_step_sigma*brgastro::Gaus_rand()/annealing;
+
+		// Check if it's in bounds
+		if(bounds_check)
+			test_in_param = brgastro::bound(min_in_param,test_in_param,max_in_param);
+
+		// Find the result for this value
+		bool good_result = true;
+		try
+		{
+			if(func(test_in_param, out_param, silent))
+				good_result = false;
+		}
+		catch(std::exception &e)
+		{
+			good_result = false;
+		}
+		double new_likelihood = std::exp(-annealing*out_param/2);
+
+		// If it's usable, check if we should step to it
+		if(good_result)
+		{
+			bool step_to_it = false;
+			if(new_likelihood>=last_likelihood)
+			{
+				step_to_it = true;
+			}
+			else
+			{
+				if(drand48() < new_likelihood/last_likelihood)
+					step_to_it = true;
+			}
+			if(step_to_it)
+			{
+				last_likelihood = new_likelihood;
+				current_in_param = test_in_param;
+
+				// Check if we have a new best point
+				if(out_param < best_out_param)
+				{
+					best_out_param = out_param;
+					best_in_param = current_in_param;
+				}
+			}
+		}
+
+		// If we're on the last cycle, add to the mean
+		if(last_cycle)
+		{
+			mean_in_param += current_in_param;
+			last_cycle_count += 1;
+		}
+
+		if(brgastro::divisible(annealing_period,step))
+		{
+			annealing *= annealing_factor;
+
+			// Recalculate likelihood
+			last_likelihood = std::exp(-annealing*out_param/2);
+
+			// Check if we're going into the last cycle
+			if(max_steps-step<=annealing_period)
+				last_cycle = true;
+		}
+	} // for(unsigned int step = 0; step < max_steps; step++)
+
+	// Calculate mean now
+	mean_in_param /= last_cycle_count;
+
+	// Check if mean actually gives a better best
+	try
+	{
+		if(!(func(mean_in_param,out_param,silent)))
+		{
+			if(out_param < best_out_param)
+			{
+				best_in_param = mean_in_param;
+			}
+		}
+	}
+	catch(std::exception &e)
+	{
+		// Just leave it, no need to do anything
+	}
+
+	result_in_param = best_in_param;
+
+	return 0;
+}
+
 } // namespace brgastro
 
 #endif // __BRG_SOLVERS_HPP_INCLUDED__

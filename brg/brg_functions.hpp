@@ -468,7 +468,7 @@ inline const unit_obj dot_product(std::vector<unit_obj> a, std::vector<unit_obj>
 inline const double drand( double min, double max )
 {
 
-	return min + ( ( (double)rand() ) / RAND_MAX ) * ( max - min );
+	return min + (max-min)*drand48();
 
 } // double drand(double min, double max)
 
