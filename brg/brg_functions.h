@@ -311,7 +311,7 @@ const int load_table( const std::string & table_file_name, std::vector<std::vect
 const int load_table( const std::string & table_file_name, std::vector<std::vector<double> > & table_data,
 		std::vector<std::string> & header, const bool silent=false);
 const int load_table_columns( const std::string & table_file_name,
-		std::vector< std::pair< const std::string, std::vector<double>* > > & header_links,
+		std::vector< std::pair< std::string, std::vector<double>* > > & header_links,
 		const bool case_sensitive=false, const bool silent=false);
 
 // Functions to open a file and check that it's been opened successfully. An error message will be printed if it can't be opened,

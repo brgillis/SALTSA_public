@@ -687,9 +687,13 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 	try
 	{
 		num_test_points = 1;
-		if ( out_params_weight.size() != num_in_params )
+		if ( out_params_weight.size() == 0 )
 		{
-			out_params_weight.resize( num_in_params, 1 );
+			out_params_weight.resize( target_out_params.size(), 1 );
+		}
+		else if ( out_params_weight.size() != target_out_params.size() )
+		{
+			out_params_weight.resize( target_out_params.size(), 0 );
 		}
 		total_weight = 0;
 		for ( unsigned int i = 0; i < num_in_params; i++ )
@@ -716,6 +720,9 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 					( max_in_params.at( i ) - min_in_params.at( i ) )
 							/ init_in_params_step.at( i ) ) + 1;
 			num_test_points *= num_in_params_steps.at( i );
+		}
+		for(unsigned int i = 0; i < out_params_weight.size(); i++)
+		{
 			out_params_weight.at( i ) = fabs( out_params_weight.at( i ) );
 			total_weight += out_params_weight.at( i );
 		}
@@ -729,6 +736,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 	}
 	catch ( std::exception & )
 	{
+
 		return errorNOS( silent );
 	}
 
@@ -752,6 +760,10 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 		if ( int errcode = ( *func )( test_in_params, test_out_params,
 				silent ) )
 			return errcode + LOWER_LEVEL_ERROR;
+		if ( test_out_params.size() != target_out_params.size() )
+			throw std::runtime_error("ERROR: target_out_params passed to solve_grid has incorrect size.");
+		if ( test_out_params.size() != out_params_weight.size() )
+			throw std::runtime_error("ERROR: out_params_weight passed to solve_grid has incorrect size.");
 		d = weighted_dist( test_out_params, target_out_params,
 				out_params_weight );
 		if ( d < d_best )
@@ -793,6 +805,10 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 			if ( int errcode = ( *func )( test_in_params, test_out_params,
 					silent ) )
 				return errcode + LOWER_LEVEL_ERROR;
+			if ( test_out_params.size() != target_out_params.size() )
+				throw std::runtime_error("ERROR: target_out_params passed to solve_grid has incorrect size.");
+			if ( test_out_params.size() != out_params_weight.size() )
+				throw std::runtime_error("ERROR: out_params_weight passed to solve_grid has incorrect size.");
 			d = weighted_dist( test_out_params, target_out_params,
 					out_params_weight );
 			if ( d < d_best )
@@ -860,6 +876,10 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 			if ( int errcode = ( *func )( test_in_params, test_out_params,
 					silent ) )
 				return errcode + LOWER_LEVEL_ERROR;
+			if ( test_out_params.size() != target_out_params.size() )
+				throw std::runtime_error("ERROR: target_out_params passed to solve_grid has incorrect size.");
+			if ( test_out_params.size() != out_params_weight.size() )
+				throw std::runtime_error("ERROR: out_params_weight passed to solve_grid has incorrect size.");
 			d = weighted_dist( test_out_params, target_out_params,
 					out_params_weight );
 			if ( d < d_best )

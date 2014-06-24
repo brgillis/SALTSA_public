@@ -299,6 +299,7 @@ const int brgastro::load_table( const std::string & table_file_name,
 		std::vector<double> temp_vector(0);
 
 		getline(fi, line_data);
+		if(line_data.size()==0) break;
 		line_data_stream.clear();
 		line_data_stream.str(line_data);
 
@@ -319,7 +320,7 @@ const int brgastro::load_table( const std::string & table_file_name,
 	return 0;
 }
 const int brgastro::load_table_columns( const std::string & table_file_name,
-		std::vector< std::pair< const std::string, std::vector<double>* > > & header_links,
+		std::vector< std::pair< std::string, std::vector<double>* > > & header_links,
 		const bool case_sensitive, const bool silent)
 {
 	// First, load in the table
@@ -339,6 +340,8 @@ const int brgastro::load_table_columns( const std::string & table_file_name,
 					test_string_key.begin(), ::tolower);
 		}
 
+		bool key_found = false;
+
 		for(unsigned int j = 0; j < header.size(); j++)
 		{
 			std::string test_string_header(header.at(j));
@@ -352,6 +355,7 @@ const int brgastro::load_table_columns( const std::string & table_file_name,
 			if(test_string_key==test_string_header)
 			{
 				// Found it, now load in the data
+				key_found = true;
 
 				std::vector<double> column_data(table_data.size());
 				try
@@ -369,6 +373,11 @@ const int brgastro::load_table_columns( const std::string & table_file_name,
 
 				break;
 			}
+		}
+
+		if(!key_found)
+		{
+			throw std::runtime_error("Key not found in header in load_table_columns.");
 		}
 	}
 
