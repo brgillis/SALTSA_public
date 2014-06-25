@@ -1019,7 +1019,7 @@ const int solve_MCMC( const f * func, const T init_in_param, const T init_min_in
 		}
 		else
 		{
-			in_param_step_sigma = 1; // Default behavior
+			in_param_step_sigma = 1; // Default behaviour
 		}
 	}
 	else
@@ -1102,7 +1102,7 @@ const int solve_MCMC( const f * func, const T init_in_param, const T init_min_in
 			annealing *= annealing_factor;
 
 			// Recalculate likelihood
-			last_likelihood = std::exp(-annealing*out_param/2);
+			last_likelihood = std::pow(last_likelihood,annealing_factor);
 
 			// Check if we're going into the last cycle
 			if(max_steps-step<=annealing_period)
@@ -1155,7 +1155,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 		const std::vector<T> & init_min_in_params,
 		const std::vector<T> & init_max_in_params,
 		const std::vector<T> & init_in_param_step_sigmas,
-		std::vector<T> & result_in_param, std::vector<T> & result_out_param, const int max_steps=1000000,
+		std::vector<T> & result_in_params, std::vector<T> & result_out_param, const int max_steps=1000000,
 		const int annealing_period=100000, const double annealing_factor=4,
 		const bool silent = false)
 {
@@ -1211,7 +1211,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 			}
 			else
 			{
-				init_in_param_step_sigmas.at(i) = 1; // Default behavior
+				init_in_param_step_sigmas.at(i) = 1; // Default behaviour
 			}
 		}
 	}
@@ -1222,41 +1222,48 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 	std::vector<T> current_in_params = init_in_params, test_in_params = init_in_params,
 			best_in_params = init_in_params;
 	std::vector<T> out_params, best_out_params;
-	std::vector<T> mean_in_params = 0;
+	std::vector<T> mean_in_params(min_in_params.size(),0);
 	int last_cycle_count = 0;
 
 	// Get value at initial point
 	if(func(test_in_params, out_params, silent))
 		throw std::runtime_error("Cannot execute solve_MCMC at initial point.");
 	best_out_params = out_params;
-	double last_likelihood = std::exp(-annealing*out_param/2);
+	double last_likelihood = brgastro::product( brgastro::exp(
+			brgastro::negate(brgastro::multiply(annealing/2,out_params))));
 
 	for(unsigned int step = 0; step < max_steps; step++)
 	{
 		// Get a new value
-		test_in_param = current_in_param + in_param_step_sigma*brgastro::Gaus_rand()/annealing;
+		test_in_params = brgastro::rand_vector(brgastro::Gaus_rand(),
+				                               current_in_params,
+				                               brgastro::divide(in_param_step_sigmas,annealing));
 
 		// Check if it's in bounds
 		if(bounds_check)
-			test_in_param = brgastro::bound(min_in_param,test_in_param,max_in_param);
+		{
+			test_in_params = brgastro::apply(brgastro::min,test_in_params,max_in_params);
+			test_in_params = brgastro::apply(brgastro::max,test_in_params,min_in_params);
+		}
 
 		// Find the result for this value
 		bool good_result = true;
 		try
 		{
-			if(func(test_in_param, out_param, silent))
+			if(func(test_in_params, out_params, silent))
 				good_result = false;
 		}
 		catch(std::exception &e)
 		{
 			good_result = false;
 		}
-		double new_likelihood = std::exp(-annealing*out_param/2);
+		double new_likelihood = brgastro::product( brgastro::exp(
+				brgastro::negate(brgastro::multiply(annealing/2,out_params))));
 
 		// If it's usable, check if we should step to it
+		bool step_to_it = false;
 		if(good_result)
 		{
-			bool step_to_it = false;
 			if(new_likelihood>=last_likelihood)
 			{
 				step_to_it = true;
@@ -1269,13 +1276,13 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 			if(step_to_it)
 			{
 				last_likelihood = new_likelihood;
-				current_in_param = test_in_param;
+				current_in_params = test_in_params;
 
 				// Check if we have a new best point
-				if(out_param < best_out_param)
+				if(brgastro::sum(out_params) < brgastro::sum(best_out_params))
 				{
-					best_out_param = out_param;
-					best_in_param = current_in_param;
+					best_out_params = out_params;
+					best_in_params = current_in_params;
 				}
 			}
 		}
@@ -1283,7 +1290,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 		// If we're on the last cycle, add to the mean
 		if(last_cycle)
 		{
-			mean_in_param += current_in_param;
+			mean_in_params = brgastro::add(mean_in_params,current_in_params);
 			last_cycle_count += 1;
 		}
 
@@ -1292,7 +1299,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 			annealing *= annealing_factor;
 
 			// Recalculate likelihood
-			last_likelihood = std::exp(-annealing*out_param/2);
+			last_likelihood = std::pow(last_likelihood,annealing_factor);
 
 			// Check if we're going into the last cycle
 			if(max_steps-step<=annealing_period)
@@ -1301,16 +1308,16 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 	} // for(unsigned int step = 0; step < max_steps; step++)
 
 	// Calculate mean now
-	mean_in_param /= last_cycle_count;
+	mean_in_params = brgastro::divide(mean_in_params,brgastro::safe_d(last_cycle_count));
 
 	// Check if mean actually gives a better best
 	try
 	{
-		if(!(func(mean_in_param,out_param,silent)))
+		if(!(func(mean_in_params,out_params,silent)))
 		{
-			if(out_param < best_out_param)
+			if(brgastro::sum(out_params) < brgastro::sum(best_out_params))
 			{
-				best_in_param = mean_in_param;
+				best_in_params = mean_in_params;
 			}
 		}
 	}
@@ -1319,7 +1326,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 		// Just leave it, no need to do anything
 	}
 
-	result_in_param = best_in_param;
+	result_in_params = best_in_params;
 
 	return 0;
 }
