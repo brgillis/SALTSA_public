@@ -923,22 +923,22 @@ public:
 
 	// Default integration parameters
 #if(1)
-	static const int & default_spline_resolution() const {return _default_spline_resolution_;}
-	static const double & default_v_0() const {return _default_v_0_;}
-	static const double & default_r_0() const {return _default_r_0_;}
-	static const double & default_step_length_power() const {return _default_step_length_power_;}
-	static const double & default_step_factor_max() const {return _default_step_factor_max_;}
-	static const double & default_step_factor_min() const {return _default_step_factor_min_;}
+	static const int & default_spline_resolution() {return _default_spline_resolution_;}
+	static const double & default_v_0() {return _default_v_0_;}
+	static const double & default_r_0() {return _default_r_0_;}
+	static const double & default_step_length_power() {return _default_step_length_power_;}
+	static const double & default_step_factor_max() {return _default_step_factor_max_;}
+	static const double & default_step_factor_min() {return _default_step_factor_min_;}
 #endif
 
 	// Default tuning parameters
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
-	static const double & default_tidal_stripping_amplification() const {return _default_tidal_stripping_amplification_;}
-	static const double & default_tidal_stripping_acceleration() const {return _default_tidal_stripping_acceleration_;}
-	static const double & default_tidal_shocking_amplification() const {return _default_tidal_shocking_amplification_;}
-	static const double & default_tidal_shocking_persistance() const {return _default_tidal_shocking_persistance_;}
-	static const double & default_tidal_shocking_power() const {return _default_tidal_shocking_power_;}
+	static const double & default_tidal_stripping_amplification() {return _default_tidal_stripping_amplification_;}
+	static const double & default_tidal_stripping_acceleration() {return _default_tidal_stripping_acceleration_;}
+	static const double & default_tidal_shocking_amplification() {return _default_tidal_shocking_amplification_;}
+	static const double & default_tidal_shocking_persistance() {return _default_tidal_shocking_persistance_;}
+	static const double & default_tidal_shocking_power() {return _default_tidal_shocking_power_;}
 #endif
 
 
@@ -1223,8 +1223,6 @@ public:
 
 	// Functions for determining how calc() will be called
 	const int set_record_full_data( const bool new_record_full_data ) const;
-	const int set_resolution( const int new_resolution, const bool silent =
-			false );
 
 	// Function to calculate stripping
 	const int calc( const bool silent = false ) const;
@@ -1282,6 +1280,17 @@ public:
 	const density_profile * init_host_ptr() const {return _init_host_ptr_;};
 	const BRG_TIME & t_min_natural_value() const {return _t_min_natural_value_;};
 #endif
+
+	// Calculation assistance functions
+	const double tidal_strip_retained( const density_profile *host,
+			const density_profile *satellite, const BRG_DISTANCE &r,
+			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
+			const BRG_TIME &time_step, const BRG_UNITS &sum_rho = 0 ) const;
+	const BRG_DISTANCE get_rt( const density_profile *host,
+			const density_profile *satellite, const BRG_DISTANCE &r,
+			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
+			const BRG_TIME &time_step, const BRG_UNITS &sum_rho,
+			const bool silent = false ) const;
 
 	// Get final data (returns 1 on error)
 	const int get_final_mret( BRG_MASS & mret,
@@ -1358,20 +1367,6 @@ public:
 };
 
 #endif // end class definitions
-
-#if (1) // Global function declarations
-
-const double tidal_strip_retained( const density_profile *host,
-		const density_profile *satellite, const BRG_DISTANCE &r,
-		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const BRG_UNITS &sum_rho = 0 );
-const BRG_DISTANCE get_rt( const density_profile *host,
-		const density_profile *satellite, const BRG_DISTANCE &r,
-		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const BRG_UNITS &sum_rho,
-		const bool silent = false );
-
-#endif // end global function declarations
 
 } // end namespace brgastro
 
