@@ -1224,7 +1224,8 @@ const BRG_DISTANCE brgastro::point_mass_profile::rs() const
 {
 	return 0;
 }
-const BRG_DISTANCE brgastro::point_mass_profile::rt() const
+const BRG_DISTANCE brgastro::point_mass_profile::rt(
+		const bool silent) const
 {
 	return 0;
 }
@@ -1248,7 +1249,8 @@ const BRG_UNITS brgastro::point_mass_profile::dens(
 	return result;
 }
 const BRG_UNITS brgastro::point_mass_profile::proj_dens(
-		const BRG_DISTANCE &r ) const
+		const BRG_DISTANCE &r,
+		const bool silent ) const
 {
 #ifdef _BRG_USE_UNITS_
 	BRG_UNITS result(0,-2,0,1,0,0,0);
@@ -1261,22 +1263,26 @@ const BRG_UNITS brgastro::point_mass_profile::proj_dens(
 	return result;
 }
 const BRG_UNITS brgastro::point_mass_profile::enc_dens(
-		const BRG_DISTANCE &r ) const
+		const BRG_DISTANCE &r,
+		const bool silent ) const
 {
 	return enc_mass( r ) / ( 4. / 3. * pi * std::pow( r, 3 ) );
 }
 const BRG_MASS brgastro::point_mass_profile::enc_mass(
-		const BRG_DISTANCE &r ) const
+		const BRG_DISTANCE &r,
+		const bool silent ) const
 {
 	return _mass_;
 }
 const BRG_UNITS brgastro::point_mass_profile::proj_enc_dens(
-		const BRG_DISTANCE &r ) const
+		const BRG_DISTANCE &r,
+		const bool silent ) const
 {
 	return proj_enc_mass( r ) / ( pi * r * r );
 }
 const BRG_MASS brgastro::point_mass_profile::proj_enc_mass(
-		const BRG_DISTANCE &r ) const
+		const BRG_DISTANCE &r,
+		const bool silent ) const
 {
 	return _mass_;
 }

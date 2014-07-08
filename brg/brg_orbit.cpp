@@ -4162,9 +4162,13 @@ const double brgastro::tidal_strip_retained( const density_profile *host_group,
 		const BRG_TIME &time_step, const BRG_UNITS &sum_rho )
 {
 	BRG_DISTANCE new_rt;
-	BRG_TIME period;
+	BRG_TIME inst_orbital_period, hm_period, stripping_period;
 	double mass_frac_retained, mass_frac_lost_total;
-	period = 2 * pi * r / vt;
+	inst_orbital_period = 2 * pi * r / vt;
+	hm_period = satellite->othm();
+
+	stripping_period = inst_orbital_period *
+			std::pow(inst_orbital_period/safe_d(hm_period), tidal_stripping_acceleration);
 
 	new_rt = get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
 
@@ -4178,7 +4182,7 @@ const double brgastro::tidal_strip_retained( const density_profile *host_group,
 	mass_frac_retained = max(
 			min(
 					1
-							- mass_frac_lost_total * time_step / period
+							- mass_frac_lost_total * time_step / stripping_period
 									* tidal_stripping_amplification, 1 ), 0 );
 
 	return mass_frac_retained;

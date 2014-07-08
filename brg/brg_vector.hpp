@@ -16,6 +16,7 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <functional>
 
 namespace brgastro {
 
@@ -26,7 +27,7 @@ namespace brgastro {
 #if (1)
 
 template< typename f, typename T >
-const std::vector<T> apply( const f * func, const std::vector<T> & v1 )
+const std::vector<T> apply( const f func, const std::vector<T> & v1 )
 {
 	std::vector<T> result(v1.size());
 
@@ -36,7 +37,7 @@ const std::vector<T> apply( const f * func, const std::vector<T> & v1 )
 }
 
 template< typename f, typename T1, typename T2 >
-const std::vector<T1> apply( const f * func, const std::vector<T1> & v1, const std::vector<T2> &v2 )
+const std::vector<T1> apply( const f func, const std::vector<T1> & v1, const std::vector<T2> &v2 )
 {
 	std::vector<T1> result(v1.size());
 
@@ -46,7 +47,7 @@ const std::vector<T1> apply( const f * func, const std::vector<T1> & v1, const s
 }
 
 template< typename f, typename T1, typename T2 >
-const std::vector<T1> apply( const f * func, const T1 & v1, const std::vector<T2> &v2 )
+const std::vector<T1> apply( const f func, const T1 & v1, const std::vector<T2> &v2 )
 {
 	std::vector<T1> result(v2.size());
 
@@ -56,7 +57,7 @@ const std::vector<T1> apply( const f * func, const T1 & v1, const std::vector<T2
 }
 
 template< typename f, typename T1, typename T2 >
-const std::vector<T1> apply( const f * func, const std::vector<T1> & v1, const T2 &v2 )
+const std::vector<T1> apply( const f func, const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<T1> result(v1.size());
 
@@ -79,7 +80,7 @@ const T1 apply( const f * func, const T1 & v1, const T2 &v2 )
 #if (1)
 
 template<typename T, typename f>
-const std::vector<T> rand_vector_of_size(const f * func, const int size)
+const std::vector<T> rand_vector_of_size(const f func, const int size)
 {
 	std::vector<T> result(size);
 
@@ -88,60 +89,60 @@ const std::vector<T> rand_vector_of_size(const f * func, const int size)
 	return result;
 }
 
-template<typename T, typename f, typename T1>
-const std::vector<T> rand_vector_of_size(const f * func, const T1 & v1, const int size)
+template<typename f, typename T1>
+const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const int size)
 {
-	std::vector<T> result(size);
+	std::vector<T1> result(size);
 
 	for(unsigned int i = 0; i < size; i++) result[i] = func(v1);
 
 	return result;
 }
 
-template<typename T, typename f, typename T1, typename T2>
-const std::vector<T> rand_vector_of_size(const f * func, const T1 & v1, const T2 & v2, const int size)
+template<typename f, typename T1, typename T2>
+const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const T2 & v2, const int size)
 {
-	std::vector<T> result(size);
+	std::vector<T1> result(size);
 
 	for(unsigned int i = 0; i < size; i++) result[i] = func(v1,v2);
 
 	return result;
 }
 
-template<typename T, typename f, typename T1>
-const std::vector<T> rand_vector(const f * func, const std::vector<T1> & v1)
+template<typename f, typename T1>
+const std::vector<T1> rand_vector(const f func, const std::vector<T1> & v1)
 {
-	std::vector<T> result(v1.size());
+	std::vector<T1> result(v1.size());
 
 	for(unsigned int i = 0; i < v1.size(); i++) result[i] = func(v1[i]);
 
 	return result;
 }
 
-template<typename T, typename f, typename T1, typename T2>
-const std::vector<T> rand_vector(const f * func, const std::vector<T1> & v1, const std::vector<T2> & v2)
+template<typename f, typename T1, typename T2>
+const std::vector<T1> rand_vector(const f func, const std::vector<T1> & v1, const std::vector<T2> & v2)
 {
-	std::vector<T> result(v1.size());
+	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++) result[i] = func(v1[i],v2.at(i));
+	for(unsigned int i = 0; i < v1.size(); i++) result[i] = (func)(v1[i],v2.at(i));
 
 	return result;
 }
 
-template<typename T, typename f, typename T1, typename T2>
-const std::vector<T> rand_vector(const f * func, const std::vector<T1> & v1, const T2 & v2)
+template<typename f, typename T1, typename T2>
+const std::vector<T1> rand_vector(const f func, const std::vector<T1> & v1, const T2 & v2)
 {
-	std::vector<T> result(v1.size());
+	std::vector<T1> result(v1.size());
 
 	for(unsigned int i = 0; i < v1.size(); i++) result[i] = func(v1[i],v2);
 
 	return result;
 }
 
-template<typename T, typename f, typename T1, typename T2>
-const std::vector<T> rand_vector(const f * func, const T1 & v1, const std::vector<T2> & v2)
+template<typename f, typename T1, typename T2>
+const std::vector<T1> rand_vector(const f func, const T1 & v1, const std::vector<T2> & v2)
 {
-	std::vector<T> result(v2.size());
+	std::vector<T1> result(v2.size());
 
 	for(unsigned int i = 0; i < v2.size(); i++) result[i] = func(v1,v2[i]);
 
@@ -158,7 +159,10 @@ const std::vector<T1> add( const std::vector<T1> & v1, const std::vector<T2> &v2
 {
 	std::vector<T1> result(v1.size());
 
-	std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), std::operator+ );
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = v1[i] + v2.at(i);
+	}
 
 	return result;
 }
@@ -168,7 +172,7 @@ const std::vector<T1> add( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i <= v1.size(); i++)
+	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		result[i] = v1[i] + v2;
 	}
@@ -181,7 +185,7 @@ const std::vector<T1> add( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i <= v2.size(); i++)
+	for(unsigned int i = 0; i < v2.size(); i++)
 	{
 		result[i] = v2[i] + v1;
 	}
@@ -205,7 +209,10 @@ const std::vector<T1> subtract( const std::vector<T1> & v1, const std::vector<T2
 {
 	std::vector<T1> result(v1.size());
 
-	std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), std::operator- );
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = v1[i] - v2.at(i);
+	}
 
 	return result;
 }
@@ -215,7 +222,7 @@ const std::vector<T1> subtract( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i <= v1.size(); i++)
+	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		result[i] = v1[i] - v2;
 	}
@@ -228,7 +235,7 @@ const std::vector<T1> subtract( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i <= v2.size(); i++)
+	for(unsigned int i = 0; i < v2.size(); i++)
 	{
 		result[i] = v1 - v2[i];
 	}
@@ -252,7 +259,10 @@ const std::vector<T1> multiply( const std::vector<T1> & v1, const std::vector<T2
 {
 	std::vector<T1> result(v1.size());
 
-	std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), std::operator* );
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = v1[i] * v2.at(i);
+	}
 
 	return result;
 }
@@ -262,7 +272,7 @@ const std::vector<T1> multiply( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i <= v1.size(); i++)
+	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		result[i] = v1[i] * v2;
 	}
@@ -275,7 +285,7 @@ const std::vector<T1> multiply( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i <= v2.size(); i++)
+	for(unsigned int i = 0; i < v2.size(); i++)
 	{
 		result[i] = v2[i] * v1;
 	}
@@ -299,7 +309,10 @@ const std::vector<T1> divide( const std::vector<T1> & v1, const std::vector<T2> 
 {
 	std::vector<T1> result(v1.size());
 
-	std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), std::operator/);
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = v1[i] / v2.at(i);
+	}
 
 	return result;
 }
@@ -309,7 +322,7 @@ const std::vector<T1> divide( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i <= v1.size(); i++)
+	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		result[i] = v1[i] / v2;
 	}
@@ -322,7 +335,7 @@ const std::vector<T1> divide( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i <= v2.size(); i++)
+	for(unsigned int i = 0; i < v2.size(); i++)
 	{
 		result[i] = v1 / v2[i];
 	}
@@ -346,7 +359,10 @@ const std::vector<T1> pow( const std::vector<T1> & v1, const std::vector<T2> &v2
 {
 	std::vector<T1> result(v1.size());
 
-	std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), std::pow<T1,T2>);
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = std::pow(v1[i], v2.at(i));
+	}
 
 	return result;
 }
@@ -356,7 +372,7 @@ const std::vector<T1> pow( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i <= v1.size(); i++)
+	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		result[i] = pow(v1[i], v2);
 	}
@@ -369,7 +385,7 @@ const std::vector<T1> pow( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i <= v2.size(); i++)
+	for(unsigned int i = 0; i < v2.size(); i++)
 	{
 		result[i] = pow(v1, v2[i]);
 	}
@@ -380,7 +396,7 @@ const std::vector<T1> pow( const T2 & v1, const std::vector<T1> &v2 )
 template< typename T1, typename T2 >
 const T1 pow( const T1 & v1, const T2 & v2 )
 {
-	return pow(v1, v2);
+	return std::pow(v1, v2);
 }
 
 #endif // Element-wise power
@@ -393,7 +409,10 @@ const std::vector<T> negate( const std::vector<T> & v )
 {
 	std::vector<T> result(v.size(),0);
 
-	std::transform(v.begin(), v.end(), result.begin(), std::operator-);
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		result[i] = -v[i];
+	}
 
 	return result;
 }
@@ -414,7 +433,10 @@ const std::vector<T> abs( const std::vector<T> & v )
 {
 	std::vector<T> result(v.size(),0);
 
-	std::transform(v.begin(), v.end(), result.begin(), std::abs<T>);
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		result[i] = std::abs(v[i]);
+	}
 
 	return result;
 }
@@ -435,7 +457,10 @@ const std::vector<T> sqrt( const std::vector<T> & v )
 {
 	std::vector<T> result(v.size(),0);
 
-	std::transform(v.begin(), v.end(), result.begin(), std::sqrt<T>);
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		result[i] = sqrt(v[i]);
+	}
 
 	return result;
 }
@@ -454,9 +479,10 @@ const T sqrt( const T & v )
 template< typename T >
 const std::vector<T> exp( const std::vector<T> & v )
 {
-	std::vector<T> result(v.size(),0);
+	std::vector<T> result(v.size());
 
-	std::transform(v.begin(), v.end(), result.begin(), std::exp<T>);
+	for(unsigned int i = 0; i < v.size(); i++)
+		result[i] = std::exp(v[i]);
 
 	return result;
 }

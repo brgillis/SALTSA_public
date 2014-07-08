@@ -1432,39 +1432,44 @@ public:
 #endif // End set functions
 
 #if (1) // Basic get functions
-	virtual const BRG_MASS mass() const;
+	const BRG_MASS mass() const;
 
-	virtual const BRG_MASS hmvir() const;
-	virtual const BRG_MASS mvir() const;
-	virtual const BRG_MASS mtot() const;
+	const BRG_MASS hmvir() const;
+	const BRG_MASS mvir() const;
+	const BRG_MASS mtot() const;
 
-	virtual const BRG_DISTANCE rvir() const;
-	virtual const BRG_DISTANCE rt() const;
-	virtual const BRG_DISTANCE rs() const;
+	const BRG_DISTANCE rvir() const;
+	const BRG_DISTANCE rt(const bool silent = false) const;
+	const BRG_DISTANCE rs() const;
 
-	virtual const BRG_VELOCITY vvir() const;
+	const BRG_VELOCITY vvir() const;
 
 #endif // end basic get functions
 
 #if (1) // advanced get functions
-	virtual const BRG_UNITS dens( const BRG_DISTANCE &r ) const;
-	virtual const BRG_UNITS proj_dens( const BRG_DISTANCE &R ) const;
-	virtual const BRG_UNITS enc_dens( const BRG_DISTANCE &r ) const;
-	virtual const BRG_MASS enc_mass( const BRG_DISTANCE &r ) const;
-	virtual const BRG_UNITS proj_enc_dens( const BRG_DISTANCE &R ) const;
-	virtual const BRG_MASS proj_enc_mass( const BRG_DISTANCE &R ) const;
+	const BRG_UNITS dens( const BRG_DISTANCE &r ) const;
+	const BRG_UNITS proj_dens( const BRG_DISTANCE &R,
+			const bool silent = false ) const;
+	const BRG_UNITS enc_dens( const BRG_DISTANCE &r,
+			const bool silent = false ) const;
+	const BRG_MASS enc_mass( const BRG_DISTANCE &r, const bool silent =
+				true ) const; // Mass enclosed with sphere of radius r
+	const BRG_UNITS proj_enc_dens( const BRG_DISTANCE &R,
+			const bool silent = false ) const;
+	const BRG_MASS proj_enc_mass( const BRG_DISTANCE &R,
+			const bool silent = false ) const;
 	const int get_parameters( int & num_parameters,
 			std::vector< BRG_UNITS > & parameters,
 			const bool silent = false ) const;
 
-	virtual const int get_parameter_names( int & num_parameters,
+	const int get_parameter_names( int & num_parameters,
 			std::vector< std::string > & parameter_names, const bool silent =
 					false ) const;
 #endif // end advanced get functions
 
 #if (1) // Other operations
 
-	virtual const int truncate_to_fraction( const double fraction,
+	const int truncate_to_fraction( const double fraction,
 			bool silent = false );
 	virtual density_profile *density_profile_clone() const
 	{

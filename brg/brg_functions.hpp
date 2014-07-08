@@ -149,6 +149,7 @@ inline T & max_ref( T &a, T &b )
 // Returns true if a is evenly divisible by b
 inline const bool divisible( const int a, const int b )
 {
+	if(b==0) return false;
 	return ( a % b == 0 );
 }
 

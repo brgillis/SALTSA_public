@@ -252,12 +252,18 @@ namespace brgastro
 #define __ORBIT_VARS_DEFINED__
 
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-// const double tidal_stripping_amplification = 0.75; // Tuned to match Kamiab's OrbitC
-// const double tidal_shocking_amplification = 1.5; // Tuned to match Kamiab's OrbitC
-const double tidal_stripping_amplification = 1; // From Taylor
-const double tidal_shocking_amplification = 3; // From Taylor
-const double tidal_shocking_persistance = 1; // How long shocking is active for
-const double tidal_shocking_power = -2.5; // Taken from Kamiab
+//const double tidal_stripping_amplification = 1; // Kamiab
+//const double tidal_stripping_acceleration = 0; // Kamiab
+//const double tidal_shocking_amplification = 3.4; // Kamiab
+//const double tidal_stripping_amplification = 1; // From Taylor
+//const double tidal_stripping_acceleration = 0; // From Taylor
+//const double tidal_shocking_amplification = 3; // From Taylor
+const double tidal_stripping_amplification = 0.6; // Tuned
+const double tidal_stripping_acceleration = -0.125; // Tuned
+const double tidal_shocking_amplification = 3.0; // Tuned
+const double tidal_shocking_persistance = 1.0; // How long shocking is active for
+const double tidal_shocking_power = -1.5; // From Taylor
+//const double tidal_shocking_power = -2.5; // From Kamiab
 
 // Integration parameters
 const int default_spline_resolution = 100; // Default number of steps for which stripping is calculated
@@ -270,7 +276,7 @@ const double default_v_0 = 400 * unitconv::kmpstomps; // 400 km/s
 const double default_r_0 = 400 * unitconv::kpctom; // 400 kpc
 const double step_length_power = 1.5;
 const double step_factor_max = 10; // Maximum allowed value of (v_0/v)^(step_length_power)
-const double step_factor_min = 0.1; // Minimum allowed value of (v_0/v)^(step_length_power)
+const double step_factor_min = 0.01; // Minimum allowed value of (v_0/v)^(step_length_power)
 
 #endif
 
