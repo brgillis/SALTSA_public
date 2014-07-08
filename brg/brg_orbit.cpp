@@ -1058,7 +1058,7 @@ const int brgastro::stripping_orbit::clear_init_host()
 // Setting default integration parameters
 #if(1)
 const int brgastro::stripping_orbit::set_default_resolution( const int new_default_resolution,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1078,7 +1078,7 @@ const int brgastro::stripping_orbit::set_default_resolution( const int new_defau
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1098,7 +1098,7 @@ const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1119,7 +1119,7 @@ const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r
 }
 const int brgastro::stripping_orbit::set_default_step_length_power(
 		const double new_default_step_length_power,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1132,7 +1132,7 @@ const int brgastro::stripping_orbit::set_default_step_length_power(
 }
 const int brgastro::stripping_orbit::set_default_step_factor_max(
 		const double new_default_step_factor_max,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1153,7 +1153,7 @@ const int brgastro::stripping_orbit::set_default_step_factor_max(
 }
 const int brgastro::stripping_orbit::set_default_step_factor_min(
 		const double new_default_step_factor_min,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1179,7 +1179,7 @@ const int brgastro::stripping_orbit::set_default_step_factor_min(
 
 const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 		const double new_default_tidal_stripping_amplification,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1200,7 +1200,7 @@ const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 }
 const int brgastro::stripping_orbit::set_default_tidal_stripping_acceleration(
 		const double new_default_tidal_stripping_acceleration,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1213,7 +1213,7 @@ const int brgastro::stripping_orbit::set_default_tidal_stripping_acceleration(
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
 		const double new_default_tidal_shocking_amplification,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1235,7 +1235,7 @@ const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
 		const double new_default_tidal_shocking_persistance,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1257,7 +1257,7 @@ const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_power(
 		const double new_default_tidal_shocking_power,
-		const bool override_current=true,
+		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -1915,6 +1915,8 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					}
 				}
 				last_good_segment = i;
+
+				// Pass parameters to the segment
 				if ( _orbit_segments_.at( i ).set_init_satellite(
 						temp_satellite ) )
 					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
@@ -1924,15 +1926,41 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 				if ( _orbit_segments_.at( i ).set_resolution(
 						segment_resolutions.at( i ) ) )
 					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_v_0(
+						_v_0_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_r_0(
+						_r_0_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_step_length_power(
+						_step_length_power_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_step_factor_min(
+						_step_factor_min_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_step_factor_max(
+						_step_factor_max_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_tidal_stripping_amplification(
+						_tidal_stripping_amplification_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_tidal_stripping_acceleration(
+						_tidal_stripping_acceleration_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_tidal_shocking_amplification(
+						_tidal_shocking_amplification_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_tidal_shocking_persistance(
+						_tidal_shocking_persistance_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+				if ( _orbit_segments_.at( i ).set_tidal_shocking_power(
+						_tidal_shocking_power_ ) )
+					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
 				if ( _orbit_segments_.at( i ).set_record_full_data(
 						_record_full_data_ ) )
 					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
 				if ( _orbit_segments_.at( i ).calc() )
 				{
-					if ( !silent )
-						std::cerr
-								<< "ERROR: Could not calculate stripping for orbit segment.\n";
-					std::cerr.flush();
 					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
 				}
 				if (_orbit_segments_.at( i ).bad_result() )
@@ -2357,6 +2385,26 @@ const int brgastro::stripping_orbit_segment::_init()
 brgastro::stripping_orbit_segment::stripping_orbit_segment(
 		const stripping_orbit_segment &other_orbit_spline )
 {
+
+	// Integration parameters
+#if(1)
+	_spline_resolution_ = other_orbit_spline._spline_resolution_;
+	_v_0_ = other_orbit_spline._v_0_;
+	_r_0_ = other_orbit_spline._r_0_;
+	_step_length_power_ = other_orbit_spline._step_length_power_;
+	_step_factor_max_ = other_orbit_spline._step_factor_max_;
+	_step_factor_min_ = other_orbit_spline._step_factor_min_;
+#endif
+
+	// Tuning values
+#if(1)
+	_tidal_stripping_amplification_ = other_orbit_spline._tidal_stripping_amplification_;
+	_tidal_stripping_acceleration_ = other_orbit_spline._tidal_stripping_acceleration_;
+	_tidal_shocking_amplification_ = other_orbit_spline._tidal_shocking_amplification_;
+	_tidal_shocking_persistance_ = other_orbit_spline._tidal_shocking_persistance_;
+	_tidal_shocking_power_ = other_orbit_spline._tidal_shocking_power_;
+#endif
+
 	_rt_list_ = other_orbit_spline._rt_list_;
 	_rt_ratio_list_ = other_orbit_spline._rt_ratio_list_;
 	_delta_rho_list_ = other_orbit_spline._delta_rho_list_;
@@ -2383,7 +2431,6 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	_sum_gabdt_list_ = other_orbit_spline._sum_gabdt_list_;
 	_phase_list_ = other_orbit_spline._phase_list_;
 	_phase_output_list_ = other_orbit_spline._phase_output_list_;
-	_resolution_ = other_orbit_spline._resolution_;
 	_record_full_data_ = other_orbit_spline._record_full_data_;
 	_x_spline_ = other_orbit_spline._x_spline_;
 	_y_spline_ = other_orbit_spline._y_spline_;
@@ -2450,6 +2497,25 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 	{
 		clear();
 
+		// Integration parameters
+#if(1)
+		_spline_resolution_ = other_orbit_spline._spline_resolution_;
+		_v_0_ = other_orbit_spline._v_0_;
+		_r_0_ = other_orbit_spline._r_0_;
+		_step_length_power_ = other_orbit_spline._step_length_power_;
+		_step_factor_max_ = other_orbit_spline._step_factor_max_;
+		_step_factor_min_ = other_orbit_spline._step_factor_min_;
+#endif
+
+	// Tuning parameters
+#if(1)
+		_tidal_stripping_amplification_ = other_orbit_spline._tidal_stripping_amplification_;
+		_tidal_stripping_acceleration_ = other_orbit_spline._tidal_stripping_acceleration_;
+		_tidal_shocking_amplification_ = other_orbit_spline._tidal_shocking_amplification_;
+		_tidal_shocking_persistance_ = other_orbit_spline._tidal_shocking_persistance_;
+		_tidal_shocking_power_ = other_orbit_spline._tidal_shocking_power_;
+#endif
+
 		_rt_list_ = other_orbit_spline._rt_list_;
 		_rt_ratio_list_ = other_orbit_spline._rt_ratio_list_;
 		_delta_rho_list_ = other_orbit_spline._delta_rho_list_;
@@ -2478,7 +2544,6 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 		_sum_gabdt_list_ = other_orbit_spline._sum_gabdt_list_;
 		_phase_list_ = other_orbit_spline._phase_list_;
 		_phase_output_list_ = other_orbit_spline._phase_output_list_;
-		_resolution_ = other_orbit_spline._resolution_;
 		_record_full_data_ = other_orbit_spline._record_full_data_;
 		_x_spline_ = other_orbit_spline._x_spline_;
 		_y_spline_ = other_orbit_spline._y_spline_;
@@ -2549,7 +2614,7 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	_init();
 	_init_host_ptr_ = init_init_host;
 	_init_satellite_ptr_ = init_init_satellite;
-	_resolution_ = init_resolution;
+	_spline_resolution_ = init_resolution;
 	_current_satellite_ptr_ = _init_satellite_ptr_->density_profile_clone();
 	_current_satellite_in_use_ = true;
 	_current_host_ptr_ = _init_host_ptr_->density_profile_clone();
@@ -2580,6 +2645,26 @@ const int brgastro::stripping_orbit_segment::clear()
 {
 	clear_calcs();
 
+	// Integration parameters
+#if(1)
+	_spline_resolution_ = brgastro::stripping_orbit::default_spline_resolution();
+	_v_0_ = brgastro::stripping_orbit::default_spline_resolution();
+	_r_0_ = brgastro::stripping_orbit::default_spline_resolution();
+	_step_length_power_ = brgastro::stripping_orbit::default_spline_resolution();
+	_step_factor_max_ = brgastro::stripping_orbit::default_spline_resolution();
+	_step_factor_min_ = brgastro::stripping_orbit::default_spline_resolution();
+#endif
+
+	// Tuning values
+#if(1)
+	_tidal_stripping_amplification_ = brgastro::stripping_orbit::default_tidal_shocking_amplification();
+	_tidal_stripping_acceleration_ = brgastro::stripping_orbit::default_tidal_stripping_acceleration();
+	_tidal_shocking_amplification_ = brgastro::stripping_orbit::default_tidal_shocking_amplification();
+	_tidal_shocking_persistance_ = brgastro::stripping_orbit::default_tidal_shocking_persistance();
+	_tidal_shocking_power_ = brgastro::stripping_orbit::default_tidal_shocking_power();
+#endif
+
+
 	_phase_list_.clear();
 
 	_x_data_.clear();
@@ -2608,7 +2693,6 @@ const int brgastro::stripping_orbit_segment::clear()
 	_t_min_natural_value_ = DBL_MAX;
 	_t_max_natural_value_ = ( -DBL_MAX );
 	_num_parameters_ = 0;
-	_resolution_ = default_spline_resolution;
 	_record_full_data_ = false;
 
 	_init_sum_delta_rho_ = 0;
@@ -2654,6 +2738,200 @@ const int brgastro::stripping_orbit_segment::clear_calcs() const
 	_bad_result_ = false;
 	return 0;
 }
+
+// Setting integration parameters
+#if(1)
+const int brgastro::stripping_orbit::set_resolution( const int new_resolution,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_resolution == _spline_resolution_ )
+		return 0;
+
+	if ( new_resolution < 2 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set resolution to value below minimum of 2.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	clear_calcs();
+	_spline_resolution_ = new_resolution;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_v_0( const double new_v_0,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_v_0 == _v_0_ )
+		return 0;
+
+	if ( new_v_0 <= 0 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set v_0 to value at or below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	clear_calcs();
+	_v_0_ = new_v_0;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_r_0( const double new_r_0,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_r_0 == _r_0_ )
+		return 0;
+
+	if ( new_r_0 <= 0 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set r_0 to value at or below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	clear_calcs();
+	_r_0_ = new_r_0;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_step_length_power( const double new_step_length_power,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_step_length_power == _step_length_power_ )
+		return 0;
+
+	clear_calcs();
+	_step_length_power_ = new_step_length_power;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_step_factor_max( const double new_step_factor_max,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_step_factor_max == _step_factor_max_ )
+		return 0;
+
+	if ( new_step_factor_max < 1 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set step_factor_max to value below minimum of 1.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	clear_calcs();
+	_step_factor_max_ = new_step_factor_max;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_step_factor_min( const double new_step_factor_min,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_step_factor_min == _step_factor_min_ )
+		return 0;
+
+	if ( new_step_factor_min > 1 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set step_factor_min to value above minimum of 1.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	clear_calcs();
+	_step_factor_min_ = new_step_factor_min;
+	return 0;
+}
+#endif
+
+// Setting tuning parameters
+#if(1)
+
+const int brgastro::stripping_orbit::set_tidal_stripping_amplification(
+		const double new_tidal_stripping_amplification,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_stripping_amplification == _tidal_stripping_amplification_ )
+		return 0;
+
+	if ( new_tidal_stripping_amplification < 0 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set tidal_stripping_amplification to value below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+
+	clear_calcs();
+	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_tidal_stripping_acceleration(
+		const double new_tidal_stripping_acceleration,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_stripping_acceleration == _tidal_stripping_acceleration_ )
+		return 0;
+
+	clear_calcs();
+	_tidal_stripping_acceleration_ = new_tidal_stripping_acceleration;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_tidal_shocking_amplification(
+		const double new_tidal_shocking_amplification,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_shocking_amplification == _tidal_shocking_amplification_ )
+		return 0;
+
+	if ( new_tidal_shocking_amplification < 0 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set tidal_shocking_amplification to value below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+
+	clear_calcs();
+	_tidal_shocking_amplification_ = new_tidal_shocking_amplification;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_tidal_shocking_persistance(
+		const double new_tidal_shocking_persistance,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_shocking_persistance == _tidal_shocking_persistance_ )
+		return 0;
+
+	if ( new_tidal_shocking_persistance <= 0 )
+	{
+		if ( !silent )
+			std::cerr
+					<< "WARNING: Attempt to set tidal_shocking_persistance to value at or below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	clear_calcs();
+	_tidal_shocking_persistance_ = new_tidal_shocking_persistance;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_tidal_shocking_power(
+		const double new_tidal_shocking_power,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_shocking_power == _tidal_shocking_power_ )
+		return 0;
+
+	clear_calcs();
+	_tidal_shocking_power_ = new_tidal_shocking_power;
+	return 0;
+}
+#endif
+
 
 const int brgastro::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
 		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_TIME &t,
@@ -3302,24 +3580,6 @@ const int brgastro::stripping_orbit_segment::set_record_full_data(
 	_record_full_data_ = new_record_full_data;
 	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_resolution(
-		const int new_resolution, const bool silent )
-{
-	// Check if anything is actually changing here
-	if ( new_resolution == _resolution_ )
-		return 0;
-
-	clear_calcs();
-	if ( new_resolution < 2 )
-	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set resolution to value below minimum of 2.\n";
-		return INVALID_ARGUMENTS_ERROR;
-	}
-	_resolution_ = new_resolution;
-	return 0;
-}
 
 // Function to calculate stripping
 const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
@@ -3372,7 +3632,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 		t_max_to_use = _t_max_natural_value_;
 	}
 
-	t_step = ( t_max_to_use - t_min_to_use ) / _resolution_;
+	t_step = ( t_max_to_use - t_min_to_use ) / _spline_resolution_;
 	if ( t_step <= 0 )
 	{
 		if ( !silent )
@@ -3386,7 +3646,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 	current_deltarho = 0;
 
 	clear_calcs();
-	_reserve( 2 * _resolution_ + 1 );
+	_reserve( 2 * _spline_resolution_ + 1 );
 
 	// Setup
 
@@ -4751,7 +5011,7 @@ const int brgastro::gabdt_function::operator()(
 
 #endif // end class function definitions
 
-/** Function definitions **/
+// brgastro function definitions
 #if (1)
 const double brgastro::tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,

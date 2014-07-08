@@ -921,6 +921,27 @@ public:
 	// Accessors to private data
 #if(1)
 
+	// Default integration parameters
+#if(1)
+	static const int & default_spline_resolution() const {return _default_spline_resolution_;}
+	static const double & default_v_0() const {return _default_v_0_;}
+	static const double & default_r_0() const {return _default_r_0_;}
+	static const double & default_step_length_power() const {return _default_step_length_power_;}
+	static const double & default_step_factor_max() const {return _default_step_factor_max_;}
+	static const double & default_step_factor_min() const {return _default_step_factor_min_;}
+#endif
+
+	// Default tuning parameters
+#if(1)
+	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
+	static const double & default_tidal_stripping_amplification() const {return _default_tidal_stripping_amplification_;}
+	static const double & default_tidal_stripping_acceleration() const {return _default_tidal_stripping_acceleration_;}
+	static const double & default_tidal_shocking_amplification() const {return _default_tidal_shocking_amplification_;}
+	static const double & default_tidal_shocking_persistance() const {return _default_tidal_shocking_persistance_;}
+	static const double & default_tidal_shocking_power() const {return _default_tidal_shocking_power_;}
+#endif
+
+
 	// Integration parameters
 #if(1)
 	const int & spline_resolution() const {return _spline_resolution_;}
@@ -1023,6 +1044,33 @@ class stripping_orbit_segment
 
 	 \************************************************************/
 private:
+#if(1)
+
+	// Integration parameters
+#if(1)
+	int _spline_resolution_;
+
+	// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
+	// This gives smaller steps when the satellite is moving faster.
+	// If you want to turn off adaptive step size, set step_length_power to 0
+	// Alternatively, set step_length_power to 1 for even steps in position
+	double _v_0_; // 400 km/s
+	double _r_0_; // 400 kpc
+	double _step_length_power_; // How strongly variable step length is implemented
+	double _step_factor_max_; // Maximum allowed value of (v_0/v)^(step_length_power)
+	double _step_factor_min_; // Minimum allowed value of (v_0/v)^(step_length_power)
+#endif
+
+	// Tuning parameters
+#if(1)
+	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
+	double _tidal_stripping_amplification_; // Amplifies tidal stripping by this factor
+	double _tidal_stripping_acceleration_; // If positive, increase tidal stripping near pericentre,
+	  	  	  	  	  	  	  	  	  	   // if negative, decrease near pericentre
+	double _tidal_shocking_amplification_; // Amplifies tidal heating by this factor
+	double _tidal_shocking_persistance_; // How long shocking is active for
+	double _tidal_shocking_power_; // Affects interplay of stripping and satellite halo profile
+#endif
 
 	// Initial parameters
 	const density_profile *_init_host_ptr_, *_init_satellite_ptr_;
@@ -1033,7 +1081,6 @@ private:
 	// Global parameters
 	BRG_TIME _t_min_natural_value_, _t_max_natural_value_, _t_min_override_val_, _t_max_override_val_;
 	bool _override_t_min_, _override_t_max_;
-	int _resolution_;
 	mutable bool _record_full_data_;
 	bool _host_loaded_, _satellite_loaded_;
 	mutable bool _calculated_, _bad_result_, _current_satellite_in_use_,
@@ -1076,6 +1123,7 @@ private:
 			const BRG_TIME &t_step, const bool silent = false ) const;
 	const double _step_length_factor( const BRG_VELOCITY & v, const BRG_DISTANCE & r ) const;
 	const BRG_DISTANCE _rvir( const int index = 0 ) const;
+#endif
 
 public:
 
@@ -1112,6 +1160,39 @@ public:
 	const int add_host_parameter_point( const unsigned int num_parameters,
 			const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
 			const bool silent = false );
+
+
+	// Setting integration parameters
+#if(1)
+	const int set_resolution( const int new_spline_resolution,
+			const bool silent=false );
+	const int set_v_0( const double new_v_0,
+			const bool silent=false );
+	const int set_r_0( const double new_r_0,
+			const bool silent=false );
+	const int set_step_length_power( const double new_step_length_power,
+			const bool silent=false );
+	const int set_step_factor_max( const double new_step_factor_max,
+			const bool silent=false );
+	const int set_step_factor_min( const double new_step_factor_min,
+			const bool silent=false );
+#endif
+
+	// Setting tuning parameters
+#if(1)
+	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
+	const int set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
+			const bool silent=false );
+	const int set_tidal_stripping_acceleration( const double new_tidal_stripping_acceleration,
+			const bool silent=false );
+	const int set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
+			const bool silent=false );
+	const int set_tidal_shocking_persistance( const double new_tidal_shocking_persistance,
+			const bool silent=false );
+	const int set_tidal_shocking_power( const double new_tidal_shocking_power,
+			const bool silent=false );
+#endif
+
 
 	// Set initial/global parameters
 	const int set_tNFW_init_satellite( const BRG_MASS &new_init_mvir0,
@@ -1173,11 +1254,34 @@ public:
 	const unsigned int length() const;
 
 	// Accessors
+#if(1)
+
+	// Integration parameters
+#if(1)
+	const int & spline_resolution() const {return _spline_resolution_;}
+	const double & v_0() const {return _v_0_;}
+	const double & r_0() const {return _r_0_;}
+	const double & step_length_power() const {return _step_length_power_;}
+	const double & step_factor_max() const {return _step_factor_max_;}
+	const double & step_factor_min() const {return _step_factor_min_;}
+#endif
+
+	// Tuning parameters
+#if(1)
+	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
+	const double & tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
+	const double & tidal_stripping_acceleration() const {return _tidal_stripping_acceleration_;}
+	const double & tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
+	const double & tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
+	const double & tidal_shocking_power() const {return _tidal_shocking_power_;}
+#endif
+
 	const bool & calculated() const {return _calculated_;};
 	const bool & bad_result() const {return _bad_result_;};
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
 	const density_profile * init_host_ptr() const {return _init_host_ptr_;};
 	const BRG_TIME & t_min_natural_value() const {return _t_min_natural_value_;};
+#endif
 
 	// Get final data (returns 1 on error)
 	const int get_final_mret( BRG_MASS & mret,
