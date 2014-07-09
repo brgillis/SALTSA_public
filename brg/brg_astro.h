@@ -874,8 +874,8 @@ public:
 
 	// Constructor
 	group( int init_num_members = 0 );
-	group( double init_mass, double init_z, double init_c = 0,
-			double init_tau = 0 );
+	group( double init_mass, double init_z, double init_c = -1,
+			double init_tau = -1 );
 
 	// Copy constructor
 	group( const group &unitless_group );
@@ -1210,19 +1210,19 @@ public:
 	}
 	const BRG_TIME othmvir( const bool silent = false ) const // Orbital period at rhmvir
 	{
-		return 2 * pi * rhmvir( silent ) / vhmvir();
+		return 2 * pi * rhmvir( silent ) / safe_d(vhmvir( silent ));
 	}
 	const BRG_TIME othmtot( const bool silent = false ) const // Orbital period at rhmtot
 	{
-		return 2 * pi * rhmtot( silent ) / vhmtot();
+		return 2 * pi * rhmtot( silent ) / safe_d(vhmtot( silent ));
 	}
 	const BRG_TIME othm( const bool silent = false ) const // Orbital period at rhm
 	{
-		return 2 * pi * rhm( silent ) / vhm();
+		return 2 * pi * rhm( silent ) / safe_d(vhm( silent ));
 	}
 	const BRG_TIME ott( const bool silent = false ) const // Orbital period at rt
 	{
-		return 2 * pi * rt( silent ) / vt( silent );
+		return 2 * pi * rt( silent ) / safe_d(vt( silent ));
 	}
 
 	const int set_hm_type( int new_hm_type ) // Whether default half-mass is half virial, half total, or something else
@@ -1300,7 +1300,7 @@ public:
 	tNFW_profile();
 
 	tNFW_profile( const BRG_MASS &init_mvir0, const double init_z,
-			const double init_c = 0, const double init_tau = 0 );
+			const double init_c = -1, const double init_tau = -1 );
 
 #endif // End constructors
 
@@ -1804,7 +1804,7 @@ public:
 
 	offset_WLsig_weight_function();
 	offset_WLsig_weight_function( const density_profile *new_host,
-			const double init_c = 0 );
+			const double init_c = -1 );
 
 };
 

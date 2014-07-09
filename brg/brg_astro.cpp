@@ -534,8 +534,11 @@ const BRG_DISTANCE brgastro::density_profile::rhmtot( const bool silent ) const
 	if ( solve_grid( func_ptr, 1, 0., max_r, 10, 0., rhm_test ) ) // If we can't solve it
 	{
 		if ( !silent )
-			std::cerr << "WARNING: Could not solve half-mass radius.\n";
-		return -1;
+			std::cerr << "WARNING: Could not solve half-mass radius. Assuming it's zero.\n";
+
+		_rhmtot_cache_ = 0;
+		hmtot_cached = true;
+		return _rhmtot_cache_;
 	}
 	else
 	{
@@ -574,7 +577,7 @@ const BRG_DISTANCE brgastro::density_profile::rhmvir( const bool silent ) const
 	}
 	else
 	{
-		_rhmvir_cache_ = std::fabs( rhm_test );
+		_rhmvir_cache_ = max(0,std::fabs( rhm_test ));
 		hmvir_cached = true;
 	}
 	return _rhmvir_cache_;
@@ -757,7 +760,7 @@ brgastro::tNFW_profile::tNFW_profile( const BRG_MASS &init_mvir0,
 	{
 		_c_ = init_c;
 	}
-	if ( init_tau <= 0 )
+	if ( init_tau < 0 )
 	{
 		_tau_ = default_tau_factor * _c_;
 	}
@@ -1002,8 +1005,10 @@ const BRG_MASS brgastro::tNFW_profile::enc_mass( const BRG_DISTANCE &r,
 	BRG_MASS m0;
 	// Result here integrated with Wolfram Alpha
 	double d_c, x, tau_use;
-	if ( _tau_ <= 0 )
+	if ( _tau_ < 0 )
 		tau_use = default_tau_factor * _c_;
+	else if (_tau_ == 0)
+		return 0;
 	else
 		tau_use = _tau_;
 
