@@ -874,8 +874,8 @@ public:
 
 	// Constructor
 	group( int init_num_members = 0 );
-	group( double init_mass, double init_z, double init_c = 0,
-			double init_tau = 0 );
+	group( double init_mass, double init_z, double init_c = -1,
+			double init_tau = -1 );
 
 	// Copy constructor
 	group( const group &unitless_group );
@@ -1300,7 +1300,7 @@ public:
 	tNFW_profile();
 
 	tNFW_profile( const BRG_MASS &init_mvir0, const double init_z,
-			const double init_c = 0, const double init_tau = 0 );
+			const double init_c = -1, const double init_tau = -1 );
 
 #endif // End constructors
 
@@ -1804,7 +1804,7 @@ public:
 
 	offset_WLsig_weight_function();
 	offset_WLsig_weight_function( const density_profile *new_host,
-			const double init_c = 0 );
+			const double init_c = -1 );
 
 };
 

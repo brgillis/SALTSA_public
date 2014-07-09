@@ -3790,11 +3790,22 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			double t_shock = r / v;
 			double t_recover = _current_satellite_ptr_->rhmvir()
 					/ safe_d(_current_satellite_ptr_->vhmvir());
-			double x = t_shock / safe_d(t_recover) / ( 2 * pi );
+			double x;
+			double gabdt_scaling_factor;
 
-			double gabdt_scaling_factor = 1
-					- ( t_step * step_length_factor
-							/ ( t_recover * _tidal_shocking_persistance_ ) );
+			if(isbad(t_recover) or (t_recover<=0))
+			{
+				x = 0;
+				gabdt_scaling_factor = 0;
+				_bad_result_ = true;
+			}
+			else
+			{
+				x = max(0,t_shock / safe_d(t_recover) / ( 2 * pi ));
+				gabdt_scaling_factor = max(0,1
+									- ( t_step * step_length_factor
+											/ safe_d( t_recover * _tidal_shocking_persistance_ ) ) );
+			}
 
 			current_gabdt.set_host_ptr( _current_host_ptr_ );
 			current_gabdt.set_pos( _x_spline_( t ), _y_spline_( t ),
