@@ -54,12 +54,13 @@ double brgastro::stripping_orbit::_default_step_factor_min_ = 0.01; // Minimum a
 
 #if(1)
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 0.6; // Tuned
-double brgastro::stripping_orbit::_default_tidal_stripping_acceleration_ = -0.125; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 1.0; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_acceleration_ = 0; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_amplification_ = 3.0; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_persistance_ = 1.0; // How long shocking is active for
 double brgastro::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affects interplay of stripping and satellite halo profile
 #endif
+
 #endif
 
 #endif
@@ -764,7 +765,7 @@ const int brgastro::stripping_orbit::clear()
 
 	// Tuning values
 #if(1)
-	_tidal_stripping_amplification_ = _default_tidal_shocking_amplification_;
+	_tidal_stripping_amplification_ = _default_tidal_stripping_amplification_;
 	_tidal_stripping_acceleration_ = _default_tidal_stripping_acceleration_;
 	_tidal_shocking_amplification_ = _default_tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = _default_tidal_shocking_persistance_;
@@ -2657,7 +2658,7 @@ const int brgastro::stripping_orbit_segment::clear()
 
 	// Tuning values
 #if(1)
-	_tidal_stripping_amplification_ = brgastro::stripping_orbit::default_tidal_shocking_amplification();
+	_tidal_stripping_amplification_ = brgastro::stripping_orbit::default_tidal_stripping_amplification();
 	_tidal_stripping_acceleration_ = brgastro::stripping_orbit::default_tidal_stripping_acceleration();
 	_tidal_shocking_amplification_ = brgastro::stripping_orbit::default_tidal_shocking_amplification();
 	_tidal_shocking_persistance_ = brgastro::stripping_orbit::default_tidal_shocking_persistance();
