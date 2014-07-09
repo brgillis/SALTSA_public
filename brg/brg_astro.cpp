@@ -534,8 +534,11 @@ const BRG_DISTANCE brgastro::density_profile::rhmtot( const bool silent ) const
 	if ( solve_grid( func_ptr, 1, 0., max_r, 10, 0., rhm_test ) ) // If we can't solve it
 	{
 		if ( !silent )
-			std::cerr << "WARNING: Could not solve half-mass radius.\n";
-		return -1;
+			std::cerr << "WARNING: Could not solve half-mass radius. Assuming it's zero.\n";
+
+		_rhmtot_cache_ = 0;
+		hmtot_cached = true;
+		return _rhmtot_cache_;
 	}
 	else
 	{

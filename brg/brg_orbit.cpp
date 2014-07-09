@@ -54,8 +54,8 @@ double brgastro::stripping_orbit::_default_step_factor_min_ = 0.01; // Minimum a
 
 #if(1)
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 1.0; // Tuned
-double brgastro::stripping_orbit::_default_tidal_stripping_acceleration_ = 0; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 0.6; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_acceleration_ = -0.125; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_amplification_ = 3.0; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_persistance_ = 1.0; // How long shocking is active for
 double brgastro::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affects interplay of stripping and satellite halo profile
@@ -3787,7 +3787,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 
 			// Effects of shocking
 
-			double t_shock = r / v;
+			double t_shock = r / safe_d(v);
 			double t_recover = _current_satellite_ptr_->rhmvir()
 					/ safe_d(_current_satellite_ptr_->vhmvir());
 			double x;
@@ -5033,10 +5033,13 @@ const double brgastro::stripping_orbit_segment::tidal_strip_retained( const dens
 	BRG_DISTANCE new_rt;
 	BRG_TIME inst_orbital_period, hm_period, stripping_period;
 	double mass_frac_retained, mass_frac_lost_total;
-	inst_orbital_period = 2 * pi * r / vt;
+	inst_orbital_period = 2 * pi * r / safe_d(vt);
 	hm_period = satellite->othm();
 
-	stripping_period = inst_orbital_period *
+	if(isbad(hm_period) or (hm_period<=0))
+		stripping_period = inst_orbital_period;
+	else
+		stripping_period = inst_orbital_period *
 			std::pow(inst_orbital_period/safe_d(hm_period), _tidal_stripping_acceleration_);
 
 	new_rt = get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
@@ -5046,7 +5049,7 @@ const double brgastro::stripping_orbit_segment::tidal_strip_retained( const dens
 	else
 	{
 		mass_frac_lost_total = max(
-				1 - satellite->enc_mass( new_rt ) / satellite->mtot(), 0 );
+				1 - satellite->enc_mass( new_rt ) / safe_d(satellite->mtot()), 0 );
 	}
 	mass_frac_retained = max(
 			min(
