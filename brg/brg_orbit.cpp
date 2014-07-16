@@ -14,7 +14,7 @@
 #include <vector>
 #include "brg_units.h"
 #include "brg_functions.h"
-#include "Spline.hpp"
+#include "SALTSA_interpolator.h"
 #include "brg_astro.h"
 #include "brg_orbit.h"
 #include "brg_solvers.hpp"
@@ -76,14 +76,14 @@ brgastro::spline_function::spline_function()
 	_spline_ptr_set_up_ = false;
 }
 brgastro::spline_function::spline_function(
-		magnet::math::Spline *init_spline_ptr )
+		SALTSA::interpolator *init_spline_ptr )
 {
 	set_spline_ptr( init_spline_ptr );
 }
 
 // Set functions
 const int brgastro::spline_function::set_spline_ptr(
-		magnet::math::Spline *new_spline_ptr )
+		SALTSA::interpolator *new_spline_ptr )
 {
 	_spline_ptr_ = new_spline_ptr;
 	_spline_ptr_set_up_ = true;
@@ -116,14 +116,14 @@ brgastro::spline_derivative_function::spline_derivative_function()
 	_spline_function_set_up_ = false;
 }
 brgastro::spline_derivative_function::spline_derivative_function(
-		magnet::math::Spline *init_spline_ptr )
+		SALTSA::interpolator *init_spline_ptr )
 {
 	set_spline_ptr( init_spline_ptr );
 }
 
 // Set functions
 const int brgastro::spline_derivative_function::set_spline_ptr(
-		magnet::math::Spline *new_spline_ptr )
+		SALTSA::interpolator *new_spline_ptr )
 {
 	_spline_function_.set_spline_ptr( new_spline_ptr );
 	_spline_function_set_up_ = true;
@@ -237,7 +237,7 @@ brgastro::spline_derivative::spline_derivative()
 	clear();
 }
 brgastro::spline_derivative::spline_derivative(
-		magnet::math::Spline *init_spline_ptr )
+		SALTSA::interpolator *init_spline_ptr )
 {
 	clear();
 	set_spline_ptr( init_spline_ptr );
@@ -245,7 +245,7 @@ brgastro::spline_derivative::spline_derivative(
 
 // Set functions
 const int brgastro::spline_derivative::set_spline_ptr(
-		magnet::math::Spline *new_spline_ptr )
+		SALTSA::interpolator *new_spline_ptr )
 {
 	if ( _spline_func_.set_spline_ptr( new_spline_ptr ) )
 		return 1;
@@ -346,7 +346,7 @@ const int brgastro::spline_derivative::clear()
 const int brgastro::spline_derivative::add_point( const double t,
 		const double x )
 {
-	_known_spline_.addPoint( t, x );
+	_known_spline_.add_point( t, x );
 	_calculated_ = false;
 	return 0;
 }
@@ -384,12 +384,12 @@ const double brgastro::spline_derivative::operator()( double xval ) const
 		_t_min_ = DBL_MAX;
 		_t_max_ = ( -DBL_MAX );
 
-		for ( unsigned int i = 0; i < _known_spline_.size(); i++ )
+		for ( unsigned int i = 0; i < _known_spline_.sorted_data().size(); i++ )
 		{
-			if ( _known_spline_.at( i ).first < _t_min_ )
-				_t_min_ = _known_spline_.at( i ).first;
-			if ( _known_spline_.at( i ).first > _t_max_ )
-				_t_max_ = _known_spline_.at( i ).first;
+			if ( _known_spline_.sorted_data().at( i ).first < _t_min_ )
+				_t_min_ = _known_spline_.sorted_data().at( i ).first;
+			if ( _known_spline_.sorted_data().at( i ).first > _t_max_ )
+				_t_max_ = _known_spline_.sorted_data().at( i ).first;
 		}
 
 		for ( unsigned int i = 0; i < _unknown_t_list_.size(); i++ )
@@ -433,7 +433,7 @@ const double brgastro::spline_derivative::operator()( double xval ) const
 						out_params, Jacobian ) )
 					return 1;
 
-				_estimated_spline_.addPoint( t, Jacobian );
+				_estimated_spline_.add_point( t, Jacobian );
 			}
 			else
 			{
@@ -445,7 +445,7 @@ const double brgastro::spline_derivative::operator()( double xval ) const
 						out_params, _sample_precision_ ) )
 					return 1;
 
-				_estimated_spline_.addPoint( t, out_params );
+				_estimated_spline_.add_point( t, out_params );
 
 			}
 
@@ -2941,13 +2941,13 @@ const int brgastro::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
 	_calculated_ = false;
 	try
 	{
-		_x_spline_.addPoint( t, x );
-		_y_spline_.addPoint( t, y );
-		_z_spline_.addPoint( t, z );
+		_x_spline_.add_point( t, x );
+		_y_spline_.add_point( t, y );
+		_z_spline_.add_point( t, z );
 		_vx_spline_.add_unknown_point( t );
 		_vy_spline_.add_unknown_point( t );
 		_vz_spline_.add_unknown_point( t );
-		_test_mass_spline_.addPoint( t, new_mass );
+		_test_mass_spline_.add_point( t, new_mass );
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -2977,13 +2977,13 @@ const int brgastro::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
 	_calculated_ = false;
 	try
 	{
-		_x_spline_.addPoint( t, x );
-		_y_spline_.addPoint( t, y );
-		_z_spline_.addPoint( t, z );
+		_x_spline_.add_point( t, x );
+		_y_spline_.add_point( t, y );
+		_z_spline_.add_point( t, z );
 		_vx_spline_.add_point( t, vx );
 		_vy_spline_.add_point( t, vy );
 		_vz_spline_.add_point( t, vz );
-		_test_mass_spline_.addPoint( t, new_test_mass );
+		_test_mass_spline_.add_point( t, new_test_mass );
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -3011,7 +3011,7 @@ const int brgastro::stripping_orbit_segment::add_x_point(
 	_calculated_ = false;
 	try
 	{
-		_x_spline_.addPoint( t, x );
+		_x_spline_.add_point( t, x );
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -3039,7 +3039,7 @@ const int brgastro::stripping_orbit_segment::add_y_point(
 	_calculated_ = false;
 	try
 	{
-		_y_spline_.addPoint( t, y );
+		_y_spline_.add_point( t, y );
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -3067,7 +3067,7 @@ const int brgastro::stripping_orbit_segment::add_z_point(
 	_calculated_ = false;
 	try
 	{
-		_z_spline_.addPoint( t, z );
+		_z_spline_.add_point( t, z );
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -3263,7 +3263,7 @@ const int brgastro::stripping_orbit_segment::add_test_mass_point(
 	_calculated_ = false;
 	try
 	{
-		_test_mass_spline_.addPoint( t, test_mass );
+		_test_mass_spline_.add_point( t, test_mass );
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -3319,7 +3319,7 @@ const int brgastro::stripping_orbit_segment::add_host_parameter_point(
 
 	for ( unsigned int i = 0; i < num_parameters; i++ )
 	{
-		_host_parameter_splines_[i].addPoint( t, parameters[i] );
+		_host_parameter_splines_[i].add_point( t, parameters[i] );
 	}
 
 	if ( _host_parameter_splines_[0].size() >= 2 )
@@ -3478,8 +3478,8 @@ const int brgastro::stripping_orbit_segment::reset_t_min()
 	_t_min_natural_value_ = DBL_MAX;
 	for ( unsigned int i = 0; i < _x_spline_.size(); i++ )
 	{
-		if ( _x_spline_.at( i ).first < _t_min_natural_value_ )
-			_t_min_natural_value_ = _x_spline_.at( i ).first;
+		if ( _x_spline_.sorted_data().at( i ).first < _t_min_natural_value_ )
+			_t_min_natural_value_ = _x_spline_.sorted_data().at( i ).first;
 	}
 	_override_t_min_ = false;
 	return 0;
@@ -3490,8 +3490,8 @@ const int brgastro::stripping_orbit_segment::reset_t_max()
 	_t_max_natural_value_ = ( -DBL_MAX );
 	for ( unsigned int i = 0; i < _x_spline_.size(); i++ )
 	{
-		if ( _x_spline_.at( i ).first > _t_max_natural_value_ )
-			_t_max_natural_value_ = _x_spline_.at( i ).first;
+		if ( _x_spline_.sorted_data().at( i ).first > _t_max_natural_value_ )
+			_t_max_natural_value_ = _x_spline_.sorted_data().at( i ).first;
 	}
 	_override_t_min_ = false;
 	return 0;

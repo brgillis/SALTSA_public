@@ -240,7 +240,7 @@
 #include <stdexcept>
 #include "brg_units.h"
 #include "brg_functions.h"
-#include "Spline.hpp"
+#include "SALTSA_interpolator.h"
 #include "brg_astro.h"
 
 namespace brgastro
@@ -326,14 +326,14 @@ class spline_function: public functor< BRG_UNITS >
 
 private:
 
-	magnet::math::Spline *_spline_ptr_;
+	SALTSA::interpolator *_spline_ptr_;
 	bool _spline_ptr_set_up_;
 
 public:
 
 	// Constructors
 	spline_function();
-	spline_function( magnet::math::Spline *init_spline_ptr );
+	spline_function( SALTSA::interpolator *init_spline_ptr );
 
 	// Destructor
 	virtual ~spline_function()
@@ -341,7 +341,7 @@ public:
 	}
 
 	// Set functions
-	const int set_spline_ptr( magnet::math::Spline *new_spline_ptr );
+	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
@@ -376,7 +376,7 @@ public:
 
 	// Constructors
 	spline_derivative_function();
-	spline_derivative_function( magnet::math::Spline *init_spline_ptr );
+	spline_derivative_function( SALTSA::interpolator *init_spline_ptr );
 
 	// Destructor
 	virtual ~spline_derivative_function()
@@ -384,7 +384,7 @@ public:
 	}
 
 	// Set functions
-	const int set_spline_ptr( magnet::math::Spline *new_spline_ptr );
+	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
@@ -472,8 +472,8 @@ class spline_derivative
 
 	 \************************************************************/
 private:
-	magnet::math::Spline *_spline_ptr_;
-	mutable magnet::math::Spline _known_spline_, _estimated_spline_;
+	SALTSA::interpolator *_spline_ptr_;
+	mutable SALTSA::interpolator _known_spline_, _estimated_spline_;
 	bool _spline_ptr_set_up_;
 	mutable bool _calculated_;
 
@@ -489,7 +489,7 @@ private:
 public:
 	// Constructors
 	spline_derivative();
-	spline_derivative( magnet::math::Spline *init_spline_ptr );
+	spline_derivative( SALTSA::interpolator *init_spline_ptr );
 
 	// Destructors
 	virtual ~spline_derivative()
@@ -497,7 +497,7 @@ public:
 	}
 
 	// Set functions
-	const int set_spline_ptr( magnet::math::Spline *new_spline_ptr );
+	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
 	const int clear_spline_ptr();
 	const int set_default_sample_scale( double new_default_sample_scale );
 	const int set_default_sample_max_width(
@@ -1091,10 +1091,10 @@ private:
 
 	// Splines for orbit data
 	// Must be mutable since the spline class used doesn't allow conceptual constness for calculating
-	mutable magnet::math::Spline _x_spline_, _y_spline_, _z_spline_,
+	mutable SALTSA::interpolator _x_spline_, _y_spline_, _z_spline_,
 			_test_mass_spline_;
 	mutable spline_derivative _vx_spline_, _vy_spline_, _vz_spline_;
-	mutable std::vector< magnet::math::Spline > _host_parameter_splines_;
+	mutable std::vector< SALTSA::interpolator > _host_parameter_splines_;
 
 	// Vectors for output data
 	mutable std::vector< BRG_UNITS > _delta_rho_list_, _sum_delta_rho_list_,
