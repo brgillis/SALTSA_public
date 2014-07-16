@@ -253,13 +253,13 @@ namespace brgastro
 
 //// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 ////const double tidal_stripping_amplification = 1; // Kamiab
-////const double tidal_stripping_acceleration = 0; // Kamiab
+////const double tidal_stripping_deceleration = 0; // Kamiab
 ////const double tidal_shocking_amplification = 3.4; // Kamiab
 ////const double tidal_stripping_amplification = 1; // From Taylor
-////const double tidal_stripping_acceleration = 0; // From Taylor
+////const double tidal_stripping_deceleration = 0; // From Taylor
 ////const double tidal_shocking_amplification = 3; // From Taylor
 //const double tidal_stripping_amplification = 0.6; // Tuned
-//const double tidal_stripping_acceleration = -0.125; // Tuned
+//const double tidal_stripping_deceleration = -0.125; // Tuned
 //const double tidal_shocking_amplification = 3.0; // Tuned
 //const double tidal_shocking_persistance = 1.0; // How long shocking is active for
 //const double tidal_shocking_power = -1.5; // From Taylor
@@ -675,7 +675,7 @@ private:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	static double _default_tidal_stripping_amplification_; // Amplifies tidal stripping by this factor
-	static double _default_tidal_stripping_acceleration_; // If positive, increase tidal stripping near pericentre,
+	static double _default_tidal_stripping_deceleration_; // If positive, increase tidal stripping near pericentre,
 														  // if negative, decrease near pericentre
 	static double _default_tidal_shocking_amplification_; // Amplifies tidal heating by this factor
 	static double _default_tidal_shocking_persistance_; // How long shocking is active for
@@ -686,7 +686,7 @@ private:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	double _tidal_stripping_amplification_; // Amplifies tidal stripping by this factor
-	double _tidal_stripping_acceleration_; // If positive, increase tidal stripping near pericentre,
+	double _tidal_stripping_deceleration_; // If positive, increase tidal stripping near pericentre,
 	  	  	  	  	  	  	  	  	  	   // if negative, decrease near pericentre
 	double _tidal_shocking_amplification_; // Amplifies tidal heating by this factor
 	double _tidal_shocking_persistance_; // How long shocking is active for
@@ -785,8 +785,8 @@ public:
 			const double new_default_tidal_stripping_amplification,
 			const bool override_current=false,
 			const bool silent=false );
-	const int set_default_tidal_stripping_acceleration(
-			const double new_default_tidal_stripping_acceleration,
+	const int set_default_tidal_stripping_deceleration(
+			const double new_default_tidal_stripping_deceleration,
 			const bool override_current=false,
 			const bool silent=false );
 	const int set_default_tidal_shocking_amplification(
@@ -824,7 +824,7 @@ public:
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	const int set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
 			const bool silent=false );
-	const int set_tidal_stripping_acceleration( const double new_tidal_stripping_acceleration,
+	const int set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
 			const bool silent=false );
 	const int set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
 			const bool silent=false );
@@ -848,7 +848,7 @@ public:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	const int reset_tidal_stripping_amplification();
-	const int reset_tidal_stripping_acceleration();
+	const int reset_tidal_stripping_deceleration();
 	const int reset_tidal_shocking_amplification();
 	const int reset_tidal_shocking_persistance();
 	const int reset_tidal_shocking_power();
@@ -935,7 +935,7 @@ public:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	static const double & default_tidal_stripping_amplification() {return _default_tidal_stripping_amplification_;}
-	static const double & default_tidal_stripping_acceleration() {return _default_tidal_stripping_acceleration_;}
+	static const double & default_tidal_stripping_deceleration() {return _default_tidal_stripping_deceleration_;}
 	static const double & default_tidal_shocking_amplification() {return _default_tidal_shocking_amplification_;}
 	static const double & default_tidal_shocking_persistance() {return _default_tidal_shocking_persistance_;}
 	static const double & default_tidal_shocking_power() {return _default_tidal_shocking_power_;}
@@ -956,7 +956,7 @@ public:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	const double & tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
-	const double & tidal_stripping_acceleration() const {return _tidal_stripping_acceleration_;}
+	const double & tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
 	const double & tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
 	const double & tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
 	const double & tidal_shocking_power() const {return _tidal_shocking_power_;}
@@ -1065,7 +1065,7 @@ private:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	double _tidal_stripping_amplification_; // Amplifies tidal stripping by this factor
-	double _tidal_stripping_acceleration_; // If positive, increase tidal stripping near pericentre,
+	double _tidal_stripping_deceleration_; // If positive, increase tidal stripping near pericentre,
 	  	  	  	  	  	  	  	  	  	   // if negative, decrease near pericentre
 	double _tidal_shocking_amplification_; // Amplifies tidal heating by this factor
 	double _tidal_shocking_persistance_; // How long shocking is active for
@@ -1183,7 +1183,7 @@ public:
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	const int set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
 			const bool silent=false );
-	const int set_tidal_stripping_acceleration( const double new_tidal_stripping_acceleration,
+	const int set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
 			const bool silent=false );
 	const int set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
 			const bool silent=false );
@@ -1268,7 +1268,7 @@ public:
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	const double & tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
-	const double & tidal_stripping_acceleration() const {return _tidal_stripping_acceleration_;}
+	const double & tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
 	const double & tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
 	const double & tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
 	const double & tidal_shocking_power() const {return _tidal_shocking_power_;}

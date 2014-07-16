@@ -54,8 +54,8 @@ double brgastro::stripping_orbit::_default_step_factor_min_ = 0.01; // Minimum a
 
 #if(1)
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 0.6; // Tuned
-double brgastro::stripping_orbit::_default_tidal_stripping_acceleration_ = -0.125; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 0.675; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.1; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_amplification_ = 3.0; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_persistance_ = 1.0; // How long shocking is active for
 double brgastro::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affects interplay of stripping and satellite halo profile
@@ -498,7 +498,7 @@ brgastro::stripping_orbit::stripping_orbit(
 	// Tuning values
 #if(1)
 	_tidal_stripping_amplification_ = other_stripping_orbit._tidal_stripping_amplification_;
-	_tidal_stripping_acceleration_ = other_stripping_orbit._tidal_stripping_acceleration_;
+	_tidal_stripping_deceleration_ = other_stripping_orbit._tidal_stripping_deceleration_;
 	_tidal_shocking_amplification_ = other_stripping_orbit._tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = other_stripping_orbit._tidal_shocking_persistance_;
 	_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
@@ -621,7 +621,7 @@ brgastro::stripping_orbit & brgastro::stripping_orbit::operator=(
 		// Tuning values
 #if(1)
 		_tidal_stripping_amplification_ = other_stripping_orbit._tidal_stripping_amplification_;
-		_tidal_stripping_acceleration_ = other_stripping_orbit._tidal_stripping_acceleration_;
+		_tidal_stripping_deceleration_ = other_stripping_orbit._tidal_stripping_deceleration_;
 		_tidal_shocking_amplification_ = other_stripping_orbit._tidal_shocking_amplification_;
 		_tidal_shocking_persistance_ = other_stripping_orbit._tidal_shocking_persistance_;
 		_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
@@ -766,7 +766,7 @@ const int brgastro::stripping_orbit::clear()
 	// Tuning values
 #if(1)
 	_tidal_stripping_amplification_ = _default_tidal_stripping_amplification_;
-	_tidal_stripping_acceleration_ = _default_tidal_stripping_acceleration_;
+	_tidal_stripping_deceleration_ = _default_tidal_stripping_deceleration_;
 	_tidal_shocking_amplification_ = _default_tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = _default_tidal_shocking_persistance_;
 	_tidal_shocking_power_ = _default_tidal_shocking_power_;
@@ -1199,17 +1199,17 @@ const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 	reset_tidal_stripping_amplification();
 	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_stripping_acceleration(
-		const double new_default_tidal_stripping_acceleration,
+const int brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
+		const double new_default_tidal_stripping_deceleration,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
-	if ( new_default_tidal_stripping_acceleration == _default_tidal_stripping_acceleration_ )
+	if ( new_default_tidal_stripping_deceleration == _default_tidal_stripping_deceleration_ )
 		return 0;
-	_default_tidal_stripping_acceleration_ = new_default_tidal_stripping_acceleration;
+	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
 
-	reset_tidal_stripping_acceleration();
+	reset_tidal_stripping_deceleration();
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
@@ -1400,16 +1400,16 @@ const int brgastro::stripping_orbit::set_tidal_stripping_amplification(
 	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
 	return 0;
 }
-const int brgastro::stripping_orbit::set_tidal_stripping_acceleration(
-		const double new_tidal_stripping_acceleration,
+const int brgastro::stripping_orbit::set_tidal_stripping_deceleration(
+		const double new_tidal_stripping_deceleration,
 		const bool silent )
 {
 	// Check if anything is actually changing here
-	if ( new_tidal_stripping_acceleration == _tidal_stripping_acceleration_ )
+	if ( new_tidal_stripping_deceleration == _tidal_stripping_deceleration_ )
 		return 0;
 
 	clear_calcs();
-	_tidal_stripping_acceleration_ = new_tidal_stripping_acceleration;
+	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_tidal_shocking_amplification(
@@ -1542,14 +1542,14 @@ const int brgastro::stripping_orbit::reset_tidal_stripping_amplification()
 	_tidal_stripping_amplification_ = _default_tidal_stripping_amplification_;
 	return 0;
 }
-const int brgastro::stripping_orbit::reset_tidal_stripping_acceleration()
+const int brgastro::stripping_orbit::reset_tidal_stripping_deceleration()
 {
 	// Check if anything is actually changing here
-	if ( _default_tidal_stripping_acceleration_ == _tidal_stripping_acceleration_ )
+	if ( _default_tidal_stripping_deceleration_ == _tidal_stripping_deceleration_ )
 		return 0;
 
 	clear_calcs();
-	_tidal_stripping_acceleration_ = _default_tidal_stripping_acceleration_;
+	_tidal_stripping_deceleration_ = _default_tidal_stripping_deceleration_;
 	return 0;
 }
 const int brgastro::stripping_orbit::reset_tidal_shocking_amplification()
@@ -1945,8 +1945,8 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 				if ( _orbit_segments_.at( i ).set_tidal_stripping_amplification(
 						_tidal_stripping_amplification_ ) )
 					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
-				if ( _orbit_segments_.at( i ).set_tidal_stripping_acceleration(
-						_tidal_stripping_acceleration_ ) )
+				if ( _orbit_segments_.at( i ).set_tidal_stripping_deceleration(
+						_tidal_stripping_deceleration_ ) )
 					throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
 				if ( _orbit_segments_.at( i ).set_tidal_shocking_amplification(
 						_tidal_shocking_amplification_ ) )
@@ -2400,7 +2400,7 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	// Tuning values
 #if(1)
 	_tidal_stripping_amplification_ = other_orbit_spline._tidal_stripping_amplification_;
-	_tidal_stripping_acceleration_ = other_orbit_spline._tidal_stripping_acceleration_;
+	_tidal_stripping_deceleration_ = other_orbit_spline._tidal_stripping_deceleration_;
 	_tidal_shocking_amplification_ = other_orbit_spline._tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = other_orbit_spline._tidal_shocking_persistance_;
 	_tidal_shocking_power_ = other_orbit_spline._tidal_shocking_power_;
@@ -2511,7 +2511,7 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 	// Tuning parameters
 #if(1)
 		_tidal_stripping_amplification_ = other_orbit_spline._tidal_stripping_amplification_;
-		_tidal_stripping_acceleration_ = other_orbit_spline._tidal_stripping_acceleration_;
+		_tidal_stripping_deceleration_ = other_orbit_spline._tidal_stripping_deceleration_;
 		_tidal_shocking_amplification_ = other_orbit_spline._tidal_shocking_amplification_;
 		_tidal_shocking_persistance_ = other_orbit_spline._tidal_shocking_persistance_;
 		_tidal_shocking_power_ = other_orbit_spline._tidal_shocking_power_;
@@ -2659,7 +2659,7 @@ const int brgastro::stripping_orbit_segment::clear()
 	// Tuning values
 #if(1)
 	_tidal_stripping_amplification_ = brgastro::stripping_orbit::default_tidal_stripping_amplification();
-	_tidal_stripping_acceleration_ = brgastro::stripping_orbit::default_tidal_stripping_acceleration();
+	_tidal_stripping_deceleration_ = brgastro::stripping_orbit::default_tidal_stripping_deceleration();
 	_tidal_shocking_amplification_ = brgastro::stripping_orbit::default_tidal_shocking_amplification();
 	_tidal_shocking_persistance_ = brgastro::stripping_orbit::default_tidal_shocking_persistance();
 	_tidal_shocking_power_ = brgastro::stripping_orbit::default_tidal_shocking_power();
@@ -2868,16 +2868,16 @@ const int brgastro::stripping_orbit_segment::set_tidal_stripping_amplification(
 	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
 	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_tidal_stripping_acceleration(
-		const double new_tidal_stripping_acceleration,
+const int brgastro::stripping_orbit_segment::set_tidal_stripping_deceleration(
+		const double new_tidal_stripping_deceleration,
 		const bool silent )
 {
 	// Check if anything is actually changing here
-	if ( new_tidal_stripping_acceleration == _tidal_stripping_acceleration_ )
+	if ( new_tidal_stripping_deceleration == _tidal_stripping_deceleration_ )
 		return 0;
 
 	clear_calcs();
-	_tidal_stripping_acceleration_ = new_tidal_stripping_acceleration;
+	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
 	return 0;
 }
 const int brgastro::stripping_orbit_segment::set_tidal_shocking_amplification(
@@ -5040,7 +5040,7 @@ const double brgastro::stripping_orbit_segment::tidal_strip_retained( const dens
 		stripping_period = inst_orbital_period;
 	else
 		stripping_period = inst_orbital_period *
-			std::pow(inst_orbital_period/safe_d(hm_period), _tidal_stripping_acceleration_);
+			std::pow(hm_period/safe_d(inst_orbital_period), _tidal_stripping_deceleration_);
 
 	new_rt = get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
 
