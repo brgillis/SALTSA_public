@@ -149,9 +149,7 @@
  const int SALTSA::stripping_orbit::get_final_mret(
  double & mret )
 
- Writes the final retained mass into the passed variable. The type that
- must be passed depends on whether the _BRG_USE_UNITS_ compiler flag is
- defined or not (if it is defined, SALTSA::unit_mass, else double).
+ Writes the final retained mass into the passed variable.
 
  const double SALTSA::stripping_orbit::final_mret()
 

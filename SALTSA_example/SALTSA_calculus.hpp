@@ -84,11 +84,8 @@ inline const int differentiate( const f * func,
 			// At least try to get the units right
 			for ( unsigned int i = 0; i < num_in_params; i++ )
 			{
-#ifdef _BRG_USE_UNITS_
-				d_in_params.set(SMALL_FACTOR,in_params.get_unit_powers());
-#else
 				d_in_params = SMALL_FACTOR;
-#endif
+
 			} // for( unsigned int i = 0; i < num_in_params; i++ )
 		}
 		else
@@ -97,11 +94,7 @@ inline const int differentiate( const f * func,
 			{
 				if ( in_params == 0 )
 				{
-#ifdef _BRG_USE_UNITS_
-					d_in_params.set(SMALL_FACTOR_units.get_value(),in_params.get_unit_powers());
-#else
 					d_in_params = small_factor_with_units;
-#endif
 				} // if(in_params[i]==0)
 			} // for( unsigned int i = 0; i < num_in_params; i++ )
 		}
@@ -208,11 +201,8 @@ inline const int differentiate( const f * func,
 			// At least try to get the units right
 			for ( unsigned int i = 0; i < num_in_params; i++ )
 			{
-#ifdef _BRG_USE_UNITS_
-				d_in_params[i].set(SMALL_FACTOR,in_params[i].get_unit_powers());
-#else
 				d_in_params[i] = SMALL_FACTOR;
-#endif
+
 			} // for( unsigned int i = 0; i < num_in_params; i++ )
 		}
 		else
@@ -221,11 +211,7 @@ inline const int differentiate( const f * func,
 			{
 				if ( in_params[i] == 0 )
 				{
-#ifdef _BRG_USE_UNITS_
-					d_in_params[i].set(SMALL_FACTOR_units.get_value(),in_params[i].get_unit_powers());
-#else
 					d_in_params[i] = small_factor_with_units;
-#endif
 				} // if(in_params[i]==0)
 			} // for( unsigned int i = 0; i < num_in_params; i++ )
 		}

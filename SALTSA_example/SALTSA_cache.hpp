@@ -302,20 +302,6 @@ protected:
 	// Name base - derived classes must overload this to tell how their cache file will be named
 	// virtual const std::string _name_base() const throw() =0;
 
-#ifdef _BRG_USE_UNITS_
-
-	// Tells what units the result should have. Only the units matter in the return, not the value
-	virtual const SALTSA::unit_obj _units() const throw()
-	{
-		return SALTSA::unit_obj(0);
-	}
-	virtual const SALTSA::unit_obj _inverse_units() const throw()
-	{
-		return SALTSA::unit_obj(0);
-	}
-
-#endif // _BRG_USE_UNITS_
-
 	// Long-form calculation function. Must be overloaded by child classes
 	// virtual const int _calculate( const double in_params, double out_params ) const =0;
 
@@ -386,12 +372,7 @@ public:
 
 		double xlo, xhi;
 		unsigned int x_i; // Lower nearby array point
-#ifdef _BRG_USE_UNITS_
-		double result = SPCP(name)->_units(); // Ensure the result has the proper units
-		result = 0;
-#else
 		double result = 0;
-#endif
 
 		if(!SPCP(name)->_initialised_) SPCP(name)->_init();
 
@@ -445,12 +426,7 @@ public:
 
 
 		double xlo, xhi, ylo, yhi;
-#ifdef _BRG_USE_UNITS_
-		double result = SPCP(name)->_inverse_units(); // Ensure the result has the proper units
-		result = 0;
-#else
 		double result = 0;
-#endif
 
 		if ( !SPCP(name)->_loaded_ )
 		{

@@ -46,8 +46,6 @@ SALTSA_astro.h
  be assumed to be in h_70 units.
  -Cosmological values are based on best-fit WMAP + priors values
  from Hinshaw et al. 2012.
- -If the _BRG_USE_UNITS_ parameter is set (see the brg_global.h file), values
- that have units will be declared as unit_objs.
 
  \**********************************************************************/
 
@@ -61,11 +59,7 @@ const double pi = 3.14159265358979323846;
 #ifndef __PHYS_VARS_DEFINED__
 #define __PHYS_VARS_DEFINED__
 
-#ifdef _BRG_USE_UNITS_
-const SALTSA::unit_obj Gc(6.67384e-11,3,-2,-1,0,0); // In m^3 s^-2 kg^-1
-#else
 const float Gc = 6.67384e-11; // In m^3 s^-2 kg^-1
-#endif
 const double c = unitconv::ctomps;
 
 #endif
@@ -77,11 +71,7 @@ const double c = unitconv::ctomps;
 #ifndef __COSMO_VARS_DEFINED__
 #define __COSMO_VARS_DEFINED__
 
-#ifdef _BRG_USE_UNITS_
-const SALTSA::unit_obj H_0(70*unitconv::kmtom/unitconv::stos/unitconv::Mpctom,0,-1,0,0,0,0); // So all results will implicitly be in h_70 units
-#else
 const double H_0 = 70 * unitconv::kmtom / unitconv::stos / unitconv::Mpctom; // So all results will implicitly be in h_70 units
-#endif
 
 const float Omega_m = 0.288; // WMAP9 + priors
 const float Omega_r = 0.000086; // WMAP9 + priors
@@ -287,20 +277,6 @@ protected:
 		return "dfa";
 	}
 
-#ifdef _BRG_USE_UNITS_
-
-	// Tells what units the result should have. Only the units matter in the return, not the value
-	const SALTSA::unit_obj _units() const throw()
-	{
-		return SALTSA::unit_obj(0,0,1,0,0,0,0);
-	}
-	const SALTSA::unit_obj _inverse_units() const throw()
-	{
-		return SALTSA::unit_obj(0);
-	}
-
-#endif // _BRG_USE_UNITS_
-
 	// Long-form calculation function.
 	const int _calculate( const double in_params, double & out_params ) const;
 
@@ -350,20 +326,6 @@ protected:
 	{
 		return "tfa";
 	}
-
-#ifdef _BRG_USE_UNITS_
-
-	// Tells what units the result should have. Only the units matter in the return, not the value
-	const SALTSA::unit_obj _units() const throw()
-	{
-		return SALTSA::unit_obj(0,0,1,0,0,0,0);
-	}
-	const SALTSA::unit_obj _inverse_units() const throw()
-	{
-		return SALTSA::unit_obj(0);
-	}
-
-#endif // _BRG_USE_UNITS_
 
 	// Long-form calculation function.
 	const int _calculate( const double in_params, double & out_params ) const;

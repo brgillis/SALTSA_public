@@ -31,10 +31,6 @@
 #include <boost/scoped_ptr.hpp>
 #endif // #ifndef __USE_CPP_11_STD__
 
-#ifdef _BRG_USE_UNITS_
-#include "brg_units.h"
-#endif
-
 namespace SALTSA
 {
 
@@ -102,23 +98,6 @@ inline const T bound( const T &lower_bound, const T &a, const T &upper_bound)
 {
 	return min( max( lower_bound, a ) , upper_bound);
 }
-#ifdef _BRG_USE_UNITS_
-template<class T1, class T2>
-inline const SALTSA::unit_obj min(const T1 a, const T2 b)
-{
-	return( (a<b) ? SALTSA::unit_obj(a) : SALTSA::unit_obj(b) );
-}
-template<class T1, class T2>
-inline const SALTSA::unit_obj max(const T1 a, const T2 b)
-{
-	return( (a<b) ? SALTSA::unit_obj(b) : SALTSA::unit_obj(a) );
-}
-template< class T1, class T2, class T3 >
-inline const SALTSA::unit_obj bound( const T1 &lower_bound, const T2 &a, const T3 &upper_bound)
-{
-	return min( max( lower_bound, a ) , upper_bound);
-}
-#else
 template< class T1, class T2 >
 inline const double min( const T1 a, const T2 b )
 {
@@ -129,7 +108,6 @@ inline const double max( const T1 a, const T2 b )
 {
 	return ( a < b ? (double)b : (double)a );
 }
-#endif
 
 // The below two variants return by reference, in case you
 // want to do something like min_ref( a, b) = 0 to set the
@@ -305,76 +283,40 @@ inline const double quad_sub( const double v1, const double v2 )
 	return safe_sqrt( v1 * v1 - v2 * v2 );
 }
 
-// unit_obj versions of the above
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj quad_add( const unit_obj v1, const unit_obj v2, const unit_obj v3=0 )
-{
-	return sqrt( v1*v1 + v2*v2 + v3*v3 );
-}
-inline const unit_obj quad_sub( const unit_obj v1, const unit_obj v2 )
-{
-	return safe_sqrt( v1*v1 - v2*v2 );
-}
-#endif
-
 // Function to calculate the distance between two points in 2-dimensions
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist2d( const unit_obj x1, const unit_obj y1, const unit_obj x2, const unit_obj y2 )
-#else
 inline const double dist2d( const double x1, const double y1, const double x2,
 		const double y2 )
-#endif
 {
 	return quad_add( x2 - x1, y2 - y1 );
 }
 // Function to calculate the distance between a point and (0,0) in 2-dimensions
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist2d( const unit_obj x1, const unit_obj y1 )
-#else
 inline const double dist2d( const double x1, const double y1 )
-#endif
 {
 	return quad_add( x1, y1 );
 }
 
 // Use the law of cosines to calculate hypotenuse length (lc=Law of Cosines)
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj lc_add( const unit_obj x1, const unit_obj y1, const unit_obj a1 )
-#else
 inline const double lc_add( const double x1, const double y1, const double a1 )
-#endif
 {
 	return safe_sqrt( x1 * x1 + y1 * y1 - 2 * x1 * y1 * cos( a1 ) );
 }
 
 // Like dist2d, but using corrections for spherical geometry
-#ifdef _BRG_USE_UNITS_
-inline const unit_angle skydist2d( const unit_angle ra1, const unit_angle dec1, const unit_angle ra2, const unit_angle dec2 )
-#else
 inline const double skydist2d( const double ra1, const double dec1,
 		const double ra2, const double dec2 )
-#endif
 {
 	return quad_add( ( ra2 - ra1 ) * cos( ( dec2 + dec1 ) / 2 ), dec2 - dec1 );
 }
 
 // 3-D distance between two points
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist3d( const unit_obj x1, const unit_obj y1, const unit_obj z1, const unit_obj x2, const unit_obj y2, const unit_obj z2 )
-#else
 inline const double dist3d( const double x1, const double y1, const double z1,
 		const double x2, const double y2, const double z2 )
-#endif
 {
 	return quad_add( x2 - x1, y2 - y1, z2 - z1 );
 }
 
 // 3-D distance from (0,0,0)
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist3d( const unit_obj x1, const unit_obj y1, const unit_obj z1 )
-#else
 inline const double dist3d( const double x1, const double y1, const double z1 )
-#endif
 {
 	return quad_add( x1, y1, z1 );
 }
@@ -400,39 +342,14 @@ inline const double weighted_dist( std::vector< double > a,
 	result = safe_sqrt( result );
 	return result;
 }
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj weighted_dist(std::vector<unit_obj> a, std::vector<unit_obj> b, std::vector<double> c = std::vector<double>(0))
-{
-	unit_obj result = 0;
-	if(c.size() == 0) c.resize(a.size());
-	if((a.size() != b.size())||(a.size() != c.size()))
-	{
-		throw std::runtime_error("ERROR: Vectors in weighted_dist have unequal sizes.\n");
-		return -1;
-	}
-	for(unsigned int i = 0; i < a.size(); i++)
-	{
-		result += pow((b.at(i)-a.at(i))*c.at(i),2);
-	}
-	result = safe_sqrt(result);
-	return result;
-}
-#endif
 
 // Dot-product of two vectors in 3-D space or two vectors
 // For two vectors, an exception is thrown if they aren't the same size
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dot_product( const unit_obj x1, const unit_obj y1, const unit_obj z1, const unit_obj x2, const unit_obj y2, const unit_obj z2 )
-{
-	return x1*x2+y1*y2+z1*z2;
-}
-#else
 inline const double dot_product( const double x1, const double y1,
 		const double z1, const double x2, const double y2, const double z2 )
 {
 	return x1 * x2 + y1 * y2 + z1 * z2;
 }
-#endif
 inline const double dot_product( std::vector< double > a,
 		std::vector< double > b )
 {
@@ -448,22 +365,6 @@ inline const double dot_product( std::vector< double > a,
 	}
 	return result;
 }
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dot_product(std::vector<unit_obj> a, std::vector<unit_obj> b)
-{
-	if((a.size() != b.size()))
-	{
-		throw std::runtime_error("ERROR: Vectors in dot_product have unequal sizes.\n");
-		return 0;
-	}
-	unit_obj result = 0;
-	for(unsigned int i = 0; i < a.size(); i++)
-	{
-		result += a.at(i)*b.at(i);
-	}
-	return result;
-}
-#endif
 
 // Generates a random double between min and max
 inline const double drand( double min, double max )
@@ -503,13 +404,6 @@ inline const int set_zero( float obj )
 	obj = 0;
 	return 0;
 }
-#ifdef _BRG_USE_UNITS_
-inline const int set_zero( unit_obj obj)
-{
-	obj = 0;
-	return 0;
-}
-#endif
 inline const int set_zero( std::string obj )
 {
 	obj = "";

@@ -10,19 +10,8 @@
 // there's no actual problem.
 
 #undef _BRG_USE_CPP_11_STD_ // Use C++11 standard. This enables the use of unique_ptrs primarily
-
-#undef _BRG_USE_UNITS_ // Will use "number-with-units" class for applicable values in code
-// This slows things down a bit, but can be useful in debugging.
-
-#define _BRG_WARN_FOR_UNIT_MISMATCH_
-// Warns in the following scenarios:
-// -Adding or subtracting values with incompatible units
-// -Setting a variable to something with different units
-// Does not warn when:
-// -Adding or subtracting to or from zero
-// -Adding or subtracting a unitless value to or from an angle
-// -Any value in the procedure is not a type with units (eg. it's an int or double)
-// -The variable being set is initially unitless
+                            // If you don't want to link boost, make sure to enable this and use the
+                            // compiler flag --std=c++11
 
 // Set up global parameters
 
@@ -53,11 +42,11 @@ const double pi = 3.14159265358979323846;
 #endif
 
 #ifndef DBL_MAX
-#define DBL_MAX 1.7976931348623158e+308
+#define DBL_MAX 1.7976931348623158e+308 // Most likely value
 #endif
 
 #ifndef DBL_MIN
-#define DBL_MIN 2.2250738585072014e-308
+#define DBL_MIN 2.2250738585072014e-308 // Most likely value
 #endif
 
 #ifndef FLT_EPSILON
