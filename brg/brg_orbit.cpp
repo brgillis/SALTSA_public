@@ -728,8 +728,8 @@ brgastro::stripping_orbit & brgastro::stripping_orbit::operator=(
 	return *this;
 }
 
-brgastro::stripping_orbit::stripping_orbit( density_profile *init_init_host,
-		density_profile *init_init_satellite, const int init_resolution )
+brgastro::stripping_orbit::stripping_orbit( const density_profile *init_init_host,
+		const density_profile *init_init_satellite, const int init_resolution )
 {
 	clear();
 	_init_host_ptr_ = init_init_host;
@@ -898,23 +898,15 @@ const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 }
 
 const int brgastro::stripping_orbit::add_host_parameter_point(
-		const unsigned int num_parameters,
 		const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
 		const bool silent )
 {
 	// Check num_parameters matches vector size
-	if ( num_parameters != parameters.size() )
+	if ( _init_host_ptr_->num_parameters() != parameters.size() )
 	{
 		if ( !silent )
 			std::cerr
 					<< "ERROR: num_parameters must == parameters.size() in stripping_orbit::add_host_parameter_point.\n";
-		return INVALID_ARGUMENTS_ERROR;
-	}
-	if ( num_parameters <= 0 )
-	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: num_parameters must be > 0 in stripping_orbit::add_host_parameter_point.\n";
 		return INVALID_ARGUMENTS_ERROR;
 	}
 
@@ -1017,7 +1009,7 @@ const int brgastro::stripping_orbit::set_tNFW_init_satellite(
 	return 0;
 }
 
-const int brgastro::stripping_orbit::set_tNFW_host(
+const int brgastro::stripping_orbit::set_tNFW_init_host(
 		const BRG_MASS &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
@@ -3703,8 +3695,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 	// Get satellite parameters at init position
 	if ( _record_full_data_ )
 	{
-		if ( _current_satellite_ptr_->get_parameters( num_satellite_parameters,
-				satellite_parameters ) )
+		if ( _current_satellite_ptr_->get_parameters( satellite_parameters ) )
 		{
 			if ( !silent )
 				std::cerr
@@ -3714,8 +3705,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 		{
 			_satellite_parameter_data_.push_back( satellite_parameters );
 		}
-		if ( _current_host_ptr_->get_parameters( num_host_parameters,
-				host_parameters ) )
+		if ( _current_host_ptr_->get_parameters( host_parameters ) )
 		{
 			if ( !silent )
 				std::cerr
@@ -3832,14 +3822,12 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 							_sum_delta_rho_list_.at( counter - 1 ) ) );
 			_rt_ratio_list_.push_back( _rt_list_.at( counter ) / _rvir( 0 ) );
 
-			if ( !_current_satellite_ptr_->get_parameters(
-					num_satellite_parameters, satellite_parameters ) )
+			if ( !_current_satellite_ptr_->get_parameters( satellite_parameters ) )
 			{
 				_satellite_parameter_data_.push_back( satellite_parameters );
 			}
 
-			if ( !_current_host_ptr_->get_parameters( num_host_parameters,
-					host_parameters ) )
+			if ( !_current_host_ptr_->get_parameters( host_parameters ) )
 			{
 				_host_parameter_data_.push_back( host_parameters );
 			}
@@ -4059,8 +4047,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 		int num_parameter_names = 0;
 		std::vector< std::string > parameter_names( 0 );
 
-		if ( _current_satellite_ptr_->get_parameter_names( num_parameter_names,
-				parameter_names ) )
+		if ( _current_satellite_ptr_->get_parameter_names( parameter_names ) )
 			return 1;
 
 		for ( unsigned int i = 0; i < _satellite_output_parameters_.size();
@@ -4091,8 +4078,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 		int num_parameter_names = 0;
 		std::vector< std::string > parameter_names( 0 );
 
-		if ( _current_host_ptr_->get_parameter_names( num_parameter_names,
-				parameter_names ) )
+		if ( _current_host_ptr_->get_parameter_names( parameter_names ) )
 			return 1;
 
 		for ( unsigned int i = 0; i < _host_output_parameters_.size(); i++ )

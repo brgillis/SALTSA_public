@@ -17,6 +17,7 @@
 #include "brg_vector.hpp"
 #include "brg_global.h"
 #include "brg_units.h"
+#include "brg_functions.h"
 
 // Macro definitions
 
@@ -602,15 +603,19 @@ public:
 // Initialisation of static members
 #if (1)
 
-// These ones should be specialised for default values
+// These ones must be specialised for default values. The zeros in the initialisers and templates
+// should be replaced with the number of dimensions.
 template<typename name>
-double brgastro::brg_cache<name>::_mins_ = 0;
+double brgastro::brg_cache<name>::_mins_(0);
 
 template<typename name>
-double brgastro::brg_cache<name>::_maxes_ = 0;
+double brgastro::brg_cache<name>::_maxes_(0);
 
 template<typename name>
-double brgastro::brg_cache<name>::_steps_ = 1; // To avoid divide-by-zero issues
+double brgastro::brg_cache<name>::_steps_(0); // Never let any of the steps be zero
+
+template<typename name>
+brgastro::multi_vector<double,0> brgastro::brg_cache<name>::_results_; // Get the number of dimensions right in the template
 
 // These ones don't need to be altered for each child, but they should be copied
 template<typename name>
@@ -618,9 +623,6 @@ bool brgastro::brg_cache<name>::_loaded_ = false;
 
 template<typename name>
 bool brgastro::brg_cache<name>::_initialised_ = false;
-
-template<typename name>
-short int brgastro::brg_cache<name>::_is_monotonic_ = 0;
 
 template<typename name>
 unsigned int brgastro::brg_cache<name>::_sig_digits_ = 8;
@@ -633,9 +635,6 @@ std::string brgastro::brg_cache<name>::_file_name_ = "";
 
 template<typename name>
 std::string brgastro::brg_cache<name>::_header_string_ = "";
-
-template<typename name>
-std::vector<double> brgastro::brg_cache<name>::_results_;
 
 #endif
 

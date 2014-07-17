@@ -1087,8 +1087,13 @@ public:
 
 #endif // end basic get functions
 
-	virtual const int get_parameters( int & num_parameters,
-			std::vector< BRG_UNITS > & parameters,
+	virtual const unsigned int num_parameters() const
+	{
+		throw std::runtime_error("ERROR: num_parameters must be overridden if it's used.");
+		return 0;
+	}
+
+	virtual const int get_parameters( std::vector< BRG_UNITS > & parameters,
 			const bool silent = false ) const // Returns a set of parameters for this halo (all the variables needed to define it - must be defined for each child)
 	{
 		if ( !silent )
@@ -1097,9 +1102,8 @@ public:
 		return MUST_OVERRIDE_ERROR;
 	}
 
-	virtual const int get_parameter_names( int & num_parameters,
-			std::vector< std::string > & parameter_names, const bool silent =
-					false ) const // Returns a set of names of this halo's parameters
+	virtual const int get_parameter_names( std::vector< std::string > & parameter_names,
+			const bool silent = false ) const // Returns a set of names of this halo's parameters
 	{
 		if ( !silent )
 			std::cerr
@@ -1358,13 +1362,15 @@ public:
 			const double group_c, const bool silent = false ) const;
 	const BRG_UNITS quick_group_WLsig( const BRG_DISTANCE &R,
 			const double group_c, const bool silent = false ) const;
-	const int get_parameters( int & num_parameters,
-			std::vector< BRG_UNITS > & parameters,
+	const unsigned int num_parameters() const
+	{
+		return 4; // Mass, redshift, c, and tau
+	}
+	const int get_parameters( std::vector< BRG_UNITS > & parameters,
 			const bool silent = true ) const;
 
-	const int get_parameter_names( int & num_parameters,
-			std::vector< std::string > & parameter_names, const bool silent =
-					true ) const;
+	const int get_parameter_names( std::vector< std::string > & parameter_names,
+			const bool silent = true ) const;
 #endif // end advanced get functions
 
 #if (1) // Other operations
@@ -1458,13 +1464,15 @@ public:
 			const bool silent = false ) const;
 	const BRG_MASS proj_enc_mass( const BRG_DISTANCE &R,
 			const bool silent = false ) const;
-	const int get_parameters( int & num_parameters,
-			std::vector< BRG_UNITS > & parameters,
+	const unsigned int num_parameters() const
+	{
+		return 2; // Mass and redshift
+	}
+	const int get_parameters( std::vector< BRG_UNITS > & parameters,
 			const bool silent = false ) const;
 
-	const int get_parameter_names( int & num_parameters,
-			std::vector< std::string > & parameter_names, const bool silent =
-					false ) const;
+	const int get_parameter_names( std::vector< std::string > & parameter_names,
+			const bool silent = false ) const;
 #endif // end advanced get functions
 
 #if (1) // Other operations

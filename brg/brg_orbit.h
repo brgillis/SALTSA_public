@@ -749,7 +749,7 @@ public:
 #if (1)
 	// Constructors, destructor, and related functions
 	stripping_orbit(); // Basic constructor
-	stripping_orbit( density_profile *host, density_profile *satellite,
+	stripping_orbit( const density_profile *host, const density_profile *satellite,
 			const int init_resolution = 200 ); // Constructor with initial params
 	stripping_orbit( const stripping_orbit &other_orbit_spline ); // Copy constructor
 	stripping_orbit & operator=( const stripping_orbit &other_orbit_spline ); // Assignment operator
@@ -863,8 +863,7 @@ public:
 			const BRG_DISTANCE &z, const BRG_TIME &t,
 			const double new_test_mass = 1 ); // Only use if v is unknown
 	const int add_discontinuity_time( const BRG_TIME &t ); // Splits into segments to be calculated individually
-	const int add_host_parameter_point( const unsigned int num_parameters,
-			const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
+	const int add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
 			const bool silent = false ); // Tells how host_ptr is evolving
 	const int clear_points();
 	const int clear_discontinuity_times();
@@ -876,7 +875,7 @@ public:
 	const int set_tNFW_init_satellite( const BRG_MASS &new_init_mvir0,
 			const double z = 0, const double new_init_c = 0,
 			const double new_init_tau = 0 ); // Creates a new profile
-	const int set_tNFW_host( const BRG_MASS &new_mvir0, const double z = 0,
+	const int set_tNFW_init_host( const BRG_MASS &new_mvir0, const double z = 0,
 			const double new_c = 0, const double new_tau = 0 ); // Creates a new profile
 	const int clear_init_satellite();
 	const int clear_init_host();

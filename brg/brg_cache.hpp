@@ -14,6 +14,7 @@
 #include <sstream>
 #include "brg_global.h"
 #include "brg_units.h"
+#include "brg_functions.h"
 
 // Macro definitions
 

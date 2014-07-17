@@ -1075,11 +1075,10 @@ const BRG_MASS brgastro::tNFW_profile::proj_enc_mass( const BRG_DISTANCE &r,
 	return proj_enc_dens( r, silent ) * pi * r * r;
 }
 
-const int brgastro::tNFW_profile::get_parameters( int & num_parameters,
-		std::vector< BRG_UNITS > & parameters, const bool silent ) const
+const int brgastro::tNFW_profile::get_parameters( std::vector< BRG_UNITS > & parameters,
+		const bool silent ) const
 {
-	num_parameters = 4;
-	parameters.resize( num_parameters );
+	parameters.resize( num_parameters() );
 
 	try
 	{
@@ -1095,11 +1094,10 @@ const int brgastro::tNFW_profile::get_parameters( int & num_parameters,
 	return 0;
 }
 
-const int brgastro::tNFW_profile::get_parameter_names( int & num_parameters,
-		std::vector< std::string > & parameter_names, const bool silent ) const
+const int brgastro::tNFW_profile::get_parameter_names( std::vector< std::string > & parameter_names,
+		const bool silent ) const
 {
-	num_parameters = 4;
-	parameter_names.resize( num_parameters );
+	parameter_names.resize( num_parameters() );
 
 	try
 	{
@@ -1293,11 +1291,10 @@ const BRG_MASS brgastro::point_mass_profile::proj_enc_mass(
 	return _mass_;
 }
 
-const int brgastro::point_mass_profile::get_parameters( int & num_parameters,
-		std::vector< BRG_UNITS > & parameters, const bool silent ) const
+const int brgastro::point_mass_profile::get_parameters( std::vector< BRG_UNITS > & parameters,
+		const bool silent ) const
 {
-	num_parameters = 2;
-	parameters.resize( num_parameters );
+	parameters.resize( num_parameters() );
 
 	try
 	{
@@ -1311,12 +1308,10 @@ const int brgastro::point_mass_profile::get_parameters( int & num_parameters,
 	return 0;
 }
 
-const int brgastro::point_mass_profile::get_parameter_names(
-		int & num_parameters, std::vector< std::string > & parameter_names,
+const int brgastro::point_mass_profile::get_parameter_names(std::vector< std::string > & parameter_names,
 		const bool silent ) const
 {
-	num_parameters = 2;
-	parameter_names.resize( num_parameters );
+	parameter_names.resize( num_parameters() );
 
 	try
 	{
