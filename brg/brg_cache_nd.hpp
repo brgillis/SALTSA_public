@@ -31,7 +31,7 @@
 #define DECLARE_BRG_CACHE_STATIC_VARS(init_num_dim)		               \
 	static std::vector<double> _mins_, _maxes_, _steps_;           \
 	static std::vector<unsigned int> _resolutions_;                \
-	static boost::multi_array<double, init_num_dim> _results_;          \
+	static brgastro::multi_vector<double, init_num_dim> _results_;          \
 											                       \
 	static std::string _file_name_;                                \
 	static std::string _header_string_;                            \
@@ -441,8 +441,8 @@ public:
 		}
 
 		x_i = (std::vector<unsigned int>)divide( subtract( x, SPCP(name)->_mins_ ), SPCP(name)->_steps_ );
-		x_i = max( x_i, std::vector<unsigned int>(_num_dim_,0) );
-		x_i = min( x_i, std::vector<unsigned int>(_num_dim_,SPCP(name)->_resolutions_ - 2) );
+		x_i = brgastro::max( x_i, std::vector<unsigned int>(_num_dim_,0) );
+		x_i = brgastro::min( x_i, std::vector<unsigned int>(_num_dim_,SPCP(name)->_resolutions_ - 2) );
 
 		xlo = add(SPCP(name)->_mins_, multiply(SPCP(name)->_steps_, x_i));
 		xhi = add(SPCP(name)->_mins_, multiply(SPCP(name)->_steps_, add( x_i, 1 )));
