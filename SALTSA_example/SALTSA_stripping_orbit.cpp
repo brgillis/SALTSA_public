@@ -88,8 +88,8 @@ const int SALTSA::spline_function::set_spline_ptr(
 }
 
 // Function method
-const int SALTSA::spline_function::operator()( const BRG_UNITS & in_param,
-BRG_UNITS & out_param, const bool silent ) const
+const int SALTSA::spline_function::operator()( const double & in_param,
+double & out_param, const bool silent ) const
 {
 	if ( !_spline_ptr_set_up_ )
 	{
@@ -129,8 +129,8 @@ const int SALTSA::spline_derivative_function::set_spline_ptr(
 
 // Function method
 const int SALTSA::spline_derivative_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
 	if ( !_spline_function_set_up_ )
 	{
@@ -139,8 +139,8 @@ const int SALTSA::spline_derivative_function::operator()(
 					<< "ERROR: Spline function must be set up in spline_derivative_function.\n";
 		return NOT_SET_UP_ERROR;
 	}
-	BRG_UNITS temp_out_params;
-	BRG_UNITS Jacobian;
+	double temp_out_params;
+	double Jacobian;
 	unsigned int temp_num_out_params;
 
 	if ( differentiate( &_spline_function_, 1, in_param, temp_num_out_params,
@@ -203,8 +203,8 @@ const int SALTSA::spline_derivative_weight_function::set_t_max(
 
 // Function method
 const int SALTSA::spline_derivative_weight_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
 
 	double result;
@@ -418,10 +418,10 @@ const double SALTSA::spline_derivative::operator()( double xval ) const
 			double t = _unknown_t_list_[i];
 			spline_derivative_weight_function_val.set_center_point( t );
 			unsigned int num_in_params = 1, num_out_params = 1;
-			BRG_UNITS min_in_params( t - delta_t );
-			BRG_UNITS max_in_params( t + delta_t );
-			BRG_UNITS out_params( 0 );
-			BRG_UNITS Jacobian( 0 );
+			double min_in_params( t - delta_t );
+			double max_in_params( t + delta_t );
+			double out_params( 0 );
+			double Jacobian( 0 );
 
 			if ( delta_t <= 0 )
 			{
@@ -821,8 +821,8 @@ const int SALTSA::stripping_orbit::clear_calcs() const
 	return 0;
 }
 
-const int SALTSA::stripping_orbit::add_point( const BRG_DISTANCE &x,
-		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_TIME &t,
+const int SALTSA::stripping_orbit::add_point( const double &x,
+		const double &y, const double &z, const double &t,
 		const double new_mass )
 {
 	_calculated_ = false;
@@ -857,9 +857,9 @@ const int SALTSA::stripping_orbit::add_point( const BRG_DISTANCE &x,
 	return 0;
 }
 
-const int SALTSA::stripping_orbit::add_point( const BRG_DISTANCE &x,
-		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
-		const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
+const int SALTSA::stripping_orbit::add_point( const double &x,
+		const double &y, const double &z, const double &vx,
+		const double &vy, const double &vz, const double &t,
 		const double new_test_mass )
 {
 	_calculated_ = false;
@@ -896,7 +896,7 @@ const int SALTSA::stripping_orbit::add_point( const BRG_DISTANCE &x,
 
 const int SALTSA::stripping_orbit::add_host_parameter_point(
 		const unsigned int num_parameters,
-		const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
+		const std::vector< double > &parameters, const double &t,
 		const bool silent )
 {
 	// Check num_parameters matches vector size
@@ -916,7 +916,7 @@ const int SALTSA::stripping_orbit::add_host_parameter_point(
 	}
 
 	_host_parameter_spline_points_.push_back(
-			std::pair< double, std::vector< BRG_UNITS > >( t, parameters ) );
+			std::pair< double, std::vector< double > >( t, parameters ) );
 
 	if ( _host_parameter_spline_points_.size() >= 2 )
 		_host_is_evolving_ = true;
@@ -927,7 +927,7 @@ const int SALTSA::stripping_orbit::add_host_parameter_point(
 }
 
 const int SALTSA::stripping_orbit::add_discontinuity_time(
-		const BRG_TIME &t )
+		const double &t )
 {
 	try
 	{
@@ -995,7 +995,7 @@ const int SALTSA::stripping_orbit::set_init_satellite(
 }
 
 const int SALTSA::stripping_orbit::set_tNFW_init_satellite(
-		const BRG_MASS &new_init_mvir0, const double z,
+		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
 	_using_private_init_satellite_ = true;
@@ -1015,7 +1015,7 @@ const int SALTSA::stripping_orbit::set_tNFW_init_satellite(
 }
 
 const int SALTSA::stripping_orbit::set_tNFW_host(
-		const BRG_MASS &new_init_mvir0, const double z,
+		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
 	_using_private_init_host_ = true;
@@ -1581,14 +1581,14 @@ const int SALTSA::stripping_orbit::reset_tidal_shocking_power()
 }
 #endif
 
-const int SALTSA::stripping_orbit::set_t_min( const BRG_TIME &new_t_min )
+const int SALTSA::stripping_orbit::set_t_min( const double &new_t_min )
 {
 	_t_min_override_value_ = new_t_min;
 	_override_t_min_ = true;
 	return 0;
 }
 
-const int SALTSA::stripping_orbit::set_t_max( const BRG_TIME &new_t_max )
+const int SALTSA::stripping_orbit::set_t_max( const double &new_t_max )
 {
 	_t_max_override_value_ = new_t_max;
 	_override_t_max_ = true;
@@ -1801,7 +1801,7 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 	for ( unsigned int i = 0; i < _host_parameter_spline_points_.size(); i++ )
 	{
 		double t = _host_parameter_spline_points_.at( i ).first;
-		std::vector< BRG_UNITS > host_parameters =
+		std::vector< double > host_parameters =
 				_host_parameter_spline_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
@@ -2108,7 +2108,7 @@ const int SALTSA::stripping_orbit::print_full_data( std::ostream *out ) const
 	return 0;
 }
 
-const int SALTSA::stripping_orbit::get_final_mret( BRG_MASS & mret ) const
+const int SALTSA::stripping_orbit::get_final_mret( double & mret ) const
 {
 	if ( !_calculated_ )
 	{
@@ -2138,7 +2138,7 @@ const int SALTSA::stripping_orbit::get_final_fmret( double & fmret ) const
 }
 
 const int SALTSA::stripping_orbit::get_final_sum_deltarho(
-BRG_UNITS & final_sum_deltarho ) const
+double & final_sum_deltarho ) const
 {
 	if ( !_calculated_ )
 	{
@@ -2170,7 +2170,7 @@ const int SALTSA::stripping_orbit::get_final_sum_gabdt(
 }
 
 const int SALTSA::stripping_orbit::get_last_infall_time(
-		BRG_TIME & t ) const
+		double & t ) const
 {
 	if ( !_calculated_ )
 	{
@@ -2260,9 +2260,9 @@ const int SALTSA::stripping_orbit::clone_final_host(
 }
 
 // Get final data (throws exception on failure)
-const BRG_MASS SALTSA::stripping_orbit::final_mret() const
+const double SALTSA::stripping_orbit::final_mret() const
 {
-	BRG_MASS result = -1;
+	double result = -1;
 
 	if ( get_final_mret( result ) )
 	{
@@ -2271,9 +2271,9 @@ const BRG_MASS SALTSA::stripping_orbit::final_mret() const
 	return result;
 }
 
-const BRG_UNITS SALTSA::stripping_orbit::final_sum_deltarho() const
+const double SALTSA::stripping_orbit::final_sum_deltarho() const
 {
-	BRG_UNITS result = -1;
+	double result = -1;
 
 	if ( get_final_sum_deltarho( result ) )
 	{
@@ -2304,9 +2304,9 @@ const SALTSA::gabdt SALTSA::stripping_orbit::final_sum_gabdt() const
 	return result;
 }
 
-const BRG_TIME SALTSA::stripping_orbit::last_infall_time() const
+const double SALTSA::stripping_orbit::last_infall_time() const
 {
-	BRG_TIME result;
+	double result;
 
 	if ( get_last_infall_time( result ) )
 	{
@@ -2931,8 +2931,8 @@ const int SALTSA::stripping_orbit_segment::set_tidal_shocking_power(
 #endif
 
 
-const int SALTSA::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
-		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_TIME &t,
+const int SALTSA::stripping_orbit_segment::add_point( const double &x,
+		const double &y, const double &z, const double &t,
 		const double new_mass )
 {
 	_calculated_ = false;
@@ -2966,9 +2966,9 @@ const int SALTSA::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
 	return 0;
 }
 
-const int SALTSA::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
-		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
-		const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
+const int SALTSA::stripping_orbit_segment::add_point( const double &x,
+		const double &y, const double &z, const double &vx,
+		const double &vy, const double &vz, const double &t,
 		const double new_test_mass )
 {
 	_calculated_ = false;
@@ -3003,7 +3003,7 @@ const int SALTSA::stripping_orbit_segment::add_point( const BRG_DISTANCE &x,
 }
 
 const int SALTSA::stripping_orbit_segment::add_x_point(
-		const BRG_DISTANCE &x, const BRG_TIME &t )
+		const double &x, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3031,7 +3031,7 @@ const int SALTSA::stripping_orbit_segment::add_x_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_y_point(
-		const BRG_DISTANCE &y, const BRG_TIME &t )
+		const double &y, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3059,7 +3059,7 @@ const int SALTSA::stripping_orbit_segment::add_y_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_z_point(
-		const BRG_DISTANCE &z, const BRG_TIME &t )
+		const double &z, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3087,7 +3087,7 @@ const int SALTSA::stripping_orbit_segment::add_z_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_vx_point(
-		const BRG_VELOCITY &vx, const BRG_TIME &t )
+		const double &vx, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3115,7 +3115,7 @@ const int SALTSA::stripping_orbit_segment::add_vx_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_vy_point(
-		const BRG_VELOCITY &vy, const BRG_TIME &t )
+		const double &vy, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3143,7 +3143,7 @@ const int SALTSA::stripping_orbit_segment::add_vy_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_vz_point(
-		const BRG_VELOCITY &vz, const BRG_TIME &t )
+		const double &vz, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3171,7 +3171,7 @@ const int SALTSA::stripping_orbit_segment::add_vz_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_unknown_vx_point(
-		const BRG_TIME &t )
+		const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3199,7 +3199,7 @@ const int SALTSA::stripping_orbit_segment::add_unknown_vx_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_unknown_vy_point(
-		const BRG_TIME &t )
+		const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3227,7 +3227,7 @@ const int SALTSA::stripping_orbit_segment::add_unknown_vy_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_unknown_vz_point(
-		const BRG_TIME &t )
+		const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3255,7 +3255,7 @@ const int SALTSA::stripping_orbit_segment::add_unknown_vz_point(
 }
 
 const int SALTSA::stripping_orbit_segment::add_test_mass_point(
-		const double test_mass, const BRG_TIME &t )
+		const double test_mass, const double &t )
 {
 	_calculated_ = false;
 	try
@@ -3284,7 +3284,7 @@ const int SALTSA::stripping_orbit_segment::add_test_mass_point(
 
 const int SALTSA::stripping_orbit_segment::add_host_parameter_point(
 		const unsigned int num_parameters,
-		const std::vector< BRG_UNITS > & parameters, const BRG_TIME &t,
+		const std::vector< double > & parameters, const double &t,
 		const bool silent )
 {
 	// Check num_parameters matches vector size
@@ -3384,7 +3384,7 @@ const int SALTSA::stripping_orbit_segment::set_init_satellite(
 }
 
 const int SALTSA::stripping_orbit_segment::set_init_sum_deltarho(
-		const BRG_UNITS &new_init_sum_deltarho )
+		const double &new_init_sum_deltarho )
 {
 	_init_sum_delta_rho_ = new_init_sum_deltarho;
 	return 0;
@@ -3398,7 +3398,7 @@ const int SALTSA::stripping_orbit_segment::set_init_sum_gabdt(
 }
 
 const int SALTSA::stripping_orbit_segment::set_tNFW_init_satellite(
-		const BRG_MASS &new_init_mvir0, const double z,
+		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
 	_using_private_init_satellite_ = true;
@@ -3425,7 +3425,7 @@ const int SALTSA::stripping_orbit_segment::set_tNFW_init_satellite(
 }
 
 const int SALTSA::stripping_orbit_segment::set_tNFW_host(
-		const BRG_MASS &new_init_mvir0, const double z,
+		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
 	_using_private_init_host_ = true;
@@ -3455,7 +3455,7 @@ const int SALTSA::stripping_orbit_segment::set_tNFW_host(
 }
 
 const int SALTSA::stripping_orbit_segment::set_t_min(
-		const BRG_TIME &new_t_min )
+		const double &new_t_min )
 {
 	_t_min_override_val_ = new_t_min;
 	_override_t_min_ = true;
@@ -3463,7 +3463,7 @@ const int SALTSA::stripping_orbit_segment::set_t_min(
 }
 
 const int SALTSA::stripping_orbit_segment::set_t_max(
-		const BRG_TIME &new_t_max )
+		const double &new_t_max )
 {
 	_t_max_override_val_ = new_t_max;
 	_override_t_max_ = true;
@@ -3582,12 +3582,12 @@ const int SALTSA::stripping_orbit_segment::set_record_full_data(
 // Function to calculate stripping
 const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 {
-	BRG_DISTANCE r;
-	BRG_VELOCITY v, vt, vr;
-	BRG_TIME t, t_step, t_min_to_use, t_max_to_use;
-	BRG_UNITS current_deltarho;
-	std::vector< BRG_UNITS > satellite_parameters;
-	std::vector< BRG_UNITS > host_parameters;
+	double r;
+	double v, vt, vr;
+	double t, t_step, t_min_to_use, t_max_to_use;
+	double current_deltarho;
+	std::vector< double > satellite_parameters;
+	std::vector< double > host_parameters;
 	int num_satellite_parameters = 0;
 	int num_host_parameters = 0;
 	int counter = 0;
@@ -4117,7 +4117,7 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 		}
 	}
 
-	BRG_TIME t_min_to_use, t_max_to_use;
+	double t_min_to_use, t_max_to_use;
 
 	if ( _override_t_min_ )
 	{
@@ -4293,8 +4293,8 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 		return print_table( *out, num_columns, num_rows, header, data, true ); // Format for header, but don't print it again
 }
 
-const BRG_UNITS SALTSA::stripping_orbit_segment::_delta_rho(
-		const int index, const double x, const BRG_TIME &t_step,
+const double SALTSA::stripping_orbit_segment::_delta_rho(
+		const int index, const double x, const double &t_step,
 		const bool silent ) const
 {
 	if ( index < 1 )
@@ -4315,15 +4315,15 @@ const BRG_UNITS SALTSA::stripping_orbit_segment::_delta_rho(
 	return max( result, 0 );
 }
 
-const double SALTSA::stripping_orbit_segment::_step_length_factor( const BRG_VELOCITY & v, const BRG_DISTANCE & r ) const
+const double SALTSA::stripping_orbit_segment::_step_length_factor( const double & v, const double & r ) const
 {
 	/* Method to determine the appropriate factor for the step length.
 	 * It uses the host's virial velocity and radius so that parts of
 	 * the orbit with either high velocity or low distance from the host
 	 * will take small steps (and the inverse as well).
 	 */
-	BRG_VELOCITY v_0;
-	BRG_DISTANCE r_0;
+	double v_0;
+	double r_0;
 
 	// Determine proper scaling from the virial velocities, using the
 	// most appropriate value depending on what's been loaded.
@@ -4360,7 +4360,7 @@ const double SALTSA::stripping_orbit_segment::_step_length_factor( const BRG_VEL
 	return min(step_length_factor_v,step_length_factor_r);
 }
 
-const BRG_DISTANCE SALTSA::stripping_orbit_segment::_rvir(
+const double SALTSA::stripping_orbit_segment::_rvir(
 		const int index ) const
 {
 	try
@@ -4374,7 +4374,7 @@ const BRG_DISTANCE SALTSA::stripping_orbit_segment::_rvir(
 }
 
 const int SALTSA::stripping_orbit_segment::get_final_mret(
-BRG_MASS & mret, const bool silent ) const
+double & mret, const bool silent ) const
 {
 	if ( !_calculated_ )
 	{
@@ -4405,7 +4405,7 @@ const int SALTSA::stripping_orbit_segment::get_final_fmret( double & fmret,
 }
 
 const int SALTSA::stripping_orbit_segment::get_final_sum_deltarho(
-BRG_UNITS & final_sum_deltarho, const bool silent ) const
+double & final_sum_deltarho, const bool silent ) const
 {
 	if ( !_calculated_ )
 	{
@@ -4509,9 +4509,9 @@ const int SALTSA::stripping_orbit_segment::clone_final_host(
 
 #if (1) // Get final data (throws exception on error)
 
-const BRG_MASS SALTSA::stripping_orbit_segment::final_mret() const
+const double SALTSA::stripping_orbit_segment::final_mret() const
 {
-	BRG_MASS result = -1;
+	double result = -1;
 
 	if ( get_final_mret( result ) )
 	{
@@ -4522,9 +4522,9 @@ const BRG_MASS SALTSA::stripping_orbit_segment::final_mret() const
 	return result;
 }
 
-const BRG_UNITS SALTSA::stripping_orbit_segment::final_sum_deltarho() const
+const double SALTSA::stripping_orbit_segment::final_sum_deltarho() const
 {
-	BRG_UNITS result;
+	double result;
 
 	if ( get_final_sum_deltarho( result ) )
 	{
@@ -4616,11 +4616,11 @@ const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_host() co
 #if (1)
 
 const int SALTSA::solve_rt_grid_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
-	BRG_DISTANCE r;
-	BRG_MASS delta_M;
+	double r;
+	double delta_M;
 	r = std::fabs( in_param );
 
 	delta_M = sum_rho * 4. / 3. * pi * std::pow( r, 3 );
@@ -4649,8 +4649,8 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function()
 	return;
 }
 SALTSA::solve_rt_grid_function::solve_rt_grid_function(
-		const BRG_UNITS init_omega, const density_profile *init_satellite,
-		const BRG_UNITS init_Daccel, const BRG_UNITS init_sum_rho )
+		const double init_omega, const density_profile *init_satellite,
+		const double init_Daccel, const double init_sum_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
@@ -4660,12 +4660,12 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function(
 }
 
 const int SALTSA::solve_rt_it_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
-	BRG_DISTANCE r = 0;
-	BRG_MASS delta_M = 0;
-	BRG_UNITS r3 = 0;
+	double r = 0;
+	double delta_M = 0;
+	double r3 = 0;
 
 	r = std::fabs( in_param );
 
@@ -4693,8 +4693,8 @@ SALTSA::solve_rt_it_function::solve_rt_it_function()
 	return;
 }
 SALTSA::solve_rt_it_function::solve_rt_it_function(
-		const BRG_UNITS init_omega, const density_profile *init_satellite,
-		const BRG_UNITS init_Daccel, const BRG_UNITS init_sum_rho )
+		const double init_omega, const density_profile *init_satellite,
+		const double init_Daccel, const double init_sum_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
@@ -4728,8 +4728,8 @@ SALTSA::gabdt::gabdt( const gabdt & other_gabdt )
 }
 
 SALTSA::gabdt::gabdt( const density_profile *new_host,
-		const BRG_DISTANCE &new_x, const BRG_DISTANCE &new_y,
-		const BRG_DISTANCE &new_z, const BRG_TIME &new_dt )
+		const double &new_x, const double &new_y,
+		const double &new_z, const double &new_dt )
 {
 	set( new_host, new_x, new_y, new_z, new_dt );
 }
@@ -4751,8 +4751,8 @@ const int SALTSA::gabdt::clear()
 }
 
 const int SALTSA::gabdt::set( const density_profile *new_host,
-		const BRG_DISTANCE &new_x, const BRG_DISTANCE &new_y,
-		const BRG_DISTANCE &new_z, const BRG_TIME &new_dt )
+		const double &new_x, const double &new_y,
+		const double &new_z, const double &new_dt )
 {
 	_is_cached_ = false;
 	_host_ptr_ = new_host;
@@ -4766,8 +4766,8 @@ const int SALTSA::gabdt::set_host_ptr( const density_profile *new_host )
 	_host_ptr_ = new_host;
 	return 0;
 }
-const int SALTSA::gabdt::set_pos( const BRG_DISTANCE &new_x,
-		const BRG_DISTANCE &new_y, const BRG_DISTANCE &new_z )
+const int SALTSA::gabdt::set_pos( const double &new_x,
+		const double &new_y, const double &new_z )
 {
 	_is_cached_ = false;
 	_x_ = new_x;
@@ -4777,7 +4777,7 @@ const int SALTSA::gabdt::set_pos( const BRG_DISTANCE &new_x,
 	_dv_.clear();
 	return 0;
 }
-const int SALTSA::gabdt::set_dt( const BRG_TIME &new_dt )
+const int SALTSA::gabdt::set_dt( const double &new_dt )
 {
 	if ( _is_cached_ )
 	{
@@ -4796,7 +4796,7 @@ const int SALTSA::gabdt::calc_dv( const bool silent ) const
 	gabdt_function gabdtf;
 	gabdtf.host_ptr = _host_ptr_;
 	unsigned int num_in_params = 3, num_out_params = 3;
-	std::vector< BRG_UNITS > in_params( num_in_params, 0 ), out_params(
+	std::vector< double > in_params( num_in_params, 0 ), out_params(
 			num_out_params, 0 );
 	make_array2d( _dv_, num_out_params, num_in_params );
 
@@ -4840,23 +4840,23 @@ const SALTSA::density_profile * SALTSA::gabdt::host() const
 {
 	return _host_ptr_;
 }
-const BRG_DISTANCE SALTSA::gabdt::x() const
+const double SALTSA::gabdt::x() const
 {
 	return _x_;
 }
-const BRG_DISTANCE SALTSA::gabdt::y() const
+const double SALTSA::gabdt::y() const
 {
 	return _y_;
 }
-const BRG_DISTANCE SALTSA::gabdt::z() const
+const double SALTSA::gabdt::z() const
 {
 	return _z_;
 }
-const BRG_DISTANCE SALTSA::gabdt::r() const
+const double SALTSA::gabdt::r() const
 {
 	return _r_;
 }
-const std::vector< std::vector< BRG_UNITS > > SALTSA::gabdt::dv() const
+const std::vector< std::vector< double > > SALTSA::gabdt::dv() const
 {
 	if ( !_is_cached_ )
 	{
@@ -4865,7 +4865,7 @@ const std::vector< std::vector< BRG_UNITS > > SALTSA::gabdt::dv() const
 	}
 	return _dv_;
 }
-const BRG_UNITS SALTSA::gabdt::dv( const int x_i, const int y_i ) const
+const double SALTSA::gabdt::dv( const int x_i, const int y_i ) const
 {
 	return dv()[x_i][y_i];
 }
@@ -4890,7 +4890,7 @@ SALTSA::gabdt & SALTSA::gabdt::operator=( const gabdt &other_gabdt )
 	return *this;
 }
 
-const BRG_UNITS SALTSA::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-product" operator
+const double SALTSA::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-product" operator
 {
 	if ( !_is_cached_ )
 		if ( calc_dv() )
@@ -4980,8 +4980,8 @@ SALTSA::gabdt_function::gabdt_function()
 }
 
 const int SALTSA::gabdt_function::operator()(
-		const std::vector< BRG_UNITS > & in_params,
-		std::vector< BRG_UNITS > & out_params, const bool silent ) const
+		const std::vector< double > & in_params,
+		std::vector< double > & out_params, const bool silent ) const
 {
 	if ( in_params.size() != 3 )
 	{
@@ -5023,12 +5023,12 @@ const int SALTSA::gabdt_function::operator()(
 // SALTSA function definitions
 #if (1)
 const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const density_profile *host_group,
-		const density_profile *satellite, const BRG_DISTANCE &r,
-		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const BRG_UNITS &sum_rho ) const
+		const density_profile *satellite, const double &r,
+		const double &vr, const double &vt,
+		const double &time_step, const double &sum_rho ) const
 {
-	BRG_DISTANCE new_rt;
-	BRG_TIME inst_orbital_period, hm_period, stripping_period;
+	double new_rt;
+	double inst_orbital_period, hm_period, stripping_period;
 	double mass_frac_retained, mass_frac_lost_total;
 	inst_orbital_period = 2 * pi * r / safe_d(vt);
 	hm_period = satellite->othm();
@@ -5057,15 +5057,15 @@ const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const densit
 	return mass_frac_retained;
 }
 
-const BRG_DISTANCE SALTSA::stripping_orbit_segment::get_rt( const density_profile *host_group,
-		const density_profile *satellite, const BRG_DISTANCE &r,
-		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const BRG_UNITS &sum_rho,
+const double SALTSA::stripping_orbit_segment::get_rt( const density_profile *host_group,
+		const density_profile *satellite, const double &r,
+		const double &vr, const double &vt,
+		const double &time_step, const double &sum_rho,
 		const bool silent ) const
 {
-	BRG_UNITS omega;
-	BRG_DISTANCE new_rt, old_rt;
-	BRG_UNITS max_rt = 0;
+	double omega;
+	double new_rt, old_rt;
+	double max_rt = 0;
 
 	omega = vt / safe_d( r );
 

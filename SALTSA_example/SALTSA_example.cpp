@@ -25,14 +25,14 @@ int main( const int argc, const char *argv[] )
 //	double host_c = 8, satellite_c = 16; // Kamiab C
 //	double host_c = 4, satellite_c = 4; // Kamiab E
 
-	const BRG_MASS host_mass = std::pow(10,14)*unitconv::Msuntokg;
-	const BRG_MASS satellite_mass = std::pow(10,11)*unitconv::Msuntokg; // Taylor
+	const double host_mass = std::pow(10,14)*unitconv::Msuntokg;
+	const double satellite_mass = std::pow(10,11)*unitconv::Msuntokg; // Taylor
 
-//	const BRG_MASS host_mass = 512*std::pow(10,9)*unitconv::Msuntokg;
-//	const BRG_MASS satellite_mass = std::pow(10,9)*unitconv::Msuntokg; // Kamiab C
+//	const double host_mass = 512*std::pow(10,9)*unitconv::Msuntokg;
+//	const double satellite_mass = std::pow(10,9)*unitconv::Msuntokg; // Kamiab C
 
-//	const BRG_MASS host_mass = 64*std::pow(10,9)*unitconv::Msuntokg;
-//	const BRG_MASS satellite_mass = std::pow(10,9)*unitconv::Msuntokg; // Kamiab E
+//	const double host_mass = 64*std::pow(10,9)*unitconv::Msuntokg;
+//	const double satellite_mass = std::pow(10,9)*unitconv::Msuntokg; // Kamiab E
 
 	SALTSA::tNFW_profile host_group_val( host_mass, host_z, host_c), *host_group = &host_group_val;
 	SALTSA::point_mass_profile host_group_pm_val( host_mass, host_z );
@@ -44,11 +44,11 @@ int main( const int argc, const char *argv[] )
 	const int num_periods = 3; // Taylor
 //	const int num_periods = 5.5; // Kamiab
 
-	BRG_DISTANCE x, y, z;
-	BRG_VELOCITY vx, vy, vz;
-	BRG_TIME t;
-	const BRG_TIME total_time = num_periods*host_group->otvir(), t_step = total_time/orbit_resolution;
-	std::vector< BRG_UNITS > host_parameters;
+	double x, y, z;
+	double vx, vy, vz;
+	double t;
+	const double total_time = num_periods*host_group->otvir(), t_step = total_time/orbit_resolution;
+	std::vector< double > host_parameters;
 
 	// Print the period in Gyr
 
@@ -185,8 +185,6 @@ int main( const int argc, const char *argv[] )
 		out.close();
 
 		std::cout << "Done!\n";
-
-		return 0;
 
 		test_orbit.clear();
 	}

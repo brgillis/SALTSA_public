@@ -66,7 +66,7 @@ const SALTSA::unit_obj Gc(6.67384e-11,3,-2,-1,0,0); // In m^3 s^-2 kg^-1
 #else
 const float Gc = 6.67384e-11; // In m^3 s^-2 kg^-1
 #endif
-const BRG_VELOCITY c = unitconv::ctomps;
+const double c = unitconv::ctomps;
 
 #endif
 
@@ -177,14 +177,14 @@ class grid_cache
 private:
 	static int _ra_grid_change_num_, _dec_grid_change_num_,
 			_z_grid_change_num_;
-	static BRG_ANGLE _ra_grid_min_, _ra_grid_max_, _ra_grid_step_;
-	static BRG_ANGLE _dec_grid_min_, dec_grid_max_val, _dec_grid_step_;
+	static double _ra_grid_min_, _ra_grid_max_, _ra_grid_step_;
+	static double _dec_grid_min_, dec_grid_max_val, _dec_grid_step_;
 	static double _z_grid_min_, _z_grid_max_, _z_grid_step_;
 public:
 	// Set functions
 #if (1)
-	const int set_ra_grid( const BRG_ANGLE new_ra_grid_min,
-			const BRG_ANGLE new_ra_grid_max, const BRG_ANGLE new_ra_grid_step )
+	const int set_ra_grid( const double new_ra_grid_min,
+			const double new_ra_grid_max, const double new_ra_grid_step )
 	{
 		_ra_grid_min_ = new_ra_grid_min;
 		_ra_grid_max_ = new_ra_grid_max;
@@ -193,9 +193,9 @@ public:
 		return 0;
 	}
 
-	const int set_dec_grid( const BRG_ANGLE new_dec_grid_min,
-			const BRG_ANGLE new_dec_grid_max,
-			const BRG_ANGLE new_dec_grid_step )
+	const int set_dec_grid( const double new_dec_grid_min,
+			const double new_dec_grid_max,
+			const double new_dec_grid_step )
 	{
 		_dec_grid_min_ = new_dec_grid_min;
 		dec_grid_max_val = new_dec_grid_max;
@@ -230,11 +230,11 @@ public:
 	{
 		return _z_grid_change_num_;
 	}
-	const BRG_ANGLE ra_grid_min()
+	const double ra_grid_min()
 	{
 		return _ra_grid_min_;
 	}
-	const BRG_ANGLE dec_grid_min()
+	const double dec_grid_min()
 	{
 		return _dec_grid_min_;
 	}
@@ -242,11 +242,11 @@ public:
 	{
 		return _z_grid_min_;
 	}
-	const BRG_ANGLE ra_grid_max()
+	const double ra_grid_max()
 	{
 		return _ra_grid_max_;
 	}
-	const BRG_ANGLE dec_grid_max()
+	const double dec_grid_max()
 	{
 		return dec_grid_max_val;
 	}
@@ -254,11 +254,11 @@ public:
 	{
 		return _z_grid_max_;
 	}
-	const BRG_ANGLE ra_grid_step()
+	const double ra_grid_step()
 	{
 		return _ra_grid_step_;
 	}
-	const BRG_ANGLE dec_grid_step()
+	const double dec_grid_step()
 	{
 		return _dec_grid_step_;
 	}
@@ -329,7 +329,7 @@ public:
 			const double new_z_step, const bool silent = false );
 	const int set_precision( const int new_precision,
 			const bool silent = false );
-	const BRG_UNITS get( const double z1, const double z2, const bool silent =
+	const double get( const double z1, const double z2, const bool silent =
 			false );
 
 };
@@ -402,8 +402,8 @@ public:
 	const int set_precision( const int new_precision,
 			const bool silent = false );
 
-	const BRG_UNITS get( const double z_halo, const BRG_MASS m_halo,
-			const BRG_DISTANCE r_halo, const bool silent = false ); // Takes in standard units
+	const double get( const double z_halo, const double m_halo,
+			const double r_halo, const bool silent = false ); // Takes in standard units
 
 };
 // class tNFW_sig_cache
@@ -440,8 +440,8 @@ public:
 	const int set_precision( const int new_precision,
 			const bool silent = false );
 
-	const BRG_UNITS get( const double z_halo, const BRG_MASS m_halo,
-			const BRG_DISTANCE r, const BRG_DISTANCE offset_r,
+	const double get( const double z_halo, const double m_halo,
+			const double r, const double offset_r,
 			const bool silent = false ); // Takes in standard units
 
 };
@@ -479,8 +479,8 @@ public:
 	const int set_precision( const int new_precision,
 			const bool silent = false );
 
-	const BRG_UNITS get( const double z_halo, const BRG_MASS m_halo,
-			const BRG_DISTANCE r, const double group_c, const bool silent =
+	const double get( const double z_halo, const double m_halo,
+			const double r, const double group_c, const bool silent =
 					false ); // Takes in standard units
 
 };
@@ -497,45 +497,45 @@ public:
  \**********************************************************************/
 
 // Functions to get grid integers or grid boundaries from integers
-const int get_ra_grid( const BRG_ANGLE &ra );
-const int get_dec_grid( const BRG_ANGLE &dec );
+const int get_ra_grid( const double &ra );
+const int get_dec_grid( const double &dec );
 const int get_z_grid( const double z );
 
-const BRG_ANGLE get_ra_grid_lower( const int ra_grid );
-const BRG_ANGLE get_dec_grid_lower( const int dec_grid );
+const double get_ra_grid_lower( const int ra_grid );
+const double get_dec_grid_lower( const int dec_grid );
 const double get_z_grid_lower( const int z_grid );
 
-const BRG_ANGLE get_ra_grid_upper( const int ra_grid );
-const BRG_ANGLE get_dec_grid_upper( const int dec_grid );
+const double get_ra_grid_upper( const int ra_grid );
+const double get_dec_grid_upper( const int dec_grid );
 const double get_z_grid_upper( const int z_grid );
 
-const BRG_ANGLE get_ra_grid_mid( const int ra_grid );
-const BRG_ANGLE get_dec_grid_mid( const int dec_grid );
+const double get_ra_grid_mid( const int ra_grid );
+const double get_dec_grid_mid( const int dec_grid );
 const double get_z_grid_mid( const int z_grid );
 
 // Functions to get transverse distance (in m) from angle (in rad) or vice-versa
-const BRG_DISTANCE dfa( const BRG_ANGLE &da, const double z );
-const BRG_DISTANCE dfa( const BRG_ANGLE &a1, const BRG_ANGLE &a2,
+const double dfa( const double &da, const double z );
+const double dfa( const double &a1, const double &a2,
 		const double z );
-const BRG_DISTANCE dfa( const BRG_ANGLE &a1x, const BRG_ANGLE &a1y,
-		const BRG_ANGLE &a2x, const BRG_ANGLE &a2y, const double z );
-const BRG_DISTANCE dfa( const sky_obj *obj1, const sky_obj *obj2,
+const double dfa( const double &a1x, const double &a1y,
+		const double &a2x, const double &a2y, const double z );
+const double dfa( const sky_obj *obj1, const sky_obj *obj2,
 		const double z = -1 );
 
-const BRG_ANGLE afd( const BRG_DISTANCE &dd, const double z );
-const BRG_ANGLE afd( const BRG_DISTANCE &d1, const BRG_DISTANCE &d2,
+const double afd( const double &dd, const double z );
+const double afd( const double &d1, const double &d2,
 		const double z );
-const BRG_ANGLE afd( const BRG_DISTANCE &d1x, const BRG_DISTANCE &d1y,
-		const BRG_DISTANCE &d2x, const BRG_DISTANCE &d2y, const double z );
+const double afd( const double &d1x, const double &d1y,
+		const double &d2x, const double &d2y, const double z );
 
 // Functions to work between redshift, scale factor, and time (in s, with zero = present day)
 const double zfa( const double a );
 const double afz( const double z );
 
-const BRG_TIME tfz( const double z );
-const BRG_TIME tfa( const double z );
-const double zft( const BRG_TIME &t );
-const double aft( const BRG_TIME &t );
+const double tfz( const double z );
+const double tfa( const double z );
+const double zft( const double &t );
+const double aft( const double &t );
 
 // Functions to integrate out distances
 const double integrate_add( const double z1, const double z2 );
@@ -550,7 +550,7 @@ const double integrate_distance( const double z1, const double z2,
 		const int mode, const int resolution = 10000 );
 
 // Functions relating to tNFW profiles
-inline const double cfm( const BRG_MASS mass, const double z = 0 ) // Concentration from mass relationship, from Neto
+inline const double cfm( const double mass, const double z = 0 ) // Concentration from mass relationship, from Neto
 {
 	return 4.67 * std::pow( mass * unitconv::kgtottMsun / ( 1e4 ), -0.11 );
 }
@@ -573,12 +573,12 @@ inline const double delta_c( const double conc ) // Simple function of concentra
 
 // Function to estimate orbital period from current position and velocity in a density profile
 // Note that this is merely an estimate from analogy to calculations in a Keplerian potential
-const BRG_TIME period( const density_profile *host, const BRG_DISTANCE &r,
-		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt = 0 );
+const double period( const density_profile *host, const double &r,
+		const double &vr, const double &vt = 0 );
 
 // Lensing functions
-const BRG_DISTANCE ad_distance( double z1, double z2 = 0 );
-const BRG_UNITS sigma_crit( const double z_lens, const double z_source );
+const double ad_distance( double z1, double z2 = 0 );
+const double sigma_crit( const double z_lens, const double z_source );
 
 #endif // end function declarations
 
@@ -655,7 +655,7 @@ public:
 #endif
 
 	// H(z) at either the redshift of the object or a specified redshift, given in units of m/s^2
-	virtual const BRG_UNITS H( double ztest = -1 ) const;
+	virtual const double H( double ztest = -1 ) const;
 
 	// Clone function - Not needed in current implementation
 	// virtual redshift_obj *redshift_obj_clone()=0;
@@ -687,15 +687,15 @@ private:
 	mutable bool _ra_grid_cached_, _dec_grid_cached_;
 	mutable int _local_ra_grid_change_num_, _local_dec_grid_change_num_;
 
-	BRG_ANGLE _ra_, _ra_err_;BRG_ANGLE _dec_, _dec_err_;
+	double _ra_, _ra_err_;double _dec_, _dec_err_;
 #endif
 public:
 #if (1)
 	// Public member functions
 
 	// Constructor
-	sky_obj( BRG_ANGLE init_ra = 0, BRG_ANGLE init_dec = 0, double init_z = 0,
-	BRG_ANGLE init_ra_err = 0, BRG_ANGLE init_dec_err = 0, double init_z_err =
+	sky_obj( double init_ra = 0, double init_dec = 0, double init_z = 0,
+	double init_ra_err = 0, double init_dec_err = 0, double init_z_err =
 			0 ); // Normal constructor
 
 	//sky_obj(sky_obj other_sky_obj); // Copy constructor (Default is fine for us)
@@ -708,21 +708,21 @@ public:
 	virtual const int partial_clear(); // Resets all variables which can't be initialized
 
 #if (1) // Set functions
-	virtual const int set_ra( const BRG_ANGLE &new_ra );
-	virtual const int set_dec( const BRG_ANGLE &new_dec );
-	virtual const int set_ra_err( const BRG_ANGLE &new_ra_err );
-	virtual const int set_dec_err( const BRG_ANGLE &new_dec_err );
-	virtual const int set_ra_dec( const BRG_ANGLE &new_ra,
-			const BRG_ANGLE &new_dec ); // Sets ra and dec
-	virtual const int set_ra_dec_z( const BRG_ANGLE &new_ra,
-			const BRG_ANGLE &new_dec, const double new_z ); // Sets all values
-	virtual const int set_ra_dec_z_err( const BRG_ANGLE &new_ra,
-			const BRG_ANGLE &new_dec, const double new_z,
-			const BRG_ANGLE &new_ra_err, const BRG_ANGLE &new_dec_err,
+	virtual const int set_ra( const double &new_ra );
+	virtual const int set_dec( const double &new_dec );
+	virtual const int set_ra_err( const double &new_ra_err );
+	virtual const int set_dec_err( const double &new_dec_err );
+	virtual const int set_ra_dec( const double &new_ra,
+			const double &new_dec ); // Sets ra and dec
+	virtual const int set_ra_dec_z( const double &new_ra,
+			const double &new_dec, const double new_z ); // Sets all values
+	virtual const int set_ra_dec_z_err( const double &new_ra,
+			const double &new_dec, const double new_z,
+			const double &new_ra_err, const double &new_dec_err,
 			const double new_z_err ); // Sets all values and error
-	virtual const int set_ra_dec_err( const BRG_ANGLE &new_ra,
-			const BRG_ANGLE &new_dec, const BRG_ANGLE &new_ra_err,
-			const BRG_ANGLE &new_dec_err ); // Sets ra and dec and error
+	virtual const int set_ra_dec_err( const double &new_ra,
+			const double &new_dec, const double &new_ra_err,
+			const double &new_dec_err ); // Sets ra and dec and error
 
 	virtual const int set_weight( const double new_weight );
 	virtual const int set_index( const int new_index );
@@ -731,19 +731,19 @@ public:
 
 #if (1) //Get functions
 
-	virtual const BRG_ANGLE ra() const
+	virtual const double ra() const
 	{
 		return _ra_;
 	}
-	virtual const BRG_ANGLE dec() const
+	virtual const double dec() const
 	{
 		return _dec_;
 	}
-	virtual const BRG_ANGLE ra_err() const
+	virtual const double ra_err() const
 	{
 		return _ra_err_;
 	}
-	virtual const BRG_ANGLE dec_err() const
+	virtual const double dec_err() const
 	{
 		return _dec_err_;
 	}
@@ -796,7 +796,7 @@ public:
 
 	// Public member variables
 
-	BRG_MASS stellar_mass;
+	double stellar_mass;
 	double umag, gmag, rmag, imag, zmag;
 	double umag_err, gmag_err, rmag_err, imag_err, zmag_err;
 
@@ -944,11 +944,11 @@ private:
 #if (1)
 	int _hm_type_;
 
-	mutable BRG_DISTANCE _rhmvir_cache_, _rhmtot_cache_;
+	mutable double _rhmvir_cache_, _rhmtot_cache_;
 
-	BRG_VELOCITY _v_from_r( BRG_DISTANCE r ) const
+	double _v_from_r( double r ) const
 	{
-		BRG_UNITS a;
+		double a;
 
 		a = accel( fabs( r ) );
 		if ( a >= 0 )
@@ -983,8 +983,8 @@ public:
 
 #if (1) // Pure virtual functions (must be implemented by any derived classes)
 
-	virtual const BRG_MASS mvir() const =0; // Virial mass (exact definition can be chosen per profile)
-	virtual const BRG_UNITS dens( const BRG_DISTANCE &r ) const =0; // Local density at radius r
+	virtual const double mvir() const =0; // Virial mass (exact definition can be chosen per profile)
+	virtual const double dens( const double &r ) const =0; // Local density at radius r
 
 	virtual density_profile *density_profile_clone() const =0; // Creates a clone of this
 #endif
@@ -993,14 +993,14 @@ public:
 
 #if (1) // Set functions - will return 1 if profile doesn't support this method of setting
 	// All take values in default unit set (m, s, kg, K, rad, C)
-	virtual const int set_mvir( const BRG_MASS &new_mvir, bool silent = false )
+	virtual const int set_mvir( const double &new_mvir, bool silent = false )
 	{
 		if ( !silent )
 			std::cerr
 					<< "ERROR: density_profile::set_mvir(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_vvir( const BRG_VELOCITY &new_vvir, bool silent =
+	virtual const int set_vvir( const double &new_vvir, bool silent =
 			false )
 	{
 		if ( !silent )
@@ -1008,7 +1008,7 @@ public:
 					<< "ERROR: density_profile::set_vvir(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_rvir( const BRG_DISTANCE &new_rvir, bool silent =
+	virtual const int set_rvir( const double &new_rvir, bool silent =
 			false )
 	{
 		if ( !silent )
@@ -1016,14 +1016,14 @@ public:
 					<< "ERROR: density_profile::set_rvir(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_rs( const BRG_DISTANCE &new_rs, bool silent = false ) // Scale radius
+	virtual const int set_rs( const double &new_rs, bool silent = false ) // Scale radius
 	{
 		if ( !silent )
 			std::cerr
 					<< "ERROR: density_profile::set_rs(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_rt( const BRG_DISTANCE &new_rt, bool silent = false ) // Tidal/truncation radius
+	virtual const int set_rt( const double &new_rt, bool silent = false ) // Tidal/truncation radius
 	{
 		if ( !silent )
 			std::cerr
@@ -1031,7 +1031,7 @@ public:
 		return MUST_OVERRIDE_ERROR;
 	}
 	virtual const int set_parameters( const unsigned int num_parameters,
-			const std::vector< BRG_UNITS > &parameters, bool silent = false )
+			const std::vector< double > &parameters, bool silent = false )
 	{
 		if ( !silent )
 			std::cerr
@@ -1052,14 +1052,14 @@ public:
 					<< "ERROR: density_profile::set_c(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	const int override_rhmvir( const BRG_DISTANCE &new_rhmvir, bool silent =
+	const int override_rhmvir( const double &new_rhmvir, bool silent =
 			false )
 	{
 		_rhmvir_cache_ = new_rhmvir;
 		hmvir_cached = true;
 		return 0;
 	}
-	const int override_rhmtot( const BRG_DISTANCE &new_rhmtot, bool silent =
+	const int override_rhmtot( const double &new_rhmtot, bool silent =
 			false )
 	{
 		_rhmtot_cache_ = new_rhmtot;
@@ -1072,12 +1072,12 @@ public:
 #if (1) // Basic get functions
 	// All return values in default unit set (m, s, kg, K, rad, C)
 
-	virtual const BRG_MASS mtot() const // Total mass
+	virtual const double mtot() const // Total mass
 	{
 		return 0;
 	}
 
-	virtual const BRG_DISTANCE rt( const bool silent = false ) const // Tidal/truncation radius
+	virtual const double rt( const bool silent = false ) const // Tidal/truncation radius
 	{
 		if ( !silent )
 			std::cerr
@@ -1088,7 +1088,7 @@ public:
 #endif // end basic get functions
 
 	virtual const int get_parameters( int & num_parameters,
-			std::vector< BRG_UNITS > & parameters,
+			std::vector< double > & parameters,
 			const bool silent = false ) const // Returns a set of parameters for this halo (all the variables needed to define it - must be defined for each child)
 	{
 		if ( !silent )
@@ -1110,32 +1110,32 @@ public:
 #endif // end Virtual functions which must be overwritten if they're going to be used
 
 #if (1) // Virtual functions which should be overwritten if at all possible and if they'll be used
-	virtual const BRG_MASS enc_mass( const BRG_DISTANCE &r, const bool silent =
+	virtual const double enc_mass( const double &r, const bool silent =
 			true ) const; // Mass enclosed with sphere of radius r
-	virtual const BRG_UNITS proj_dens( const BRG_DISTANCE &R,
+	virtual const double proj_dens( const double &R,
 			const bool silent = true ) const; // Projected surface density at radius R
-	virtual const BRG_MASS proj_enc_mass( const BRG_DISTANCE &R,
+	virtual const double proj_enc_mass( const double &R,
 			const bool silent = true ) const; // Mass enclosed within a cylinder of radius R
-	virtual const BRG_UNITS offset_WLsig( const BRG_DISTANCE &R,
-			const BRG_DISTANCE &offset_R, const bool silent = true ) const; // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from position offset by offset_R
-	virtual const BRG_UNITS group_WLsig( const BRG_DISTANCE &R,
+	virtual const double offset_WLsig( const double &R,
+			const double &offset_R, const bool silent = true ) const; // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from position offset by offset_R
+	virtual const double group_WLsig( const double &R,
 			const double group_c, const bool silent = true ) const; // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from ensemble of satellites in group with satellite concentration group_c
-	virtual const BRG_UNITS quick_WLsig( const BRG_DISTANCE &R,
+	virtual const double quick_WLsig( const double &R,
 			const bool silent = true ) const // As deltasigma, but uses cache to speed it up if overwritten
 	{
 		return deltasigma( R, silent );
 	}
-	virtual const BRG_UNITS quick_offset_WLsig( const BRG_DISTANCE &R,
-			const BRG_DISTANCE &offset_R, const bool silent = true ) const // As offset_WLsig, but uses cache to speed it up if overwritten
+	virtual const double quick_offset_WLsig( const double &R,
+			const double &offset_R, const bool silent = true ) const // As offset_WLsig, but uses cache to speed it up if overwritten
 	{
 		return offset_WLsig( R, offset_R, silent );
 	}
-	virtual const BRG_UNITS semiquick_group_WLsig( const BRG_DISTANCE &R,
+	virtual const double semiquick_group_WLsig( const double &R,
 			const double group_c, const bool silent = true ) const // As group_WLsig, but uses offset_WLsig cache to speed it up if overwritten
 	{
 		return group_WLsig( R, group_c, silent );
 	}
-	virtual const BRG_UNITS quick_group_WLsig( const BRG_DISTANCE &R,
+	virtual const double quick_group_WLsig( const double &R,
 			const double group_c, const bool silent = true ) const // As deltasigma, but uses group_WLsig cache to speed it up if overwritten
 	{
 		return group_WLsig( R, group_c, silent );
@@ -1144,7 +1144,7 @@ public:
 
 #if (1) // Virtual functions which shouldn't be overwritten in most cases and non-virtual functions
 
-	virtual const BRG_DISTANCE rvir() const // Virial radius (exact definition can be chosen per profile if preferred)
+	virtual const double rvir() const // Virial radius (exact definition can be chosen per profile if preferred)
 	{
 		double virial_density_factor = 200;
 
@@ -1152,75 +1152,75 @@ public:
 				2 * mvir() * Gc / ( pow( H(), 2 ) * virial_density_factor ),
 				1. / 3. );
 	}
-	const BRG_MASS hmvir() const // Half virial mass
+	const double hmvir() const // Half virial mass
 	{
 		return mvir() / 2;
 	}
-	const BRG_MASS hmtot() const // Half total mass
+	const double hmtot() const // Half total mass
 	{
 		return mtot() / 2;
 	}
-	virtual const BRG_MASS hm() const // Half mass (which depends on hm_type value)
+	virtual const double hm() const // Half mass (which depends on hm_type value)
 	{
 		return ( _hm_type_ == 0 ? hmvir() : hmtot() );
 	}
-	virtual const BRG_UNITS enc_dens( const BRG_DISTANCE &r,
+	virtual const double enc_dens( const double &r,
 			const bool silent = false ) const // Mean density enclosed with sphere of radius r
 	{
-		BRG_DISTANCE r_to_use = max( std::fabs( r ), SMALL_FACTOR );
+		double r_to_use = max( std::fabs( r ), SMALL_FACTOR );
 		return enc_mass( r_to_use, silent )
 				/ ( 4. / 3. * pi * std::pow( std::fabs( r_to_use ), 3 ) );
 	}
-	virtual const BRG_UNITS proj_enc_dens( const BRG_DISTANCE &R,
+	virtual const double proj_enc_dens( const double &R,
 			const bool silent = false ) const // Mean surface density enclosed within a cylinder of radius R
 	{
-		BRG_DISTANCE R_to_use = max( std::fabs( R ), SMALL_FACTOR );
+		double R_to_use = max( std::fabs( R ), SMALL_FACTOR );
 		return proj_enc_mass( R_to_use, silent )
 				/ ( pi * std::pow( std::fabs( R_to_use ), 2 ) );
 	}
-	virtual const BRG_DISTANCE rhmvir( const bool silent = false ) const; // Half-virial-mass radius
-	virtual const BRG_DISTANCE rhmtot( const bool silent = false ) const; // Half-total-mass radius
-	virtual const BRG_DISTANCE rhm( const bool silent = false ) const // Half-mass radius
+	virtual const double rhmvir( const bool silent = false ) const; // Half-virial-mass radius
+	virtual const double rhmtot( const bool silent = false ) const; // Half-total-mass radius
+	virtual const double rhm( const bool silent = false ) const // Half-mass radius
 	{
 		return ( _hm_type_ == 0 ? rhmvir( silent ) : rhmtot( silent ) );
 	}
-	virtual const BRG_VELOCITY vvir() const // Orbital velocity at rvir
+	virtual const double vvir() const // Orbital velocity at rvir
 	{
 		return _v_from_r( rvir() );
 	}
-	virtual const BRG_VELOCITY vhmvir( const bool silent = false ) const // Orbital velocity at rhmvir
+	virtual const double vhmvir( const bool silent = false ) const // Orbital velocity at rhmvir
 	{
 		return _v_from_r( rhmvir( silent ) );
 	}
-	virtual const BRG_VELOCITY vhmtot( const bool silent = false ) const // Orbital velocity at rhmtot
+	virtual const double vhmtot( const bool silent = false ) const // Orbital velocity at rhmtot
 	{
 		return _v_from_r( rhmvir( silent ) );
 	}
-	virtual const BRG_VELOCITY vhm( const bool silent = false ) const // Orbital velocity at rhm
+	virtual const double vhm( const bool silent = false ) const // Orbital velocity at rhm
 	{
 		return ( _hm_type_ == 0 ? vhmvir( silent ) : vhmtot( silent ) );
 	}
-	virtual const BRG_VELOCITY vt( const bool silent = false ) const // Orbital velocity at rt
+	virtual const double vt( const bool silent = false ) const // Orbital velocity at rt
 	{
 		return _v_from_r( rt( silent ) );
 	}
-	const BRG_TIME otvir() const // Orbital period at rvir
+	const double otvir() const // Orbital period at rvir
 	{
 		return 2 * pi * rvir() / vvir();
 	}
-	const BRG_TIME othmvir( const bool silent = false ) const // Orbital period at rhmvir
+	const double othmvir( const bool silent = false ) const // Orbital period at rhmvir
 	{
 		return 2 * pi * rhmvir( silent ) / safe_d(vhmvir( silent ));
 	}
-	const BRG_TIME othmtot( const bool silent = false ) const // Orbital period at rhmtot
+	const double othmtot( const bool silent = false ) const // Orbital period at rhmtot
 	{
 		return 2 * pi * rhmtot( silent ) / safe_d(vhmtot( silent ));
 	}
-	const BRG_TIME othm( const bool silent = false ) const // Orbital period at rhm
+	const double othm( const bool silent = false ) const // Orbital period at rhm
 	{
 		return 2 * pi * rhm( silent ) / safe_d(vhm( silent ));
 	}
-	const BRG_TIME ott( const bool silent = false ) const // Orbital period at rt
+	const double ott( const bool silent = false ) const // Orbital period at rt
 	{
 		return 2 * pi * rt( silent ) / safe_d(vt( silent ));
 	}
@@ -1233,14 +1233,14 @@ public:
 
 #if (1) // advanced get functions
 
-	const BRG_UNITS accel( const BRG_DISTANCE &r,
+	const double accel( const double &r,
 			const bool silent = false ) const // Gravitational acceleration at radius r
 	{
 		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / std::pow( r, 2 );
 	}
-	virtual const BRG_UNITS Daccel( const BRG_DISTANCE &r, const bool silent =
+	virtual const double Daccel( const double &r, const bool silent =
 			false ) const; // Derivative of acceleration at radius r
-	const BRG_UNITS deltasigma( const BRG_DISTANCE &R, const bool silent =
+	const double deltasigma( const double &R, const bool silent =
 			false ) const // Weak lensing signal in tangential shear Delta-Sigma at radius R
 	{
 		return proj_enc_dens( R, silent ) - proj_dens( R, silent );
@@ -1288,7 +1288,7 @@ class tNFW_profile: public density_profile
 	 **********************************/
 private:
 #if (1) // Private member variables specific to this class
-	BRG_MASS _mvir0_;
+	double _mvir0_;
 	double _c_, _tau_;
 
 #endif // end private member variables
@@ -1299,7 +1299,7 @@ public:
 #if (1) // Constructors
 	tNFW_profile();
 
-	tNFW_profile( const BRG_MASS &init_mvir0, const double init_z,
+	tNFW_profile( const double &init_mvir0, const double init_z,
 			const double init_c = -1, const double init_tau = -1 );
 
 #endif // End constructors
@@ -1309,10 +1309,10 @@ public:
 
 #if (1) // Set functions
 
-	const int set_mvir( const BRG_MASS &new_halo_mass, const bool silent =
+	const int set_mvir( const double &new_halo_mass, const bool silent =
 			false );
 	const int set_parameters( const unsigned int num_parameters,
-			const std::vector< BRG_UNITS > & new_parameters,
+			const std::vector< double > & new_parameters,
 			const bool silent = false );
 
 	const int set_z( const double new_z );
@@ -1323,17 +1323,17 @@ public:
 
 #if (1) //Basic get functions
 
-	const BRG_MASS mvir0() const;
+	const double mvir0() const;
 
-	const BRG_MASS hmvir() const;
-	const BRG_MASS mvir() const;
-	const BRG_MASS mtot() const;
+	const double hmvir() const;
+	const double mvir() const;
+	const double mtot() const;
 
-	const BRG_DISTANCE rvir() const;
-	const BRG_DISTANCE rt( const bool silent = false ) const;
-	const BRG_DISTANCE rs() const;
+	const double rvir() const;
+	const double rt( const bool silent = false ) const;
+	const double rs() const;
 
-	const BRG_VELOCITY vvir() const;
+	const double vvir() const;
 
 	const double c() const;
 	const double tau() const;
@@ -1341,25 +1341,25 @@ public:
 
 #if (1) // advanced get functions
 
-	const BRG_UNITS dens( const BRG_DISTANCE &r ) const;
-	const BRG_UNITS proj_dens( const BRG_DISTANCE &R,
+	const double dens( const double &r ) const;
+	const double proj_dens( const double &R,
 			const bool silent = false ) const;
-	const BRG_MASS enc_mass( const BRG_DISTANCE &r,
+	const double enc_mass( const double &r,
 			const bool silent = false ) const;
-	const BRG_UNITS proj_enc_dens( const BRG_DISTANCE &R, const bool silent =
+	const double proj_enc_dens( const double &R, const bool silent =
 			false ) const;
-	const BRG_MASS proj_enc_mass( const BRG_DISTANCE &R, const bool silent =
+	const double proj_enc_mass( const double &R, const bool silent =
 			false ) const;
-	const BRG_UNITS quick_WLsig( const BRG_DISTANCE &R, const bool silent =
+	const double quick_WLsig( const double &R, const bool silent =
 			false ) const;
-	const BRG_UNITS quick_offset_WLsig( const BRG_DISTANCE &R,
-			const BRG_DISTANCE &offset_R, const bool silent = false ) const;
-	const BRG_UNITS semiquick_group_WLsig( const BRG_DISTANCE &R,
+	const double quick_offset_WLsig( const double &R,
+			const double &offset_R, const bool silent = false ) const;
+	const double semiquick_group_WLsig( const double &R,
 			const double group_c, const bool silent = false ) const;
-	const BRG_UNITS quick_group_WLsig( const BRG_DISTANCE &R,
+	const double quick_group_WLsig( const double &R,
 			const double group_c, const bool silent = false ) const;
 	const int get_parameters( int & num_parameters,
-			std::vector< BRG_UNITS > & parameters,
+			std::vector< double > & parameters,
 			const bool silent = true ) const;
 
 	const int get_parameter_names( int & num_parameters,
@@ -1406,7 +1406,7 @@ class point_mass_profile: public density_profile
 private:
 #if (1) // private member variables specific to this class
 
-	BRG_MASS _mass_;
+	double _mass_;
 
 #endif // end private member variables
 
@@ -1416,7 +1416,7 @@ public:
 #if (1) // Constructors
 	point_mass_profile();
 
-	point_mass_profile( const BRG_MASS init_mass, const double init_z );
+	point_mass_profile( const double init_mass, const double init_z );
 
 #endif // End constructors
 
@@ -1424,42 +1424,42 @@ public:
 	~point_mass_profile();
 
 #if (1) // Set functions
-	virtual const int set_mvir( const BRG_MASS &new_halo_mass, bool silent =
+	virtual const int set_mvir( const double &new_halo_mass, bool silent =
 			false );
 	virtual const int set_parameters( const unsigned int num_parameters,
-			const std::vector< BRG_UNITS > &new_parameters,
+			const std::vector< double > &new_parameters,
 			bool silent = false );
 #endif // End set functions
 
 #if (1) // Basic get functions
-	const BRG_MASS mass() const;
+	const double mass() const;
 
-	const BRG_MASS hmvir() const;
-	const BRG_MASS mvir() const;
-	const BRG_MASS mtot() const;
+	const double hmvir() const;
+	const double mvir() const;
+	const double mtot() const;
 
-	const BRG_DISTANCE rvir() const;
-	const BRG_DISTANCE rt(const bool silent = false) const;
-	const BRG_DISTANCE rs() const;
+	const double rvir() const;
+	const double rt(const bool silent = false) const;
+	const double rs() const;
 
-	const BRG_VELOCITY vvir() const;
+	const double vvir() const;
 
 #endif // end basic get functions
 
 #if (1) // advanced get functions
-	const BRG_UNITS dens( const BRG_DISTANCE &r ) const;
-	const BRG_UNITS proj_dens( const BRG_DISTANCE &R,
+	const double dens( const double &r ) const;
+	const double proj_dens( const double &R,
 			const bool silent = false ) const;
-	const BRG_UNITS enc_dens( const BRG_DISTANCE &r,
+	const double enc_dens( const double &r,
 			const bool silent = false ) const;
-	const BRG_MASS enc_mass( const BRG_DISTANCE &r, const bool silent =
+	const double enc_mass( const double &r, const bool silent =
 				true ) const; // Mass enclosed with sphere of radius r
-	const BRG_UNITS proj_enc_dens( const BRG_DISTANCE &R,
+	const double proj_enc_dens( const double &R,
 			const bool silent = false ) const;
-	const BRG_MASS proj_enc_mass( const BRG_DISTANCE &R,
+	const double proj_enc_mass( const double &R,
 			const bool silent = false ) const;
 	const int get_parameters( int & num_parameters,
-			std::vector< BRG_UNITS > & parameters,
+			std::vector< double > & parameters,
 			const bool silent = false ) const;
 
 	const int get_parameter_names( int & num_parameters,
@@ -1513,7 +1513,7 @@ public:
 	}
 };
 
-class accel_function: public functor< BRG_UNITS >
+class accel_function: public functor< double >
 {
 	/**********************************
 	 accel_function class
@@ -1534,8 +1534,8 @@ public:
 		return _host_ptr_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	accel_function();
 	accel_function( const density_profile *init_host_ptr );
@@ -1545,7 +1545,7 @@ public:
 };
 // class accel_function
 
-class solve_rhm_function: public functor< BRG_UNITS >
+class solve_rhm_function: public functor< double >
 {
 	/**********************************
 	 solve_rhm_function class
@@ -1558,7 +1558,7 @@ class solve_rhm_function: public functor< BRG_UNITS >
 
 	 **********************************/
 private:
-	const density_profile *_host_ptr_;BRG_MASS _target_mass_;
+	const density_profile *_host_ptr_;double _target_mass_;
 
 public:
 
@@ -1567,23 +1567,23 @@ public:
 	{
 		return _host_ptr_;
 	}
-	const int set_target_mass( const BRG_MASS &new_target_mass );
-	const BRG_MASS & target_mass()
+	const int set_target_mass( const double &new_target_mass );
+	const double & target_mass()
 	{
 		return _target_mass_;
 	}
 
-	const int operator ()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator ()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	solve_rhm_function();
 	solve_rhm_function( const density_profile *init_host,
-			const BRG_MASS &init_target_mass );
+			const double &init_target_mass );
 
 };
 // end class unitless_solve_rhm_function
 
-class spherical_density_function: public functor< BRG_UNITS >
+class spherical_density_function: public functor< double >
 {
 	/**********************************
 	 spherical_density_function class
@@ -1605,8 +1605,8 @@ public:
 		return _host_ptr_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	spherical_density_function();
 	spherical_density_function( const density_profile *init_host );
@@ -1615,7 +1615,7 @@ public:
 	}
 };
 
-class projected_density_function: public functor< BRG_UNITS >
+class projected_density_function: public functor< double >
 {
 	/**********************************
 	 projected_density_function class
@@ -1627,7 +1627,7 @@ class projected_density_function: public functor< BRG_UNITS >
 
 	 **********************************/
 private:
-	const density_profile *_host_ptr_;BRG_UNITS _offset_R_;
+	const density_profile *_host_ptr_;double _offset_R_;
 
 public:
 
@@ -1637,24 +1637,24 @@ public:
 		return _host_ptr_;
 	}
 
-	const int set_offset_R( const BRG_DISTANCE &new_offset_R );
-	const BRG_DISTANCE offset_R()
+	const int set_offset_R( const double &new_offset_R );
+	const double offset_R()
 	{
 		return _offset_R_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	projected_density_function();
 	projected_density_function( const density_profile *init_host,
-			const BRG_DISTANCE &init_offset_R );
+			const double &init_offset_R );
 	virtual ~projected_density_function()
 	{
 	}
 };
 
-class cylindrical_density_function: public functor< BRG_UNITS >
+class cylindrical_density_function: public functor< double >
 {
 	/**********************************
 	 cylindrical_density_function class
@@ -1676,8 +1676,8 @@ public:
 		return _host_ptr_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	cylindrical_density_function();
 	cylindrical_density_function( const density_profile *init_host );
@@ -1686,10 +1686,10 @@ public:
 	}
 };
 
-class offset_ring_dens_function: public functor< BRG_UNITS >
+class offset_ring_dens_function: public functor< double >
 {
 
-	const density_profile *_host_ptr_;BRG_DISTANCE _R0_, _R_;
+	const density_profile *_host_ptr_;double _R0_, _R_;
 public:
 
 	const int set_host_ptr( const density_profile *new_host_ptr );
@@ -1698,31 +1698,31 @@ public:
 		return _host_ptr_;
 	}
 
-	const int set_R0( const BRG_DISTANCE &new_R_0 );
-	const BRG_DISTANCE & R0()
+	const int set_R0( const double &new_R_0 );
+	const double & R0()
 	{
 		return _R0_;
 	}
 
-	const int set_R( const BRG_DISTANCE &new_R );
-	const BRG_DISTANCE & R()
+	const int set_R( const double &new_R );
+	const double & R()
 	{
 		return _R_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	offset_ring_dens_function();
 	offset_ring_dens_function( const density_profile *new_host,
-			const BRG_DISTANCE &new_R_0 = 0, const BRG_DISTANCE &new_R = 0 );
+			const double &new_R_0 = 0, const double &new_R = 0 );
 
 };
 
-class offset_circ_dens_function: public functor< std::vector< BRG_UNITS > >
+class offset_circ_dens_function: public functor< std::vector< double > >
 {
 private:
-	const density_profile *_host_ptr_;BRG_DISTANCE _R0_;
+	const density_profile *_host_ptr_;double _R0_;
 
 public:
 
@@ -1732,27 +1732,27 @@ public:
 		return _host_ptr_;
 	}
 
-	const int set_R0( const BRG_DISTANCE &new_R0 );
-	const BRG_DISTANCE & R0()
+	const int set_R0( const double &new_R0 );
+	const double & R0()
 	{
 		return _R0_;
 	}
 
-	const int operator()( const std::vector< BRG_UNITS > & in_params,
-			std::vector< BRG_UNITS > & out_params,
+	const int operator()( const std::vector< double > & in_params,
+			std::vector< double > & out_params,
 			const bool silent = false ) const;
 
 	offset_circ_dens_function();
 	offset_circ_dens_function( const density_profile *new_host,
-			const BRG_DISTANCE &new_R_0 = 0 );
+			const double &new_R_0 = 0 );
 };
 
-class offset_WLsig_function: public functor< BRG_UNITS >
+class offset_WLsig_function: public functor< double >
 {
 
 private:
 
-	const density_profile *_host_ptr_;BRG_DISTANCE _R_;
+	const density_profile *_host_ptr_;double _R_;
 
 public:
 
@@ -1762,22 +1762,22 @@ public:
 		return _host_ptr_;
 	}
 
-	const int set_R( const BRG_DISTANCE &new_R );
-	const BRG_DISTANCE & R()
+	const int set_R( const double &new_R );
+	const double & R()
 	{
 		return _R_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	offset_WLsig_function();
 	offset_WLsig_function( const density_profile *init_host,
-			const BRG_DISTANCE &new_R = 0 );
+			const double &new_R = 0 );
 
 };
 
-class offset_WLsig_weight_function: public functor< BRG_UNITS >
+class offset_WLsig_weight_function: public functor< double >
 {
 
 private:
@@ -1799,8 +1799,8 @@ public:
 		return _c_;
 	}
 
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 	offset_WLsig_weight_function();
 	offset_WLsig_weight_function( const density_profile *new_host,

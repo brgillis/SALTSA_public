@@ -147,13 +147,13 @@
 
 
  const int SALTSA::stripping_orbit::get_final_mret(
- BRG_MASS & mret )
+ double & mret )
 
  Writes the final retained mass into the passed variable. The type that
  must be passed depends on whether the _BRG_USE_UNITS_ compiler flag is
  defined or not (if it is defined, SALTSA::unit_mass, else double).
 
- const BRG_MASS SALTSA::stripping_orbit::final_mret()
+ const double SALTSA::stripping_orbit::final_mret()
 
  Similar to above, except returns the retained mass and throws an
  exception if the orbit's stripping cannot be calculated.
@@ -306,7 +306,7 @@ class gabdt_function;
 
 /** Class Definitions **/
 #if (1)
-class spline_function: public functor< BRG_UNITS >
+class spline_function: public functor< double >
 {
 	/************************************************************
 	 spline_function
@@ -344,13 +344,13 @@ public:
 	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
 
 	// Function method
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 };
 // class spline_function
 
-class spline_derivative_function: public functor< BRG_UNITS >
+class spline_derivative_function: public functor< double >
 {
 	/************************************************************
 	 spline_derivative_function
@@ -387,13 +387,13 @@ public:
 	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
 
 	// Function method
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 
 };
 // class spline_derivative_function
 
-class spline_derivative_weight_function: public functor< BRG_UNITS >
+class spline_derivative_weight_function: public functor< double >
 {
 	/************************************************************
 	 spline_derivative_weight_function
@@ -438,8 +438,8 @@ public:
 	const int set_t_max( double new_t_max );
 
 	// Function method
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
 };
 // class spline_derivative_sample_function
 
@@ -541,17 +541,17 @@ private:
 	mutable bool _is_cached_;
 	const density_profile *_host_ptr_;
 
-	BRG_DISTANCE _x_, _y_, _z_, _r_;BRG_TIME _dt_;
-	mutable std::vector< std::vector< BRG_UNITS > > _dv_;
+	double _x_, _y_, _z_, _r_;double _dt_;
+	mutable std::vector< std::vector< double > > _dv_;
 
 public:
 
 	// Constructors
 	gabdt();
 	gabdt( const gabdt & other_gabdt );
-	gabdt( const density_profile *init_host, const BRG_DISTANCE &init_x,
-			const BRG_DISTANCE &init_y, const BRG_DISTANCE &init_z,
-			const BRG_TIME &init_dt );
+	gabdt( const density_profile *init_host, const double &init_x,
+			const double &init_y, const double &init_z,
+			const double &init_dt );
 
 	// Destructor
 	virtual ~gabdt();
@@ -561,11 +561,11 @@ public:
 
 	// Set functions
 	const int set( const SALTSA::density_profile *new_host_ptr,
-			const BRG_DISTANCE &new_x, const BRG_DISTANCE &new_y,
-			const BRG_DISTANCE &new_z, const BRG_TIME &new_dt );
-	const int set_pos( const BRG_DISTANCE &new_x, const BRG_DISTANCE &new_y,
-			const BRG_DISTANCE &new_z );
-	const int set_dt( const BRG_TIME &dt );
+			const double &new_x, const double &new_y,
+			const double &new_z, const double &new_dt );
+	const int set_pos( const double &new_x, const double &new_y,
+			const double &new_z );
+	const int set_dt( const double &dt );
 	const int set_host_ptr( const density_profile *new_host_ptr );
 	const int override_zero();
 
@@ -574,15 +574,15 @@ public:
 
 	// Get functions
 	const density_profile * host() const;
-	const BRG_DISTANCE x() const;
-	const BRG_DISTANCE y() const;
-	const BRG_DISTANCE z() const;
-	const BRG_DISTANCE r() const;
-	const std::vector< std::vector< BRG_UNITS > > dv() const; // involves calculation if necessary
-	const BRG_UNITS dv( const int x_i, const int y_i ) const; // involves calculation if necessary
+	const double x() const;
+	const double y() const;
+	const double z() const;
+	const double r() const;
+	const std::vector< std::vector< double > > dv() const; // involves calculation if necessary
+	const double dv( const int x_i, const int y_i ) const; // involves calculation if necessary
 
 	// Operator overloading
-	const BRG_UNITS operator*( const gabdt & other_gabdt ) const; // Dot-product(ish) operator
+	const double operator*( const gabdt & other_gabdt ) const; // Dot-product(ish) operator
 
 	gabdt & operator=( const gabdt & other_gabdt ); // Assignment
 
@@ -594,7 +594,7 @@ public:
 
 };
 
-class gabdt_function: public functor< std::vector< BRG_UNITS > >
+class gabdt_function: public functor< std::vector< double > >
 {
 	/************************************************************
 	 gabdt_function
@@ -620,8 +620,8 @@ public:
 	const density_profile *host_ptr;
 
 	// Function method
-	const int operator()( const std::vector< BRG_UNITS > & in_params,
-			std::vector< BRG_UNITS > & out_params,
+	const int operator()( const std::vector< double > & in_params,
+			std::vector< double > & out_params,
 			const bool silent = false ) const;
 
 };
@@ -696,7 +696,7 @@ private:
 	// Global info for the orbit
 #if(1)
 	mutable int _num_segments_;
-	BRG_TIME _t_min_natural_value_, _t_max_natural_value_,
+	double _t_min_natural_value_, _t_max_natural_value_,
 	         _t_min_override_value_, _t_max_override_value_;
 	bool _override_t_min_, _override_t_max_; // Tells if min/max have been set manually, so the manual settings can be used
 #endif
@@ -719,7 +719,7 @@ private:
 			_vy_spline_points_, _vz_spline_points_;
 	std::vector< double > _vx_spline_unknown_points_,
 			_vy_spline_unknown_points_, _vz_spline_unknown_points_;
-	std::vector< std::pair< double, std::vector< BRG_UNITS > > > _host_parameter_spline_points_;
+	std::vector< std::pair< double, std::vector< double > > > _host_parameter_spline_points_;
 	std::vector< double > _discontinuity_times_;
 	mutable std::vector< double > _cleaned_discontinuity_times_;
 	mutable std::vector< double > _final_fmret_list_;
@@ -855,16 +855,16 @@ public:
 #endif
 
 	// Adding data points and clearing those vectors
-	const int add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
-			const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
-			const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
+	const int add_point( const double &x, const double &y,
+			const double &z, const double &vx,
+			const double &vy, const double &vz, const double &t,
 			const double new_test_mass = 1 );
-	const int add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
-			const BRG_DISTANCE &z, const BRG_TIME &t,
+	const int add_point( const double &x, const double &y,
+			const double &z, const double &t,
 			const double new_test_mass = 1 ); // Only use if v is unknown
-	const int add_discontinuity_time( const BRG_TIME &t ); // Splits into segments to be calculated individually
+	const int add_discontinuity_time( const double &t ); // Splits into segments to be calculated individually
 	const int add_host_parameter_point( const unsigned int num_parameters,
-			const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
+			const std::vector< double > &parameters, const double &t,
 			const bool silent = false ); // Tells how host_ptr is evolving
 	const int clear_points();
 	const int clear_discontinuity_times();
@@ -873,17 +873,17 @@ public:
 	// Setting and clearing _init satellite/host_ptr
 	const int set_init_satellite( const density_profile *new_init_satellite ); // Uses pointer to existing profile
 	const int set_init_host( const density_profile *new_init_host ); // Uses pointer to existing profile
-	const int set_tNFW_init_satellite( const BRG_MASS &new_init_mvir0,
+	const int set_tNFW_init_satellite( const double &new_init_mvir0,
 			const double z = 0, const double new_init_c = 0,
 			const double new_init_tau = 0 ); // Creates a new profile
-	const int set_tNFW_host( const BRG_MASS &new_mvir0, const double z = 0,
+	const int set_tNFW_host( const double &new_mvir0, const double z = 0,
 			const double new_c = 0, const double new_tau = 0 ); // Creates a new profile
 	const int clear_init_satellite();
 	const int clear_init_host();
 
 	// Setting and resetting _t_min_/max
-	const int set_t_min( const BRG_TIME &new_t_min ); // In case you want to integrate only part of the submitted orbit, or go outside the bounds
-	const int set_t_max( const BRG_TIME &new_t_max ); // In case you want to integrate only part of the submitted orbit, or go outside the bounds
+	const int set_t_min( const double &new_t_min ); // In case you want to integrate only part of the submitted orbit, or go outside the bounds
+	const int set_t_max( const double &new_t_max ); // In case you want to integrate only part of the submitted orbit, or go outside the bounds
 	const int reset_t_min();
 	const int reset_t_max();
 
@@ -963,10 +963,10 @@ public:
 #endif
 
 	const int & num_segments() const {return _num_segments_;};
-	const BRG_TIME & t_min_natural_value() const {return _t_min_natural_value_;};
-	const BRG_TIME & t_max_natural_value() const {return _t_max_natural_value_;};
-	const BRG_TIME & t_min_override_value() const {return _t_min_override_value_;};
-	const BRG_TIME & t_max_override_value() const {return _t_max_override_value_;};
+	const double & t_min_natural_value() const {return _t_min_natural_value_;};
+	const double & t_max_natural_value() const {return _t_max_natural_value_;};
+	const double & t_min_override_value() const {return _t_min_override_value_;};
+	const double & t_max_override_value() const {return _t_max_override_value_;};
 	const bool & override_t_min() const {return _override_t_min_;};
 	const bool & override_t_max() const {return _override_t_max_;};
 
@@ -986,7 +986,7 @@ public:
 	const std::vector< double > & vz_spline_unknown_points() const {return _vz_spline_unknown_points_;};
 	const std::vector< std::pair< double, double > > & d_spline_points() const {return _d_spline_points_;};
 	const std::vector< std::pair< double, double > > & test_mass_spline_points() const {return _test_mass_spline_points_;};
-	const std::vector< std::pair< double, std::vector< BRG_UNITS > > > & host_parameter_spline_points() const {return _host_parameter_spline_points_;};
+	const std::vector< std::pair< double, std::vector< double > > > & host_parameter_spline_points() const {return _host_parameter_spline_points_;};
 	const std::vector< double > & discontinuity_times() const {return _discontinuity_times_;};
 
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
@@ -1008,21 +1008,21 @@ public:
 #endif
 
 	// Get final data (returns 1 on failure)
-	const int get_final_mret( BRG_MASS & mret ) const;
-	const int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho ) const;
+	const int get_final_mret( double & mret ) const;
+	const int get_final_sum_deltarho( double & final_sum_deltarho ) const;
 	const int get_final_fmret( double & final_fmret ) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt ) const;
-	const int get_last_infall_time( BRG_TIME & t ) const;
+	const int get_last_infall_time( double & t ) const;
 	const int clone_final_satellite(
 			density_profile * & final_satellite_clone ) const; // Creates clone. Make sure to delete!
 	const int clone_final_host( density_profile * & final_host_clone ) const; // Creates clone. Make sure to delete!
 
 	// Get final data (throws exception on failure)
-	const BRG_MASS final_mret() const;
-	const BRG_UNITS final_sum_deltarho() const;
+	const double final_mret() const;
+	const double final_sum_deltarho() const;
 	const double final_fmret() const;
 	const gabdt final_sum_gabdt() const;
-	const BRG_TIME last_infall_time() const;
+	const double last_infall_time() const;
 	const density_profile * final_satellite() const; // Creates clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates clone. Make sure to delete!
 #endif
@@ -1075,11 +1075,11 @@ private:
 	// Initial parameters
 	const density_profile *_init_host_ptr_, *_init_satellite_ptr_;
 	mutable density_profile *_current_host_ptr_, *_current_satellite_ptr_;
-	BRG_UNITS _init_sum_delta_rho_;
+	double _init_sum_delta_rho_;
 	gabdt _init_sum_gabdt_;
 
 	// Global parameters
-	BRG_TIME _t_min_natural_value_, _t_max_natural_value_, _t_min_override_val_, _t_max_override_val_;
+	double _t_min_natural_value_, _t_max_natural_value_, _t_min_override_val_, _t_max_override_val_;
 	bool _override_t_min_, _override_t_max_;
 	mutable bool _record_full_data_;
 	bool _host_loaded_, _satellite_loaded_;
@@ -1097,12 +1097,12 @@ private:
 	mutable std::vector< SALTSA::interpolator > _host_parameter_splines_;
 
 	// Vectors for output data
-	mutable std::vector< BRG_UNITS > _delta_rho_list_, _sum_delta_rho_list_,
+	mutable std::vector< double > _delta_rho_list_, _sum_delta_rho_list_,
 			_x_data_, _y_data_, _z_data_, _vx_data_, _vy_data_, _vz_data_,
 			_rt_list_, _rt_ratio_list_;
 	mutable std::vector< double > mret_list;
-	mutable std::vector< std::vector< BRG_UNITS > > _satellite_parameter_data_; // Keeps track of satellite's parameters (ie. mass, tau)
-	mutable std::vector< std::vector< BRG_UNITS > > _host_parameter_data_;
+	mutable std::vector< std::vector< double > > _satellite_parameter_data_; // Keeps track of satellite's parameters (ie. mass, tau)
+	mutable std::vector< std::vector< double > > _host_parameter_data_;
 
 	// Other maintained vectors for calculations
 	mutable std::vector< gabdt > _gabdt_list_;
@@ -1119,10 +1119,10 @@ private:
 	// Private functions
 	const int _init();
 	const int _reserve( int n, const bool silent = false ) const;
-	const BRG_UNITS _delta_rho( const int index, const double x,
-			const BRG_TIME &t_step, const bool silent = false ) const;
-	const double _step_length_factor( const BRG_VELOCITY & v, const BRG_DISTANCE & r ) const;
-	const BRG_DISTANCE _rvir( const int index = 0 ) const;
+	const double _delta_rho( const int index, const double x,
+			const double &t_step, const bool silent = false ) const;
+	const double _step_length_factor( const double & v, const double & r ) const;
+	const double _rvir( const int index = 0 ) const;
 #endif
 
 public:
@@ -1140,25 +1140,25 @@ public:
 	stripping_orbit_segment *stripping_orbit_spline_clone() const;
 
 	// Functions to add points to the splines
-	const int add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
-			const BRG_DISTANCE &z, const BRG_TIME &t,
+	const int add_point( const double &x, const double &y,
+			const double &z, const double &t,
 			double new_test_mass = 1 );
-	const int add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
-			const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
-			const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
+	const int add_point( const double &x, const double &y,
+			const double &z, const double &vx,
+			const double &vy, const double &vz, const double &t,
 			double new_test_mass = 1 );
-	const int add_x_point( const BRG_DISTANCE &x, const BRG_TIME &t );
-	const int add_y_point( const BRG_DISTANCE &y, const BRG_TIME &t );
-	const int add_z_point( const BRG_DISTANCE &z, const BRG_TIME &t );
-	const int add_vx_point( const BRG_VELOCITY &vx, const BRG_TIME &t );
-	const int add_vy_point( const BRG_VELOCITY &vy, const BRG_TIME &t );
-	const int add_vz_point( const BRG_VELOCITY &vz, const BRG_TIME &t );
-	const int add_unknown_vx_point( const BRG_TIME &t );
-	const int add_unknown_vy_point( const BRG_TIME &t );
-	const int add_unknown_vz_point( const BRG_TIME &t );
-	const int add_test_mass_point( const double test_mass, const BRG_TIME &t );
+	const int add_x_point( const double &x, const double &t );
+	const int add_y_point( const double &y, const double &t );
+	const int add_z_point( const double &z, const double &t );
+	const int add_vx_point( const double &vx, const double &t );
+	const int add_vy_point( const double &vy, const double &t );
+	const int add_vz_point( const double &vz, const double &t );
+	const int add_unknown_vx_point( const double &t );
+	const int add_unknown_vy_point( const double &t );
+	const int add_unknown_vz_point( const double &t );
+	const int add_test_mass_point( const double test_mass, const double &t );
 	const int add_host_parameter_point( const unsigned int num_parameters,
-			const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
+			const std::vector< double > &parameters, const double &t,
 			const bool silent = false );
 
 
@@ -1195,16 +1195,16 @@ public:
 
 
 	// Set initial/global parameters
-	const int set_tNFW_init_satellite( const BRG_MASS &new_init_mvir0,
+	const int set_tNFW_init_satellite( const double &new_init_mvir0,
 			const double z = 0, const double new_init_c = 0,
 			const double new_init_tau = 0 );
-	const int set_tNFW_host( const BRG_MASS &new_mvir0, const double z = 0,
+	const int set_tNFW_host( const double &new_mvir0, const double z = 0,
 			const double new_c = 0, const double new_tau = 0 );
-	const int set_t_min( const BRG_TIME &new_t_min );
-	const int set_t_max( const BRG_TIME &new_t_max );
+	const int set_t_min( const double &new_t_min );
+	const int set_t_max( const double &new_t_max );
 	const int reset_t_min();
 	const int reset_t_max();
-	const int set_init_sum_deltarho( const BRG_UNITS &new_init_sum_deltarho );
+	const int set_init_sum_deltarho( const double &new_init_sum_deltarho );
 	const int set_init_sum_gabdt( const gabdt &new_init_gabdt );
 	const int set_init_satellite( const density_profile *new_init_satellite );
 	const int set_init_host( const density_profile *new_init_host );
@@ -1278,24 +1278,24 @@ public:
 	const bool & bad_result() const {return _bad_result_;};
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
 	const density_profile * init_host_ptr() const {return _init_host_ptr_;};
-	const BRG_TIME & t_min_natural_value() const {return _t_min_natural_value_;};
+	const double & t_min_natural_value() const {return _t_min_natural_value_;};
 #endif
 
 	// Calculation assistance functions
 	const double tidal_strip_retained( const density_profile *host,
-			const density_profile *satellite, const BRG_DISTANCE &r,
-			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-			const BRG_TIME &time_step, const BRG_UNITS &sum_rho = 0 ) const;
-	const BRG_DISTANCE get_rt( const density_profile *host,
-			const density_profile *satellite, const BRG_DISTANCE &r,
-			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-			const BRG_TIME &time_step, const BRG_UNITS &sum_rho,
+			const density_profile *satellite, const double &r,
+			const double &vr, const double &vt,
+			const double &time_step, const double &sum_rho = 0 ) const;
+	const double get_rt( const density_profile *host,
+			const density_profile *satellite, const double &r,
+			const double &vr, const double &vt,
+			const double &time_step, const double &sum_rho,
 			const bool silent = false ) const;
 
 	// Get final data (returns 1 on error)
-	const int get_final_mret( BRG_MASS & mret,
+	const int get_final_mret( double & mret,
 			const bool silent = false ) const;
-	const int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho,
+	const int get_final_sum_deltarho( double & final_sum_deltarho,
 			const bool silent = false ) const;
 	const int get_final_fmret( double & final_fmret,
 			const bool silent = false ) const;
@@ -1307,8 +1307,8 @@ public:
 			const bool silent = false ) const; // Creates a clone. Make sure to delete!
 
 	// Get final data (throws exception on error)
-	const BRG_MASS final_mret() const;
-	const BRG_UNITS final_sum_deltarho() const;
+	const double final_mret() const;
+	const double final_sum_deltarho() const;
 	const double final_fmret() const;
 	const gabdt final_sum_gabdt() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!
@@ -1317,7 +1317,7 @@ public:
 };
 // class stripping_orbit_segment
 
-class solve_rt_it_function: public functor< BRG_UNITS > // Always uses one param, returns new value for that parameter for iteration.
+class solve_rt_it_function: public functor< double > // Always uses one param, returns new value for that parameter for iteration.
 {
 	/************************************************************
 	 solve_rt_it_function
@@ -1332,17 +1332,17 @@ class solve_rt_it_function: public functor< BRG_UNITS > // Always uses one param
 public:
 	const density_profile *satellite_ptr;
 
-	BRG_UNITS sum_rho, Daccel, omega;
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
-	solve_rt_it_function( const BRG_UNITS init_omega,
-			const density_profile *init_satellite, const BRG_UNITS init_Daccel,
-			const BRG_UNITS init_sum_rho = 0 );
+	double sum_rho, Daccel, omega;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
+	solve_rt_it_function( const double init_omega,
+			const density_profile *init_satellite, const double init_Daccel,
+			const double init_sum_rho = 0 );
 
 	solve_rt_it_function();
 };
 
-class solve_rt_grid_function: public functor< BRG_UNITS >
+class solve_rt_grid_function: public functor< double >
 {
 	/************************************************************
 	 solve_rt_grid_function
@@ -1356,12 +1356,12 @@ class solve_rt_grid_function: public functor< BRG_UNITS >
 public:
 	const density_profile *satellite_ptr;
 
-	BRG_UNITS sum_rho, Daccel, omega;
-	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
-	solve_rt_grid_function( const BRG_UNITS init_omega,
-			const density_profile *init_satellite, const BRG_UNITS init_Daccel,
-			const BRG_UNITS init_sum_rho = 0 );
+	double sum_rho, Daccel, omega;
+	const int operator()( const double & in_param,
+	double & out_param, const bool silent = false ) const;
+	solve_rt_grid_function( const double init_omega,
+			const density_profile *init_satellite, const double init_Daccel,
+			const double init_sum_rho = 0 );
 
 	solve_rt_grid_function();
 };

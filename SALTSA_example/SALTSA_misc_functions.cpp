@@ -14,10 +14,10 @@ using namespace std;
 #if (1)
 // SALTSA::phase function implementations
 #if (1)
-SALTSA::phase::phase( BRG_DISTANCE init_x, BRG_DISTANCE init_y,
-BRG_DISTANCE init_z,
-BRG_VELOCITY init_vx, BRG_VELOCITY init_vy, BRG_VELOCITY init_vz,
-BRG_TIME init_t )
+SALTSA::phase::phase( double init_x, double init_y,
+double init_z,
+double init_vx, double init_vy, double init_vz,
+double init_t )
 {
 	x = init_x;
 	y = init_y;
@@ -28,10 +28,10 @@ BRG_TIME init_t )
 	t = init_t;
 }
 
-const int SALTSA::phase::set_phase( BRG_DISTANCE init_x, BRG_DISTANCE init_y,
-BRG_DISTANCE init_z,
-BRG_VELOCITY init_vx, BRG_VELOCITY init_vy, BRG_VELOCITY init_vz,
-BRG_TIME init_t )
+const int SALTSA::phase::set_phase( double init_x, double init_y,
+double init_z,
+double init_vx, double init_vy, double init_vz,
+double init_t )
 {
 	x = init_x;
 	y = init_y;

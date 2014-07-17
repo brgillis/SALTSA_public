@@ -43,10 +43,10 @@ inline const T solve_iterate( const f * func, const T &init_param = 0,
 	bool converged_flag;
 	int counter = 0;
 
-	BRG_UNITS new_value = init_param;
-	BRG_UNITS result = 0;
-	BRG_UNITS mean_value = 0;
-	std::vector< BRG_UNITS > past_values( 0 );
+	double new_value = init_param;
+	double result = 0;
+	double mean_value = 0;
+	std::vector< double > past_values( 0 );
 	int slowdown_to_use;
 
 	if ( slowdown < 0 )
@@ -149,13 +149,13 @@ const int solve_sd( const f * func, const unsigned int num_in_params,
 		const bool silent = false )
 {
 
-	BRG_UNITS Jacobian( 0 );
-	BRG_UNITS current_in_params( 0 );
-	BRG_UNITS last_in_params( 0 );
-	BRG_UNITS out_params( 0 );
-	BRG_UNITS in_params_to_use = init_in_params;
-	BRG_UNITS lambda_norm( 0 );
-	BRG_UNITS mag;
+	double Jacobian( 0 );
+	double current_in_params( 0 );
+	double last_in_params( 0 );
+	double out_params( 0 );
+	double in_params_to_use = init_in_params;
+	double lambda_norm( 0 );
+	double mag;
 
 	const int lambda_shortening_intervals = 10;
 	const double lambda_shortening_factor = 10;
@@ -271,13 +271,13 @@ const int solve_sd( const f * func, const unsigned int num_in_params,
 		const int max_steps = 10000, const bool silent = false )
 {
 
-	std::vector< std::vector< BRG_UNITS > > Jacobian( 0 );
-	std::vector< BRG_UNITS > current_in_params( 0 );
-	std::vector< BRG_UNITS > last_in_params( 0 );
-	std::vector< BRG_UNITS > out_params( 0 );
-	std::vector< BRG_UNITS > in_params_to_use = init_in_params;
-	BRG_UNITS lambda_norm( 0 );
-	BRG_UNITS mag;
+	std::vector< std::vector< double > > Jacobian( 0 );
+	std::vector< double > current_in_params( 0 );
+	std::vector< double > last_in_params( 0 );
+	std::vector< double > out_params( 0 );
+	std::vector< double > in_params_to_use = init_in_params;
+	double lambda_norm( 0 );
+	double mag;
 
 	const int lambda_shortening_intervals = 10;
 	const double lambda_shortening_factor = 10;
@@ -432,14 +432,14 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 		const double & init_out_params_weight = 0, const bool silent = false )
 {
 
-	BRG_UNITS d = 0, d_best = DBL_MAX;
+	double d = 0, d_best = DBL_MAX;
 	int i_resid = 0, i_temp = 0, i_best = -1;
-	BRG_UNITS init_in_params_step( 0 );
-	BRG_UNITS in_params_step( 0 );
-	BRG_UNITS test_in_params( 0 );
-	BRG_UNITS best_in_params( 0 );
-	BRG_UNITS test_out_params( 0 );
-	BRG_UNITS min_in_params = init_min_in_params, max_in_params =
+	double init_in_params_step( 0 );
+	double in_params_step( 0 );
+	double test_in_params( 0 );
+	double best_in_params( 0 );
+	double test_out_params( 0 );
+	double min_in_params = init_min_in_params, max_in_params =
 			init_max_in_params;
 	double out_params_weight = init_out_params_weight;
 
@@ -663,14 +663,14 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 {
 	unsigned int num_out_params = 0;
 
-	BRG_UNITS d = 0, d_best = DBL_MAX;
+	double d = 0, d_best = DBL_MAX;
 	int i_resid = 0, i_temp = 0, i_best = -1;
-	std::vector< BRG_UNITS > init_in_params_step( num_in_params, 0 );
-	std::vector< BRG_UNITS > in_params_step( num_in_params, 0 );
-	std::vector< BRG_UNITS > test_in_params( num_in_params, 0 );
-	std::vector< BRG_UNITS > best_in_params( num_in_params, 0 );
-	std::vector< BRG_UNITS > test_out_params( num_out_params, 0 );
-	std::vector< BRG_UNITS > min_in_params = init_min_in_params,
+	std::vector< double > init_in_params_step( num_in_params, 0 );
+	std::vector< double > in_params_step( num_in_params, 0 );
+	std::vector< double > test_in_params( num_in_params, 0 );
+	std::vector< double > best_in_params( num_in_params, 0 );
+	std::vector< double > test_out_params( num_out_params, 0 );
+	std::vector< double > min_in_params = init_min_in_params,
 			max_in_params = init_max_in_params;
 	std::vector< double > out_params_weight = init_out_params_weight;
 

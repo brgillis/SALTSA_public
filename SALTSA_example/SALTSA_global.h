@@ -84,24 +84,6 @@ const double pi = 3.14159265358979323846;
 #define RHOMBERG_N_MAX 100
 #endif
 
-#ifdef _BRG_USE_UNITS_
-#define BRG_UNITS brgastro::unit_obj
-#define BRG_DISTANCE brgastro::unit_distance
-#define BRG_TIME brgastro::unit_time
-#define BRG_MASS brgastro::unit_mass
-#define BRG_ANGLE brgastro::unit_angle
-#define BRG_CHARGE brgastro::unit_charge
-#define BRG_VELOCITY brgastro::unit_velocity
-#else
-#define BRG_UNITS double
-#define BRG_DISTANCE double
-#define BRG_TIME double
-#define BRG_MASS double
-#define BRG_ANGLE double
-#define BRG_CHARGE double
-#define BRG_VELOCITY double
-#endif // #ifdef _BRG_USE_UNITS_
-
 #ifdef _BRG_USE_CPP_11_STD_
 #define BRG_UNIQUE_PTR std::unique_ptr
 #define BRG_SHARED_PTR std::shared_ptr

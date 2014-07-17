@@ -21,12 +21,12 @@ using namespace std;
 int SALTSA::grid_cache::_ra_grid_change_num_ = 0;
 int SALTSA::grid_cache::_dec_grid_change_num_ = 0;
 int SALTSA::grid_cache::_z_grid_change_num_ = 0;
-BRG_ANGLE SALTSA::grid_cache::_ra_grid_min_ = -pi;
-BRG_ANGLE SALTSA::grid_cache::_ra_grid_max_ = pi;
-BRG_ANGLE SALTSA::grid_cache::_ra_grid_step_ = pi / 8;
-BRG_ANGLE SALTSA::grid_cache::_dec_grid_min_ = -pi / 2;
-BRG_ANGLE SALTSA::grid_cache::dec_grid_max_val = pi / 2;
-BRG_ANGLE SALTSA::grid_cache::_dec_grid_step_ = pi / 8;
+double SALTSA::grid_cache::_ra_grid_min_ = -pi;
+double SALTSA::grid_cache::_ra_grid_max_ = pi;
+double SALTSA::grid_cache::_ra_grid_step_ = pi / 8;
+double SALTSA::grid_cache::_dec_grid_min_ = -pi / 2;
+double SALTSA::grid_cache::dec_grid_max_val = pi / 2;
+double SALTSA::grid_cache::_dec_grid_step_ = pi / 8;
 double SALTSA::grid_cache::_z_grid_min_ = 0;
 double SALTSA::grid_cache::_z_grid_max_ = 2;
 double SALTSA::grid_cache::_z_grid_step_ = 0.1;
@@ -170,7 +170,7 @@ const int SALTSA::redshift_obj::z_grid() const
 	return _z_grid_;
 }
 
-const BRG_UNITS SALTSA::redshift_obj::H( const double init_test_z ) const
+const double SALTSA::redshift_obj::H( const double init_test_z ) const
 {
 	double test_z = init_test_z;
 	if ( test_z == -1 ) // This means we're taking the default argument here, so use redshift of the object
@@ -191,9 +191,9 @@ const BRG_UNITS SALTSA::redshift_obj::H( const double init_test_z ) const
 // SALTSA::sky_obj class methods
 #if (1)
 
-SALTSA::sky_obj::sky_obj( const BRG_ANGLE init_ra, const BRG_ANGLE init_dec,
-		const double init_z, const BRG_ANGLE init_ra_err,
-		const BRG_ANGLE init_dec_err, const double init_z_err )
+SALTSA::sky_obj::sky_obj( const double init_ra, const double init_dec,
+		const double init_z, const double init_ra_err,
+		const double init_dec_err, const double init_z_err )
 {
 	partial_clear();
 	set_ra_dec_z_err( init_ra, init_dec, init_z, init_ra_err, init_dec_err,
@@ -218,7 +218,7 @@ const int SALTSA::sky_obj::partial_clear()
 	return 0;
 }
 
-const int SALTSA::sky_obj::set_ra( const BRG_ANGLE &new_ra )
+const int SALTSA::sky_obj::set_ra( const double &new_ra )
 {
 	if ( _ra_ == new_ra )
 		return 0;
@@ -226,12 +226,12 @@ const int SALTSA::sky_obj::set_ra( const BRG_ANGLE &new_ra )
 	_ra_grid_cached_ = false;
 	return 0;
 }
-const int SALTSA::sky_obj::set_ra_err( const BRG_ANGLE &new_ra_err )
+const int SALTSA::sky_obj::set_ra_err( const double &new_ra_err )
 {
 	_ra_err_ = new_ra_err;
 	return 0;
 }
-const int SALTSA::sky_obj::set_dec( const BRG_ANGLE &new_dec )
+const int SALTSA::sky_obj::set_dec( const double &new_dec )
 {
 	if ( _dec_ == new_dec )
 		return 0;
@@ -239,20 +239,20 @@ const int SALTSA::sky_obj::set_dec( const BRG_ANGLE &new_dec )
 	_dec_grid_cached_ = false;
 	return 0;
 }
-const int SALTSA::sky_obj::set_dec_err( const BRG_ANGLE &new_dec_err )
+const int SALTSA::sky_obj::set_dec_err( const double &new_dec_err )
 {
 	_dec_err_ = new_dec_err;
 	return 0;
 }
-const int SALTSA::sky_obj::set_ra_dec( const BRG_ANGLE &new_ra,
-		const BRG_ANGLE &new_dec )
+const int SALTSA::sky_obj::set_ra_dec( const double &new_ra,
+		const double &new_dec )
 {
 	if ( set_ra( new_ra ) )
 		return errorNOS();
 	return set_dec( new_dec );
 }
-const int SALTSA::sky_obj::set_ra_dec_z( const BRG_ANGLE &new_ra,
-		const BRG_ANGLE &new_dec, const double new_z )
+const int SALTSA::sky_obj::set_ra_dec_z( const double &new_ra,
+		const double &new_dec, const double new_z )
 {
 	if ( set_ra( new_ra ) )
 		return errorNOS();
@@ -260,9 +260,9 @@ const int SALTSA::sky_obj::set_ra_dec_z( const BRG_ANGLE &new_ra,
 		return errorNOS();
 	return set_z( new_z );
 }
-const int SALTSA::sky_obj::set_ra_dec_z_err( const BRG_ANGLE &new_ra,
-		const BRG_ANGLE &new_dec, const double new_z,
-		const BRG_ANGLE &new_ra_err, const BRG_ANGLE &new_dec_err,
+const int SALTSA::sky_obj::set_ra_dec_z_err( const double &new_ra,
+		const double &new_dec, const double new_z,
+		const double &new_ra_err, const double &new_dec_err,
 		const double new_z_err )
 {
 	if ( set_ra( new_ra ) )
@@ -277,9 +277,9 @@ const int SALTSA::sky_obj::set_ra_dec_z_err( const BRG_ANGLE &new_ra,
 		return errorNOS();
 	return set_z_err( new_z_err );
 }
-const int SALTSA::sky_obj::set_ra_dec_err( const BRG_ANGLE &new_ra,
-		const BRG_ANGLE &new_dec, const BRG_ANGLE &new_ra_err,
-		const BRG_ANGLE &new_dec_err )
+const int SALTSA::sky_obj::set_ra_dec_err( const double &new_ra,
+		const double &new_dec, const double &new_ra_err,
+		const double &new_dec_err )
 {
 	if ( set_ra( new_ra ) )
 		return errorNOS();
@@ -499,11 +499,11 @@ const int SALTSA::group::remove_member( galaxy * rem_member,
 
 // SALTSA::density_profile class methods
 #if (1)
-const BRG_UNITS SALTSA::density_profile::Daccel( const BRG_DISTANCE &r,
+const double SALTSA::density_profile::Daccel( const double &r,
 		const bool silent ) const
 {
-	BRG_DISTANCE dr;
-	BRG_UNITS a1, a2;
+	double dr;
+	double a1, a2;
 	// It's simplest, and a ton faster to just manually differentiate here.
 	dr = max( r * SMALL_FACTOR, SMALL_FACTOR );
 	a1 = accel( r, silent );
@@ -511,7 +511,7 @@ const BRG_UNITS SALTSA::density_profile::Daccel( const BRG_DISTANCE &r,
 	return ( a2 - a1 ) / safe_d( dr );
 }
 
-const BRG_DISTANCE SALTSA::density_profile::rhmtot( const bool silent ) const
+const double SALTSA::density_profile::rhmtot( const bool silent ) const
 {
 	// If cached, return the cached value
 	if ( hmtot_cached )
@@ -522,8 +522,8 @@ const BRG_DISTANCE SALTSA::density_profile::rhmtot( const bool silent ) const
 	solve_rhm_function func( this, target_mass );
 	solve_rhm_function *func_ptr = &func;
 
-	BRG_UNITS max_r( default_tau_factor * rvir() );
-	BRG_UNITS rhm_test( 0 );
+	double max_r( default_tau_factor * rvir() );
+	double rhm_test( 0 );
 
 	// First check for zero mass/radius/density
 	if ( ( mvir() <= 0 ) || ( rvir() <= 0 ) || ( dens( rvir() / 2 ) < 0 ) )
@@ -549,7 +549,7 @@ const BRG_DISTANCE SALTSA::density_profile::rhmtot( const bool silent ) const
 	return _rhmtot_cache_;
 }
 
-const BRG_DISTANCE SALTSA::density_profile::rhmvir( const bool silent ) const
+const double SALTSA::density_profile::rhmvir( const bool silent ) const
 {
 	// If cached, return the cached value
 	if ( hmvir_cached )
@@ -560,8 +560,8 @@ const BRG_DISTANCE SALTSA::density_profile::rhmvir( const bool silent ) const
 	solve_rhm_function func( this, target_mass );
 	solve_rhm_function *func_ptr = &func;
 
-	BRG_UNITS max_r( default_tau_factor * rvir() );
-	BRG_UNITS rhm_test( 0 );
+	double max_r( default_tau_factor * rvir() );
+	double rhm_test( 0 );
 
 	// First check for zero mass/radius/density
 	if ( ( mvir() <= 0 ) || ( rvir() <= 0 ) || ( dens( rvir() / 2 ) < 0 ) )
@@ -584,15 +584,15 @@ const BRG_DISTANCE SALTSA::density_profile::rhmvir( const bool silent ) const
 	return _rhmvir_cache_;
 }
 
-const BRG_MASS SALTSA::density_profile::enc_mass( const BRG_DISTANCE &r,
+const double SALTSA::density_profile::enc_mass( const double &r,
 		const bool silent ) const
 {
 	if ( r == 0 )
 		return 0;
-	BRG_DISTANCE r_to_use = std::fabs( r );
+	double r_to_use = std::fabs( r );
 	SALTSA::spherical_density_function func( this );
 	unsigned int num_in_params = 1, num_out_params = 0;
-	BRG_UNITS min_in_params( 0 ), max_in_params( r_to_use ), out_params( 0 );
+	double min_in_params( 0 ), max_in_params( r_to_use ), out_params( 0 );
 	if ( SALTSA::integrate_Rhomberg( &func, num_in_params, min_in_params,
 			max_in_params, num_out_params, out_params ) )
 	{
@@ -603,14 +603,14 @@ const BRG_MASS SALTSA::density_profile::enc_mass( const BRG_DISTANCE &r,
 	return out_params;
 }
 
-const BRG_UNITS SALTSA::density_profile::proj_dens( const BRG_DISTANCE &R,
+const double SALTSA::density_profile::proj_dens( const double &R,
 		const bool silent ) const
 {
-	BRG_DISTANCE R_to_use = std::fabs( R );
+	double R_to_use = std::fabs( R );
 	double inf_factor = 20;
 	SALTSA::cylindrical_density_function func( this );
 	unsigned int num_in_params = 1, num_out_params = 0;
-	BRG_UNITS min_in_params( 0 ), max_in_params( inf_factor * rvir() ),
+	double min_in_params( 0 ), max_in_params( inf_factor * rvir() ),
 			out_params( 0 );
 	if ( R_to_use == 0 )
 	{
@@ -638,15 +638,15 @@ const BRG_UNITS SALTSA::density_profile::proj_dens( const BRG_DISTANCE &R,
 	return 2 * out_params;
 }
 
-const BRG_MASS SALTSA::density_profile::proj_enc_mass( const BRG_DISTANCE &R,
+const double SALTSA::density_profile::proj_enc_mass( const double &R,
 		const bool silent ) const
 {
 	if ( R == 0 )
 		return 0;
-	BRG_DISTANCE R_to_use = std::fabs( R );
+	double R_to_use = std::fabs( R );
 	SALTSA::cylindrical_density_function func( this );
 	unsigned int num_in_params = 1, num_out_params = 0;
-	BRG_UNITS min_in_params( 0 ), max_in_params( R_to_use ), out_params( 0 );
+	double min_in_params( 0 ), max_in_params( R_to_use ), out_params( 0 );
 	if ( SALTSA::integrate_Rhomberg( &func, num_in_params, min_in_params,
 			max_in_params, num_out_params, out_params ) )
 	{
@@ -657,26 +657,26 @@ const BRG_MASS SALTSA::density_profile::proj_enc_mass( const BRG_DISTANCE &R,
 	return out_params;
 }
 
-const BRG_UNITS SALTSA::density_profile::offset_WLsig( const BRG_DISTANCE &R,
-		const BRG_DISTANCE &offset_R, const bool silent ) const
+const double SALTSA::density_profile::offset_WLsig( const double &R,
+		const double &offset_R, const bool silent ) const
 {
 	unsigned int num_out_params = 1;
 	if ( offset_R == 0 )
 		return deltasigma( R );
-	BRG_DISTANCE R_to_use = std::fabs( R );
-	BRG_DISTANCE offset_R_to_use = std::fabs( R );
+	double R_to_use = std::fabs( R );
+	double offset_R_to_use = std::fabs( R );
 	offset_ring_dens_function ringfunc( this, offset_R_to_use, R_to_use );
 	offset_circ_dens_function circfunc( this, offset_R_to_use );
 
-	BRG_UNITS min_in_params_ring( 0 );
-	BRG_UNITS max_in_params_ring( 0 );
-	BRG_UNITS out_params_ring( 0 );
-	std::vector< BRG_UNITS > min_in_params_circ( 2, 0 );
-	std::vector< BRG_UNITS > max_in_params_circ( 2, 0 );
-	std::vector< BRG_UNITS > out_params_circ( 1, 0 );
-	BRG_UNITS circmean;
-	BRG_UNITS ringmean;
-	BRG_UNITS result;
+	double min_in_params_ring( 0 );
+	double max_in_params_ring( 0 );
+	double out_params_ring( 0 );
+	std::vector< double > min_in_params_circ( 2, 0 );
+	std::vector< double > max_in_params_circ( 2, 0 );
+	std::vector< double > out_params_circ( 1, 0 );
+	double circmean;
+	double ringmean;
+	double result;
 
 	double precision = 0.001;
 
@@ -715,14 +715,14 @@ const BRG_UNITS SALTSA::density_profile::offset_WLsig( const BRG_DISTANCE &R,
 
 	return result;
 }
-const BRG_UNITS SALTSA::density_profile::group_WLsig( const BRG_DISTANCE &r,
+const double SALTSA::density_profile::group_WLsig( const double &r,
 		const double group_c, const bool silent ) const
 {
-	BRG_DISTANCE r_to_use = std::fabs( r );
+	double r_to_use = std::fabs( r );
 	SALTSA::offset_WLsig_function func( this, r_to_use );
 	SALTSA::offset_WLsig_weight_function weight_func( this, group_c );
 	unsigned int num_in_params = 1, num_out_params = 0;
-	BRG_UNITS min_in_params( SMALL_FACTOR ), max_in_params( rvir() ),
+	double min_in_params( SMALL_FACTOR ), max_in_params( rvir() ),
 			out_params( 0 );
 	if ( SALTSA::integrate_weighted_Rhomberg( &func, &weight_func,
 			num_in_params, min_in_params, max_in_params, num_out_params,
@@ -748,7 +748,7 @@ SALTSA::tNFW_profile::tNFW_profile()
 	_tau_ = 0;
 }
 
-SALTSA::tNFW_profile::tNFW_profile( const BRG_MASS &init_mvir0,
+SALTSA::tNFW_profile::tNFW_profile( const double &init_mvir0,
 		const double init_z, const double init_c, const double init_tau ) :
 		SALTSA::redshift_obj( init_z )
 {
@@ -780,7 +780,7 @@ SALTSA::tNFW_profile::~tNFW_profile()
 
 #if (1) // Set functions
 
-const int SALTSA::tNFW_profile::set_mvir( const BRG_MASS &new_halo_mass,
+const int SALTSA::tNFW_profile::set_mvir( const double &new_halo_mass,
 		const bool silent )
 {
 	_mvir0_ = new_halo_mass;
@@ -813,7 +813,7 @@ const int SALTSA::tNFW_profile::set_z( const double new_z )
 }
 const int SALTSA::tNFW_profile::set_parameters(
 		const unsigned int num_parameters,
-		const std::vector< BRG_UNITS > &parameters, const bool silent )
+		const std::vector< double > &parameters, const bool silent )
 {
 	if ( ( num_parameters != 4 ) || ( num_parameters != parameters.size() ) )
 	{
@@ -853,11 +853,11 @@ const int SALTSA::tNFW_profile::set_parameters(
 
 #endif // end set functions
 
-const BRG_MASS SALTSA::tNFW_profile::mvir() const
+const double SALTSA::tNFW_profile::mvir() const
 {
 	return _mvir0_; // Not technically correct, but close enough for our purposes
 }
-const BRG_MASS SALTSA::tNFW_profile::mvir0() const
+const double SALTSA::tNFW_profile::mvir0() const
 {
 	return _mvir0_;
 }
@@ -871,71 +871,71 @@ const double SALTSA::tNFW_profile::c() const
 	return _c_;
 }
 
-const BRG_MASS SALTSA::tNFW_profile::mtot() const
+const double SALTSA::tNFW_profile::mtot() const
 {
 	return _mvir0_ * SALTSA::mftau( _tau_, _c_ );
 }
 
-const BRG_VELOCITY SALTSA::tNFW_profile::vvir() const
+const double SALTSA::tNFW_profile::vvir() const
 {
 	return std::pow( 10 * Gc * H() * mvir(), 1. / 3. );
 }
-const BRG_DISTANCE SALTSA::tNFW_profile::rvir() const
+const double SALTSA::tNFW_profile::rvir() const
 {
 	return vvir() / H() / 10;
 }
-const BRG_DISTANCE SALTSA::tNFW_profile::rs() const
+const double SALTSA::tNFW_profile::rs() const
 {
 	return rvir() / _c_;
 }
-const BRG_DISTANCE SALTSA::tNFW_profile::rt( const bool silent ) const
+const double SALTSA::tNFW_profile::rt( const bool silent ) const
 {
 	return rvir() / _tau_;
 }
 
-const BRG_MASS SALTSA::tNFW_profile::hmvir() const
+const double SALTSA::tNFW_profile::hmvir() const
 {
 	return enc_mass( rvir() ) / 2;
 }
 
-const BRG_UNITS SALTSA::tNFW_profile::quick_WLsig( const BRG_DISTANCE &r,
+const double SALTSA::tNFW_profile::quick_WLsig( const double &r,
 		const bool silent ) const
 {
-	BRG_UNITS result;
+	double result;
 
 	result = SALTSA::tNFW_sig_cache().get( z(), _mvir0_, r, silent );
 	return result;
 }
-const BRG_UNITS SALTSA::tNFW_profile::quick_offset_WLsig(
-		const BRG_DISTANCE &r, const BRG_DISTANCE &offset_r,
+const double SALTSA::tNFW_profile::quick_offset_WLsig(
+		const double &r, const double &offset_r,
 		const bool silent ) const
 {
-	BRG_UNITS result;
+	double result;
 	result = SALTSA::tNFW_offset_sig_cache().get( z(), _mvir0_, r, offset_r,
 			silent );
 	return result;
 }
-const BRG_UNITS SALTSA::tNFW_profile::semiquick_group_WLsig(
-		const BRG_DISTANCE &r, const double group_c, const bool silent ) const
+const double SALTSA::tNFW_profile::semiquick_group_WLsig(
+		const double &r, const double group_c, const bool silent ) const
 {
-	BRG_UNITS result;
+	double result;
 	if ( !silent )
 		std::cerr << "ERROR: Placeholder function being used.\n";
 	result = 0; // Placeholder!!!
 	return result;
 }
-const BRG_UNITS SALTSA::tNFW_profile::quick_group_WLsig(
-		const BRG_DISTANCE &r, const double group_c, const bool silent ) const
+const double SALTSA::tNFW_profile::quick_group_WLsig(
+		const double &r, const double group_c, const bool silent ) const
 {
-	BRG_UNITS result;
+	double result;
 	result = SALTSA::tNFW_group_sig_cache().get( z(), _mvir0_, r, group_c,
 			silent );
 	return result;
 }
 
-const BRG_UNITS SALTSA::tNFW_profile::dens( const BRG_DISTANCE &r ) const
+const double SALTSA::tNFW_profile::dens( const double &r ) const
 {
-	BRG_UNITS result, rho_c;
+	double result, rho_c;
 
 	double d_c, x, tau_use;
 	if ( _tau_ <= 0 )
@@ -952,10 +952,10 @@ const BRG_UNITS SALTSA::tNFW_profile::dens( const BRG_DISTANCE &r ) const
 
 	return result;
 }
-const BRG_UNITS SALTSA::tNFW_profile::proj_dens( const BRG_DISTANCE &r,
+const double SALTSA::tNFW_profile::proj_dens( const double &r,
 		const bool silent ) const
 {
-	BRG_UNITS result, rho_c;
+	double result, rho_c;
 	double d_c, x, tau_use, fx, lx;
 
 	if ( _tau_ <= 0 )
@@ -999,11 +999,11 @@ const BRG_UNITS SALTSA::tNFW_profile::proj_dens( const BRG_DISTANCE &r,
 																+ x * x ) ) );
 	return result;
 }
-const BRG_MASS SALTSA::tNFW_profile::enc_mass( const BRG_DISTANCE &r,
+const double SALTSA::tNFW_profile::enc_mass( const double &r,
 		const bool silent ) const
 {
-	BRG_UNITS result, rho_c;
-	BRG_MASS m0;
+	double result, rho_c;
+	double m0;
 	// Result here integrated with Wolfram Alpha
 	double d_c, x, tau_use;
 	if ( _tau_ < 0 )
@@ -1036,10 +1036,10 @@ const BRG_MASS SALTSA::tNFW_profile::enc_mass( const BRG_DISTANCE &r,
 			/ std::pow( 1 + std::pow( tau_use, 2 ), 2 ) - m0;
 	return result;
 }
-const BRG_UNITS SALTSA::tNFW_profile::proj_enc_dens( const BRG_DISTANCE &r,
+const double SALTSA::tNFW_profile::proj_enc_dens( const double &r,
 		const bool silent ) const
 {
-	BRG_UNITS result, rho_c;
+	double result, rho_c;
 	//Takes M in kg, r in kpc
 	double d_c, x, tau_use, fx, lx;
 	if ( _tau_ <= 0 )
@@ -1069,14 +1069,14 @@ const BRG_UNITS SALTSA::tNFW_profile::proj_enc_dens( const BRG_DISTANCE &r,
 											/ tau_use - pi ) );
 	return result;
 }
-const BRG_MASS SALTSA::tNFW_profile::proj_enc_mass( const BRG_DISTANCE &r,
+const double SALTSA::tNFW_profile::proj_enc_mass( const double &r,
 		const bool silent ) const
 {
 	return proj_enc_dens( r, silent ) * pi * r * r;
 }
 
 const int SALTSA::tNFW_profile::get_parameters( int & num_parameters,
-		std::vector< BRG_UNITS > & parameters, const bool silent ) const
+		std::vector< double > & parameters, const bool silent ) const
 {
 	num_parameters = 4;
 	parameters.resize( num_parameters );
@@ -1160,7 +1160,7 @@ SALTSA::point_mass_profile::point_mass_profile()
 	_mass_ = 0;
 }
 
-SALTSA::point_mass_profile::point_mass_profile( const BRG_MASS init_mass,
+SALTSA::point_mass_profile::point_mass_profile( const double init_mass,
 		const double init_z )
 {
 	set_mvir( init_mass );
@@ -1177,14 +1177,14 @@ SALTSA::point_mass_profile::~point_mass_profile()
 #if (1) // Set functions
 
 const int SALTSA::point_mass_profile::set_mvir(
-		const BRG_MASS &new_halo_mass, bool silent )
+		const double &new_halo_mass, bool silent )
 {
 	_mass_ = new_halo_mass;
 	return 0;
 }
 const int SALTSA::point_mass_profile::set_parameters(
 		const unsigned int num_parameters,
-		const std::vector< BRG_UNITS > &parameters, bool silent )
+		const std::vector< double > &parameters, bool silent )
 {
 
 	if ( ( num_parameters != 2 ) || ( num_parameters != parameters.size() ) )
@@ -1204,48 +1204,48 @@ const int SALTSA::point_mass_profile::set_parameters(
 
 #endif // end set functions
 
-const BRG_MASS SALTSA::point_mass_profile::mvir() const
+const double SALTSA::point_mass_profile::mvir() const
 {
 	return _mass_;
 }
-const BRG_MASS SALTSA::point_mass_profile::mass() const
-{
-	return _mass_;
-}
-
-const BRG_MASS SALTSA::point_mass_profile::mtot() const
+const double SALTSA::point_mass_profile::mass() const
 {
 	return _mass_;
 }
 
-const BRG_VELOCITY SALTSA::point_mass_profile::vvir() const
+const double SALTSA::point_mass_profile::mtot() const
+{
+	return _mass_;
+}
+
+const double SALTSA::point_mass_profile::vvir() const
 {
 	return std::pow( 10 * Gc * H() * mvir(), 1. / 3. );
 }
-const BRG_DISTANCE SALTSA::point_mass_profile::rvir() const
+const double SALTSA::point_mass_profile::rvir() const
 {
 	return vvir() / H() / 10;
 }
-const BRG_DISTANCE SALTSA::point_mass_profile::rs() const
+const double SALTSA::point_mass_profile::rs() const
 {
 	return 0;
 }
-const BRG_DISTANCE SALTSA::point_mass_profile::rt(
+const double SALTSA::point_mass_profile::rt(
 		const bool silent) const
 {
 	return 0;
 }
 
-const BRG_MASS SALTSA::point_mass_profile::hmvir() const
+const double SALTSA::point_mass_profile::hmvir() const
 {
 	return 0;
 }
 
-const BRG_UNITS SALTSA::point_mass_profile::dens(
-		const BRG_DISTANCE &r ) const
+const double SALTSA::point_mass_profile::dens(
+		const double &r ) const
 {
 #ifdef _BRG_USE_UNITS_
-	BRG_UNITS result(0,-3,0,1,0,0,0);
+	double result(0,-3,0,1,0,0,0);
 #else
 	double result = 0;
 #endif
@@ -1254,12 +1254,12 @@ const BRG_UNITS SALTSA::point_mass_profile::dens(
 
 	return result;
 }
-const BRG_UNITS SALTSA::point_mass_profile::proj_dens(
-		const BRG_DISTANCE &r,
+const double SALTSA::point_mass_profile::proj_dens(
+		const double &r,
 		const bool silent ) const
 {
 #ifdef _BRG_USE_UNITS_
-	BRG_UNITS result(0,-2,0,1,0,0,0);
+	double result(0,-2,0,1,0,0,0);
 #else
 	double result = 0;
 #endif
@@ -1268,33 +1268,33 @@ const BRG_UNITS SALTSA::point_mass_profile::proj_dens(
 
 	return result;
 }
-const BRG_UNITS SALTSA::point_mass_profile::enc_dens(
-		const BRG_DISTANCE &r,
+const double SALTSA::point_mass_profile::enc_dens(
+		const double &r,
 		const bool silent ) const
 {
 	return enc_mass( r ) / ( 4. / 3. * pi * std::pow( r, 3 ) );
 }
-const BRG_MASS SALTSA::point_mass_profile::enc_mass(
-		const BRG_DISTANCE &r,
+const double SALTSA::point_mass_profile::enc_mass(
+		const double &r,
 		const bool silent ) const
 {
 	return _mass_;
 }
-const BRG_UNITS SALTSA::point_mass_profile::proj_enc_dens(
-		const BRG_DISTANCE &r,
+const double SALTSA::point_mass_profile::proj_enc_dens(
+		const double &r,
 		const bool silent ) const
 {
 	return proj_enc_mass( r ) / ( pi * r * r );
 }
-const BRG_MASS SALTSA::point_mass_profile::proj_enc_mass(
-		const BRG_DISTANCE &r,
+const double SALTSA::point_mass_profile::proj_enc_mass(
+		const double &r,
 		const bool silent ) const
 {
 	return _mass_;
 }
 
 const int SALTSA::point_mass_profile::get_parameters( int & num_parameters,
-		std::vector< BRG_UNITS > & parameters, const bool silent ) const
+		std::vector< double > & parameters, const bool silent ) const
 {
 	num_parameters = 2;
 	parameters.resize( num_parameters );
@@ -1613,12 +1613,12 @@ const int SALTSA::add_cache::set_precision( const int new_precision,
 	}
 }
 
-const BRG_UNITS SALTSA::add_cache::get( const double z1, const double z2,
+const double SALTSA::add_cache::get( const double z1, const double z2,
 		const bool silent )
 {
 	double z1lo, z1hi, z2lo, z2hi, z1wlo, z1whi, z2wlo, z2whi;
 	int z1_i, z2_i; // Lower nearby array point
-	BRG_DISTANCE result = 0;
+	double result = 0;
 
 	if ( !loaded )
 	{
@@ -1967,12 +1967,12 @@ const int SALTSA::tNFW_sig_cache::set_precision( const int new_precision,
 	}
 }
 
-const BRG_UNITS SALTSA::tNFW_sig_cache::get( const double z,
-		const BRG_MASS m, const BRG_DISTANCE r, const bool silent )
+const double SALTSA::tNFW_sig_cache::get( const double z,
+		const double m, const double r, const bool silent )
 {
 	double zlo, zhi, mlo, mhi, rlo, rhi;
 	int z_i, m_i, r_i; // Lower nearby array points
-	BRG_DISTANCE rwlo, rwhi;
+	double rwlo, rwhi;
 	double mwlo, mwhi, zwlo, zwhi;
 	double lm = log10( m * unitconv::kgtoMsun );
 	double result = 0;
@@ -2026,7 +2026,7 @@ const BRG_UNITS SALTSA::tNFW_sig_cache::get( const double z,
 	double totweight = halo_z_step * halo_m_step * r_step;
 
 #ifdef _BRG_USE_UNITS_
-	result = BRG_UNITS(0,-2,0,1,0,0,0); // To get the right units
+	result = double(0,-2,0,1,0,0,0); // To get the right units
 #else
 	result = 0;
 #endif
@@ -2357,12 +2357,12 @@ const int SALTSA::tNFW_offset_sig_cache::set_precision(
 	}
 }
 
-const BRG_UNITS SALTSA::tNFW_offset_sig_cache::get( const double z,
-		const BRG_MASS m, const BRG_DISTANCE r, const BRG_DISTANCE offset_r,
+const double SALTSA::tNFW_offset_sig_cache::get( const double z,
+		const double m, const double r, const double offset_r,
 		const bool silent )
 {
 	double zlo, zhi, mlo, mhi;
-	BRG_DISTANCE rlo, rhi, orlo, orhi;
+	double rlo, rhi, orlo, orhi;
 	int z_i, m_i, r_i, or_i; // Lower nearby array points
 	double zwlo, zwhi, mwlo, mwhi, rwlo, rwhi, orwlo, orwhi;
 	double lm = log10( m * unitconv::kgtoMsun );
@@ -2421,7 +2421,7 @@ const BRG_UNITS SALTSA::tNFW_offset_sig_cache::get( const double z,
 	double totweight = halo_z_step * halo_m_step * r_step * offset_r_step;
 
 #ifdef _BRG_USE_UNITS_
-	result = BRG_UNITS(0,-2,0,1,0,0,0);
+	result = double(0,-2,0,1,0,0,0);
 #else
 	result = 0;
 #endif
@@ -2763,8 +2763,8 @@ const int SALTSA::tNFW_group_sig_cache::set_precision(
 	}
 }
 
-const BRG_UNITS SALTSA::tNFW_group_sig_cache::get( const double z,
-		const BRG_MASS m, const BRG_DISTANCE r, const double group_c,
+const double SALTSA::tNFW_group_sig_cache::get( const double z,
+		const double m, const double r, const double group_c,
 		const bool silent )
 {
 	double zlo, zhi, mlo, mhi, rlo, rhi, gclo, gchi;
@@ -2772,7 +2772,7 @@ const BRG_UNITS SALTSA::tNFW_group_sig_cache::get( const double z,
 	double zwlo, zwhi, mwlo, mwhi, rwlo, rwhi, gcwlo, gcwhi;
 	double lm = log10( m * unitconv::kgtoMsun );
 #ifdef _BRG_USE_UNITS_
-	BRG_UNITS result(0,-2,0,1,0,0,0);
+	double result(0,-2,0,1,0,0,0);
 #else
 	double result = 0;
 #endif
@@ -2870,8 +2870,8 @@ const int SALTSA::accel_function::set_host_ptr(
 	return 0;
 }
 
-const int SALTSA::accel_function::operator()( const BRG_UNITS & in_param,
-BRG_UNITS & out_param, const bool silent ) const
+const int SALTSA::accel_function::operator()( const double & in_param,
+double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -2906,8 +2906,8 @@ const int SALTSA::spherical_density_function::set_host_ptr(
 }
 
 const int SALTSA::spherical_density_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -2944,15 +2944,15 @@ const int SALTSA::projected_density_function::set_host_ptr(
 }
 
 const int SALTSA::projected_density_function::set_offset_R(
-		const BRG_DISTANCE &new_offset_R )
+		const double &new_offset_R )
 {
 	_offset_R_ = new_offset_R;
 	return 0;
 }
 
 const int SALTSA::projected_density_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -2961,7 +2961,7 @@ const int SALTSA::projected_density_function::operator()(
 					<< "ERROR: Host must be assigned to projected_density_function before function can be called.\n";
 		return NOT_SET_UP_ERROR;
 	}
-	BRG_DISTANCE r = quad_add( in_param, _offset_R_ );
+	double r = quad_add( in_param, _offset_R_ );
 	out_param = _host_ptr_->dens( r );
 	return 0;
 }
@@ -2973,7 +2973,7 @@ SALTSA::projected_density_function::projected_density_function()
 }
 
 SALTSA::projected_density_function::projected_density_function(
-		const density_profile *init_host, const BRG_DISTANCE &init_offset_R )
+		const density_profile *init_host, const double &init_offset_R )
 {
 	set_host_ptr( init_host );
 	set_offset_R( init_offset_R );
@@ -2992,8 +2992,8 @@ const int SALTSA::cylindrical_density_function::set_host_ptr(
 }
 
 const int SALTSA::cylindrical_density_function::operator()(
-		const BRG_UNITS & in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double & in_param,
+		double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -3028,14 +3028,14 @@ const int SALTSA::solve_rhm_function::set_host_ptr(
 }
 
 const int SALTSA::solve_rhm_function::set_target_mass(
-		const BRG_MASS &new_target_mass )
+		const double &new_target_mass )
 {
 	_target_mass_ = new_target_mass;
 	return 0;
 }
 
-const int SALTSA::solve_rhm_function::operator()( const BRG_UNITS & in_param,
-BRG_UNITS & out_param, const bool silent ) const
+const int SALTSA::solve_rhm_function::operator()( const double & in_param,
+double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -3057,7 +3057,7 @@ SALTSA::solve_rhm_function::solve_rhm_function()
 }
 ;
 SALTSA::solve_rhm_function::solve_rhm_function(
-		const density_profile *init_host, const BRG_MASS &new_target_mass )
+		const density_profile *init_host, const double &new_target_mass )
 {
 	set_host_ptr( init_host );
 	set_target_mass( new_target_mass );
@@ -3068,22 +3068,22 @@ SALTSA::solve_rhm_function::solve_rhm_function(
 #if (1)
 
 const int SALTSA::offset_ring_dens_function::set_R0(
-		const BRG_DISTANCE &new_R0 )
+		const double &new_R0 )
 {
 	_R0_ = new_R0;
 	return 0;
 }
 
 const int SALTSA::offset_ring_dens_function::set_R(
-		const BRG_DISTANCE &new_R )
+		const double &new_R )
 {
 	_R_ = new_R;
 	return 0;
 }
 
 const int SALTSA::offset_ring_dens_function::operator()(
-		const BRG_UNITS &in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double &in_param,
+		double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -3093,7 +3093,7 @@ const int SALTSA::offset_ring_dens_function::operator()(
 		return NOT_SET_UP_ERROR;
 	}
 
-	BRG_DISTANCE d = lc_add( _R0_, _R_, in_param );
+	double d = lc_add( _R0_, _R_, in_param );
 
 	out_param = _host_ptr_->proj_dens( d, silent );
 
@@ -3115,8 +3115,8 @@ SALTSA::offset_ring_dens_function::offset_ring_dens_function()
 }
 
 SALTSA::offset_ring_dens_function::offset_ring_dens_function(
-		const density_profile *new_host, const BRG_DISTANCE &new_R_0,
-		const BRG_DISTANCE &new_R )
+		const density_profile *new_host, const double &new_R_0,
+		const double &new_R )
 {
 	_host_ptr_ = new_host;
 	_R_ = new_R;
@@ -3129,15 +3129,15 @@ SALTSA::offset_ring_dens_function::offset_ring_dens_function(
 #if (1)
 
 const int SALTSA::offset_circ_dens_function::set_R0(
-		const BRG_DISTANCE &new_R_0 )
+		const double &new_R_0 )
 {
 	_R0_ = new_R_0;
 	return 0;
 }
 
 const int SALTSA::offset_circ_dens_function::operator()(
-		const std::vector< BRG_UNITS > &in_params,
-		std::vector< BRG_UNITS > & out_params, const bool silent ) const
+		const std::vector< double > &in_params,
+		std::vector< double > & out_params, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -3155,10 +3155,10 @@ const int SALTSA::offset_circ_dens_function::operator()(
 	}
 	out_params.clear();
 
-	BRG_DISTANCE R = in_params[0];
-	BRG_DISTANCE d = lc_add( _R0_, R, in_params[1] );
+	double R = in_params[0];
+	double d = lc_add( _R0_, R, in_params[1] );
 
-	BRG_UNITS result = _host_ptr_->proj_dens( d, silent );
+	double result = _host_ptr_->proj_dens( d, silent );
 	out_params.push_back( result );
 
 	return 0;
@@ -3178,7 +3178,7 @@ SALTSA::offset_circ_dens_function::offset_circ_dens_function()
 }
 
 SALTSA::offset_circ_dens_function::offset_circ_dens_function(
-		const density_profile *new_host, const BRG_DISTANCE &new_R_0 )
+		const density_profile *new_host, const double &new_R_0 )
 {
 	_host_ptr_ = new_host;
 	_R0_ = new_R_0;
@@ -3188,15 +3188,15 @@ SALTSA::offset_circ_dens_function::offset_circ_dens_function(
 // SALTSA::offset_WLsig_function class methods
 #if (1)
 
-const int SALTSA::offset_WLsig_function::set_R( const BRG_DISTANCE &new_R )
+const int SALTSA::offset_WLsig_function::set_R( const double &new_R )
 {
 	_R_ = new_R;
 	return 0;
 }
 
 const int SALTSA::offset_WLsig_function::operator()(
-		const BRG_UNITS &in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double &in_param,
+		double & out_param, const bool silent ) const
 {
 	if ( _host_ptr_ == 0 )
 	{
@@ -3225,7 +3225,7 @@ SALTSA::offset_WLsig_function::offset_WLsig_function()
 }
 
 SALTSA::offset_WLsig_function::offset_WLsig_function(
-		const density_profile *new_host, const BRG_DISTANCE &new_R )
+		const density_profile *new_host, const double &new_R )
 {
 	_host_ptr_ = new_host;
 	_R_ = new_R;
@@ -3243,10 +3243,10 @@ const int SALTSA::offset_WLsig_weight_function::set_c( const double new_c )
 }
 
 const int SALTSA::offset_WLsig_weight_function::operator()(
-		const BRG_UNITS &in_param,
-		BRG_UNITS & out_param, const bool silent ) const
+		const double &in_param,
+		double & out_param, const bool silent ) const
 {
-	BRG_UNITS result;
+	double result;
 	if ( _host_ptr_ == 0 )
 	{
 		if ( !silent )
@@ -3300,13 +3300,13 @@ SALTSA::offset_WLsig_weight_function::offset_WLsig_weight_function(
 #if (1)
 // grid functions
 #if (1)
-const int SALTSA::get_ra_grid( const BRG_ANGLE &ra )
+const int SALTSA::get_ra_grid( const double &ra )
 {
 	grid_cache cache;
 	return (int)floor(
 			( ra - cache.ra_grid_min() ) / safe_d( cache.ra_grid_step() ) );
 }
-const int SALTSA::get_dec_grid( const BRG_ANGLE &dec )
+const int SALTSA::get_dec_grid( const double &dec )
 {
 	grid_cache cache;
 	return (int)floor( ( dec - cache.dec_grid_min() ) / cache.dec_grid_step() );
@@ -3317,12 +3317,12 @@ const int SALTSA::get_z_grid( const double z )
 	return (int)floor( ( z - cache.z_grid_min() ) / cache.z_grid_step() );
 }
 
-const BRG_ANGLE SALTSA::get_ra_grid_lower( const int ra_grid )
+const double SALTSA::get_ra_grid_lower( const int ra_grid )
 {
 	grid_cache cache;
 	return cache.ra_grid_min() + cache.ra_grid_step() * ra_grid;
 }
-const BRG_ANGLE SALTSA::get_dec_grid_lower( const int dec_grid )
+const double SALTSA::get_dec_grid_lower( const int dec_grid )
 {
 	grid_cache cache;
 	return cache.dec_grid_min() + cache.dec_grid_step() * dec_grid;
@@ -3333,12 +3333,12 @@ const double SALTSA::get_z_grid_lower( const int z_grid )
 	return cache.z_grid_min() + cache.z_grid_step() * z_grid;
 }
 
-const BRG_ANGLE SALTSA::get_ra_grid_upper( const int ra_grid )
+const double SALTSA::get_ra_grid_upper( const int ra_grid )
 {
 	grid_cache cache;
 	return cache.ra_grid_min() + cache.ra_grid_step() * ( ra_grid + 1 );
 }
-const BRG_ANGLE SALTSA::get_dec_grid_upper( const int dec_grid )
+const double SALTSA::get_dec_grid_upper( const int dec_grid )
 {
 	grid_cache cache;
 	return cache.dec_grid_min() + cache.dec_grid_step() * ( dec_grid + 1 );
@@ -3349,12 +3349,12 @@ const double SALTSA::get_z_grid_upper( const int z_grid )
 	return cache.z_grid_min() + cache.z_grid_step() * ( z_grid + 1 );
 }
 
-const BRG_ANGLE SALTSA::get_ra_grid_mid( const int ra_grid )
+const double SALTSA::get_ra_grid_mid( const int ra_grid )
 {
 	grid_cache cache;
 	return cache.ra_grid_min() + cache.ra_grid_step() * ( ra_grid + 0.5 );
 }
-const BRG_ANGLE SALTSA::get_dec_grid_mid( const int dec_grid )
+const double SALTSA::get_dec_grid_mid( const int dec_grid )
 {
 	grid_cache cache;
 	return cache.dec_grid_min() + cache.dec_grid_step() * ( dec_grid + 0.5 );
@@ -3369,21 +3369,21 @@ const double SALTSA::get_z_grid_mid( const int z_grid )
 // dfa and afd functions
 #if (1)
 
-const BRG_DISTANCE SALTSA::dfa( const BRG_ANGLE &da, const double z )
+const double SALTSA::dfa( const double &da, const double z )
 {
 	return da * dfa_cache().get( z );
 }
-const BRG_DISTANCE SALTSA::dfa( const BRG_ANGLE &a1, const BRG_ANGLE &a2,
+const double SALTSA::dfa( const double &a1, const double &a2,
 		const double z )
 {
 	return SALTSA::dfa( a2 - a1, z );
 }
-const BRG_DISTANCE SALTSA::dfa( const BRG_ANGLE &a1x, const BRG_ANGLE &a1y,
-		const BRG_ANGLE &a2x, const BRG_ANGLE &a2y, const double z )
+const double SALTSA::dfa( const double &a1x, const double &a1y,
+		const double &a2x, const double &a2y, const double z )
 {
 	return SALTSA::dfa( skydist2d( a1x, a1y, a2x, a2y ), z );
 }
-const BRG_DISTANCE SALTSA::dfa( const SALTSA::sky_obj *obj1,
+const double SALTSA::dfa( const SALTSA::sky_obj *obj1,
 		const SALTSA::sky_obj *obj2, const double z )
 {
 	double z_to_use;
@@ -3395,18 +3395,18 @@ const BRG_DISTANCE SALTSA::dfa( const SALTSA::sky_obj *obj1,
 			skydist2d( obj1->ra(), obj1->dec(), obj2->ra(), obj2->dec() ),
 			z_to_use );
 }
-const BRG_ANGLE SALTSA::afd( const BRG_DISTANCE &dd, const double z )
+const double SALTSA::afd( const double &dd, const double z )
 {
 	return dd / safe_d( dfa_cache().get( z ) );
 }
-const BRG_ANGLE SALTSA::afd( const BRG_DISTANCE &d1, const BRG_DISTANCE &d2,
+const double SALTSA::afd( const double &d1, const double &d2,
 		const double z )
 {
 	return SALTSA::afd( fabs( d2 - d1 ), z );
 }
-const BRG_ANGLE SALTSA::afd( const BRG_DISTANCE &d1x,
-		const BRG_DISTANCE &d1y, const BRG_DISTANCE &d2x,
-		const BRG_DISTANCE &d2y, const double z )
+const double SALTSA::afd( const double &d1x,
+		const double &d1y, const double &d2x,
+		const double &d2y, const double z )
 {
 	return SALTSA::afd( dist2d( d1x, d1y, d2x, d2y ), z );
 }
@@ -3420,19 +3420,19 @@ const double SALTSA::afz( const double z )
 	return 1. / safe_d( 1 + z );
 }
 
-const BRG_TIME SALTSA::tfz( const double z )
+const double SALTSA::tfz( const double z )
 {
 	return SALTSA::tfa( afz( z ) );
 }
-const BRG_TIME SALTSA::tfa( const double a )
+const double SALTSA::tfa( const double a )
 {
 	return tfa_cache().get( a );
 }
-const double SALTSA::zft( const BRG_TIME &t )
+const double SALTSA::zft( const double &t )
 {
 	return SALTSA::zfa( SALTSA::aft( t ) );
 }
-const double SALTSA::aft( const BRG_TIME &t )
+const double SALTSA::aft( const double &t )
 {
 	SALTSA::tfa_cache cache;
 	return cache.inverse_get( t );
@@ -3624,25 +3624,25 @@ const double SALTSA::taufm( const double m_ratio, double conc,
 
 }
 
-const BRG_TIME SALTSA::period( const SALTSA::density_profile *host,
-		const BRG_DISTANCE &r, const BRG_VELOCITY &vr, const BRG_VELOCITY &vt )
+const double SALTSA::period( const SALTSA::density_profile *host,
+		const double &r, const double &vr, const double &vt )
 {
-	BRG_UNITS mu = host->enc_mass( r ) * Gc;
-	BRG_VELOCITY v = quad_add( vr, vt );
-	BRG_DISTANCE a = -mu / 2 / safe_d( v * v / 2 - mu / safe_d( r ) );
-	BRG_TIME result = (
-			a > 0 ? 2 * pi * sqrt( std::pow( a, 3 ) / mu ) : BRG_TIME( 0 ) );
+	double mu = host->enc_mass( r ) * Gc;
+	double v = quad_add( vr, vt );
+	double a = -mu / 2 / safe_d( v * v / 2 - mu / safe_d( r ) );
+	double result = (
+			a > 0 ? 2 * pi * sqrt( std::pow( a, 3 ) / mu ) : double( 0 ) );
 	return result;
 }
 
-const BRG_DISTANCE SALTSA::ad_distance( double z1, double z2 )
+const double SALTSA::ad_distance( double z1, double z2 )
 {
 	if ( z2 < z1 )
 		std::swap( z1, z2 );
 	return SALTSA::add_cache().get( z1, z2 );
 }
 
-const BRG_UNITS SALTSA::sigma_crit( const double z_lens,
+const double SALTSA::sigma_crit( const double z_lens,
 		const double z_source )
 {
 	return pow( c, 2 ) / ( 4. * pi * Gc )

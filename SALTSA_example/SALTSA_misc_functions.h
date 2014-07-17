@@ -273,15 +273,15 @@ struct phase
 
  **********************************************/
 {
-	BRG_DISTANCE x, y, z;BRG_VELOCITY vx, vy, vz;BRG_TIME t;
-	phase( BRG_DISTANCE init_x = 0, BRG_DISTANCE init_y = 0,
-	BRG_DISTANCE init_z = 0, BRG_VELOCITY init_vx = 0,
-	BRG_VELOCITY init_vy = 0, BRG_VELOCITY init_vz = 0,
-	BRG_TIME init_t = 0 );
-	const int set_phase( BRG_DISTANCE init_x = 0, BRG_DISTANCE init_y = 0,
-	BRG_DISTANCE init_z = 0, BRG_VELOCITY init_vx = 0,
-	BRG_VELOCITY init_vy = 0, BRG_VELOCITY init_vz = 0,
-	BRG_TIME init_t = 0 );
+	double x, y, z;double vx, vy, vz;double t;
+	phase( double init_x = 0, double init_y = 0,
+	double init_z = 0, double init_vx = 0,
+	double init_vy = 0, double init_vz = 0,
+	double init_t = 0 );
+	const int set_phase( double init_x = 0, double init_y = 0,
+	double init_z = 0, double init_vx = 0,
+	double init_vy = 0, double init_vz = 0,
+	double init_t = 0 );
 };
 
 #endif // end class declarations

@@ -381,13 +381,13 @@ public:
 		}
 	} // const int set_precision()
 
-	const BRG_UNITS get( const double x, const bool silent = false ) const
+	const double get( const double x, const bool silent = false ) const
 	{
 
 		double xlo, xhi;
 		unsigned int x_i; // Lower nearby array point
 #ifdef _BRG_USE_UNITS_
-		BRG_UNITS result = SPCP(name)->_units(); // Ensure the result has the proper units
+		double result = SPCP(name)->_units(); // Ensure the result has the proper units
 		result = 0;
 #else
 		double result = 0;
@@ -429,7 +429,7 @@ public:
 
 	} // get()
 
-	const BRG_UNITS inverse_get( const double y, const bool silent = false ) const
+	const double inverse_get( const double y, const bool silent = false ) const
 	{
 		if(!SPCP(name)->_initialised_) SPCP(name)->_init();
 
@@ -446,7 +446,7 @@ public:
 
 		double xlo, xhi, ylo, yhi;
 #ifdef _BRG_USE_UNITS_
-		BRG_UNITS result = SPCP(name)->_inverse_units(); // Ensure the result has the proper units
+		double result = SPCP(name)->_inverse_units(); // Ensure the result has the proper units
 		result = 0;
 #else
 		double result = 0;
