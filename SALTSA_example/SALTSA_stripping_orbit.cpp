@@ -13,7 +13,7 @@
 #include <cmath>
 #include <vector>
 #include "SALTSA.h"
-#include "SALTSA_stripping_orbit.h"
+//#include "SALTSA_stripping_orbit.h"
 #include "SALTSA_solvers.hpp"
 #include "SALTSA_calculus.hpp"
 

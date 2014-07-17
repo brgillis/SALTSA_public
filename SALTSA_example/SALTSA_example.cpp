@@ -6,19 +6,19 @@
 #include <sstream>
 #include <new>
 #include <fstream>
-#include "brg/brg_global.h"
-#include "brg/brg_units.h"
-#include "brg/brg_functions.h"
-#include "brg/brg_astro.h"
-#include "brg/brg_orbit.h"
-#include "brg/brg_calculus.hpp"
+#include "SALTSA_global.h"
+#include "SALTSA_unitconvs.h"
+#include "SALTSA_misc_functions.h"
+#include "SALTSA_astro.h"
+#include "SALTSA.h"
+#include "SALTSA_calculus.hpp"
 
 int main( const int argc, const char *argv[] )
 {
 	const int orbit_resolution = 1000000;
 	const int stripping_resolution = 10000;
 	const int spline_points = 200;
-	const int spline_skip = brgastro::max(orbit_resolution/spline_points,1);
+	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1);
 
 	double host_z = 0, satellite_z = host_z;
 	double host_c = 17.3, satellite_c = 17.3; // From Taylor
@@ -34,12 +34,12 @@ int main( const int argc, const char *argv[] )
 //	const BRG_MASS host_mass = 64*std::pow(10,9)*unitconv::Msuntokg;
 //	const BRG_MASS satellite_mass = std::pow(10,9)*unitconv::Msuntokg; // Kamiab E
 
-	brgastro::tNFW_profile host_group_val( host_mass, host_z, host_c), *host_group = &host_group_val;
-	brgastro::point_mass_profile host_group_pm_val( host_mass, host_z );
-	brgastro::density_profile *host_group_orbit = &host_group_pm_val; // Taylor
-//	brgastro::density_profile *host_group_orbit = &host_group_val; // Kamiab
+	SALTSA::tNFW_profile host_group_val( host_mass, host_z, host_c), *host_group = &host_group_val;
+	SALTSA::point_mass_profile host_group_pm_val( host_mass, host_z );
+	SALTSA::density_profile *host_group_orbit = &host_group_pm_val; // Taylor
+//	SALTSA::density_profile *host_group_orbit = &host_group_val; // Kamiab
 
-	brgastro::tNFW_profile test_satellite_val( satellite_mass, satellite_z, satellite_c), *test_satellite = &test_satellite_val;
+	SALTSA::tNFW_profile test_satellite_val( satellite_mass, satellite_z, satellite_c), *test_satellite = &test_satellite_val;
 
 	const int num_periods = 3; // Taylor
 //	const int num_periods = 5.5; // Kamiab
@@ -54,8 +54,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Period = " << host_group->otvir()*unitconv::stoGyr << std::endl;
 
-	brgastro::phase current_phase;
-	brgastro::accel_function accel_func;
+	SALTSA::phase current_phase;
+	SALTSA::accel_function accel_func;
 	int num_host_parameters;
 
 	std::ofstream out;
@@ -74,7 +74,7 @@ int main( const int argc, const char *argv[] )
 //	const int num_orbital_circs = 2;
 //	double orbital_circularity[num_orbital_circs] = {.9,.6};
 
-	brgastro::stripping_orbit test_orbit;
+	SALTSA::stripping_orbit test_orbit;
 
 	// Tuning parameters for best fit with Taylor
 	 test_orbit.set_default_tidal_stripping_amplification(0.65,true);
@@ -131,10 +131,10 @@ int main( const int argc, const char *argv[] )
 	for(int i = 0; i < num_orbital_circs; i += 1)
 	{
 
-        double a = acos(orbital_circularity[i]/brgastro::safe_d(orbital_v_factor));
+        double a = acos(orbital_circularity[i]/SALTSA::safe_d(orbital_v_factor));
 
 		test_orbit.clear();
-		test_orbit = brgastro::stripping_orbit(host_group, test_satellite);
+		test_orbit = SALTSA::stripping_orbit(host_group, test_satellite);
 		test_orbit.set_satellite_output_parameters(num_satellite_output_parameters, satellite_output_parameters);
 		test_orbit.set_host_output_parameters(num_host_output_parameters, host_output_parameters);
 		test_orbit.set_host_parameter_unitconvs(num_host_output_parameters, host_output_parameter_unitconvs);
@@ -154,14 +154,14 @@ int main( const int argc, const char *argv[] )
 		{
 		    current_phase.t = t;
 
-			if( brgastro::divisible(j,spline_skip) )
+			if( SALTSA::divisible(j,spline_skip) )
 			{
 				test_orbit.add_point(current_phase.x, current_phase.y, current_phase.z,
                          current_phase.vx, current_phase.vy, current_phase.vz, current_phase.t);
 			}
 
 			// Integrate to next point with leapfrog method
-			brgastro::leapfrog_step( current_phase, t_step, &accel_func );
+			SALTSA::leapfrog_step( current_phase, t_step, &accel_func );
 			t += t_step;
 		}
 
@@ -192,10 +192,10 @@ int main( const int argc, const char *argv[] )
 	for(int i = 0; i < num_infall_circs; i += 1)
 	{
 
-        double a = acos(infall_circularity[i]/brgastro::safe_d(infall_v_factor));
+        double a = acos(infall_circularity[i]/SALTSA::safe_d(infall_v_factor));
 
 		test_orbit.clear();
-		test_orbit = brgastro::stripping_orbit(host_group, test_satellite);
+		test_orbit = SALTSA::stripping_orbit(host_group, test_satellite);
 		test_orbit.set_satellite_output_parameters(num_satellite_output_parameters, satellite_output_parameters);
 		test_orbit.set_host_output_parameters(num_host_output_parameters, host_output_parameters);
 		test_orbit.set_host_parameter_unitconvs(num_host_output_parameters, host_output_parameter_unitconvs);
@@ -215,7 +215,7 @@ int main( const int argc, const char *argv[] )
 		{
 		    current_phase.t = t;
 
-			if( brgastro::divisible(j,spline_skip) )
+			if( SALTSA::divisible(j,spline_skip) )
 				test_orbit.add_point(current_phase.x, current_phase.y, current_phase.z, current_phase.t);
 
 			// Integrate to next point with leapfrog method
