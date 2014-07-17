@@ -10,11 +10,17 @@
 #include "SALTSA_interpolator.h"
 
 // Global function implementations
-bool SALTSA::_p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2)
+bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2)
 {
 	if(pair1.first == pair2.first)
 		throw std::runtime_error("ERROR: Two points passed to interpolator have same domain value.\n");
 	return (pair1.first < pair2.first);
+}
+
+// Global function implementations
+bool SALTSA::p1first_lt_v2(std::pair<double,double> pair1, double v2)
+{
+	return (pair1.first < v2);
 }
 
 // Implement interpolator static variables
@@ -69,7 +75,7 @@ std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() co
 		return _sorted_data_;
 
 	_sorted_data_ = _data_;
-	std::sort(_sorted_data_.begin(),_sorted_data_.end(),SALTSA::_p1first_lt_p2first);
+	std::sort(_sorted_data_.begin(),_sorted_data_.end(),SALTSA::p1first_lt_p2first);
 
 	_sorted_data_cached_ = true;
 	return _sorted_data_;
@@ -90,14 +96,14 @@ const double SALTSA::interpolator::operator()(const double x) const
 			throw std::runtime_error("ERROR: Interpolator called before at least 2 points were loaded.\n");
 
 		double xlo, xhi, ylo, yhi;
-		if(x<sorted_data().front().first)
+		if(x<=sorted_data().front().first)
 		{
 			xlo = _sorted_data_[0].first;
 			ylo = _sorted_data_[0].second;
 			xhi = _sorted_data_[1].first;
 			yhi = _sorted_data_[1].second;
 		}
-		else if(x>_sorted_data_.back().first)
+		else if(x>=_sorted_data_.back().first)
 		{
 			xlo = _sorted_data_[_sorted_data_.size()-2].first;
 			ylo = _sorted_data_[_sorted_data_.size()-2].second;
@@ -106,22 +112,18 @@ const double SALTSA::interpolator::operator()(const double x) const
 		}
 		else
 		{
-			std::vector< std::pair<double,double> >::iterator it = ++(_sorted_data_.begin());
-			bool found = false;
-			while(it != _sorted_data_.end())
-			{
-				if(x < it->first)
-				{
-					xlo = (it-1)->first;
-					ylo = (it-1)->second;
-					xhi = it->first;
-					yhi = it->second;
-					found = true;
-					break;
-				}
-			}
-			if(!found)
+			std::vector< std::pair<double,double> >::iterator it;
+
+			it = std::lower_bound(_sorted_data_.begin(),_sorted_data_.end(),
+					x,p1first_lt_v2);
+
+			if(it==_sorted_data_.end())
 				throw std::runtime_error("ERROR: Could not find x value in interpolator. Check it's a valid number.");
+
+			xlo = (it-1)->first;
+			ylo = (it-1)->second;
+			xhi = it->first;
+			yhi = it->second;
 		}
 
 		return ylo + (yhi-ylo)/(xhi-xlo);
@@ -141,14 +143,15 @@ const double SALTSA::interpolator::operator()(const double x) const
 		}
 		else
 		{
-			std::vector< std::pair<double,double> >::iterator it = ++(_sorted_data_.begin());
-			bool found = false;
-			while(it != _sorted_data_.end())
-			{
-				return (it-1)->second;
-			}
-			if(!found)
+			std::vector< std::pair<double,double> >::iterator it;
+
+			it = std::lower_bound(_sorted_data_.begin(),_sorted_data_.end(),
+					x,p1first_lt_v2);
+
+			if(it==_sorted_data_.end())
 				throw std::runtime_error("ERROR: Could not find x value in interpolator. Check it's a valid number.");
+
+			return (it-1)->second;
 		}
 	}
 	else if(interpolation_type==UPPER)
@@ -166,14 +169,15 @@ const double SALTSA::interpolator::operator()(const double x) const
 		}
 		else
 		{
-			std::vector< std::pair<double,double> >::iterator it = ++(_sorted_data_.begin());
-			bool found = false;
-			while(it != _sorted_data_.end())
-			{
-				return it->second;
-			}
-			if(!found)
+			std::vector< std::pair<double,double> >::iterator it;
+
+			it = std::lower_bound(_sorted_data_.begin(),_sorted_data_.end(),
+					x,p1first_lt_v2);
+
+			if(it==_sorted_data_.end())
 				throw std::runtime_error("ERROR: Could not find x value in interpolator. Check it's a valid number.");
+
+			return it->second;
 		}
 	}
 	// Should never get here

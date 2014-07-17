@@ -17,7 +17,8 @@
 
 namespace SALTSA {
 
-bool _p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2);
+bool p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2);
+bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
 
 	class interpolator {
 	private:
@@ -52,7 +53,10 @@ bool _p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double
 
 		void add_point(const double x, const double y);
 
-		unsigned int size() const;
+		unsigned int size() const
+		{
+			return sorted_data().size();
+		}
 
 		std::vector< std::pair<double,double> > & sorted_data() const;
 
