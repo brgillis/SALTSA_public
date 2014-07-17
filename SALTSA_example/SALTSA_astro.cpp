@@ -776,11 +776,11 @@ const double SALTSA::tfa( const double a )
 {
 	return tfa_cache().get( a );
 }
-const double SALTSA::zft( const double &t )
+const double SALTSA::zft( const double t )
 {
 	return SALTSA::zfa( SALTSA::aft( t ) );
 }
-const double SALTSA::aft( const double &t )
+const double SALTSA::aft( const double t )
 {
 	SALTSA::tfa_cache cache;
 	return cache.inverse_get( t );
@@ -788,25 +788,9 @@ const double SALTSA::aft( const double &t )
 
 // Functions to integrate out distances
 #if (1)
-const double SALTSA::integrate_cmd( const double z1, const double z2 )
-{
-	return SALTSA::integrate_distance( z1, z2, 1 );
-}
-const double SALTSA::integrate_Ld( const double z1, const double z2 )
-{
-	return SALTSA::integrate_distance( z1, z2, 2 );
-}
 const double SALTSA::integrate_ltd( const double z1, const double z2 )
 {
 	return SALTSA::integrate_distance( z1, z2, 3, 10000000 );
-}
-const double SALTSA::integrate_cmd( const double z )
-{
-	return SALTSA::integrate_distance( 0, z, 1 );
-}
-const double SALTSA::integrate_Ld( const double z )
-{
-	return SALTSA::integrate_distance( 0, z, 2 );
 }
 const double SALTSA::integrate_ltd( const double z )
 {

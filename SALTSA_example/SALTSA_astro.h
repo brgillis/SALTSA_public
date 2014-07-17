@@ -179,15 +179,11 @@ const double afz( const double z );
 
 const double tfz( const double z );
 const double tfa( const double z );
-const double zft( const double &t );
-const double aft( const double &t );
+const double zft( const double t );
+const double aft( const double t );
 
 // Functions to integrate out distances
-const double integrate_cmd( const double z1, const double z2 );
-const double integrate_Ld( const double z1, const double z2 );
 const double integrate_ltd( const double z1, const double z2 );
-const double integrate_cmd( const double z );
-const double integrate_Ld( const double z );
 const double integrate_ltd( const double z );
 const double integrate_distance( const double z1, const double z2,
 		const int mode, const int resolution = 10000 );
