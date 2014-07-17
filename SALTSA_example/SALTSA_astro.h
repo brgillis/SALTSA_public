@@ -112,23 +112,11 @@ namespace SALTSA
 class redshift_obj;
 // Concrete base
 
-class sky_obj;
-// Abstract base
-class galaxy;
-// Concrete
-class group;
-// Concrete
-
 class density_profile;
 // Abstract base
 class tNFW_profile;
 // Concrete
 class point_mass_profile;
-// Concrete
-
-class tNFW_galaxy;
-// Concrete
-class tNFW_group;
 // Concrete
 
 class spherical_density_function;
@@ -481,8 +469,6 @@ const double dfa( const double &a1, const double &a2,
 		const double z );
 const double dfa( const double &a1x, const double &a1y,
 		const double &a2x, const double &a2y, const double z );
-const double dfa( const sky_obj *obj1, const sky_obj *obj2,
-		const double z = -1 );
 
 const double afd( const double &dd, const double z );
 const double afd( const double &d1, const double &d2,
@@ -622,257 +608,6 @@ public:
 	// Clone function - Not needed in current implementation
 	// virtual redshift_obj *redshift_obj_clone()=0;
 };
-
-class sky_obj: public virtual redshift_obj
-{
-	/**********************************
-	 sky_obj class
-	 -------------
-
-	 An abstract class for anything in the sky.
-
-	 Derived classes:
-	 galaxy
-	 group
-
-	 **********************************/
-private:
-#if (1)
-	std::string _ID_; // Name for it or ID number
-
-	int _index_; // Position in an array
-
-	double _weight_;
-
-	mutable int _ra_grid_, _dec_grid_;
-
-	mutable bool _ra_grid_cached_, _dec_grid_cached_;
-	mutable int _local_ra_grid_change_num_, _local_dec_grid_change_num_;
-
-	double _ra_, _ra_err_;double _dec_, _dec_err_;
-#endif
-public:
-#if (1)
-	// Public member functions
-
-	// Constructor
-	sky_obj( double init_ra = 0, double init_dec = 0, double init_z = 0,
-	double init_ra_err = 0, double init_dec_err = 0, double init_z_err =
-			0 ); // Normal constructor
-
-	//sky_obj(sky_obj other_sky_obj); // Copy constructor (Default is fine for us)
-
-	virtual ~sky_obj()
-	{
-	} // Virtual destructor, in case it needs to be overridden
-
-	virtual const int clear(); // Resets all variables to zero
-	virtual const int partial_clear(); // Resets all variables which can't be initialized
-
-#if (1) // Set functions
-	virtual const int set_ra( const double &new_ra );
-	virtual const int set_dec( const double &new_dec );
-	virtual const int set_ra_err( const double &new_ra_err );
-	virtual const int set_dec_err( const double &new_dec_err );
-	virtual const int set_ra_dec( const double &new_ra,
-			const double &new_dec ); // Sets ra and dec
-	virtual const int set_ra_dec_z( const double &new_ra,
-			const double &new_dec, const double new_z ); // Sets all values
-	virtual const int set_ra_dec_z_err( const double &new_ra,
-			const double &new_dec, const double new_z,
-			const double &new_ra_err, const double &new_dec_err,
-			const double new_z_err ); // Sets all values and error
-	virtual const int set_ra_dec_err( const double &new_ra,
-			const double &new_dec, const double &new_ra_err,
-			const double &new_dec_err ); // Sets ra and dec and error
-
-	virtual const int set_weight( const double new_weight );
-	virtual const int set_index( const int new_index );
-	virtual const int set_ID( const std::string &new_ID );
-#endif // end set functions
-
-#if (1) //Get functions
-
-	virtual const double ra() const
-	{
-		return _ra_;
-	}
-	virtual const double dec() const
-	{
-		return _dec_;
-	}
-	virtual const double ra_err() const
-	{
-		return _ra_err_;
-	}
-	virtual const double dec_err() const
-	{
-		return _dec_err_;
-	}
-
-	virtual const double weight() const
-	{
-		return _weight_;
-	}
-	virtual const int index() const
-	{
-		return _index_;
-	}
-	virtual const std::string ID() const
-	{
-		return _ID_;
-	}
-
-	virtual const int ra_grid() const;
-	virtual const int dec_grid() const;
-
-#endif // end get functions
-
-	// Clone function (to enable copies to be made of pointed-to objects)
-	virtual redshift_obj *redshift_obj_clone()=0;
-	virtual sky_obj *sky_obj_clone()=0;
-
-#endif
-
-};
-// class sky_obj
-
-class galaxy: public sky_obj
-{
-	/**********************************
-	 galaxy class
-	 -------------
-
-	 A class for galaxies.
-
-	 Parent class: sky_obj
-
-	 Derived classes: tNFW_galaxy
-
-	 **********************************/
-
-private:
-	// private member variables (none needed in current implementation. Should make all private for consistency in future though)
-
-public:
-
-	// Public member variables
-
-	double stellar_mass;
-	double umag, gmag, rmag, imag, zmag;
-	double umag_err, gmag_err, rmag_err, imag_err, zmag_err;
-
-	double z_phot, z_phot_err;
-	double odds;
-	double phot_template;
-
-	group *host_group; // Pointer to group this galaxy resides within
-	int host_group_index;
-
-	// Public member functions
-
-	// Constructor
-	galaxy();
-
-	// Copy constructor
-	//galaxy(const galaxy other_galaxy); // Implicit is fine for us, though watch in case we need to make it virtual
-
-	// Virtual destructor
-	virtual ~galaxy()
-	{
-	}
-	;
-
-	// Clear function
-	virtual const int clear();
-
-	// Clone functions
-	virtual redshift_obj *redshift_obj_clone()
-	{
-		return new galaxy( *this );
-	}
-	virtual sky_obj *sky_obj_clone()
-	{
-		return new galaxy( *this );
-	}
-	virtual galaxy *galaxy_clone()
-	{
-		return new galaxy( *this );
-	}
-
-};
-// class unitless_galaxy
-
-class group: public sky_obj
-{
-	/**********************************
-	 group class
-	 -------------
-
-	 A class for groups and clusters of galaxies.
-
-	 Parent class: sky_obj
-
-	 Derived classes:
-	 (none)
-
-	 **********************************/
-
-private:
-
-public:
-	// Public member variables
-
-	double z_phot, z_phot_err;
-	double odds;
-
-	int BCG_index;
-
-	int num_members;
-	std::vector< int > member_indices;
-	std::vector< galaxy * > members;
-
-	// Public member functions
-
-	// Constructor
-	group( int init_num_members = 0 );
-	group( double init_mass, double init_z, double init_c = -1,
-			double init_tau = -1 );
-
-	// Copy constructor
-	group( const group &unitless_group );
-
-	// Destructor
-	virtual ~group();
-
-	// Functions to set parameters
-	virtual const int clear();
-	virtual const int resize( int new_num_members );
-	virtual const int set_member( int index, galaxy * new_member,
-			const bool silent = false );
-	virtual const int set_member_index( int index, int new_member_index,
-			const bool silent = false );
-	virtual const int add_member( galaxy * new_member, const bool silent =
-			false );
-	virtual const int remove_member( galaxy * rem_member, const bool silent =
-			false );
-
-	// Clone functions
-	virtual redshift_obj *redshift_obj_clone()
-	{
-		return new group( *this );
-	}
-	virtual sky_obj *sky_obj_clone()
-	{
-		return new group( *this );
-	}
-	virtual group *group_clone()
-	{
-		return new group( *this );
-	}
-
-};
-// class group
 
 class density_profile: public virtual redshift_obj
 {
@@ -1447,33 +1182,6 @@ public:
 #endif // end public variables and functions
 };
 // class point_mass_profile
-
-class tNFW_galaxy: public tNFW_profile, public galaxy
-{
-	// Simple combination of the two classes. Only complicated part is the z value
-public:
-	tNFW_galaxy()
-	{
-		galaxy();
-		tNFW_profile();
-	}
-	virtual density_profile *density_profile_clone() const
-	{
-		return new tNFW_galaxy( *this );
-	}
-	virtual tNFW_profile *tNFW_profile_clone() const
-	{
-		return new tNFW_galaxy( *this );
-	}
-	virtual galaxy *galaxy_clone() const
-	{
-		return new tNFW_galaxy( *this );
-	}
-	virtual sky_obj *sky_obj_clone() const
-	{
-		return new tNFW_galaxy( *this );
-	}
-};
 
 class accel_function: public functor< double >
 {
