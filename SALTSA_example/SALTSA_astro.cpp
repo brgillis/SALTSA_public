@@ -372,11 +372,10 @@ const double SALTSA::tNFW_profile::enc_mass( const double &r,
 	return result;
 }
 
-const int SALTSA::tNFW_profile::get_parameters( int & num_parameters,
-		std::vector< double > & parameters, const bool silent ) const
+const int SALTSA::tNFW_profile::get_parameters( std::vector< double > & parameters,
+		const bool silent ) const
 {
-	num_parameters = 4;
-	parameters.resize( num_parameters );
+	parameters.resize( num_parameters() );
 
 	try
 	{
@@ -392,11 +391,10 @@ const int SALTSA::tNFW_profile::get_parameters( int & num_parameters,
 	return 0;
 }
 
-const int SALTSA::tNFW_profile::get_parameter_names( int & num_parameters,
-		std::vector< std::string > & parameter_names, const bool silent ) const
+const int SALTSA::tNFW_profile::get_parameter_names(std::vector< std::string > & parameter_names,
+		const bool silent ) const
 {
-	num_parameters = 4;
-	parameter_names.resize( num_parameters );
+	parameter_names.resize( num_parameters() );
 
 	try
 	{
@@ -560,11 +558,10 @@ const double SALTSA::point_mass_profile::enc_mass(
 	return _mass_;
 }
 
-const int SALTSA::point_mass_profile::get_parameters( int & num_parameters,
-		std::vector< double > & parameters, const bool silent ) const
+const int SALTSA::point_mass_profile::get_parameters( std::vector< double > & parameters,
+		const bool silent ) const
 {
-	num_parameters = 2;
-	parameters.resize( num_parameters );
+	parameters.resize( num_parameters() );
 
 	try
 	{
@@ -578,12 +575,10 @@ const int SALTSA::point_mass_profile::get_parameters( int & num_parameters,
 	return 0;
 }
 
-const int SALTSA::point_mass_profile::get_parameter_names(
-		int & num_parameters, std::vector< std::string > & parameter_names,
+const int SALTSA::point_mass_profile::get_parameter_names( std::vector< std::string > & parameter_names,
 		const bool silent ) const
 {
-	num_parameters = 2;
-	parameter_names.resize( num_parameters );
+	parameter_names.resize( num_parameters() );
 
 	try
 	{
