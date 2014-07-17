@@ -12,6 +12,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <exception>
+#include "brg_multi_vector.hpp"
+#include "brg_vector.hpp"
 #include "brg_global.h"
 #include "brg_units.h"
 
@@ -24,30 +27,31 @@
 // SPP: "Static Polymorphic Pointer"
 #define SPP(name) static_cast<name*>(this)
 
-#define DECLARE_BRG_CACHE_STATIC_VARS()		\
-	static double _mins_, _maxes_, _steps_; \
-	static unsigned int _resolutions_;      \
-	static std::vector< double > _results_; \
-											\
-	static std::string _file_name_;         \
-	static std::string _header_string_;     \
-											\
-	static bool _loaded_, _initialised_;    \
-	static short int _is_monotonic_;		\
-											\
-	static unsigned int _sig_digits_;
-#define DEFINE_BRG_CACHE_STATIC_VARS(class_name,init_min,init_max,init_step) \
-	double brgastro::class_name::_mins_ = init_min;							\
-	double brgastro::class_name::_maxes_ = init_max; 						\
-	double brgastro::class_name::_steps_ = init_step; 						\
-	bool brgastro::class_name::_loaded_ = false;							\
-	bool brgastro::class_name::_initialised_ = false;						\
-	short int brgastro::class_name::_is_monotonic_ = 0;						\
-	unsigned int brgastro::class_name::_sig_digits_ = 8;					\
-	unsigned int brgastro::class_name::_resolutions_ = 0;					\
-	std::string brgastro::class_name::_file_name_ = "";						\
-	std::string brgastro::class_name::_header_string_ = "";					\
-	std::vector<double> brgastro::class_name::_results_;
+#define DECLARE_BRG_CACHE_STATIC_VARS(init_num_dim)		               \
+	static std::vector<double> _mins_, _maxes_, _steps_;           \
+	static std::vector<unsigned int> _resolutions_;                \
+	static boost::multi_array<double, init_num_dim> _results_;          \
+											                       \
+	static std::string _file_name_;                                \
+	static std::string _header_string_;                            \
+										                           \
+	static bool _loaded_, _initialised_;                           \
+											                       \
+	static unsigned int _sig_digits_;                              \
+	static unsigned int _num_dim_;
+
+#define DEFINE_BRG_CACHE_STATIC_VARS(class_name,init_mins,init_maxes,init_steps,init_num_dim) \
+	double brgastro::class_name::_mins_ = init_mins;							 \
+	double brgastro::class_name::_maxes_ = init_maxes; 						     \
+	double brgastro::class_name::_steps_ = init_steps; 						     \
+	bool brgastro::class_name::_loaded_ = false;							     \
+	bool brgastro::class_name::_initialised_ = false;					     	\
+	unsigned int brgastro::class_name::_sig_digits_ = 8;				     	\
+	unsigned int brgastro::class_name::_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(init_maxes,init_mins), safe_d(init_steps)), 1), 1);;\
+	std::string brgastro::class_name::_file_name_ = "";					     	\
+	std::string brgastro::class_name::_header_string_ = "";			     		\
+	static brgastro::multi_vector<double, init_num_dim> brgastro::class_name::_results_;                        \
+	static unsigned int brgastro::class_name::_num_dim_ = init_num_dim;
 
 namespace brgastro
 {
@@ -60,7 +64,7 @@ private:
 	// Private variables
 #if (1)
 
-	DECLARE_BRG_CACHE_STATIC_VARS();
+	DECLARE_BRG_CACHE_STATIC_VARS(1);
 
 #endif // Private variables
 
@@ -70,7 +74,7 @@ private:
 	{
 		if(SPCP(name)->_initialised_) return 0;
 
-		SPCP(name)->_resolutions_ = (unsigned int) max( ( ( SPCP(name)->_maxes_ - SPCP(name)->_mins_ ) / safe_d(SPCP(name)->_steps_)) + 1, 1);
+		SPCP(name)->_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(SPCP(name)->_maxes_,SPCP(name)->_mins_), safe_d(SPCP(name)->_steps_)), 1), 1);
 		SPCP(name)->_file_name_ = SPCP(name)->_name_base() + "_cache.dat";
 		SPCP(name)->_header_string_ = "# " + SPCP(name)->_name_base() + "_cache v1.0";
 
@@ -138,7 +142,16 @@ private:
 			}
 
 			// Load range parameters;
-			if ( !( in_file >> SPCP(name)->_mins_ >> SPCP(name)->_maxes_ >> SPCP(name)->_steps_ ) )
+			SPCP(name)->_mins_.resize(_num_dim_);
+			SPCP(name)->_maxes_.resize(_num_dim_);
+			SPCP(name)->_steps_.resize(_num_dim_);
+			for(unsigned int i = 0; i < _num_dim_; i++)
+			{
+				in_file >> SPCP(name)->_mins_[i];
+				in_file >> SPCP(name)->_maxes_[i];
+				in_file >> SPCP(name)->_steps_[i];
+			}
+			if ( !(in_file) )
 			{
 				need_to_calc = true;
 				if ( SPCP(name)->_calc( silent ) )
@@ -149,60 +162,29 @@ private:
 			}
 
 			// Set up data
-			SPCP(name)->_resolutions_ = (int)( ( SPCP(name)->_maxes_ - SPCP(name)->_mins_ ) / SPCP(name)->_steps_ ) + 1;
-			make_array( SPCP(name)->_results_, SPCP(name)->_resolutions_ );
+			SPCP(name)->_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(SPCP(name)->_maxes_,SPCP(name)->_mins_), safe_d(SPCP(name)->_steps_)), 1), 1);
+			SPCP(name)->_results_.resize(SPCP(name)->_resolutions_);
 
 			// Read in data
-
-			double temp_data;
-			double last_data=0;
-
 			i = 0;
-			SPCP(name)->_is_monotonic_ = 0;
-			while ( ( !in_file.eof() ) && ( i < SPCP(name)->_resolutions_ ) )
+			std::vector<unsigned int> position(_num_dim_,0);
+			while ( ( !in_file.eof() ) && ( i < product(SPCP(name)->_resolutions_) ) )
 			{
-				in_file >> temp_data;
-				SPCP(name)->_results_.at(i) = temp_data;
-				if(i==1)
-				{
-					// First monotonic check, so we don't compare to its past values
-					if(temp_data > last_data)
-					{
-						SPCP(name)->_is_monotonic_ = 1;
-					}
-					else if(temp_data < last_data)
-					{
-						SPCP(name)->_is_monotonic_ = -1;
-					}
-					else
-					{
-						SPCP(name)->_is_monotonic_ = 0;
-					}
-				}
-				else if(i>1)
-				{
-					// Check for monotonic increase/decrease
-					if(temp_data > last_data)
-					{
-						if(SPCP(name)->_is_monotonic_ != 1)
-							SPCP(name)->_is_monotonic_ = 0;
-					}
-					else if(temp_data < last_data)
-					{
-						if(SPCP(name)->_is_monotonic_ != -1)
-							SPCP(name)->_is_monotonic_ = 0;
-					}
-					else
-					{
-						SPCP(name)->_is_monotonic_ = 0;
-					}
-				}
-				last_data = temp_data;
+				in_file >> SPCP(name)->_results_(position);
 				i++;
+
+				for(unsigned int d=0; d<_num_dim_; d++)
+				{
+					position[d]++;
+					if(position[d] != SPCP(name)->_resolutions_)
+						break;
+					position[d] = 0;
+					// If we get here, we'll go on to increase the next index by 1
+				}
 			}
 
 			// Check that it was all read properly
-			if ( i < SPCP(name)->_resolutions_ )
+			if ( i < product(SPCP(name)->_resolutions_) )
 			{
 				need_to_calc = true;
 				if ( SPCP(name)->_calc( silent ) )
@@ -222,36 +204,55 @@ private:
 	const int _unload() const throw()
 	{
 		SPCP(name)->_loaded_ = false;
-		return del_array( SPCP(name)->_results_ );
+		SPCP(name)->_results_.clear();
+		return 0;
 	}
 	const int _calc( const bool silent = false ) const
 	{
-		int i = 0;
-
 		// Test that range is sane
-		if ( ( SPCP(name)->_maxes_ <= SPCP(name)->_mins_ ) || ( SPCP(name)->_steps_ <= 0 ) )
+		for(unsigned int i = 0; i < _num_dim_; i++)
 		{
-			if ( !silent )
-				std::cerr
-						<< "ERROR: Bad range passed to brg_cache::_calc() for " + static_cast<const name*>(this)->_name_base() + "\n";
-			return INVALID_ARGUMENTS_ERROR;
+			try {
+				if ( ( SPCP(name)->_maxes_.at(i) <= SPCP(name)->_mins_.at(i) ) || ( SPCP(name)->_steps_.at(i) <= 0 ) )
+				{
+					if ( !silent )
+						std::cerr
+								<< "ERROR: Bad range passed to brg_cache::_calc() for " + static_cast<const name*>(this)->_name_base() + "\n";
+					return INVALID_ARGUMENTS_ERROR;
+				}
+			} catch (std::exception &e) {
+				if ( !silent )
+					std::cerr
+							<< "ERROR: Bad range passed to brg_cache::_calc() for " + static_cast<const name*>(this)->_name_base() + "\n";
+				return INVALID_ARGUMENTS_ERROR;
+			}
 		}
 
 		// Set up data
-		SPCP(name)->_resolutions_ = (int)( ( SPCP(name)->_maxes_ - SPCP(name)->_mins_ ) / SPCP(name)->_steps_ ) + 1;
-		if ( make_array( SPCP(name)->_results_, SPCP(name)->_resolutions_ ) )
-			return 1;
+		SPCP(name)->_resolutions_.resize(_num_dim_);
+		SPCP(name)->_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(SPCP(name)->_maxes_,SPCP(name)->_mins_), safe_d(SPCP(name)->_steps_)), 1), 1);
+		SPCP(name)->_results_.resize(SPCP(name)->_resolutions_ );
 
-		// Calculate data
+		unsigned int i = 0;
+		std::vector<unsigned int> position(_num_dim_,0);
 		for ( double x = SPCP(name)->_mins_; x < SPCP(name)->_maxes_; x += SPCP(name)->_steps_ )
 		{
 			double result = 0;
-			if(SPCP(name)->_calculate(x, result))
+			if(SPCP(name)->_calculate(position, result))
 			{
 				return UNSPECIFIED_ERROR;
 			}
-			SPCP(name)->_results_.at(i) = result;
+			SPCP(name)->_results_(position) = result;
 			i++;
+
+			for(unsigned int d=0; d<_num_dim_; d++)
+			{
+				position[d]++;
+				if(position[d] != SPCP(name)->_resolutions_)
+					break;
+				position[d] = 0;
+				// If we get here, we'll go on to increase the next index by 1
+			}
 		}
 
 		SPCP(name)->_loaded_ = true;
@@ -267,23 +268,41 @@ private:
 		if ( !SPCP(name)->_loaded_ )
 		{
 			if ( SPCP(name)->_calc( silent ) )
-				return 1;
+				return LOWER_LEVEL_ERROR;
 		}
 
 		if ( open_file( out_file, SPCP(name)->_file_name_, true ) )
-			return 1;
+			return LOWER_LEVEL_ERROR;
 
 		// Output header
 		out_file << SPCP(name)->_header_string_ << "\n#\n";
 
-		// Output range
-		out_file << SPCP(name)->_mins_ << "\t" << SPCP(name)->_maxes_ << "\t" << SPCP(name)->_steps_ << "\n";
-
-		// Output data
-		for ( unsigned int i = 0; i < SPCP(name)->_resolutions_; i++ )
+		// Output range parameters
+		for(unsigned int i = 0; i < _num_dim_; i++)
 		{
-			if ( !( out_file << SPCP(name)->_results_.at(i) << "\n" ) )
-				return errorNOS( silent );
+			out_file << SPCP(name)->_mins_[i] << "\t";
+			out_file << SPCP(name)->_maxes_[i] << "\t";
+			out_file << SPCP(name)->_steps_[i] << "\t";
+		}
+		out_file << "\n";
+
+		// Output data			// Read in data
+		unsigned int i = 0;
+		std::vector<unsigned int> position(_num_dim_,0);
+		while ( i < product(SPCP(name)->_resolutions_) )
+		{
+			out_file << SPCP(name)->_results_(position) << "\t";
+			i++;
+
+			for(unsigned int d=0; d<_num_dim_; d++)
+			{
+				position[d]++;
+				if(position[d] != SPCP(name)->_resolutions_)
+					break;
+				position[d] = 0;
+				out_file << "\n";
+				// If we get here, we'll go on to increase the next index by 1
+			}
 		}
 
 		out_file.close();
@@ -298,8 +317,6 @@ protected:
 	// Protected methods
 	// These are made protected instead of private so base classes can overload them
 #if (1)
-	// Name base - derived classes must overload this to tell how their cache file will be named
-	// virtual const std::string _name_base() const throw() =0;
 
 #ifdef _BRG_USE_UNITS_
 
@@ -314,9 +331,6 @@ protected:
 	}
 
 #endif // _BRG_USE_UNITS_
-
-	// Long-form calculation function. Must be overloaded by child classes
-	// virtual const int _calculate( const double in_params, double out_params ) const =0;
 
 #endif // Protected methods
 
@@ -336,8 +350,8 @@ public:
 		return 0;
 	} // const int set_file_name()
 
-	const int set_range( const double new_mins, const double new_maxes,
-			const double new_steps, const bool silent = false )
+	const int set_range( const std::vector<double> & new_mins, const std::vector<double> & new_maxes,
+			const std::vector<double> & new_steps, const bool silent = false )
 	{
 		if(!SPCP(name)->_initialised_) SPP(name)->_init();
 
@@ -346,18 +360,29 @@ public:
 		if ( !SPCP(name)->_loaded_ )
 			SPCP(name)->_load( true );
 
-		// Go through variables, check if any are actually changed. If so, recalculate cache
-		if ( ( SPCP(name)->_mins_ != new_mins ) || ( SPCP(name)->_maxes_ != new_maxes )
-				|| ( SPCP(name)->_steps_ != new_steps ) )
+		// Check sizes of passed vectors
+		if( (new_mins.size() != _num_dim_) || (new_maxes.size() != _num_dim_) ||
+				(new_steps.size() != _num_dim_) )
 		{
-			SPP(name)->_mins_ = new_mins;
-			SPP(name)->_maxes_ = new_maxes;
-			SPP(name)->_steps_ = new_steps;
+			throw std::runtime_error("ERROR: Incorrect sizes of vectors passed to set_range.\n");
+		}
 
-			if ( SPCP(name)->_unload() )
-				return errorNOS( silent );
-			if ( SPCP(name)->_calc( silent ) )
-				return UNSPECIFIED_ERROR;
+		// Go through variables, check if any are actually changed. If so, recalculate cache
+		for(unsigned int i = 0; i < _num_dim_; i++)
+		{
+			if ( ( SPCP(name)->_mins_.at(i) != new_mins.at(i) ) || ( SPCP(name)->_maxes_.at(i) != new_maxes.at(i) )
+					|| ( SPCP(name)->_steps_.at(i) != new_steps.at(i) ) )
+			{
+				SPP(name)->_mins_ = new_mins;
+				SPP(name)->_maxes_ = new_maxes;
+				SPP(name)->_steps_ = new_steps;
+
+				if ( SPCP(name)->_unload() )
+					return errorNOS( silent );
+				if ( SPCP(name)->_calc( silent ) )
+					return LOWER_LEVEL_ERROR;
+				break;
+			}
 		}
 		return 0;
 	} // const int set_range()
@@ -380,11 +405,11 @@ public:
 		}
 	} // const int set_precision()
 
-	const BRG_UNITS get( const double x, const bool silent = false ) const
+	const BRG_UNITS get( const std::vector<double> x, const bool silent = false ) const
 	{
 
-		double xlo, xhi;
-		unsigned int x_i; // Lower nearby array point
+		std::vector<double> xlo, xhi;
+		std::vector<unsigned int> x_i; // Lower nearby array points
 #ifdef _BRG_USE_UNITS_
 		BRG_UNITS result = SPCP(name)->_units(); // Ensure the result has the proper units
 		result = 0;
@@ -414,15 +439,51 @@ public:
 			}
 		}
 
-		x_i = (unsigned int)( ( x - SPCP(name)->_mins_ ) / SPCP(name)->_steps_ );
-		x_i = max( x_i, (unsigned)0 );
-		x_i = min( x_i, SPCP(name)->_resolutions_ - 2 );
+		x_i = (std::vector<unsigned int>)divide( subtract( x, SPCP(name)->_mins_ ), SPCP(name)->_steps_ );
+		x_i = max( x_i, std::vector<unsigned int>(_num_dim_,0) );
+		x_i = min( x_i, std::vector<unsigned int>(_num_dim_,SPCP(name)->_resolutions_ - 2) );
 
-		xlo = SPCP(name)->_mins_ + SPCP(name)->_steps_ * x_i;
-		xhi = SPCP(name)->_mins_ + SPCP(name)->_steps_ * ( x_i + 1 );
+		xlo = add(SPCP(name)->_mins_, multiply(SPCP(name)->_steps_, x_i));
+		xhi = add(SPCP(name)->_mins_, multiply(SPCP(name)->_steps_, add( x_i, 1 )));
 
-		result = ( ( x - xlo ) * SPCP(name)->_results_.at(x_i + 1) + ( xhi - x ) * SPCP(name)->_results_.at(x_i) )
-				/ SPCP(name)->_steps_;
+		const unsigned int num_surrounding_points = std::pow(2,_num_dim_);
+		std::vector< std::vector<bool> > use_high(_num_dim_);
+		std::vector<unsigned int> power_to_use(_num_dim_,1);
+		for(unsigned int i=0; i < _num_dim_; i++)
+		{
+			power_to_use[i] = std::pow(2,i+1);
+			use_high[i].resize(num_surrounding_points);
+			for(unsigned int j=0; j<num_surrounding_points; j++)
+			{
+				use_high[i][j] = divisible(j,power_to_use[i]);
+			}
+		}
+
+		result = 0;
+		double total_weight = 0;
+		std::vector<unsigned int> position(_num_dim_);
+
+		for(unsigned int j=0; j < num_surrounding_points; j++)
+		{
+			double weight = 1;
+			for(unsigned int i=0; i < _num_dim_; i++)
+			{
+				if(use_high[i][j])
+				{
+					position[i] = x_i[i]+1;
+					weight *= x[i]-xlo[i];
+				}
+				else
+				{
+					position[i] = x_i[i];
+					weight *= xhi[i]-x[i];
+				}
+			}
+			result += _results_(position)*weight;
+			total_weight += weight;
+		}
+
+		result /= safe_d(total_weight);
 
 		return result;
 

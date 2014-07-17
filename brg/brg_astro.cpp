@@ -178,6 +178,7 @@ const BRG_UNITS brgastro::redshift_obj::H( const double init_test_z ) const
 		test_z = z();
 	}
 	// Friedmann equation, assuming omega = -1
+	if(test_z==0) return H_0;
 	return H_0
 			* sqrt(
 					Omega_r * std::pow( 1 + test_z, 4 )

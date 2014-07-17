@@ -401,6 +401,94 @@ const T1 pow( const T1 & v1, const T2 & v2 )
 
 #endif // Element-wise power
 
+// Element-wise max
+#if (1)
+
+template< typename T1, typename T2 >
+const std::vector<T1> max( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<T1> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = max(v1[i], v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<T1> max( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<T1> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = max(v1[i], v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<T1> max( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<T1> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = max(v1, v2[i]);
+	}
+
+	return result;
+}
+
+#endif // Element-wise max
+
+// Element-wise min
+#if (1)
+
+template< typename T1, typename T2 >
+const std::vector<T1> min( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<T1> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = min(v1[i], v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<T1> min( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<T1> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = min(v1[i], v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<T1> min( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<T1> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = min(v1, v2[i]);
+	}
+
+	return result;
+}
+
+#endif // Element-wise min
+
 // Element-wise negate
 #if (1)
 
@@ -494,6 +582,22 @@ const T exp( const T & v )
 }
 
 #endif // Element-wise exponential
+
+// Element-wise safe_d
+#if (1)
+
+template< typename T >
+const std::vector<T> safe_d( const std::vector<T> & v )
+{
+	std::vector<T> result(v.size());
+
+	for(unsigned int i = 0; i < v.size(); i++)
+		result[i] = safe_d(v[i]);
+
+	return result;
+}
+
+#endif // Element-wise safe_d
 
 #endif // Element-wise functions
 
