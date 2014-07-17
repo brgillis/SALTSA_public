@@ -115,7 +115,7 @@ int main( const int argc, const char *argv[] )
 	std::vector<bool> host_output_parameters(num_host_output_parameters,false);
 	std::vector<double> host_output_parameter_unitconvs(num_host_output_parameters,1);
 
-	satellite_output_parameters.at(3) = true; // Will output tau
+	satellite_output_parameters.at(3) = true; // Will output tau (and nothing else for the satellite)
 
 	host_output_parameters.at(0) = true; // Will output mvir0
 	host_output_parameters.at(1) = true; // Will output z
@@ -185,6 +185,8 @@ int main( const int argc, const char *argv[] )
 		out.close();
 
 		std::cout << "Done!\n";
+
+		return 0;
 
 		test_orbit.clear();
 	}
