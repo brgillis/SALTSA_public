@@ -2017,7 +2017,7 @@ const double SALTSA::tNFW_sig_cache::get( const double z,
 
 	double totweight = halo_z_step * halo_m_step * r_step;
 
-	result = double(0,-2,0,1,0,0,0); // To get the right units
+	result = 0;
 
 	result += signal[z_i][m_i][r_i] * zwhi * mwhi * rwhi;
 	result += signal[z_i][m_i][r_i + 1] * zwhi * mwhi * rwlo;
@@ -2408,7 +2408,7 @@ const double SALTSA::tNFW_offset_sig_cache::get( const double z,
 
 	double totweight = halo_z_step * halo_m_step * r_step * offset_r_step;
 
-	result = double(0,-2,0,1,0,0,0);
+	result = 0;
 
 	result += signal[z_i][m_i][r_i][or_i] * zwhi * mwhi * rwhi * orwhi;
 	result += signal[z_i][m_i][r_i + 1][or_i] * zwhi * mwhi * rwlo * orwhi;
@@ -2755,7 +2755,7 @@ const double SALTSA::tNFW_group_sig_cache::get( const double z,
 	int z_i, m_i, r_i, gc_i; // Lower nearby array points
 	double zwlo, zwhi, mwlo, mwhi, rwlo, rwhi, gcwlo, gcwhi;
 	double lm = log10( m * unitconv::kgtoMsun );
-	double result(0,-2,0,1,0,0,0);
+	double result = 0;
 
 	if ( !loaded )
 	{
