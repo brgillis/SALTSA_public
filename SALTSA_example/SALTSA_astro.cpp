@@ -27,6 +27,11 @@ DEFINE_BRG_CACHE_STATIC_VARS( tfa_cache, 0.001, 1.02, 0.001 );
 // SALTSA::redshift_obj class methods
 #if (1)
 
+/**
+ *
+ * @param init_test_z
+ * @return
+ */
 const double SALTSA::redshift_obj::H( const double init_test_z ) const
 {
 	double test_z = init_test_z;
@@ -47,6 +52,12 @@ const double SALTSA::redshift_obj::H( const double init_test_z ) const
 
 // SALTSA::density_profile class methods
 #if (1)
+/**
+ *
+ * @param r
+ * @param silent
+ * @return
+ */
 const double SALTSA::density_profile::Daccel( const double &r,
 		const bool silent ) const
 {
@@ -59,6 +70,11 @@ const double SALTSA::density_profile::Daccel( const double &r,
 	return ( a2 - a1 ) / safe_d( dr );
 }
 
+/**
+ *
+ * @param silent
+ * @return
+ */
 const double SALTSA::density_profile::rhmtot( const bool silent ) const
 {
 	// If cached, return the cached value
@@ -97,6 +113,11 @@ const double SALTSA::density_profile::rhmtot( const bool silent ) const
 	return _rhmtot_cache_;
 }
 
+/**
+ *
+ * @param silent
+ * @return
+ */
 const double SALTSA::density_profile::rhmvir( const bool silent ) const
 {
 	// If cached, return the cached value
@@ -132,6 +153,12 @@ const double SALTSA::density_profile::rhmvir( const bool silent ) const
 	return _rhmvir_cache_;
 }
 
+/**
+ *
+ * @param r
+ * @param silent
+ * @return
+ */
 const double SALTSA::density_profile::enc_mass( const double &r,
 		const bool silent ) const
 {
@@ -157,6 +184,10 @@ const double SALTSA::density_profile::enc_mass( const double &r,
 #if (1)
 
 #if (1) // Constructors
+
+/**
+ *
+ */
 SALTSA::tNFW_profile::tNFW_profile()
 {
 	_mvir0_ = 0;
@@ -164,6 +195,13 @@ SALTSA::tNFW_profile::tNFW_profile()
 	_tau_ = 0;
 }
 
+/**
+ *
+ * @param init_mvir0
+ * @param init_z
+ * @param init_c
+ * @param init_tau
+ */
 SALTSA::tNFW_profile::tNFW_profile( const double &init_mvir0,
 		const double init_z, const double init_c, const double init_tau ) :
 		SALTSA::redshift_obj( init_z )
@@ -190,12 +228,21 @@ SALTSA::tNFW_profile::tNFW_profile( const double &init_mvir0,
 #endif // End constructors
 
 // Destructor
+/**
+ *
+ */
 SALTSA::tNFW_profile::~tNFW_profile()
 {
 }
 
 #if (1) // Set functions
 
+/**
+ *
+ * @param new_halo_mass
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::set_mvir( const double &new_halo_mass,
 		const bool silent )
 {
@@ -204,6 +251,12 @@ const int SALTSA::tNFW_profile::set_mvir( const double &new_halo_mass,
 	hmtot_cached = false;
 	return 0;
 }
+/**
+ *
+ * @param new_halo_tau
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::set_tau( const double new_halo_tau,
 		const bool silent )
 {
@@ -212,6 +265,12 @@ const int SALTSA::tNFW_profile::set_tau( const double new_halo_tau,
 	hmtot_cached = false;
 	return 0;
 }
+/**
+ *
+ * @param new_halo_c
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::set_c( const double new_halo_c,
 		const bool silent )
 {
@@ -220,6 +279,11 @@ const int SALTSA::tNFW_profile::set_c( const double new_halo_c,
 	hmtot_cached = false;
 	return 0;
 }
+/**
+ *
+ * @param new_z
+ * @return
+ */
 const int SALTSA::tNFW_profile::set_z( const double new_z )
 {
 	redshift_obj::set_z( new_z );
@@ -227,6 +291,13 @@ const int SALTSA::tNFW_profile::set_z( const double new_z )
 	hmtot_cached = false;
 	return 0;
 }
+/**
+ *
+ * @param num_parameters
+ * @param parameters
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::set_parameters(
 		const unsigned int num_parameters,
 		const std::vector< double > &parameters, const bool silent )
@@ -269,51 +340,98 @@ const int SALTSA::tNFW_profile::set_parameters(
 
 #endif // end set functions
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::mvir() const
 {
 	return _mvir0_; // Not technically correct, but close enough for our purposes
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::mvir0() const
 {
 	return _mvir0_;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::tau() const
 {
 	return _tau_;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::c() const
 {
 	return _c_;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::mtot() const
 {
 	return _mvir0_ * SALTSA::mftau( _tau_, _c_ );
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::vvir() const
 {
 	return std::pow( 10 * Gc * H() * mvir(), 1. / 3. );
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::rvir() const
 {
 	return vvir() / H() / 10;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::rs() const
 {
 	return rvir() / _c_;
 }
+/**
+ *
+ * @param silent
+ * @return
+ */
 const double SALTSA::tNFW_profile::rt( const bool silent ) const
 {
 	return rvir() / _tau_;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::tNFW_profile::hmvir() const
 {
 	return enc_mass( rvir() ) / 2;
 }
 
+
+/**
+ *
+ * @param r
+ * @return
+ */
 const double SALTSA::tNFW_profile::dens( const double &r ) const
 {
 	double result, rho_c;
@@ -334,6 +452,13 @@ const double SALTSA::tNFW_profile::dens( const double &r ) const
 	return result;
 }
 
+
+/**
+ *
+ * @param r
+ * @param silent
+ * @return
+ */
 const double SALTSA::tNFW_profile::enc_mass( const double &r,
 		const bool silent ) const
 {
@@ -372,6 +497,13 @@ const double SALTSA::tNFW_profile::enc_mass( const double &r,
 	return result;
 }
 
+
+/**
+ *
+ * @param parameters
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::get_parameters( std::vector< double > & parameters,
 		const bool silent ) const
 {
@@ -391,6 +523,13 @@ const int SALTSA::tNFW_profile::get_parameters( std::vector< double > & paramete
 	return 0;
 }
 
+
+/**
+ *
+ * @param parameter_names
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::get_parameter_names(std::vector< std::string > & parameter_names,
 		const bool silent ) const
 {
@@ -410,6 +549,13 @@ const int SALTSA::tNFW_profile::get_parameter_names(std::vector< std::string > &
 	return 0;
 }
 
+
+/**
+ *
+ * @param f
+ * @param silent
+ * @return
+ */
 const int SALTSA::tNFW_profile::truncate_to_fraction( const double f,
 		const bool silent )
 {
@@ -450,11 +596,20 @@ const int SALTSA::tNFW_profile::truncate_to_fraction( const double f,
 #if (1)
 
 #if (1) // Constructors
+
+/**
+ *
+ */
 SALTSA::point_mass_profile::point_mass_profile()
 {
 	_mass_ = 0;
 }
 
+/**
+ *
+ * @param init_mass
+ * @param init_z
+ */
 SALTSA::point_mass_profile::point_mass_profile( const double init_mass,
 		const double init_z )
 {
@@ -465,18 +620,35 @@ SALTSA::point_mass_profile::point_mass_profile( const double init_mass,
 #endif // End constructors
 
 // Destructor
+/**
+ *
+ */
 SALTSA::point_mass_profile::~point_mass_profile()
 {
 }
 
 #if (1) // Set functions
 
+/**
+ *
+ * @param new_halo_mass
+ * @param silent
+ * @return
+ */
 const int SALTSA::point_mass_profile::set_mvir(
 		const double &new_halo_mass, bool silent )
 {
 	_mass_ = new_halo_mass;
 	return 0;
 }
+
+/**
+ *
+ * @param num_parameters
+ * @param parameters
+ * @param silent
+ * @return
+ */
 const int SALTSA::point_mass_profile::set_parameters(
 		const unsigned int num_parameters,
 		const std::vector< double > &parameters, bool silent )
@@ -499,43 +671,81 @@ const int SALTSA::point_mass_profile::set_parameters(
 
 #endif // end set functions
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::mvir() const
 {
 	return _mass_;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::mass() const
 {
 	return _mass_;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::mtot() const
 {
 	return _mass_;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::vvir() const
 {
 	return std::pow( 10 * Gc * H() * mvir(), 1. / 3. );
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::rvir() const
 {
 	return vvir() / H() / 10;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::rs() const
 {
 	return 0;
 }
+/**
+ *
+ * @param silent
+ * @return
+ */
 const double SALTSA::point_mass_profile::rt(
 		const bool silent) const
 {
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::point_mass_profile::hmvir() const
 {
 	return 0;
 }
 
+/**
+ *
+ * @param r
+ * @return
+ */
 const double SALTSA::point_mass_profile::dens(
 		const double &r ) const
 {
@@ -545,12 +755,24 @@ const double SALTSA::point_mass_profile::dens(
 
 	return result;
 }
+/**
+ *
+ * @param r
+ * @param silent
+ * @return
+ */
 const double SALTSA::point_mass_profile::enc_dens(
 		const double &r,
 		const bool silent ) const
 {
 	return enc_mass( r ) / ( 4. / 3. * pi * std::pow( r, 3 ) );
 }
+/**
+ *
+ * @param r
+ * @param silent
+ * @return
+ */
 const double SALTSA::point_mass_profile::enc_mass(
 		const double &r,
 		const bool silent ) const
@@ -558,6 +780,12 @@ const double SALTSA::point_mass_profile::enc_mass(
 	return _mass_;
 }
 
+/**
+ *
+ * @param parameters
+ * @param silent
+ * @return
+ */
 const int SALTSA::point_mass_profile::get_parameters( std::vector< double > & parameters,
 		const bool silent ) const
 {
@@ -575,6 +803,12 @@ const int SALTSA::point_mass_profile::get_parameters( std::vector< double > & pa
 	return 0;
 }
 
+/**
+ *
+ * @param parameter_names
+ * @param silent
+ * @return
+ */
 const int SALTSA::point_mass_profile::get_parameter_names( std::vector< std::string > & parameter_names,
 		const bool silent ) const
 {
@@ -592,6 +826,12 @@ const int SALTSA::point_mass_profile::get_parameter_names( std::vector< std::str
 	return 0;
 }
 
+/**
+ *
+ * @param f
+ * @param silent
+ * @return
+ */
 const int SALTSA::point_mass_profile::truncate_to_fraction( const double f,
 		const bool silent )
 {
@@ -614,6 +854,12 @@ const int SALTSA::point_mass_profile::truncate_to_fraction( const double f,
 #endif // end point_mass profile functions
 
 // SALTSA::tfa_cache function implementations
+/**
+ *
+ * @param in_params
+ * @param out_params
+ * @return
+ */
 const int SALTSA::tfa_cache::_calculate( const double in_params, double & out_params ) const
 {
 	try
@@ -633,6 +879,11 @@ const int SALTSA::tfa_cache::_calculate( const double in_params, double & out_pa
 // SALTSA::accel_function class methods
 #if (1)
 
+/**
+ *
+ * @param new_host
+ * @return
+ */
 const int SALTSA::accel_function::set_host_ptr(
 		const density_profile *new_host )
 {
@@ -640,6 +891,13 @@ const int SALTSA::accel_function::set_host_ptr(
 	return 0;
 }
 
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::accel_function::operator()( const double & in_param,
 double & out_param, const bool silent ) const
 {
@@ -654,10 +912,17 @@ double & out_param, const bool silent ) const
 	return 0;
 }
 
+/**
+ *
+ */
 SALTSA::accel_function::accel_function()
 {
 	_host_ptr_ = 0;
 }
+/**
+ *
+ * @param init_host
+ */
 SALTSA::accel_function::accel_function( const density_profile *init_host )
 {
 	set_host_ptr( init_host );
@@ -668,6 +933,11 @@ SALTSA::accel_function::accel_function( const density_profile *init_host )
 // SALTSA::spherical_density_function class methods
 #if (1)
 
+/**
+ *
+ * @param new_host
+ * @return
+ */
 const int SALTSA::spherical_density_function::set_host_ptr(
 		const density_profile *new_host )
 {
@@ -675,6 +945,13 @@ const int SALTSA::spherical_density_function::set_host_ptr(
 	return 0;
 }
 
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::spherical_density_function::operator()(
 		const double & in_param,
 		double & out_param, const bool silent ) const
@@ -691,10 +968,17 @@ const int SALTSA::spherical_density_function::operator()(
 	return 0;
 }
 
+/**
+ *
+ */
 SALTSA::spherical_density_function::spherical_density_function()
 {
 	_host_ptr_ = 0;
 }
+/**
+ *
+ * @param init_host
+ */
 SALTSA::spherical_density_function::spherical_density_function(
 		const density_profile *init_host )
 {
@@ -705,6 +989,11 @@ SALTSA::spherical_density_function::spherical_density_function(
 
 // SALTSA::solve_rhm_function class methods
 #if (1)
+/**
+ *
+ * @param new_host
+ * @return
+ */
 const int SALTSA::solve_rhm_function::set_host_ptr(
 		const density_profile *new_host )
 {
@@ -712,6 +1001,11 @@ const int SALTSA::solve_rhm_function::set_host_ptr(
 	return 0;
 }
 
+/**
+ *
+ * @param new_target_mass
+ * @return
+ */
 const int SALTSA::solve_rhm_function::set_target_mass(
 		const double &new_target_mass )
 {
@@ -719,6 +1013,13 @@ const int SALTSA::solve_rhm_function::set_target_mass(
 	return 0;
 }
 
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::solve_rhm_function::operator()( const double & in_param,
 double & out_param, const bool silent ) const
 {
@@ -735,12 +1036,20 @@ double & out_param, const bool silent ) const
 	return 0;
 }
 
+/**
+ *
+ */
 SALTSA::solve_rhm_function::solve_rhm_function()
 {
 	_host_ptr_ = 0;
 	_target_mass_ = 0;
 }
-;
+
+/**
+ *
+ * @param init_host
+ * @param new_target_mass
+ */
 SALTSA::solve_rhm_function::solve_rhm_function(
 		const density_profile *init_host, const double &new_target_mass )
 {
@@ -754,27 +1063,57 @@ SALTSA::solve_rhm_function::solve_rhm_function(
 /** Global Function Definitions **/
 #if (1)
 
+/**
+ *
+ * @param a
+ * @return
+ */
 const double SALTSA::zfa( const double a )
 {
 	return 1. / safe_d( a ) - 1.;
 }
+/**
+ *
+ * @param z
+ * @return
+ */
 const double SALTSA::afz( const double z )
 {
 	return 1. / safe_d( 1 + z );
 }
 
+/**
+ *
+ * @param z
+ * @return
+ */
 const double SALTSA::tfz( const double z )
 {
 	return SALTSA::tfa( afz( z ) );
 }
+/**
+ *
+ * @param a
+ * @return
+ */
 const double SALTSA::tfa( const double a )
 {
 	return tfa_cache().get( a );
 }
+/**
+ *
+ * @param t
+ * @return
+ */
 const double SALTSA::zft( const double t )
 {
 	return SALTSA::zfa( SALTSA::aft( t ) );
 }
+/**
+ *
+ * @param t
+ * @return
+ */
 const double SALTSA::aft( const double t )
 {
 	SALTSA::tfa_cache cache;
@@ -783,14 +1122,33 @@ const double SALTSA::aft( const double t )
 
 // Functions to integrate out distances
 #if (1)
+/**
+ *
+ * @param z1
+ * @param z2
+ * @return
+ */
 const double SALTSA::integrate_ltd( const double z1, const double z2 )
 {
 	return SALTSA::integrate_distance( z1, z2, 3, 10000000 );
 }
+/**
+ *
+ * @param z
+ * @return
+ */
 const double SALTSA::integrate_ltd( const double z )
 {
 	return SALTSA::integrate_distance( 0, z, 3 );
 }
+/**
+ *
+ * @param z1_init
+ * @param z2_init
+ * @param mode
+ * @param n
+ * @return
+ */
 const double SALTSA::integrate_distance( const double z1_init,
 		const double z2_init, const int mode, const int n )
 {
@@ -896,6 +1254,14 @@ const double SALTSA::integrate_distance( const double z1_init,
 // Other functions
 #if (1)
 
+/**
+ *
+ * @param m_ratio
+ * @param conc
+ * @param tau_init
+ * @param silent
+ * @return
+ */
 const double SALTSA::taufm( const double m_ratio, double conc,
 		double tau_init, const bool silent )
 {
@@ -941,6 +1307,14 @@ const double SALTSA::taufm( const double m_ratio, double conc,
 
 }
 
+/**
+ *
+ * @param host
+ * @param r
+ * @param vr
+ * @param vt
+ * @return
+ */
 const double SALTSA::period( const SALTSA::density_profile *host,
 		const double &r, const double &vr, const double &vt )
 {

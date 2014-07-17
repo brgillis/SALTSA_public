@@ -67,6 +67,11 @@ private:
 
 	// Private methods
 #if (1)
+
+	/**
+	 *
+	 * @return
+	 */
 	const int _init() const throw()
 	{
 		if(SPCP(name)->_initialised_) return 0;
@@ -79,6 +84,11 @@ private:
 
 		return 0;
 	}
+	/**
+	 *
+	 * @param silent
+	 * @return
+	 */
 	const int _load( const bool silent = false ) const
 	{
 		std::ifstream in_file;
@@ -220,11 +230,20 @@ private:
 		SPCP(name)->_loaded_ = true;
 		return 0;
 	}
+	/**
+	 *
+	 * @return
+	 */
 	const int _unload() const throw()
 	{
 		SPCP(name)->_loaded_ = false;
 		return del_array( SPCP(name)->_results_ );
 	}
+	/**
+	 *
+	 * @param silent
+	 * @return
+	 */
 	const int _calc( const bool silent = false ) const
 	{
 		int i = 0;
@@ -259,6 +278,11 @@ private:
 
 		return 0;
 	}
+	/**
+	 *
+	 * @param silent
+	 * @return
+	 */
 	const int _output( const bool silent = false ) const
 	{
 
@@ -312,6 +336,11 @@ public:
 	// Public methods
 #if (1)
 
+	/**
+	 *
+	 * @param new_name
+	 * @return
+	 */
 	const int set_file_name( const std::string new_name )
 	{
 		if(!SPCP(name)->_initialised_) SPP(name)->_init();
@@ -323,6 +352,14 @@ public:
 		return 0;
 	} // const int set_file_name()
 
+	/**
+	 *
+	 * @param new_mins
+	 * @param new_maxes
+	 * @param new_steps
+	 * @param silent
+	 * @return
+	 */
 	const int set_range( const double new_mins, const double new_maxes,
 			const double new_steps, const bool silent = false )
 	{
@@ -349,6 +386,12 @@ public:
 		return 0;
 	} // const int set_range()
 
+	/**
+	 *
+	 * @param new_precision
+	 * @param silent
+	 * @return
+	 */
 	const int set_precision( const unsigned int new_precision,
 			const bool silent = false )
 	{
@@ -367,6 +410,12 @@ public:
 		}
 	} // const int set_precision()
 
+	/**
+	 *
+	 * @param x
+	 * @param silent
+	 * @return
+	 */
 	const double get( const double x, const bool silent = false ) const
 	{
 
@@ -410,6 +459,12 @@ public:
 
 	} // get()
 
+	/**
+	 *
+	 * @param y
+	 * @param silent
+	 * @return
+	 */
 	const double inverse_get( const double y, const bool silent = false ) const
 	{
 		if(!SPCP(name)->_initialised_) SPCP(name)->_init();
@@ -488,6 +543,11 @@ public:
 
 	// Recalculate function. Call if you want to overwrite a cache when something's changed in the code
 	// (for instance, the _calculate() function has been altered)
+	/**
+	 *
+	 * @param silent
+	 * @return
+	 */
 	const int recalc( const bool silent = false ) const
 	{
 		SPCP(name)->_unload();

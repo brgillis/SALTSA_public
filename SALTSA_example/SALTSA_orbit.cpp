@@ -67,11 +67,18 @@ double SALTSA::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affect
 // SALTSA::spline_function class method implementations
 #if (1)
 // Constructors
+/**
+ *
+ */
 SALTSA::spline_function::spline_function()
 {
 	_spline_ptr_ = 0;
 	_spline_ptr_set_up_ = false;
 }
+/**
+ *
+ * @param init_spline_ptr
+ */
 SALTSA::spline_function::spline_function(
 		SALTSA::interpolator *init_spline_ptr )
 {
@@ -79,6 +86,11 @@ SALTSA::spline_function::spline_function(
 }
 
 // Set functions
+/**
+ *
+ * @param new_spline_ptr
+ * @return
+ */
 const int SALTSA::spline_function::set_spline_ptr(
 		SALTSA::interpolator *new_spline_ptr )
 {
@@ -88,6 +100,13 @@ const int SALTSA::spline_function::set_spline_ptr(
 }
 
 // Function method
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::spline_function::operator()( const double & in_param,
 double & out_param, const bool silent ) const
 {
@@ -108,10 +127,17 @@ double & out_param, const bool silent ) const
 #if (1)
 
 // Constructors
+/**
+ *
+ */
 SALTSA::spline_derivative_function::spline_derivative_function()
 {
 	_spline_function_set_up_ = false;
 }
+/**
+ *
+ * @param init_spline_ptr
+ */
 SALTSA::spline_derivative_function::spline_derivative_function(
 		SALTSA::interpolator *init_spline_ptr )
 {
@@ -119,6 +145,11 @@ SALTSA::spline_derivative_function::spline_derivative_function(
 }
 
 // Set functions
+/**
+ *
+ * @param new_spline_ptr
+ * @return
+ */
 const int SALTSA::spline_derivative_function::set_spline_ptr(
 		SALTSA::interpolator *new_spline_ptr )
 {
@@ -128,6 +159,13 @@ const int SALTSA::spline_derivative_function::set_spline_ptr(
 }
 
 // Function method
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::spline_derivative_function::operator()(
 		const double & in_param,
 		double & out_param, const bool silent ) const
@@ -156,6 +194,9 @@ const int SALTSA::spline_derivative_function::operator()(
 // SALTSA::spline_derivative_weight_function class method implementations
 #if (1)
 // Constructors
+/**
+ *
+ */
 SALTSA::spline_derivative_weight_function::spline_derivative_weight_function()
 {
 	_sample_scale_ = 0;
@@ -166,6 +207,11 @@ SALTSA::spline_derivative_weight_function::spline_derivative_weight_function()
 }
 
 // Set functions
+/**
+ *
+ * @param new_sample_scale
+ * @return
+ */
 const int SALTSA::spline_derivative_weight_function::set_sample_scale(
 		double new_sample_scale )
 {
@@ -173,6 +219,11 @@ const int SALTSA::spline_derivative_weight_function::set_sample_scale(
 	return 0;
 }
 
+/**
+ *
+ * @param new_sample_max_width
+ * @return
+ */
 const int SALTSA::spline_derivative_weight_function::set_sample_max_width(
 		double new_sample_max_width )
 {
@@ -180,6 +231,11 @@ const int SALTSA::spline_derivative_weight_function::set_sample_max_width(
 	return 0;
 }
 
+/**
+ *
+ * @param new_center_point
+ * @return
+ */
 const int SALTSA::spline_derivative_weight_function::set_center_point(
 		double new_center_point )
 {
@@ -187,6 +243,11 @@ const int SALTSA::spline_derivative_weight_function::set_center_point(
 	return 0;
 }
 
+/**
+ *
+ * @param new_t_min
+ * @return
+ */
 const int SALTSA::spline_derivative_weight_function::set_t_min(
 		double new_t_min )
 {
@@ -194,6 +255,11 @@ const int SALTSA::spline_derivative_weight_function::set_t_min(
 	return 0;
 }
 
+/**
+ *
+ * @param new_t_max
+ * @return
+ */
 const int SALTSA::spline_derivative_weight_function::set_t_max(
 		double new_t_max )
 {
@@ -202,6 +268,13 @@ const int SALTSA::spline_derivative_weight_function::set_t_max(
 }
 
 // Function method
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::spline_derivative_weight_function::operator()(
 		const double & in_param,
 		double & out_param, const bool silent ) const
@@ -229,10 +302,17 @@ const int SALTSA::spline_derivative_weight_function::operator()(
 // SALTSA::spline_derivative class method implementations
 #if (1)
 // Constructors
+/**
+ *
+ */
 SALTSA::spline_derivative::spline_derivative()
 {
 	clear();
 }
+/**
+ *
+ * @param init_spline_ptr
+ */
 SALTSA::spline_derivative::spline_derivative(
 		SALTSA::interpolator *init_spline_ptr )
 {
@@ -241,6 +321,11 @@ SALTSA::spline_derivative::spline_derivative(
 }
 
 // Set functions
+/**
+ *
+ * @param new_spline_ptr
+ * @return
+ */
 const int SALTSA::spline_derivative::set_spline_ptr(
 		SALTSA::interpolator *new_spline_ptr )
 {
@@ -251,6 +336,10 @@ const int SALTSA::spline_derivative::set_spline_ptr(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::clear_spline_ptr()
 {
 	_spline_func_.set_spline_ptr( 0 );
@@ -259,6 +348,11 @@ const int SALTSA::spline_derivative::clear_spline_ptr()
 	return 0;
 }
 
+/**
+ *
+ * @param new_default_sample_scale
+ * @return
+ */
 const int SALTSA::spline_derivative::set_default_sample_scale(
 		double new_default_sample_scale )
 {
@@ -266,6 +360,11 @@ const int SALTSA::spline_derivative::set_default_sample_scale(
 	return 0;
 }
 
+/**
+ *
+ * @param new_default_sample_max_width
+ * @return
+ */
 const int SALTSA::spline_derivative::set_default_sample_max_width(
 		double new_default_sample_max_width )
 {
@@ -273,6 +372,11 @@ const int SALTSA::spline_derivative::set_default_sample_max_width(
 	return 0;
 }
 
+/**
+ *
+ * @param new_sample_scale
+ * @return
+ */
 const int SALTSA::spline_derivative::set_sample_scale(
 		double new_sample_scale )
 {
@@ -281,6 +385,11 @@ const int SALTSA::spline_derivative::set_sample_scale(
 	return 0;
 }
 
+/**
+ *
+ * @param new_sample_max_width
+ * @return
+ */
 const int SALTSA::spline_derivative::set_sample_max_width(
 		double new_sample_max_width )
 {
@@ -289,6 +398,10 @@ const int SALTSA::spline_derivative::set_sample_max_width(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::reset_sample_scale() // Sets it to default
 {
 	_sample_scale_ = _default_sample_scale_;
@@ -296,6 +409,10 @@ const int SALTSA::spline_derivative::reset_sample_scale() // Sets it to default
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::reset_sample_max_width() // Sets it to default
 {
 	_sample_max_width_ = _default_sample_max_width_;
@@ -303,6 +420,10 @@ const int SALTSA::spline_derivative::reset_sample_max_width() // Sets it to defa
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::clear_known_points()
 {
 	_known_spline_.clear();
@@ -310,6 +431,10 @@ const int SALTSA::spline_derivative::clear_known_points()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::clear_unknown_points()
 {
 	_unknown_t_list_.clear();
@@ -317,6 +442,10 @@ const int SALTSA::spline_derivative::clear_unknown_points()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::clear_points()
 {
 	_known_spline_.clear();
@@ -325,6 +454,10 @@ const int SALTSA::spline_derivative::clear_points()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::spline_derivative::clear()
 {
 	_spline_ptr_ = 0;
@@ -340,6 +473,12 @@ const int SALTSA::spline_derivative::clear()
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @param x
+ * @return
+ */
 const int SALTSA::spline_derivative::add_point( const double t,
 		const double x )
 {
@@ -348,6 +487,11 @@ const int SALTSA::spline_derivative::add_point( const double t,
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @return
+ */
 const int SALTSA::spline_derivative::add_unknown_point( const double t )
 {
 	_unknown_t_list_.push_back( t );
@@ -356,6 +500,11 @@ const int SALTSA::spline_derivative::add_unknown_point( const double t )
 }
 
 // Get functions
+/**
+ *
+ * @param xval
+ * @return
+ */
 const double SALTSA::spline_derivative::operator()( double xval ) const
 {
 	if ( !_spline_ptr_set_up_ )
@@ -459,16 +608,27 @@ const double SALTSA::spline_derivative::operator()( double xval ) const
 // SALTSA::stripping_orbit class method implementations
 #if (1)
 
+/**
+ *
+ */
 SALTSA::stripping_orbit::stripping_orbit()
 {
 	_init();
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::_init()
 {
 	return clear();
 }
 
+/**
+ *
+ * @return
+ */
 const std::vector< SALTSA::stripping_orbit_segment >::iterator SALTSA::stripping_orbit::_final_good_segment() const
 {
 	if(!_calculated_)
@@ -479,6 +639,10 @@ const std::vector< SALTSA::stripping_orbit_segment >::iterator SALTSA::stripping
 	return _final_good_segment_;
 }
 
+/**
+ *
+ * @param other_stripping_orbit
+ */
 SALTSA::stripping_orbit::stripping_orbit(
 		const stripping_orbit &other_stripping_orbit )
 {
@@ -598,6 +762,11 @@ SALTSA::stripping_orbit::stripping_orbit(
 	}
 }
 
+/**
+ *
+ * @param other_stripping_orbit
+ * @return
+ */
 SALTSA::stripping_orbit & SALTSA::stripping_orbit::operator=(
 		const stripping_orbit &other_stripping_orbit )
 {
@@ -725,6 +894,12 @@ SALTSA::stripping_orbit & SALTSA::stripping_orbit::operator=(
 	return *this;
 }
 
+/**
+ *
+ * @param init_init_host
+ * @param init_init_satellite
+ * @param init_resolution
+ */
 SALTSA::stripping_orbit::stripping_orbit( const density_profile *init_init_host,
 		const density_profile *init_init_satellite, const int init_resolution )
 {
@@ -737,15 +912,26 @@ SALTSA::stripping_orbit::stripping_orbit( const density_profile *init_init_host,
 
 }
 
+/**
+ *
+ */
 SALTSA::stripping_orbit::~stripping_orbit()
 {
 }
 
+/**
+ *
+ * @return
+ */
 SALTSA::stripping_orbit *SALTSA::stripping_orbit::stripping_orbit_clone()
 {
 	return new stripping_orbit( *this );
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear()
 {
 	clear_calcs();
@@ -809,6 +995,10 @@ const int SALTSA::stripping_orbit::clear()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_calcs() const
 {
 	_orbit_segments_.clear();
@@ -821,6 +1011,15 @@ const int SALTSA::stripping_orbit::clear_calcs() const
 	return 0;
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param t
+ * @param new_mass
+ * @return
+ */
 const int SALTSA::stripping_orbit::add_point( const double &x,
 		const double &y, const double &z, const double &t,
 		const double new_mass )
@@ -857,6 +1056,18 @@ const int SALTSA::stripping_orbit::add_point( const double &x,
 	return 0;
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param vx
+ * @param vy
+ * @param vz
+ * @param t
+ * @param new_test_mass
+ * @return
+ */
 const int SALTSA::stripping_orbit::add_point( const double &x,
 		const double &y, const double &z, const double &vx,
 		const double &vy, const double &vz, const double &t,
@@ -894,6 +1105,13 @@ const int SALTSA::stripping_orbit::add_point( const double &x,
 	return 0;
 }
 
+/**
+ *
+ * @param parameters
+ * @param t
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::add_host_parameter_point(
 		const std::vector< double > &parameters, const double &t,
 		const bool silent )
@@ -918,6 +1136,11 @@ const int SALTSA::stripping_orbit::add_host_parameter_point(
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit::add_discontinuity_time(
 		const double &t )
 {
@@ -941,6 +1164,10 @@ const int SALTSA::stripping_orbit::add_discontinuity_time(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_points()
 {
 	_x_spline_points_.clear();
@@ -953,12 +1180,20 @@ const int SALTSA::stripping_orbit::clear_points()
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_discontinuity_times()
 {
 	_discontinuity_times_.clear();
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_host_parameter_points()
 {
 	_host_parameter_spline_points_.clear();
@@ -966,6 +1201,11 @@ const int SALTSA::stripping_orbit::clear_host_parameter_points()
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_host
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_init_host(
 		const density_profile *new_init_host )
 {
@@ -976,6 +1216,11 @@ const int SALTSA::stripping_orbit::set_init_host(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_satellite
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_init_satellite(
 		const density_profile *new_init_satellite )
 {
@@ -986,6 +1231,14 @@ const int SALTSA::stripping_orbit::set_init_satellite(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_mvir0
+ * @param z
+ * @param new_init_c
+ * @param new_init_tau
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tNFW_init_satellite(
 		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
@@ -1006,6 +1259,14 @@ const int SALTSA::stripping_orbit::set_tNFW_init_satellite(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_mvir0
+ * @param z
+ * @param new_init_c
+ * @param new_init_tau
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tNFW_init_host(
 		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
@@ -1028,6 +1289,10 @@ const int SALTSA::stripping_orbit::set_tNFW_init_host(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_init_satellite()
 {
 	_init_satellite_ptr_ = 0;
@@ -1036,6 +1301,10 @@ const int SALTSA::stripping_orbit::clear_init_satellite()
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_init_host()
 {
 	_init_host_ptr_ = 0;
@@ -1047,6 +1316,13 @@ const int SALTSA::stripping_orbit::clear_init_host()
 
 // Setting default integration parameters
 #if(1)
+/**
+ *
+ * @param new_default_resolution
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_resolution( const int new_default_resolution,
 		const bool override_current,
 		const bool silent )
@@ -1067,6 +1343,13 @@ const int SALTSA::stripping_orbit::set_default_resolution( const int new_default
 	reset_resolution();
 	return 0;
 }
+/**
+ *
+ * @param new_default_v_0
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_v_0( const double new_default_v_0,
 		const bool override_current,
 		const bool silent )
@@ -1087,6 +1370,13 @@ const int SALTSA::stripping_orbit::set_default_v_0( const double new_default_v_0
 	reset_v_0();
 	return 0;
 }
+/**
+ *
+ * @param new_default_r_0
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_r_0( const double new_default_r_0,
 		const bool override_current,
 		const bool silent )
@@ -1107,6 +1397,13 @@ const int SALTSA::stripping_orbit::set_default_r_0( const double new_default_r_0
 	reset_r_0();
 	return 0;
 }
+/**
+ *
+ * @param new_default_step_length_power
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_step_length_power(
 		const double new_default_step_length_power,
 		const bool override_current,
@@ -1120,6 +1417,13 @@ const int SALTSA::stripping_orbit::set_default_step_length_power(
 	reset_step_length_power();
 	return 0;
 }
+/**
+ *
+ * @param new_default_step_factor_max
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_step_factor_max(
 		const double new_default_step_factor_max,
 		const bool override_current,
@@ -1141,6 +1445,13 @@ const int SALTSA::stripping_orbit::set_default_step_factor_max(
 	reset_step_factor_max();
 	return 0;
 }
+/**
+ *
+ * @param new_default_step_factor_min
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_step_factor_min(
 		const double new_default_step_factor_min,
 		const bool override_current,
@@ -1167,6 +1478,13 @@ const int SALTSA::stripping_orbit::set_default_step_factor_min(
 // Setting default tuning parameters
 #if(1)
 
+/**
+ *
+ * @param new_default_tidal_stripping_amplification
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_tidal_stripping_amplification(
 		const double new_default_tidal_stripping_amplification,
 		const bool override_current,
@@ -1188,6 +1506,13 @@ const int SALTSA::stripping_orbit::set_default_tidal_stripping_amplification(
 	reset_tidal_stripping_amplification();
 	return 0;
 }
+/**
+ *
+ * @param new_default_tidal_stripping_deceleration
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
 		const double new_default_tidal_stripping_deceleration,
 		const bool override_current,
@@ -1201,6 +1526,13 @@ const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
 	reset_tidal_stripping_deceleration();
 	return 0;
 }
+/**
+ *
+ * @param new_default_tidal_shocking_amplification
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
 		const double new_default_tidal_shocking_amplification,
 		const bool override_current,
@@ -1223,6 +1555,13 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
 
 	return 0;
 }
+/**
+ *
+ * @param new_default_tidal_shocking_persistance
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
 		const double new_default_tidal_shocking_persistance,
 		const bool override_current,
@@ -1245,6 +1584,13 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
 
 	return 0;
 }
+/**
+ *
+ * @param new_default_tidal_shocking_power
+ * @param override_current
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_power(
 		const double new_default_tidal_shocking_power,
 		const bool override_current,
@@ -1263,6 +1609,12 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_power(
 
 // Setting integration parameters
 #if(1)
+/**
+ *
+ * @param new_resolution
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_resolution( const int new_resolution,
 		const bool silent )
 {
@@ -1281,6 +1633,12 @@ const int SALTSA::stripping_orbit::set_resolution( const int new_resolution,
 	_spline_resolution_ = new_resolution;
 	return 0;
 }
+/**
+ *
+ * @param new_v_0
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_v_0( const double new_v_0,
 		const bool silent )
 {
@@ -1299,6 +1657,12 @@ const int SALTSA::stripping_orbit::set_v_0( const double new_v_0,
 	_v_0_ = new_v_0;
 	return 0;
 }
+/**
+ *
+ * @param new_r_0
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_r_0( const double new_r_0,
 		const bool silent )
 {
@@ -1317,6 +1681,12 @@ const int SALTSA::stripping_orbit::set_r_0( const double new_r_0,
 	_r_0_ = new_r_0;
 	return 0;
 }
+/**
+ *
+ * @param new_step_length_power
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_step_length_power( const double new_step_length_power,
 		const bool silent )
 {
@@ -1328,6 +1698,12 @@ const int SALTSA::stripping_orbit::set_step_length_power( const double new_step_
 	_step_length_power_ = new_step_length_power;
 	return 0;
 }
+/**
+ *
+ * @param new_step_factor_max
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_step_factor_max( const double new_step_factor_max,
 		const bool silent )
 {
@@ -1346,6 +1722,12 @@ const int SALTSA::stripping_orbit::set_step_factor_max( const double new_step_fa
 	_step_factor_max_ = new_step_factor_max;
 	return 0;
 }
+/**
+ *
+ * @param new_step_factor_min
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_step_factor_min( const double new_step_factor_min,
 		const bool silent )
 {
@@ -1369,6 +1751,12 @@ const int SALTSA::stripping_orbit::set_step_factor_min( const double new_step_fa
 // Setting tuning parameters
 #if(1)
 
+/**
+ *
+ * @param new_tidal_stripping_amplification
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tidal_stripping_amplification(
 		const double new_tidal_stripping_amplification,
 		const bool silent )
@@ -1389,6 +1777,12 @@ const int SALTSA::stripping_orbit::set_tidal_stripping_amplification(
 	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_stripping_deceleration
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tidal_stripping_deceleration(
 		const double new_tidal_stripping_deceleration,
 		const bool silent )
@@ -1401,6 +1795,12 @@ const int SALTSA::stripping_orbit::set_tidal_stripping_deceleration(
 	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_shocking_amplification
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tidal_shocking_amplification(
 		const double new_tidal_shocking_amplification,
 		const bool silent )
@@ -1421,6 +1821,12 @@ const int SALTSA::stripping_orbit::set_tidal_shocking_amplification(
 	_tidal_shocking_amplification_ = new_tidal_shocking_amplification;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_shocking_persistance
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tidal_shocking_persistance(
 		const double new_tidal_shocking_persistance,
 		const bool silent )
@@ -1440,6 +1846,12 @@ const int SALTSA::stripping_orbit::set_tidal_shocking_persistance(
 	_tidal_shocking_persistance_ = new_tidal_shocking_persistance;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_shocking_power
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_tidal_shocking_power(
 		const double new_tidal_shocking_power,
 		const bool silent )
@@ -1456,6 +1868,10 @@ const int SALTSA::stripping_orbit::set_tidal_shocking_power(
 
 // Setting integration parameters
 #if(1)
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_resolution()
 {
 	// Check if anything is actually changing here
@@ -1466,6 +1882,10 @@ const int SALTSA::stripping_orbit::reset_resolution()
 	_spline_resolution_ = _default_spline_resolution_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_v_0()
 {
 	// Check if anything is actually changing here
@@ -1476,6 +1896,10 @@ const int SALTSA::stripping_orbit::reset_v_0()
 	_v_0_ = _default_v_0_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_r_0()
 {
 	// Check if anything is actually changing here
@@ -1486,6 +1910,10 @@ const int SALTSA::stripping_orbit::reset_r_0()
 	_r_0_ = _default_r_0_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_step_length_power()
 {
 	// Check if anything is actually changing here
@@ -1496,6 +1924,10 @@ const int SALTSA::stripping_orbit::reset_step_length_power()
 	_step_length_power_ = _default_step_length_power_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_step_factor_max()
 {
 	// Check if anything is actually changing here
@@ -1506,6 +1938,10 @@ const int SALTSA::stripping_orbit::reset_step_factor_max()
 	_step_factor_max_ = _default_step_factor_max_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_step_factor_min()
 {
 	// Check if anything is actually changing here
@@ -1521,6 +1957,10 @@ const int SALTSA::stripping_orbit::reset_step_factor_min()
 // Resetting tuning parameters
 #if(1)
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_tidal_stripping_amplification()
 {
 	// Check if anything is actually changing here
@@ -1531,6 +1971,10 @@ const int SALTSA::stripping_orbit::reset_tidal_stripping_amplification()
 	_tidal_stripping_amplification_ = _default_tidal_stripping_amplification_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_tidal_stripping_deceleration()
 {
 	// Check if anything is actually changing here
@@ -1541,6 +1985,10 @@ const int SALTSA::stripping_orbit::reset_tidal_stripping_deceleration()
 	_tidal_stripping_deceleration_ = _default_tidal_stripping_deceleration_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_tidal_shocking_amplification()
 {
 	// Check if anything is actually changing here
@@ -1551,6 +1999,10 @@ const int SALTSA::stripping_orbit::reset_tidal_shocking_amplification()
 	_tidal_shocking_amplification_ = _default_tidal_shocking_amplification_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_tidal_shocking_persistance()
 {
 	// Check if anything is actually changing here
@@ -1561,6 +2013,10 @@ const int SALTSA::stripping_orbit::reset_tidal_shocking_persistance()
 	_tidal_shocking_persistance_ = _default_tidal_shocking_persistance_;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_tidal_shocking_power()
 {
 	// Check if anything is actually changing here
@@ -1573,6 +2029,11 @@ const int SALTSA::stripping_orbit::reset_tidal_shocking_power()
 }
 #endif
 
+/**
+ *
+ * @param new_t_min
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_t_min( const double &new_t_min )
 {
 	_t_min_override_value_ = new_t_min;
@@ -1580,6 +2041,11 @@ const int SALTSA::stripping_orbit::set_t_min( const double &new_t_min )
 	return 0;
 }
 
+/**
+ *
+ * @param new_t_max
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_t_max( const double &new_t_max )
 {
 	_t_max_override_value_ = new_t_max;
@@ -1587,6 +2053,10 @@ const int SALTSA::stripping_orbit::set_t_max( const double &new_t_max )
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
@@ -1598,6 +2068,10 @@ const int SALTSA::stripping_orbit::reset_t_min()
 	_override_t_min_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
@@ -1611,6 +2085,11 @@ const int SALTSA::stripping_orbit::reset_t_max()
 }
 
 // Functions for determining how calc() will be called
+/**
+ *
+ * @param new_record_full_data
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_record_full_data(
 		const bool new_record_full_data ) const
 {
@@ -1624,6 +2103,11 @@ const int SALTSA::stripping_orbit::set_record_full_data(
 }
 
 // Function to calculate stripping
+/**
+ *
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit::calc( const bool silent ) const
 {
 	std::vector< int > segment_resolutions( 0 );
@@ -1999,6 +2483,12 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 
 }
 
+/**
+ *
+ * @param num_out_parameters
+ * @param new_output_parameters
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_satellite_output_parameters(
 		const unsigned int num_out_parameters,
 		const std::vector< bool > & new_output_parameters )
@@ -2006,6 +2496,12 @@ const int SALTSA::stripping_orbit::set_satellite_output_parameters(
 	_satellite_output_parameters_ = new_output_parameters;
 	return 0;
 }
+/**
+ *
+ * @param num_out_parameters
+ * @param new_parameter_unitconvs
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_satellite_parameter_unitconvs(
 		const unsigned int num_out_parameters,
 		const std::vector< double > & new_parameter_unitconvs )
@@ -2014,6 +2510,12 @@ const int SALTSA::stripping_orbit::set_satellite_parameter_unitconvs(
 	return 0;
 }
 
+/**
+ *
+ * @param num_out_parameters
+ * @param new_output_parameters
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_host_output_parameters(
 		const unsigned int num_out_parameters,
 		const std::vector< bool > & new_output_parameters )
@@ -2021,6 +2523,12 @@ const int SALTSA::stripping_orbit::set_host_output_parameters(
 	_host_output_parameters_ = new_output_parameters;
 	return 0;
 }
+/**
+ *
+ * @param num_out_parameters
+ * @param new_parameter_unitconvs
+ * @return
+ */
 const int SALTSA::stripping_orbit::set_host_parameter_unitconvs(
 		const unsigned int num_out_parameters,
 		const std::vector< double > & new_parameter_unitconvs )
@@ -2029,28 +2537,49 @@ const int SALTSA::stripping_orbit::set_host_parameter_unitconvs(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_satellite_output_parameters()
 {
 	_satellite_output_parameters_.clear();
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_satellite_parameter_unitconvs()
 {
 	_satellite_parameter_unitconvs_.clear();
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_host_output_parameters()
 {
 	_host_output_parameters_.clear();
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit::clear_host_parameter_unitconvs()
 {
 	_host_parameter_unitconvs_.clear();
 	return 0;
 }
 
+/**
+ *
+ * @param out
+ * @return
+ */
 const int SALTSA::stripping_orbit::print_full_data( std::ostream *out ) const
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
@@ -2100,6 +2629,11 @@ const int SALTSA::stripping_orbit::print_full_data( std::ostream *out ) const
 	return 0;
 }
 
+/**
+ *
+ * @param mret
+ * @return
+ */
 const int SALTSA::stripping_orbit::get_final_mret( double & mret ) const
 {
 	if ( !_calculated_ )
@@ -2114,6 +2648,11 @@ const int SALTSA::stripping_orbit::get_final_mret( double & mret ) const
 	mret = _init_satellite_ptr_->mvir()*_final_fmret_list_.back();
 	return 0;
 }
+/**
+ *
+ * @param fmret
+ * @return
+ */
 const int SALTSA::stripping_orbit::get_final_fmret( double & fmret ) const
 {
 	if ( !_calculated_ )
@@ -2129,6 +2668,11 @@ const int SALTSA::stripping_orbit::get_final_fmret( double & fmret ) const
 	return 0;
 }
 
+/**
+ *
+ * @param final_sum_deltarho
+ * @return
+ */
 const int SALTSA::stripping_orbit::get_final_sum_deltarho(
 double & final_sum_deltarho ) const
 {
@@ -2145,6 +2689,11 @@ double & final_sum_deltarho ) const
 	return 0;
 }
 
+/**
+ *
+ * @param final_sum_gabdt
+ * @return
+ */
 const int SALTSA::stripping_orbit::get_final_sum_gabdt(
 		gabdt & final_sum_gabdt ) const
 {
@@ -2161,6 +2710,11 @@ const int SALTSA::stripping_orbit::get_final_sum_gabdt(
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit::get_last_infall_time(
 		double & t ) const
 {
@@ -2177,6 +2731,11 @@ const int SALTSA::stripping_orbit::get_last_infall_time(
 	return 0;
 }
 
+/**
+ *
+ * @param final_satellite_clone
+ * @return
+ */
 const int SALTSA::stripping_orbit::clone_final_satellite(
 		SALTSA::density_profile * & final_satellite_clone ) const
 {
@@ -2215,6 +2774,11 @@ const int SALTSA::stripping_orbit::clone_final_satellite(
 	return 0;
 }
 
+/**
+ *
+ * @param final_host_clone
+ * @return
+ */
 const int SALTSA::stripping_orbit::clone_final_host(
 		SALTSA::density_profile * & final_host_clone ) const
 {
@@ -2252,6 +2816,10 @@ const int SALTSA::stripping_orbit::clone_final_host(
 }
 
 // Get final data (throws exception on failure)
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit::final_mret() const
 {
 	double result = -1;
@@ -2263,6 +2831,10 @@ const double SALTSA::stripping_orbit::final_mret() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit::final_sum_deltarho() const
 {
 	double result = -1;
@@ -2274,6 +2846,10 @@ const double SALTSA::stripping_orbit::final_sum_deltarho() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit::final_fmret() const
 {
 	double result;
@@ -2285,6 +2861,10 @@ const double SALTSA::stripping_orbit::final_fmret() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const SALTSA::gabdt SALTSA::stripping_orbit::final_sum_gabdt() const
 {
 	SALTSA::gabdt result;
@@ -2296,6 +2876,10 @@ const SALTSA::gabdt SALTSA::stripping_orbit::final_sum_gabdt() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit::last_infall_time() const
 {
 	double result;
@@ -2307,6 +2891,10 @@ const double SALTSA::stripping_orbit::last_infall_time() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const SALTSA::density_profile * SALTSA::stripping_orbit::final_satellite() const
 {
 	if ( !_calculated_ )
@@ -2330,6 +2918,10 @@ const SALTSA::density_profile * SALTSA::stripping_orbit::final_satellite() const
 		return _final_good_segment()->final_satellite();
 }
 
+/**
+ *
+ * @return
+ */
 const SALTSA::density_profile * SALTSA::stripping_orbit::final_host() const
 {
 	if ( !_calculated_ )
@@ -2358,11 +2950,18 @@ const SALTSA::density_profile * SALTSA::stripping_orbit::final_host() const
 // SALTSA::stripping_orbit_segment class method implementations
 #if (1)
 
+/**
+ *
+ */
 SALTSA::stripping_orbit_segment::stripping_orbit_segment()
 {
 	_init();
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::_init()
 {
 	_current_satellite_in_use_ = false;
@@ -2372,6 +2971,10 @@ const int SALTSA::stripping_orbit_segment::_init()
 	return clear();
 }
 
+/**
+ *
+ * @param other_orbit_spline
+ */
 SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 		const stripping_orbit_segment &other_orbit_spline )
 {
@@ -2480,6 +3083,11 @@ SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 	}
 }
 
+/**
+ *
+ * @param other_orbit_spline
+ * @return
+ */
 SALTSA::stripping_orbit_segment & SALTSA::stripping_orbit_segment::operator=(
 		const stripping_orbit_segment &other_orbit_spline )
 {
@@ -2597,6 +3205,12 @@ SALTSA::stripping_orbit_segment & SALTSA::stripping_orbit_segment::operator=(
 	return *this;
 }
 
+/**
+ *
+ * @param init_init_host
+ * @param init_init_satellite
+ * @param init_resolution
+ */
 SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 		const density_profile *init_init_host,
 		const density_profile *init_init_satellite, const int init_resolution )
@@ -2614,6 +3228,9 @@ SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 
 }
 
+/**
+ *
+ */
 SALTSA::stripping_orbit_segment::~stripping_orbit_segment()
 {
 	if ( _current_satellite_in_use_ )
@@ -2626,11 +3243,19 @@ SALTSA::stripping_orbit_segment::~stripping_orbit_segment()
 	}
 }
 
+/**
+ *
+ * @return
+ */
 SALTSA::stripping_orbit_segment *SALTSA::stripping_orbit_segment::stripping_orbit_spline_clone() const
 {
 	return new stripping_orbit_segment( *this );
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear()
 {
 	clear_calcs();
@@ -2713,6 +3338,10 @@ const int SALTSA::stripping_orbit_segment::clear()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_calcs() const
 {
 	_rt_list_.clear();
@@ -2731,6 +3360,12 @@ const int SALTSA::stripping_orbit_segment::clear_calcs() const
 
 // Setting integration parameters
 #if(1)
+/**
+ *
+ * @param new_resolution
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_resolution( const int new_resolution,
 		const bool silent )
 {
@@ -2749,6 +3384,12 @@ const int SALTSA::stripping_orbit_segment::set_resolution( const int new_resolut
 	_spline_resolution_ = new_resolution;
 	return 0;
 }
+/**
+ *
+ * @param new_v_0
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_v_0( const double new_v_0,
 		const bool silent )
 {
@@ -2767,6 +3408,12 @@ const int SALTSA::stripping_orbit_segment::set_v_0( const double new_v_0,
 	_v_0_ = new_v_0;
 	return 0;
 }
+/**
+ *
+ * @param new_r_0
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_r_0( const double new_r_0,
 		const bool silent )
 {
@@ -2785,6 +3432,12 @@ const int SALTSA::stripping_orbit_segment::set_r_0( const double new_r_0,
 	_r_0_ = new_r_0;
 	return 0;
 }
+/**
+ *
+ * @param new_step_length_power
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_step_length_power( const double new_step_length_power,
 		const bool silent )
 {
@@ -2796,6 +3449,12 @@ const int SALTSA::stripping_orbit_segment::set_step_length_power( const double n
 	_step_length_power_ = new_step_length_power;
 	return 0;
 }
+/**
+ *
+ * @param new_step_factor_max
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_step_factor_max( const double new_step_factor_max,
 		const bool silent )
 {
@@ -2814,6 +3473,12 @@ const int SALTSA::stripping_orbit_segment::set_step_factor_max( const double new
 	_step_factor_max_ = new_step_factor_max;
 	return 0;
 }
+/**
+ *
+ * @param new_step_factor_min
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_step_factor_min( const double new_step_factor_min,
 		const bool silent )
 {
@@ -2837,6 +3502,12 @@ const int SALTSA::stripping_orbit_segment::set_step_factor_min( const double new
 // Setting tuning parameters
 #if(1)
 
+/**
+ *
+ * @param new_tidal_stripping_amplification
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tidal_stripping_amplification(
 		const double new_tidal_stripping_amplification,
 		const bool silent )
@@ -2857,6 +3528,12 @@ const int SALTSA::stripping_orbit_segment::set_tidal_stripping_amplification(
 	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_stripping_deceleration
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tidal_stripping_deceleration(
 		const double new_tidal_stripping_deceleration,
 		const bool silent )
@@ -2869,6 +3546,12 @@ const int SALTSA::stripping_orbit_segment::set_tidal_stripping_deceleration(
 	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_shocking_amplification
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tidal_shocking_amplification(
 		const double new_tidal_shocking_amplification,
 		const bool silent )
@@ -2889,6 +3572,12 @@ const int SALTSA::stripping_orbit_segment::set_tidal_shocking_amplification(
 	_tidal_shocking_amplification_ = new_tidal_shocking_amplification;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_shocking_persistance
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tidal_shocking_persistance(
 		const double new_tidal_shocking_persistance,
 		const bool silent )
@@ -2908,6 +3597,12 @@ const int SALTSA::stripping_orbit_segment::set_tidal_shocking_persistance(
 	_tidal_shocking_persistance_ = new_tidal_shocking_persistance;
 	return 0;
 }
+/**
+ *
+ * @param new_tidal_shocking_power
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tidal_shocking_power(
 		const double new_tidal_shocking_power,
 		const bool silent )
@@ -2923,6 +3618,15 @@ const int SALTSA::stripping_orbit_segment::set_tidal_shocking_power(
 #endif
 
 
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param t
+ * @param new_mass
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_point( const double &x,
 		const double &y, const double &z, const double &t,
 		const double new_mass )
@@ -2958,6 +3662,18 @@ const int SALTSA::stripping_orbit_segment::add_point( const double &x,
 	return 0;
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param vx
+ * @param vy
+ * @param vz
+ * @param t
+ * @param new_test_mass
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_point( const double &x,
 		const double &y, const double &z, const double &vx,
 		const double &vy, const double &vz, const double &t,
@@ -2994,6 +3710,12 @@ const int SALTSA::stripping_orbit_segment::add_point( const double &x,
 	return 0;
 }
 
+/**
+ *
+ * @param x
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_x_point(
 		const double &x, const double &t )
 {
@@ -3022,6 +3744,12 @@ const int SALTSA::stripping_orbit_segment::add_x_point(
 	return 0;
 }
 
+/**
+ *
+ * @param y
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_y_point(
 		const double &y, const double &t )
 {
@@ -3050,6 +3778,12 @@ const int SALTSA::stripping_orbit_segment::add_y_point(
 	return 0;
 }
 
+/**
+ *
+ * @param z
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_z_point(
 		const double &z, const double &t )
 {
@@ -3078,6 +3812,12 @@ const int SALTSA::stripping_orbit_segment::add_z_point(
 	return 0;
 }
 
+/**
+ *
+ * @param vx
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_vx_point(
 		const double &vx, const double &t )
 {
@@ -3106,6 +3846,12 @@ const int SALTSA::stripping_orbit_segment::add_vx_point(
 	return 0;
 }
 
+/**
+ *
+ * @param vy
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_vy_point(
 		const double &vy, const double &t )
 {
@@ -3134,6 +3880,12 @@ const int SALTSA::stripping_orbit_segment::add_vy_point(
 	return 0;
 }
 
+/**
+ *
+ * @param vz
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_vz_point(
 		const double &vz, const double &t )
 {
@@ -3162,6 +3914,11 @@ const int SALTSA::stripping_orbit_segment::add_vz_point(
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_unknown_vx_point(
 		const double &t )
 {
@@ -3190,6 +3947,11 @@ const int SALTSA::stripping_orbit_segment::add_unknown_vx_point(
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_unknown_vy_point(
 		const double &t )
 {
@@ -3218,6 +3980,11 @@ const int SALTSA::stripping_orbit_segment::add_unknown_vy_point(
 	return 0;
 }
 
+/**
+ *
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_unknown_vz_point(
 		const double &t )
 {
@@ -3246,6 +4013,12 @@ const int SALTSA::stripping_orbit_segment::add_unknown_vz_point(
 	return 0;
 }
 
+/**
+ *
+ * @param test_mass
+ * @param t
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_test_mass_point(
 		const double test_mass, const double &t )
 {
@@ -3274,6 +4047,14 @@ const int SALTSA::stripping_orbit_segment::add_test_mass_point(
 	return 0;
 }
 
+/**
+ *
+ * @param num_parameters
+ * @param parameters
+ * @param t
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::add_host_parameter_point(
 		const unsigned int num_parameters,
 		const std::vector< double > & parameters, const double &t,
@@ -3321,6 +4102,12 @@ const int SALTSA::stripping_orbit_segment::add_host_parameter_point(
 	return 0;
 }
 
+/**
+ *
+ * @param n
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::_reserve( const int n,
 		const bool silent ) const
 {
@@ -3343,6 +4130,11 @@ const int SALTSA::stripping_orbit_segment::_reserve( const int n,
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_host
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_init_host(
 		const density_profile *new_init_host )
 {
@@ -3359,6 +4151,11 @@ const int SALTSA::stripping_orbit_segment::set_init_host(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_satellite
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_init_satellite(
 		const density_profile *new_init_satellite )
 {
@@ -3375,6 +4172,11 @@ const int SALTSA::stripping_orbit_segment::set_init_satellite(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_sum_deltarho
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_init_sum_deltarho(
 		const double &new_init_sum_deltarho )
 {
@@ -3382,6 +4184,11 @@ const int SALTSA::stripping_orbit_segment::set_init_sum_deltarho(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_sum_gabdt
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_init_sum_gabdt(
 		const gabdt &new_init_sum_gabdt )
 {
@@ -3389,6 +4196,14 @@ const int SALTSA::stripping_orbit_segment::set_init_sum_gabdt(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_mvir0
+ * @param z
+ * @param new_init_c
+ * @param new_init_tau
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tNFW_init_satellite(
 		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
@@ -3416,6 +4231,14 @@ const int SALTSA::stripping_orbit_segment::set_tNFW_init_satellite(
 	return 0;
 }
 
+/**
+ *
+ * @param new_init_mvir0
+ * @param z
+ * @param new_init_c
+ * @param new_init_tau
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_tNFW_host(
 		const double &new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
@@ -3446,6 +4269,11 @@ const int SALTSA::stripping_orbit_segment::set_tNFW_host(
 	return 0;
 }
 
+/**
+ *
+ * @param new_t_min
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_t_min(
 		const double &new_t_min )
 {
@@ -3454,6 +4282,11 @@ const int SALTSA::stripping_orbit_segment::set_t_min(
 	return 0;
 }
 
+/**
+ *
+ * @param new_t_max
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_t_max(
 		const double &new_t_max )
 {
@@ -3462,6 +4295,10 @@ const int SALTSA::stripping_orbit_segment::set_t_max(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
@@ -3474,6 +4311,10 @@ const int SALTSA::stripping_orbit_segment::reset_t_min()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
@@ -3486,6 +4327,10 @@ const int SALTSA::stripping_orbit_segment::reset_t_max()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_points()
 {
 	_x_spline_.clear();
@@ -3498,18 +4343,30 @@ const int SALTSA::stripping_orbit_segment::clear_points()
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_host_parameter_points()
 {
 	_host_parameter_splines_.clear();
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_init_sum_deltarho()
 {
 	_init_sum_delta_rho_ = 0;
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_init_sum_gabdt()
 {
 	_init_sum_gabdt_.clear();
@@ -3517,6 +4374,10 @@ const int SALTSA::stripping_orbit_segment::clear_init_sum_gabdt()
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_init_satellite()
 {
 	_init_satellite_ptr_ = 0;
@@ -3531,6 +4392,10 @@ const int SALTSA::stripping_orbit_segment::clear_init_satellite()
 	_calculated_ = false;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_init_host()
 {
 	_init_host_ptr_ = 0;
@@ -3546,6 +4411,10 @@ const int SALTSA::stripping_orbit_segment::clear_init_host()
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const unsigned int SALTSA::stripping_orbit_segment::length() const
 {
 	unsigned int result = INT_MAX;
@@ -3559,6 +4428,11 @@ const unsigned int SALTSA::stripping_orbit_segment::length() const
 }
 
 // Functions for determining how calc() will be called
+/**
+ *
+ * @param new_record_full_data
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_record_full_data(
 		const bool new_record_full_data ) const
 {
@@ -3572,6 +4446,11 @@ const int SALTSA::stripping_orbit_segment::set_record_full_data(
 }
 
 // Function to calculate stripping
+/**
+ *
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 {
 	double r;
@@ -3846,6 +4725,12 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 	return 0;
 }
 
+/**
+ *
+ * @param num_out_parameters
+ * @param new_satellite_output_parameters
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_satellite_output_parameters(
 		const unsigned int num_out_parameters,
 		const std::vector< bool > & new_satellite_output_parameters )
@@ -3853,6 +4738,12 @@ const int SALTSA::stripping_orbit_segment::set_satellite_output_parameters(
 	_satellite_output_parameters_ = new_satellite_output_parameters;
 	return 0;
 }
+/**
+ *
+ * @param num_out_parameters
+ * @param new_satellite_parameter_unitconvs
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_satellite_parameter_unitconvs(
 		const unsigned int num_out_parameters,
 		const std::vector< double > &new_satellite_parameter_unitconvs )
@@ -3861,6 +4752,12 @@ const int SALTSA::stripping_orbit_segment::set_satellite_parameter_unitconvs(
 	return 0;
 }
 
+/**
+ *
+ * @param num_out_parameters
+ * @param new_host_output_parameters
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_host_output_parameters(
 		const unsigned int num_out_parameters,
 		const std::vector< bool > & new_host_output_parameters )
@@ -3868,6 +4765,12 @@ const int SALTSA::stripping_orbit_segment::set_host_output_parameters(
 	_host_output_parameters_ = new_host_output_parameters;
 	return 0;
 }
+/**
+ *
+ * @param num_out_parameters
+ * @param new_host_parameter_unitconvs
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::set_host_parameter_unitconvs(
 		const unsigned int num_out_parameters,
 		const std::vector< double > & new_host_parameter_unitconvs )
@@ -3876,28 +4779,52 @@ const int SALTSA::stripping_orbit_segment::set_host_parameter_unitconvs(
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_satellite_output_parameters()
 {
 	_satellite_output_parameters_.clear();
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_satellite_parameter_unitconvs()
 {
 	_satellite_parameter_unitconvs_.clear();
 	return 0;
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_host_output_parameters()
 {
 	_host_output_parameters_.clear();
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clear_host_parameter_unitconvs()
 {
 	_host_parameter_unitconvs_.clear();
 	return 0;
 }
 
+/**
+ *
+ * @param out
+ * @param include_header
+ * @param mret_multiplier
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::print_full_data(
 		std::ostream *out, const bool include_header,
 		const double mret_multiplier, const bool silent ) const
@@ -4279,6 +5206,14 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 		return print_table( *out, num_columns, num_rows, header, data, true ); // Format for header, but don't print it again
 }
 
+/**
+ *
+ * @param index
+ * @param x
+ * @param t_step
+ * @param silent
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::_delta_rho(
 		const int index, const double x, const double &t_step,
 		const bool silent ) const
@@ -4301,6 +5236,12 @@ const double SALTSA::stripping_orbit_segment::_delta_rho(
 	return max( result, 0 );
 }
 
+/**
+ *
+ * @param v
+ * @param r
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::_step_length_factor( const double & v, const double & r ) const
 {
 	/* Method to determine the appropriate factor for the step length.
@@ -4346,6 +5287,11 @@ const double SALTSA::stripping_orbit_segment::_step_length_factor( const double 
 	return min(step_length_factor_v,step_length_factor_r);
 }
 
+/**
+ *
+ * @param index
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::_rvir(
 		const int index ) const
 {
@@ -4359,6 +5305,12 @@ const double SALTSA::stripping_orbit_segment::_rvir(
 	}
 }
 
+/**
+ *
+ * @param mret
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::get_final_mret(
 double & mret, const bool silent ) const
 {
@@ -4374,6 +5326,12 @@ double & mret, const bool silent ) const
 	mret = _init_satellite_ptr_->mvir()*mret_list.back();
 	return 0;
 }
+/**
+ *
+ * @param fmret
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::get_final_fmret( double & fmret,
 		const bool silent ) const
 {
@@ -4390,6 +5348,12 @@ const int SALTSA::stripping_orbit_segment::get_final_fmret( double & fmret,
 	return 0;
 }
 
+/**
+ *
+ * @param final_sum_deltarho
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::get_final_sum_deltarho(
 double & final_sum_deltarho, const bool silent ) const
 {
@@ -4407,6 +5371,12 @@ double & final_sum_deltarho, const bool silent ) const
 	return 0;
 }
 
+/**
+ *
+ * @param final_sum_gabdt
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::get_final_sum_gabdt(
 		gabdt & final_sum_gabdt, const bool silent ) const
 {
@@ -4423,6 +5393,12 @@ const int SALTSA::stripping_orbit_segment::get_final_sum_gabdt(
 	return 0;
 }
 
+/**
+ *
+ * @param final_satellite_clone
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clone_final_satellite(
 		density_profile * & final_satellite_clone, const bool silent ) const
 {
@@ -4458,6 +5434,12 @@ const int SALTSA::stripping_orbit_segment::clone_final_satellite(
 	}
 }
 
+/**
+ *
+ * @param final_host_clone
+ * @param silent
+ * @return
+ */
 const int SALTSA::stripping_orbit_segment::clone_final_host(
 		density_profile * & final_host_clone, const bool silent ) const
 {
@@ -4495,6 +5477,10 @@ const int SALTSA::stripping_orbit_segment::clone_final_host(
 
 #if (1) // Get final data (throws exception on error)
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::final_mret() const
 {
 	double result = -1;
@@ -4508,6 +5494,10 @@ const double SALTSA::stripping_orbit_segment::final_mret() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::final_sum_deltarho() const
 {
 	double result;
@@ -4522,6 +5512,10 @@ const double SALTSA::stripping_orbit_segment::final_sum_deltarho() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::final_fmret() const
 {
 	double result = -1;
@@ -4535,6 +5529,10 @@ const double SALTSA::stripping_orbit_segment::final_fmret() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const SALTSA::gabdt SALTSA::stripping_orbit_segment::final_sum_gabdt() const
 {
 	gabdt result;
@@ -4548,6 +5546,10 @@ const SALTSA::gabdt SALTSA::stripping_orbit_segment::final_sum_gabdt() const
 	return result;
 }
 
+/**
+ *
+ * @return
+ */
 const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_satellite() const
 {
 	if ( !_calculated_ )
@@ -4571,6 +5573,10 @@ const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_satellite
 		return _current_satellite_ptr_;
 }
 
+/**
+ *
+ * @return
+ */
 const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_host() const
 {
 	if ( !_calculated_ )
@@ -4601,6 +5607,13 @@ const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_host() co
 // SALTSA::solve_rt_sd_function class method implementations
 #if (1)
 
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::solve_rt_grid_function::operator()(
 		const double & in_param,
 		double & out_param, const bool silent ) const
@@ -4626,6 +5639,9 @@ const int SALTSA::solve_rt_grid_function::operator()(
 	return 0;
 }
 
+/**
+ *
+ */
 SALTSA::solve_rt_grid_function::solve_rt_grid_function()
 {
 	omega = 0;
@@ -4634,6 +5650,13 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function()
 	satellite_ptr = 0;
 	return;
 }
+/**
+ *
+ * @param init_omega
+ * @param init_satellite
+ * @param init_Daccel
+ * @param init_sum_rho
+ */
 SALTSA::solve_rt_grid_function::solve_rt_grid_function(
 		const double init_omega, const density_profile *init_satellite,
 		const double init_Daccel, const double init_sum_rho )
@@ -4645,6 +5668,13 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function(
 	return;
 }
 
+/**
+ *
+ * @param in_param
+ * @param out_param
+ * @param silent
+ * @return
+ */
 const int SALTSA::solve_rt_it_function::operator()(
 		const double & in_param,
 		double & out_param, const bool silent ) const
@@ -4670,6 +5700,9 @@ const int SALTSA::solve_rt_it_function::operator()(
 	return 0;
 }
 
+/**
+ *
+ */
 SALTSA::solve_rt_it_function::solve_rt_it_function()
 {
 	omega = 0;
@@ -4678,6 +5711,13 @@ SALTSA::solve_rt_it_function::solve_rt_it_function()
 	sum_rho = 0;
 	return;
 }
+/**
+ *
+ * @param init_omega
+ * @param init_satellite
+ * @param init_Daccel
+ * @param init_sum_rho
+ */
 SALTSA::solve_rt_it_function::solve_rt_it_function(
 		const double init_omega, const density_profile *init_satellite,
 		const double init_Daccel, const double init_sum_rho )
@@ -4694,11 +5734,18 @@ SALTSA::solve_rt_it_function::solve_rt_it_function(
 // SALTSA::gabdt class method implementations
 #if (1)
 
+/**
+ *
+ */
 SALTSA::gabdt::gabdt( void )
 {
 	clear();
 }
 
+/**
+ *
+ * @param other_gabdt
+ */
 SALTSA::gabdt::gabdt( const gabdt & other_gabdt )
 {
 	_is_cached_ = other_gabdt._is_cached_;
@@ -4713,6 +5760,14 @@ SALTSA::gabdt::gabdt( const gabdt & other_gabdt )
 	_dv_ = other_gabdt._dv_;
 }
 
+/**
+ *
+ * @param new_host
+ * @param new_x
+ * @param new_y
+ * @param new_z
+ * @param new_dt
+ */
 SALTSA::gabdt::gabdt( const density_profile *new_host,
 		const double &new_x, const double &new_y,
 		const double &new_z, const double &new_dt )
@@ -4720,10 +5775,17 @@ SALTSA::gabdt::gabdt( const density_profile *new_host,
 	set( new_host, new_x, new_y, new_z, new_dt );
 }
 
+/**
+ *
+ */
 SALTSA::gabdt::~gabdt( void )
 {
 }
 
+/**
+ *
+ * @return
+ */
 const int SALTSA::gabdt::clear()
 {
 	_is_cached_ = false;
@@ -4736,6 +5798,15 @@ const int SALTSA::gabdt::clear()
 	return 0;
 }
 
+/**
+ *
+ * @param new_host
+ * @param new_x
+ * @param new_y
+ * @param new_z
+ * @param new_dt
+ * @return
+ */
 const int SALTSA::gabdt::set( const density_profile *new_host,
 		const double &new_x, const double &new_y,
 		const double &new_z, const double &new_dt )
@@ -4746,12 +5817,24 @@ const int SALTSA::gabdt::set( const density_profile *new_host,
 	_dv_.clear();
 	return 0;
 }
+/**
+ *
+ * @param new_host
+ * @return
+ */
 const int SALTSA::gabdt::set_host_ptr( const density_profile *new_host )
 {
 	_is_cached_ = false;
 	_host_ptr_ = new_host;
 	return 0;
 }
+/**
+ *
+ * @param new_x
+ * @param new_y
+ * @param new_z
+ * @return
+ */
 const int SALTSA::gabdt::set_pos( const double &new_x,
 		const double &new_y, const double &new_z )
 {
@@ -4763,6 +5846,11 @@ const int SALTSA::gabdt::set_pos( const double &new_x,
 	_dv_.clear();
 	return 0;
 }
+/**
+ *
+ * @param new_dt
+ * @return
+ */
 const int SALTSA::gabdt::set_dt( const double &new_dt )
 {
 	if ( _is_cached_ )
@@ -4777,6 +5865,11 @@ const int SALTSA::gabdt::set_dt( const double &new_dt )
 	_dt_ = new_dt;
 	return 0;
 }
+/**
+ *
+ * @param silent
+ * @return
+ */
 const int SALTSA::gabdt::calc_dv( const bool silent ) const
 {
 	gabdt_function gabdtf;
@@ -4809,6 +5902,10 @@ const int SALTSA::gabdt::calc_dv( const bool silent ) const
 
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const int SALTSA::gabdt::override_zero()
 {
 	make_array2d( _dv_, 3, 3 );
@@ -4822,26 +5919,50 @@ const int SALTSA::gabdt::override_zero()
 	_is_cached_ = true;
 	return 0;
 }
+/**
+ *
+ * @return
+ */
 const SALTSA::density_profile * SALTSA::gabdt::host() const
 {
 	return _host_ptr_;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::gabdt::x() const
 {
 	return _x_;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::gabdt::y() const
 {
 	return _y_;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::gabdt::z() const
 {
 	return _z_;
 }
+/**
+ *
+ * @return
+ */
 const double SALTSA::gabdt::r() const
 {
 	return _r_;
 }
+/**
+ *
+ * @return
+ */
 const std::vector< std::vector< double > > SALTSA::gabdt::dv() const
 {
 	if ( !_is_cached_ )
@@ -4851,11 +5972,22 @@ const std::vector< std::vector< double > > SALTSA::gabdt::dv() const
 	}
 	return _dv_;
 }
+/**
+ *
+ * @param x_i
+ * @param y_i
+ * @return
+ */
 const double SALTSA::gabdt::dv( const int x_i, const int y_i ) const
 {
 	return dv()[x_i][y_i];
 }
 
+/**
+ *
+ * @param other_gabdt
+ * @return
+ */
 SALTSA::gabdt & SALTSA::gabdt::operator=( const gabdt &other_gabdt )
 {
 	if ( &other_gabdt != this )
@@ -4876,6 +6008,11 @@ SALTSA::gabdt & SALTSA::gabdt::operator=( const gabdt &other_gabdt )
 	return *this;
 }
 
+/**
+ *
+ * @param other_gabdt
+ * @return
+ */
 const double SALTSA::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-product" operator
 {
 	if ( !_is_cached_ )
@@ -4891,6 +6028,11 @@ const double SALTSA::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot
 	}
 	return result;
 }
+/**
+ *
+ * @param other_gabdt
+ * @return
+ */
 SALTSA::gabdt & SALTSA::gabdt::operator+=( const gabdt & other_gabdt )
 {
 	if ( !_is_cached_ )
@@ -4909,6 +6051,11 @@ SALTSA::gabdt & SALTSA::gabdt::operator+=( const gabdt & other_gabdt )
 	}
 	return *this;
 }
+/**
+ *
+ * @param other_gabdt
+ * @return
+ */
 SALTSA::gabdt SALTSA::gabdt::operator+( const gabdt & other_gabdt ) const
 {
 	if ( !_is_cached_ )
@@ -4922,6 +6069,11 @@ SALTSA::gabdt SALTSA::gabdt::operator+( const gabdt & other_gabdt ) const
 	return result;
 }
 
+/**
+ *
+ * @param scale_fraction
+ * @return
+ */
 SALTSA::gabdt & SALTSA::gabdt::operator*=( const double scale_fraction )
 {
 	if ( !_is_cached_ )
@@ -4942,6 +6094,11 @@ SALTSA::gabdt & SALTSA::gabdt::operator*=( const double scale_fraction )
 
 }
 
+/**
+ *
+ * @param scale_fraction
+ * @return
+ */
 SALTSA::gabdt SALTSA::gabdt::operator*( const double scale_fraction ) const
 {
 	if ( !_is_cached_ )
@@ -4960,11 +6117,21 @@ SALTSA::gabdt SALTSA::gabdt::operator*( const double scale_fraction ) const
 // SALTSA::gabdt_function class method implementations
 #if (1)
 
+/**
+ *
+ */
 SALTSA::gabdt_function::gabdt_function()
 {
 	host_ptr = 0;
 }
 
+/**
+ *
+ * @param in_params
+ * @param out_params
+ * @param silent
+ * @return
+ */
 const int SALTSA::gabdt_function::operator()(
 		const std::vector< double > & in_params,
 		std::vector< double > & out_params, const bool silent ) const
@@ -5008,6 +6175,17 @@ const int SALTSA::gabdt_function::operator()(
 
 // SALTSA function definitions
 #if (1)
+/**
+ *
+ * @param host_group
+ * @param satellite
+ * @param r
+ * @param vr
+ * @param vt
+ * @param time_step
+ * @param sum_rho
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const double &r,
 		const double &vr, const double &vt,
@@ -5043,6 +6221,18 @@ const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const densit
 	return mass_frac_retained;
 }
 
+/**
+ *
+ * @param host_group
+ * @param satellite
+ * @param r
+ * @param vr
+ * @param vt
+ * @param time_step
+ * @param sum_rho
+ * @param silent
+ * @return
+ */
 const double SALTSA::stripping_orbit_segment::get_rt( const density_profile *host_group,
 		const density_profile *satellite, const double &r,
 		const double &vr, const double &vt,

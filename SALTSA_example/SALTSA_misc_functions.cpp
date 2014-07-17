@@ -14,6 +14,16 @@ using namespace std;
 #if (1)
 // SALTSA::phase function implementations
 #if (1)
+/**
+ *
+ * @param init_x
+ * @param init_y
+ * @param init_z
+ * @param init_vx
+ * @param init_vy
+ * @param init_vz
+ * @param init_t
+ */
 SALTSA::phase::phase( double init_x, double init_y,
 double init_z,
 double init_vx, double init_vy, double init_vz,
@@ -28,6 +38,17 @@ double init_t )
 	t = init_t;
 }
 
+/**
+ *
+ * @param init_x
+ * @param init_y
+ * @param init_z
+ * @param init_vx
+ * @param init_vy
+ * @param init_vz
+ * @param init_t
+ * @return
+ */
 const int SALTSA::phase::set_phase( double init_x, double init_y,
 double init_z,
 double init_vx, double init_vy, double init_vz,
@@ -50,6 +71,12 @@ double init_t )
 
 /** Global function implementations **/
 #if (1)
+/**
+ *
+ * @param value
+ * @param epsilon
+ * @return
+ */
 const int SALTSA::round_int( const double value, const double epsilon )
 {
 
@@ -75,6 +102,17 @@ const int SALTSA::round_int( const double value, const double epsilon )
 	return (int)floor( value + 0.5 );
 }
 
+/**
+ *
+ * @param out_stream
+ * @param num_columns
+ * @param num_rows
+ * @param header
+ * @param data
+ * @param skip_header
+ * @param silent
+ * @return
+ */
 const int SALTSA::print_table( std::ostream & out_stream,
 		const int num_columns, const int num_rows,
 		const std::vector< std::string > & header,
@@ -145,6 +183,15 @@ const int SALTSA::print_table( std::ostream & out_stream,
 	return 0;
 }
 
+/**
+ *
+ * @param out_stream
+ * @param num_columns
+ * @param num_rows
+ * @param data
+ * @param silent
+ * @return
+ */
 const int SALTSA::print_table( std::ostream & out_stream,
 		const int num_columns, const int num_rows,
 		const std::vector< std::vector< std::string > > & data,
@@ -202,6 +249,13 @@ const int SALTSA::print_table( std::ostream & out_stream,
 
 // Load table, either loading in the entire table, or only loading in certain columns into pointed-to
 // variables, found by matching header entries to the strings passed
+/**
+ *
+ * @param table_file_name
+ * @param table_data
+ * @param silent
+ * @return
+ */
 const int SALTSA::load_table( const std::string & table_file_name, std::vector<std::vector<double> > & table_data,
 		const bool silent)
 {
@@ -244,6 +298,14 @@ const int SALTSA::load_table( const std::string & table_file_name, std::vector<s
 
 	return 0;
 }
+/**
+ *
+ * @param table_file_name
+ * @param table_data
+ * @param header
+ * @param silent
+ * @return
+ */
 const int SALTSA::load_table( const std::string & table_file_name,
 		std::vector<std::vector<double> > & table_data,
 		std::vector<std::string> & header, const bool silent)
@@ -318,6 +380,14 @@ const int SALTSA::load_table( const std::string & table_file_name,
 
 	return 0;
 }
+/**
+ *
+ * @param table_file_name
+ * @param header_links
+ * @param case_sensitive
+ * @param silent
+ * @return
+ */
 const int SALTSA::load_table_columns( const std::string & table_file_name,
 		std::vector< std::pair< std::string, std::vector<double>* > > & header_links,
 		const bool case_sensitive, const bool silent)
@@ -383,6 +453,13 @@ const int SALTSA::load_table_columns( const std::string & table_file_name,
 	return 0;
 }
 
+/**
+ *
+ * @param stream
+ * @param name
+ * @param silent
+ * @return
+ */
 const int SALTSA::open_file( std::ofstream & stream, const std::string name,
 		const bool silent )
 {
@@ -397,6 +474,13 @@ const int SALTSA::open_file( std::ofstream & stream, const std::string name,
 	}
 	return 0;
 }
+/**
+ *
+ * @param stream
+ * @param name
+ * @param silent
+ * @return
+ */
 const int SALTSA::open_file( std::ifstream & stream, const std::string name,
 		const bool silent )
 {
@@ -411,6 +495,13 @@ const int SALTSA::open_file( std::ifstream & stream, const std::string name,
 	}
 	return 0;
 }
+/**
+ *
+ * @param stream
+ * @param name
+ * @param silent
+ * @return
+ */
 const int SALTSA::open_file( std::fstream & stream, const std::string name,
 		const bool silent )
 {
@@ -426,6 +517,12 @@ const int SALTSA::open_file( std::fstream & stream, const std::string name,
 	return 0;
 }
 
+/**
+ *
+ * @param stream
+ * @param silent
+ * @return
+ */
 const int SALTSA::trim_comments_one_line( std::ifstream & stream,
 		const bool silent )
 {
@@ -442,6 +539,12 @@ const int SALTSA::trim_comments_one_line( std::ifstream & stream,
 	return 0;
 }
 
+/**
+ *
+ * @param stream
+ * @param silent
+ * @return
+ */
 const int SALTSA::trim_comments_one_line( std::fstream & stream,
 		const bool silent )
 {
@@ -458,6 +561,12 @@ const int SALTSA::trim_comments_one_line( std::fstream & stream,
 	return 0;
 }
 
+/**
+ *
+ * @param stream
+ * @param silent
+ * @return
+ */
 const int SALTSA::trim_comments_all_at_top( std::ifstream & stream,
 		const bool silent )
 {
@@ -476,6 +585,12 @@ const int SALTSA::trim_comments_all_at_top( std::ifstream & stream,
 	return UNSPECIFIED_ERROR; // We reached the end before we ran out of comments
 }
 
+/**
+ *
+ * @param stream
+ * @param silent
+ * @return
+ */
 const int SALTSA::trim_comments_all_at_top( std::fstream & stream,
 		const bool silent )
 {
@@ -494,6 +609,12 @@ const int SALTSA::trim_comments_all_at_top( std::fstream & stream,
 	return UNSPECIFIED_ERROR; // We reached the end before we ran out of comments
 }
 
+/**
+ *
+ * @param mean
+ * @param stddev
+ * @return
+ */
 const double SALTSA::Gaus_rand( double mean, double stddev )
 {
 	double x1, x2, w;
@@ -513,6 +634,12 @@ const double SALTSA::Gaus_rand( double mean, double stddev )
 
 } // double Gaus_rand(double mean, double stddev)
 
+/**
+ *
+ * @param mean
+ * @param stddev
+ * @return
+ */
 const double SALTSA::log10Gaus_rand( double mean, double stddev )
 {
 	double x1, x2, w, fact;
@@ -534,6 +661,11 @@ const double SALTSA::log10Gaus_rand( double mean, double stddev )
 	return ( mean * fact * exp( x1 * w * stddev ) );
 } // double lnGaus_rand(double mean, double stddev)
 
+/**
+ *
+ * @param lambda
+ * @return
+ */
 const int SALTSA::Pois_rand( double lambda )
 {
 	double L, p;

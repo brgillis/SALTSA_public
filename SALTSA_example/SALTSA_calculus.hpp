@@ -31,6 +31,19 @@ namespace SALTSA
 //        different function class.
 
 // Scalar-in, scalar-out version !! TO-DO some cleanup here
+/**
+ *
+ * @param func
+ * @param num_in_params
+ * @param in_params
+ * @param num_out_params
+ * @param out_params
+ * @param Jacobian
+ * @param order
+ * @param power
+ * @param silent
+ * @return
+ */
 template< typename f, typename T >
 inline const int differentiate( const f * func,
 		const unsigned int num_in_params, const T & in_params,
@@ -138,6 +151,19 @@ inline const int differentiate( const f * func,
 }
 
 // Vector-in, vector-out version
+/**
+ *
+ * @param func
+ * @param num_in_params
+ * @param in_params
+ * @param num_out_params
+ * @param out_params
+ * @param Jacobian
+ * @param order
+ * @param power
+ * @param silent
+ * @return
+ */
 template< typename f, typename T >
 inline const int differentiate( const f * func,
 		const unsigned int num_in_params, const std::vector< T > & in_params,
@@ -279,6 +305,21 @@ inline const int differentiate( const f * func,
 // num_passed_in_params & passed_in_params: Ignore these unless you know what you're doing.
 
 // Scalar-in, scalar-out version. !!! Still needs cleanup after testing
+/**
+ *
+ * @param func
+ * @param num_in_params
+ * @param min_in_params
+ * @param max_in_params
+ * @param num_out_params
+ * @param out_params
+ * @param precision
+ * @param tighten_precision
+ * @param num_passed_in_params
+ * @param passed_in_params
+ * @param silent
+ * @return
+ */
 template< typename f, typename T >
 inline const int integrate_Rhomberg( const f * func,
 		const unsigned int num_in_params, const T & min_in_params,
@@ -385,6 +426,21 @@ inline const int integrate_Rhomberg( const f * func,
 }
 
 // Vector-in, vector-out version
+/**
+ *
+ * @param func
+ * @param num_in_params
+ * @param min_in_params
+ * @param max_in_params
+ * @param num_out_params
+ * @param out_params
+ * @param precision
+ * @param tighten_precision
+ * @param num_passed_in_params
+ * @param passed_in_params
+ * @param silent
+ * @return
+ */
 template< typename f, typename T >
 inline const int integrate_Rhomberg( const f * func,
 		const unsigned int num_in_params,
@@ -653,6 +709,22 @@ inline const int integrate_Rhomberg( const f * func,
 }
 
 // Scalar-in, scalar-out version
+/**
+ *
+ * @param func
+ * @param func_weight
+ * @param num_in_params
+ * @param min_in_params
+ * @param max_in_params
+ * @param num_out_params
+ * @param out_params
+ * @param precision
+ * @param tighten_precision
+ * @param num_passed_in_params
+ * @param passed_in_params
+ * @param silent
+ * @return
+ */
 template< typename f_in_1, typename f_in_2, typename T >
 inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
 		const f_in_2 * func_weight, const unsigned int num_in_params,
@@ -684,6 +756,22 @@ inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
 }
 
 // Vector-in, vector-out version
+/**
+ *
+ * @param func
+ * @param func_weight
+ * @param num_in_params
+ * @param min_in_params
+ * @param max_in_params
+ * @param num_out_params
+ * @param out_params
+ * @param precision
+ * @param tighten_precision
+ * @param num_passed_in_params
+ * @param passed_in_params
+ * @param silent
+ * @return
+ */
 template< typename f_in_1, typename f_in_2, typename T >
 inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
 		const f_in_2 * func_weight, const unsigned int num_in_params,
@@ -724,6 +812,25 @@ inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
 // out by half a timestep, with velocity at t+t_step/2 (though it does allow phase classes to be passed to it). This method takes a single step,
 // using the passed acceleration function. The passed function for this implementation must take in one parameter (the magnitude of distance from
 // a centre point) and return one parameter (the magnitude of the acceleration toward this centre point).
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param vx
+ * @param vy
+ * @param vz
+ * @param new_x
+ * @param new_y
+ * @param new_z
+ * @param new_vx
+ * @param new_vy
+ * @param new_vz
+ * @param t_step
+ * @param accel_func
+ * @param silent
+ * @return
+ */
 template< typename f >
 inline const int leapfrog_step( const double &x, const double &y,
 		const double &z, const double &vx, const double &vy,
@@ -756,6 +863,19 @@ inline const int leapfrog_step( const double &x, const double &y,
 	return 0;
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param vx
+ * @param vy
+ * @param vz
+ * @param t_step
+ * @param accel_func
+ * @param silent
+ * @return
+ */
 template< typename f >
 inline const int leapfrog_step( double & x, double & y,
 		double & z,
@@ -778,6 +898,15 @@ inline const int leapfrog_step( double & x, double & y,
 	return result;
 }
 
+/**
+ *
+ * @param p
+ * @param new_p
+ * @param t_step
+ * @param accel_func
+ * @param silent
+ * @return
+ */
 template< typename f >
 inline const int leapfrog_step( const phase &p, phase & new_p,
 		const double &t_step, const f *accel_func,
@@ -787,6 +916,14 @@ inline const int leapfrog_step( const phase &p, phase & new_p,
 			new_p.z, new_p.vx, new_p.vy, new_p.vz, t_step, accel_func, silent );
 }
 
+/**
+ *
+ * @param p
+ * @param t_step
+ * @param accel_func
+ * @param silent
+ * @return
+ */
 template< typename f >
 inline const int leapfrog_step( phase & p, const double & t_step,
 		const f *accel_func, const bool silent = false )

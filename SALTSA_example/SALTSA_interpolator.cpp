@@ -10,6 +10,12 @@
 #include "SALTSA_interpolator.h"
 
 // Global function implementations
+/**
+ *
+ * @param pair1
+ * @param pair2
+ * @return
+ */
 bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2)
 {
 	if(pair1.first == pair2.first)
@@ -18,6 +24,12 @@ bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double
 }
 
 // Global function implementations
+/**
+ *
+ * @param pair1
+ * @param v2
+ * @return
+ */
 bool SALTSA::p1first_lt_v2(std::pair<double,double> pair1, double v2)
 {
 	return (pair1.first < v2);
@@ -27,6 +39,9 @@ bool SALTSA::p1first_lt_v2(std::pair<double,double> pair1, double v2)
 SALTSA::interpolator::allowed_interpolation_type SALTSA::interpolator::default_interpolation_type = SPLINE;
 
 // Implement interpolator methods
+/**
+ *
+ */
 void SALTSA::interpolator::_set_spline_points() const
 {
 	std::vector<double> x_points(0), y_points(0);
@@ -41,6 +56,9 @@ void SALTSA::interpolator::_set_spline_points() const
 	_spline_cached_ = true;
 }
 
+/**
+ *
+ */
 SALTSA::interpolator::interpolator()
 {
 	interpolation_type = default_interpolation_type;
@@ -48,12 +66,18 @@ SALTSA::interpolator::interpolator()
 	_sorted_data_cached_ = false;
 }
 
+/**
+ *
+ */
 void SALTSA::interpolator::clear()
 {
 	clear_points();
 	interpolation_type = default_interpolation_type;
 }
 
+/**
+ *
+ */
 void SALTSA::interpolator::clear_points()
 {
 	_data_.clear();
@@ -62,6 +86,11 @@ void SALTSA::interpolator::clear_points()
 	_sorted_data_cached_ = false;
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ */
 void SALTSA::interpolator::add_point(const double x, const double y)
 {
 	_data_.push_back(std::make_pair(x,y));
@@ -69,6 +98,10 @@ void SALTSA::interpolator::add_point(const double x, const double y)
 	_sorted_data_cached_ = false;
 }
 
+/**
+ *
+ * @return
+ */
 std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() const
 {
 	if(_sorted_data_cached_)
@@ -81,6 +114,11 @@ std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() co
 	return _sorted_data_;
 }
 
+/**
+ *
+ * @param x
+ * @return
+ */
 const double SALTSA::interpolator::operator()(const double x) const
 {
 	if(interpolation_type==SPLINE)
