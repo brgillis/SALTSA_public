@@ -121,20 +121,9 @@ class point_mass_profile;
 
 class spherical_density_function;
 // Concrete
-class projected_density_function;
-// Concrete
-class cylindrical_density_function;
-// Concrete
 class accel_function;
 // Concrete
 class solve_rhm_function;
-// Concrete
-
-class offset_ring_dens_function;
-// Concrete
-class offset_circ_dens_function;
-// Concrete
-class offset_WLsig_function;
 // Concrete
 
 #endif // end class forward declarations
@@ -149,155 +138,6 @@ class offset_WLsig_function;
  tables only need to be loaded once each.
 
  \**********************************************************************/
-
-class grid_cache
-{
-private:
-	static int _ra_grid_change_num_, _dec_grid_change_num_,
-			_z_grid_change_num_;
-	static double _ra_grid_min_, _ra_grid_max_, _ra_grid_step_;
-	static double _dec_grid_min_, dec_grid_max_val, _dec_grid_step_;
-	static double _z_grid_min_, _z_grid_max_, _z_grid_step_;
-public:
-	// Set functions
-#if (1)
-	const int set_ra_grid( const double new_ra_grid_min,
-			const double new_ra_grid_max, const double new_ra_grid_step )
-	{
-		_ra_grid_min_ = new_ra_grid_min;
-		_ra_grid_max_ = new_ra_grid_max;
-		_ra_grid_step_ = new_ra_grid_step;
-		_ra_grid_change_num_++;
-		return 0;
-	}
-
-	const int set_dec_grid( const double new_dec_grid_min,
-			const double new_dec_grid_max,
-			const double new_dec_grid_step )
-	{
-		_dec_grid_min_ = new_dec_grid_min;
-		dec_grid_max_val = new_dec_grid_max;
-		_dec_grid_step_ = new_dec_grid_step;
-		_dec_grid_change_num_++;
-		return 0;
-	}
-
-	const int set_z_grid( const double new_z_grid_min,
-			const double new_z_grid_max, const double new_z_grid_step )
-	{
-		_z_grid_min_ = new_z_grid_min;
-		_z_grid_max_ = new_z_grid_max;
-		_z_grid_step_ = new_z_grid_step;
-		_z_grid_change_num_++;
-		return 0;
-	}
-#endif
-
-	// Get functions
-#if (1)
-
-	const int ra_grid_change_num()
-	{
-		return _ra_grid_change_num_;
-	}
-	const int dec_grid_change_num()
-	{
-		return _dec_grid_change_num_;
-	}
-	const int z_grid_change_num()
-	{
-		return _z_grid_change_num_;
-	}
-	const double ra_grid_min()
-	{
-		return _ra_grid_min_;
-	}
-	const double dec_grid_min()
-	{
-		return _dec_grid_min_;
-	}
-	const double z_grid_min()
-	{
-		return _z_grid_min_;
-	}
-	const double ra_grid_max()
-	{
-		return _ra_grid_max_;
-	}
-	const double dec_grid_max()
-	{
-		return dec_grid_max_val;
-	}
-	const double z_grid_max()
-	{
-		return _z_grid_max_;
-	}
-	const double ra_grid_step()
-	{
-		return _ra_grid_step_;
-	}
-	const double dec_grid_step()
-	{
-		return _dec_grid_step_;
-	}
-	const double z_grid_step()
-	{
-		return _z_grid_step_;
-	}
-#endif
-
-};
-// class grid_cache
-
-class dfa_cache : public brg_cache<dfa_cache>
-{
-	// "Distance from angle" cache
-private:
-
-	DECLARE_BRG_CACHE_STATIC_VARS();
-
-	friend class brg_cache;
-
-protected:
-
-	const std::string _name_base() const throw()
-	{
-		return "dfa";
-	}
-
-	// Long-form calculation function.
-	const int _calculate( const double in_params, double & out_params ) const;
-
-public:
-
-};
-// class tfa_cache
-
-class add_cache
-{
-	// "Angular Diameter Distance" cache
-	static bool loaded;
-	static std::string file_name;
-	static double z_min, z_max, z_step;
-	static int z_res;
-	static std::vector< std::vector< double > > dmod;
-	static std::string header_string;
-	static int sig_digits;
-	const int load( const bool silent = false );
-	const int unload();
-	const int calc( const bool silent = false );
-	const int output( const bool silent = false );
-public:
-	const int set_file_name( const std::string new_name );
-	const int set_range( const double new_z_min, const double new_z_max,
-			const double new_z_step, const bool silent = false );
-	const int set_precision( const int new_precision,
-			const bool silent = false );
-	const double get( const double z1, const double z2, const bool silent =
-			false );
-
-};
-// class add_cache
 
 class tfa_cache : public brg_cache<tfa_cache>
 {
@@ -323,119 +163,6 @@ public:
 };
 // class tfa_cache
 
-class tNFW_sig_cache
-{
-	// Weak lensing from tNFW profile cache
-	static bool loaded;
-	static std::string file_name;
-	static double halo_z_min, halo_z_max, halo_z_step;
-	static int halo_z_res;
-	static double r_min, r_max, r_step;
-	static int r_res;
-	static double halo_m_min, halo_m_max, halo_m_step;
-	static int halo_m_res;
-	static std::vector< std::vector< std::vector< double > > > signal;
-	static std::string header_string;
-	static int sig_digits;
-	const int load( const bool silent = false );
-	const int unload();
-	const int calc( const bool silent = false );
-	const int output( const bool silent = false );
-public:
-	const int set_file_name( const std::string new_name );
-	const int set_range( const double new_z_halo_min,
-			const double new_z_halo_max, const double new_z_halo_step,
-			const double new_m_halo_min, const double new_m_halo_max,
-			const double new_m_halo_step, const double new_r_min,
-			const double new_r_max, const double new_r_step,
-			const bool silent = false );
-	const int set_precision( const int new_precision,
-			const bool silent = false );
-
-	const double get( const double z_halo, const double m_halo,
-			const double r_halo, const bool silent = false ); // Takes in standard units
-
-};
-// class tNFW_sig_cache
-
-class tNFW_offset_sig_cache
-{
-	// Offset weak lensing signal from tNFW profile cache
-	static bool loaded;
-	static std::string file_name;
-	static double halo_z_min, halo_z_max, halo_z_step;
-	static int halo_z_res;
-	static double r_min, r_max, r_step;
-	static int r_res;
-	static double halo_m_min, halo_m_max, halo_m_step;
-	static int halo_m_res;
-	static double offset_r_min, offset_r_max, offset_r_step;
-	static int offset_r_res;
-	static std::vector< std::vector< std::vector< std::vector< double > > > > signal;
-	static std::string header_string;
-	static int sig_digits;
-	const int load( const bool silent = false );
-	const int unload();
-	const int calc( const bool silent = false );
-	const int output( const bool silent = false );
-public:
-	const int set_file_name( const std::string new_name );
-	const int set_range( const double new_z_halo_min,
-			const double new_z_halo_max, const double new_z_halo_step,
-			const double new_m_halo_min, const double new_m_halo_max,
-			const double new_m_halo_step, const double new_r_min,
-			const double new_r_max, const double new_r_step,
-			const double new_offset_r_min, const double new_offset_r_max,
-			const double new_offset_r_step, const bool silent = false );
-	const int set_precision( const int new_precision,
-			const bool silent = false );
-
-	const double get( const double z_halo, const double m_halo,
-			const double r, const double offset_r,
-			const bool silent = false ); // Takes in standard units
-
-};
-// class tNFW_offset_sig_cache
-
-class tNFW_group_sig_cache
-{
-	// Group weak lensing signal from tNFW profile cache
-	static bool loaded;
-	static std::string file_name;
-	static double halo_z_min, halo_z_max, halo_z_step;
-	static int halo_z_res;
-	static double r_min, r_max, r_step;
-	static int r_res;
-	static double halo_m_min, halo_m_max, halo_m_step;
-	static int halo_m_res;
-	static double group_c_min, group_c_max, group_c_step;
-	static int group_c_res;
-	static std::vector< std::vector< std::vector< std::vector< double > > > > signal;
-	static std::string header_string;
-	static int sig_digits;
-	const int load( const bool silent = false );
-	const int unload();
-	const int calc( const bool silent = false );
-	const int output( const bool silent = false );
-public:
-	const int set_file_name( const std::string new_name );
-	const int set_range( const double new_z_halo_min,
-			const double new_z_halo_max, const double new_z_halo_step,
-			const double new_m_halo_min, const double new_m_halo_max,
-			const double new_m_halo_step, const double new_r_min,
-			const double new_r_max, const double new_r_step,
-			const double new_group_c_min, const double new_group_c_max,
-			const double new_group_c_step, const bool silent = false );
-	const int set_precision( const int new_precision,
-			const bool silent = false );
-
-	const double get( const double z_halo, const double m_halo,
-			const double r, const double group_c, const bool silent =
-					false ); // Takes in standard units
-
-};
-// class tNFW_group_sig_cache
-
 #endif // End static class definitions
 
 /** Function Declarations **/
@@ -445,36 +172,6 @@ public:
  astrophysical calculations. All are declared in the namespace SALTSA.
 
  \**********************************************************************/
-
-// Functions to get grid integers or grid boundaries from integers
-const int get_ra_grid( const double &ra );
-const int get_dec_grid( const double &dec );
-const int get_z_grid( const double z );
-
-const double get_ra_grid_lower( const int ra_grid );
-const double get_dec_grid_lower( const int dec_grid );
-const double get_z_grid_lower( const int z_grid );
-
-const double get_ra_grid_upper( const int ra_grid );
-const double get_dec_grid_upper( const int dec_grid );
-const double get_z_grid_upper( const int z_grid );
-
-const double get_ra_grid_mid( const int ra_grid );
-const double get_dec_grid_mid( const int dec_grid );
-const double get_z_grid_mid( const int z_grid );
-
-// Functions to get transverse distance (in m) from angle (in rad) or vice-versa
-const double dfa( const double &da, const double z );
-const double dfa( const double &a1, const double &a2,
-		const double z );
-const double dfa( const double &a1x, const double &a1y,
-		const double &a2x, const double &a2y, const double z );
-
-const double afd( const double &dd, const double z );
-const double afd( const double &d1, const double &d2,
-		const double z );
-const double afd( const double &d1x, const double &d1y,
-		const double &d2x, const double &d2y, const double z );
 
 // Functions to work between redshift, scale factor, and time (in s, with zero = present day)
 const double zfa( const double a );
@@ -486,11 +183,9 @@ const double zft( const double &t );
 const double aft( const double &t );
 
 // Functions to integrate out distances
-const double integrate_add( const double z1, const double z2 );
 const double integrate_cmd( const double z1, const double z2 );
 const double integrate_Ld( const double z1, const double z2 );
 const double integrate_ltd( const double z1, const double z2 );
-const double integrate_add( const double z );
 const double integrate_cmd( const double z );
 const double integrate_Ld( const double z );
 const double integrate_ltd( const double z );
@@ -524,10 +219,6 @@ inline const double delta_c( const double conc ) // Simple function of concentra
 const double period( const density_profile *host, const double &r,
 		const double &vr, const double &vt = 0 );
 
-// Lensing functions
-const double ad_distance( double z1, double z2 = 0 );
-const double sigma_crit( const double z_lens, const double z_source );
-
 #endif // end function declarations
 
 /** Class Definitions **/
@@ -552,18 +243,12 @@ class redshift_obj
 	 **********************************/
 private:
 	double _z_, _z_err_;
-	mutable int _z_grid_;
-	mutable bool _z_grid_cached_;
-	mutable int _local_z_grid_change_num_;
 public:
 	// Constructor
 	redshift_obj( const double init_z = 0, const double init_z_err = 0 )
 	{
 		_z_ = init_z;
 		_z_err_ = init_z_err;
-		_z_grid_ = 0;
-		_z_grid_cached_ = false;
-		_local_z_grid_change_num_ = -1;
 	}
 
 	// Copy constructor
@@ -579,7 +264,6 @@ public:
 	virtual const int set_z( const double new_z ) // Sets z
 	{
 		_z_ = new_z;
-		_z_grid_cached_ = false;
 		return 0;
 	}
 	virtual const int set_z_err( const double new_z_err ) // Sets z error
@@ -599,7 +283,6 @@ public:
 	{
 		return _z_err_;
 	}
-	virtual const int z_grid() const;
 #endif
 
 	// H(z) at either the redshift of the object or a specified redshift, given in units of m/s^2
@@ -809,34 +492,6 @@ public:
 #if (1) // Virtual functions which should be overwritten if at all possible and if they'll be used
 	virtual const double enc_mass( const double &r, const bool silent =
 			true ) const; // Mass enclosed with sphere of radius r
-	virtual const double proj_dens( const double &R,
-			const bool silent = true ) const; // Projected surface density at radius R
-	virtual const double proj_enc_mass( const double &R,
-			const bool silent = true ) const; // Mass enclosed within a cylinder of radius R
-	virtual const double offset_WLsig( const double &R,
-			const double &offset_R, const bool silent = true ) const; // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from position offset by offset_R
-	virtual const double group_WLsig( const double &R,
-			const double group_c, const bool silent = true ) const; // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from ensemble of satellites in group with satellite concentration group_c
-	virtual const double quick_WLsig( const double &R,
-			const bool silent = true ) const // As deltasigma, but uses cache to speed it up if overwritten
-	{
-		return deltasigma( R, silent );
-	}
-	virtual const double quick_offset_WLsig( const double &R,
-			const double &offset_R, const bool silent = true ) const // As offset_WLsig, but uses cache to speed it up if overwritten
-	{
-		return offset_WLsig( R, offset_R, silent );
-	}
-	virtual const double semiquick_group_WLsig( const double &R,
-			const double group_c, const bool silent = true ) const // As group_WLsig, but uses offset_WLsig cache to speed it up if overwritten
-	{
-		return group_WLsig( R, group_c, silent );
-	}
-	virtual const double quick_group_WLsig( const double &R,
-			const double group_c, const bool silent = true ) const // As deltasigma, but uses group_WLsig cache to speed it up if overwritten
-	{
-		return group_WLsig( R, group_c, silent );
-	}
 #endif
 
 #if (1) // Virtual functions which shouldn't be overwritten in most cases and non-virtual functions
@@ -867,13 +522,6 @@ public:
 		double r_to_use = max( std::fabs( r ), SMALL_FACTOR );
 		return enc_mass( r_to_use, silent )
 				/ ( 4. / 3. * pi * std::pow( std::fabs( r_to_use ), 3 ) );
-	}
-	virtual const double proj_enc_dens( const double &R,
-			const bool silent = false ) const // Mean surface density enclosed within a cylinder of radius R
-	{
-		double R_to_use = max( std::fabs( R ), SMALL_FACTOR );
-		return proj_enc_mass( R_to_use, silent )
-				/ ( pi * std::pow( std::fabs( R_to_use ), 2 ) );
 	}
 	virtual const double rhmvir( const bool silent = false ) const; // Half-virial-mass radius
 	virtual const double rhmtot( const bool silent = false ) const; // Half-total-mass radius
@@ -937,11 +585,6 @@ public:
 	}
 	virtual const double Daccel( const double &r, const bool silent =
 			false ) const; // Derivative of acceleration at radius r
-	const double deltasigma( const double &R, const bool silent =
-			false ) const // Weak lensing signal in tangential shear Delta-Sigma at radius R
-	{
-		return proj_enc_dens( R, silent ) - proj_dens( R, silent );
-	}
 
 #endif // end advanced get functions
 
@@ -1039,22 +682,8 @@ public:
 #if (1) // advanced get functions
 
 	const double dens( const double &r ) const;
-	const double proj_dens( const double &R,
-			const bool silent = false ) const;
 	const double enc_mass( const double &r,
 			const bool silent = false ) const;
-	const double proj_enc_dens( const double &R, const bool silent =
-			false ) const;
-	const double proj_enc_mass( const double &R, const bool silent =
-			false ) const;
-	const double quick_WLsig( const double &R, const bool silent =
-			false ) const;
-	const double quick_offset_WLsig( const double &R,
-			const double &offset_R, const bool silent = false ) const;
-	const double semiquick_group_WLsig( const double &R,
-			const double group_c, const bool silent = false ) const;
-	const double quick_group_WLsig( const double &R,
-			const double group_c, const bool silent = false ) const;
 	const int get_parameters( int & num_parameters,
 			std::vector< double > & parameters,
 			const bool silent = true ) const;
@@ -1145,16 +774,10 @@ public:
 
 #if (1) // advanced get functions
 	const double dens( const double &r ) const;
-	const double proj_dens( const double &R,
-			const bool silent = false ) const;
 	const double enc_dens( const double &r,
 			const bool silent = false ) const;
 	const double enc_mass( const double &r, const bool silent =
 				true ) const; // Mass enclosed with sphere of radius r
-	const double proj_enc_dens( const double &R,
-			const bool silent = false ) const;
-	const double proj_enc_mass( const double &R,
-			const bool silent = false ) const;
 	const int get_parameters( int & num_parameters,
 			std::vector< double > & parameters,
 			const bool silent = false ) const;
@@ -1283,199 +906,6 @@ public:
 	virtual ~spherical_density_function()
 	{
 	}
-};
-
-class projected_density_function: public functor< double >
-{
-	/**********************************
-	 projected_density_function class
-	 -----------------------------
-
-	 Function class integrating density along a projected line
-
-	 Parent class: function_class (from brg_functions)
-
-	 **********************************/
-private:
-	const density_profile *_host_ptr_;double _offset_R_;
-
-public:
-
-	const int set_host_ptr( const density_profile *new_host );
-	const density_profile * host_ptr()
-	{
-		return _host_ptr_;
-	}
-
-	const int set_offset_R( const double &new_offset_R );
-	const double offset_R()
-	{
-		return _offset_R_;
-	}
-
-	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
-
-	projected_density_function();
-	projected_density_function( const density_profile *init_host,
-			const double &init_offset_R );
-	virtual ~projected_density_function()
-	{
-	}
-};
-
-class cylindrical_density_function: public functor< double >
-{
-	/**********************************
-	 cylindrical_density_function class
-	 -----------------------------
-
-	 Function class integrating density in a cylinder
-
-	 Parent class: function_class (from brg_functions)
-
-	 **********************************/
-private:
-	const density_profile *_host_ptr_;
-
-public:
-
-	const int set_host_ptr( const density_profile *new_host_ptr );
-	const density_profile * host_ptr()
-	{
-		return _host_ptr_;
-	}
-
-	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
-
-	cylindrical_density_function();
-	cylindrical_density_function( const density_profile *init_host );
-	virtual ~cylindrical_density_function()
-	{
-	}
-};
-
-class offset_ring_dens_function: public functor< double >
-{
-
-	const density_profile *_host_ptr_;double _R0_, _R_;
-public:
-
-	const int set_host_ptr( const density_profile *new_host_ptr );
-	const density_profile * host_ptr()
-	{
-		return _host_ptr_;
-	}
-
-	const int set_R0( const double &new_R_0 );
-	const double & R0()
-	{
-		return _R0_;
-	}
-
-	const int set_R( const double &new_R );
-	const double & R()
-	{
-		return _R_;
-	}
-
-	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
-
-	offset_ring_dens_function();
-	offset_ring_dens_function( const density_profile *new_host,
-			const double &new_R_0 = 0, const double &new_R = 0 );
-
-};
-
-class offset_circ_dens_function: public functor< std::vector< double > >
-{
-private:
-	const density_profile *_host_ptr_;double _R0_;
-
-public:
-
-	const int set_host_ptr( const density_profile *new_host_ptr );
-	const density_profile * host_ptr()
-	{
-		return _host_ptr_;
-	}
-
-	const int set_R0( const double &new_R0 );
-	const double & R0()
-	{
-		return _R0_;
-	}
-
-	const int operator()( const std::vector< double > & in_params,
-			std::vector< double > & out_params,
-			const bool silent = false ) const;
-
-	offset_circ_dens_function();
-	offset_circ_dens_function( const density_profile *new_host,
-			const double &new_R_0 = 0 );
-};
-
-class offset_WLsig_function: public functor< double >
-{
-
-private:
-
-	const density_profile *_host_ptr_;double _R_;
-
-public:
-
-	const int set_host_ptr( const density_profile *new_host_ptr );
-	const density_profile * host_ptr()
-	{
-		return _host_ptr_;
-	}
-
-	const int set_R( const double &new_R );
-	const double & R()
-	{
-		return _R_;
-	}
-
-	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
-
-	offset_WLsig_function();
-	offset_WLsig_function( const density_profile *init_host,
-			const double &new_R = 0 );
-
-};
-
-class offset_WLsig_weight_function: public functor< double >
-{
-
-private:
-
-	const density_profile *_host_ptr_;
-	double _c_;
-
-public:
-
-	const int set_host_ptr( const density_profile *new_host_ptr );
-	const density_profile * host_ptr()
-	{
-		return _host_ptr_;
-	}
-
-	const int set_c( const double new_c );
-	const double c()
-	{
-		return _c_;
-	}
-
-	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
-
-	offset_WLsig_weight_function();
-	offset_WLsig_weight_function( const density_profile *new_host,
-			const double init_c = -1 );
-
 };
 
 #endif // end Class Definitions
