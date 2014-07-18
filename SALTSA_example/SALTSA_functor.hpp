@@ -24,6 +24,8 @@ SALTSA_misc_functions.h
 #ifndef __SALTSA_MISC_FUNCTIONS_H_INCLUDED__
 #define __SALTSA_MISC_FUNCTIONS_H_INCLUDED__
 
+#include <iostream>
+
 #include "SALTSA_global.h"
 
 namespace SALTSA

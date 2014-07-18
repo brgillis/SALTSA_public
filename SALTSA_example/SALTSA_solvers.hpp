@@ -11,8 +11,10 @@
 
 #include "SALTSA_global.h"
 
+#include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include <stdexcept>
 #include "SALTSA_unitconvs.h"
 #include "SALTSA_misc_functions.hpp"
 #include "SALTSA_vector.hpp"

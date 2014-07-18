@@ -8,8 +8,10 @@
 #ifndef __SALTSA_CACHE_HPP_INCLUDED__
 #define __SALTSA_CACHE_HPP_INCLUDED__
 
-#include <cstdlib>
 #include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <stdexcept>
 
 #include "SALTSA_global.h"
 

@@ -8,6 +8,7 @@
 #ifndef __SALTSA_CALCULUS_HPP_INCLUDED__
 #define __SALTSA_CALCULUS_HPP_INCLUDED__
 
+#include <iostream>
 #include <cstdlib>
 #include <cmath>
 

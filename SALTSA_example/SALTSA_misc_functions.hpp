@@ -16,20 +16,12 @@
 #ifndef __SALTSA_MISC_FUNCTIONS_HPP_INCLUDED__
 #define __SALTSA_MISC_FUNCTIONS_HPP_INCLUDED__
 
-#include "SALTSA_global.h"
-
-#include <cstdlib>
-#include <cmath>
 #include <iostream>
-#include <iomanip>
-#include <new>
-#include <fstream>
 #include <memory>
-#include <boost/math/special_functions/erf.hpp>
-#ifndef __USE_CPP_11_STD__
-#include <boost/shared_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
-#endif // #ifndef __USE_CPP_11_STD__
+#include <vector>
+#include <stdexcept>
+
+#include "SALTSA_global.h"
 
 namespace SALTSA
 {

@@ -10,7 +10,12 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <iostream>
+#include <algorithm>
+#include <stdexcept>
 
 #include "SALTSA_misc_functions.hpp"
 

@@ -25,6 +25,8 @@ SALTSA_astro.h
 #ifndef __SALTSA_ASTRO_H_INCLUDED__
 #define __SALTSA_ASTRO_H_INCLUDED__
 
+#include <iostream>
+
 #include "SALTSA_global.h"
 
 #include "SALTSA_unitconvs.h"

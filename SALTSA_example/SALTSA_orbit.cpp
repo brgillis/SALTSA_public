@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <sstream>
 #include "SALTSA.h"
 #include "SALTSA_orbit.h"
 #include "SALTSA_solvers.hpp"
