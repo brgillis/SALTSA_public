@@ -15,6 +15,7 @@
 #include "SALTSA_global.h"
 #include "SALTSA_unitconvs.h"
 #include "SALTSA_misc_functions.h"
+#include "SALTSA_file_functions.h"
 
 // Macro definitions
 

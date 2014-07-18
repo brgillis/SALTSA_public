@@ -18,6 +18,7 @@
 #include "SALTSA_misc_functions.h"
 #include "SALTSA_interpolator.h"
 #include "SALTSA_astro.h"
+#include "SALTSA_file_functions.h"
 
 namespace SALTSA {
 
