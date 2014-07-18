@@ -142,12 +142,12 @@ const double SALTSA::density_profile::rhmvir( const bool silent ) const
 	if ( solve_grid( func_ptr, 1, 0., max_r, 10, 0., rhm_test ) ) // If we can't solve it
 	{
 		if ( !silent )
-			std::cerr << "WARNING: Could not solve half-mass radius.\n";
+			std::cerr << "WARNING: Could not solve half-mass radius. Assuming it's zero.\n";
 		return -1;
 	}
 	else
 	{
-		_rhmvir_cache_ = max(0,std::fabs( rhm_test ));
+		_rhmvir_cache_ = max(0,rhm_test);
 		hmvir_cached = true;
 	}
 	return _rhmvir_cache_;
@@ -346,7 +346,7 @@ const int SALTSA::tNFW_profile::set_parameters(
  */
 const double SALTSA::tNFW_profile::mvir() const
 {
-	return _mvir0_; // Not technically correct, but close enough for our purposes
+	return enc_mass( rvir() ); // Not technically correct, but close enough for our purposes
 }
 /**
  *
@@ -571,7 +571,7 @@ const int SALTSA::tNFW_profile::truncate_to_fraction( const double f,
 	}
 	else
 	{
-		double new_tau_val = SALTSA::taufm( f, _c_, _tau_ );
+		double new_tau_val = SALTSA::taufm( f, _c_, _tau_, min(0.1*(1-f),0.00001) );
 		if ( new_tau_val < 0 )
 		{
 			if ( !silent )
@@ -1263,7 +1263,7 @@ const double SALTSA::integrate_distance( const double z1_init,
  * @return
  */
 const double SALTSA::taufm( const double m_ratio, double conc,
-		double tau_init, const bool silent )
+		double tau_init, double precision, const bool silent )
 {
 
 	//Gives tau for a given Mtot/Mvir.
@@ -1285,7 +1285,7 @@ const double SALTSA::taufm( const double m_ratio, double conc,
 	tautest[0] = tau_init / 2;
 	mbest = 1e99;
 
-	while ( taustepsize > 0.00001 * conc )
+	while ( taustepsize > precision * conc )
 	{
 		taustepsize /= 2;
 		tautest[1] = tautest[0] - taustepsize;

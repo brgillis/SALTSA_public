@@ -30,7 +30,7 @@ int main( const int argc, const char *argv[] )
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
 	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 10000; // Base number of steps to take to integrate stripping
+	const int stripping_resolution = 100000; // Base number of steps to take to integrate stripping
 	const int spline_points = 100000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
@@ -88,7 +88,7 @@ int main( const int argc, const char *argv[] )
 	                                   // virial velocity. 1 here means it starts at v = v_vir
 
 	const int num_orbital_circs = 13; // Number of different circularities we want to test
-	const double orbital_circularity[num_orbital_circs] = {1, .99, .95, .9, .8, .7, .6, .5, .4, .3, .2, .1, .05};
+	const double orbital_circularity[num_orbital_circs] = {1.00, .99, .95, .9, .8, .7, .6, .5, .4, .3, .2, .1, .05};
 		// Array of the different circularities we'll be testing.
 
 #endif // End set-up of const values
