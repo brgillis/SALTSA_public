@@ -26,11 +26,6 @@ SALTSA_misc_functions.h
 
 #include "SALTSA_global.h"
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <memory>
-
 namespace SALTSA
 {
 
