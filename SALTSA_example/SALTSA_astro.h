@@ -27,13 +27,7 @@ SALTSA_astro.h
 
 #include "SALTSA_global.h"
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <sstream>
 #include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_cache.hpp"
 #include "SALTSA_functor.hpp"
 

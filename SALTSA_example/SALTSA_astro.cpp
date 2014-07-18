@@ -1,14 +1,11 @@
 #include <cstdlib>
 #include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <sstream>
-#include <new>
-#include <fstream>
-#include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.hpp"
+
+#include "SALTSA_global.h"
+
 #include "SALTSA_astro.h"
+
+#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_calculus.hpp"
 #include "SALTSA_solvers.hpp"
 
