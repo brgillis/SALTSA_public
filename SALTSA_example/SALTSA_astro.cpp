@@ -1,15 +1,15 @@
-#include <cstdlib>
+#include <iostream>
 #include <cmath>
+#include <vector>
+#include <string>
+#include <stdexcept>
 
 #include "SALTSA_global.h"
 
 #include "SALTSA_astro.h"
-
 #include "SALTSA_misc_functions.hpp"
 #include "SALTSA_calculus.hpp"
 #include "SALTSA_solvers.hpp"
-
-using namespace std;
 
 /** Static Class Initialisation **/
 #if (1)

@@ -10,6 +10,10 @@
 #ifndef SALTSA_FILE_FUNCTIONS_H_
 #define SALTSA_FILE_FUNCTIONS_H_
 
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "SALTSA_global.h"
 
 namespace SALTSA {

@@ -16,6 +16,7 @@
 #include <iostream>
 #include <algorithm>
 #include <stdexcept>
+#include <vector>
 
 #include "SALTSA_misc_functions.hpp"
 

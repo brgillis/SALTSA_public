@@ -10,6 +10,9 @@
 #ifndef __SALTSA_ORBIT_H_INCLUDED__
 #define __SALTSA_ORBIT_H_INCLUDED__
 
+#include <vector>
+#include <iostream>
+
 #include "SALTSA_phase.hpp"
 
 namespace SALTSA {

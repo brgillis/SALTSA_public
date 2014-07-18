@@ -9,9 +9,10 @@
 #define __SALTSA_CACHE_HPP_INCLUDED__
 
 #include <iostream>
-#include <cstdlib>
 #include <fstream>
 #include <stdexcept>
+#include <vector>
+#include <string>
 
 #include "SALTSA_global.h"
 

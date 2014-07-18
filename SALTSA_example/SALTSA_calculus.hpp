@@ -9,7 +9,7 @@
 #define __SALTSA_CALCULUS_HPP_INCLUDED__
 
 #include <iostream>
-#include <cstdlib>
+#include <vector>
 #include <cmath>
 
 #include "SALTSA_global.h"

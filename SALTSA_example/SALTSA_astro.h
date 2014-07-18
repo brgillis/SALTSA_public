@@ -26,6 +26,10 @@ SALTSA_astro.h
 #define __SALTSA_ASTRO_H_INCLUDED__
 
 #include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <stdexcept>
 
 #include "SALTSA_global.h"
 

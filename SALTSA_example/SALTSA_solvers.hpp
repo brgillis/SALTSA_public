@@ -9,6 +9,8 @@
 #ifndef __SALTSA_SOLVERS_HPP_INCLUDED__
 #define __SALTSA_SOLVERS_HPP_INCLUDED__
 
+#include <vector>
+
 #include "SALTSA_global.h"
 
 #include "SALTSA_misc_functions.hpp"

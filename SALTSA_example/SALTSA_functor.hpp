@@ -25,6 +25,7 @@ SALTSA_misc_functions.h
 #define __SALTSA_MISC_FUNCTIONS_H_INCLUDED__
 
 #include <iostream>
+#include <vector>
 
 #include "SALTSA_global.h"
 

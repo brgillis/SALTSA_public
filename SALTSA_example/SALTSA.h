@@ -230,14 +230,12 @@
 
  \**********************************************************************/
 
+#include <vector>
+#include <cmath>
+#include <iostream>
+
 #include "SALTSA_global.h"
 
-#include <cstdlib>
-#include <cmath>
-#include <vector>
-#include <stdexcept>
-#include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_interpolator.h"
 #include "SALTSA_astro.h"
 #include "SALTSA_orbit.h"

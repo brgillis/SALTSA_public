@@ -8,6 +8,8 @@
  */
 
 #include <stdexcept>
+#include <vector>
+#include <utility>
 
 #include "SALTSA_interpolator.h"
 

@@ -10,8 +10,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <string>
 #include <sstream>
 #include <fstream>
+#include <vector>
 
 #include "SALTSA.h"
 #include "SALTSA_calculus.hpp" // This is just used to generate an orbit in this file.

@@ -10,6 +10,9 @@
 #ifndef __SALTSA_INTERPOLATOR_H_INCLUDED__
 #define __SALTSA_INTERPOLATOR_H_INCLUDED__
 
+#include <vector>
+#include <utility>
+
 #include "tk_spline.h"
 
 namespace SALTSA {

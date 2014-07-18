@@ -17,9 +17,8 @@
 #define __SALTSA_MISC_FUNCTIONS_HPP_INCLUDED__
 
 #include <iostream>
-#include <memory>
 #include <vector>
-#include <stdexcept>
+#include <cstdlib>
 
 #include "SALTSA_global.h"
 
@@ -492,7 +491,7 @@ inline const double dot_product( std::vector< double > a,
 inline const double drand( double min, double max )
 {
 
-	return min + (max-min)*drand48();
+	return min + (max-min)*(double)std::rand() / RAND_MAX;
 
 } // double drand(double min, double max)
 

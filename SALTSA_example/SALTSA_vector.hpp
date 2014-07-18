@@ -12,7 +12,10 @@
 #ifndef __SALTSA_VECTOR_HPP_INCLUDED__
 #define __SALTSA_VECTOR_HPP_INCLUDED__
 
+#include <vector>
 #include <algorithm>
+#include <cstdlib>
+#include <cmath>
 
 #include "SALTSA_global.h"
 
@@ -672,7 +675,7 @@ const T std(const std::vector<T> v)
 {
 	if(v.size()<=1) return 0;
 
-	return sqrt( divide(subtract(sum( pow(v,2) ), pow(sum(v),2) ), v.size() ) );
+	return std::sqrt( divide(subtract(sum( pow(v,2) ), std::pow(sum(v),2) ), v.size() ) );
 }
 
 template< typename T >
