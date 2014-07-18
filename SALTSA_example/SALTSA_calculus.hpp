@@ -8,11 +8,11 @@
 #ifndef __SALTSA_CALCULUS_HPP_INCLUDED__
 #define __SALTSA_CALCULUS_HPP_INCLUDED__
 
-#include "SALTSA_global.h"
-
 #include <cstdlib>
 #include <cmath>
-#include "SALTSA_unitconvs.h"
+
+#include "SALTSA_global.h"
+
 #include "SALTSA_misc_functions.hpp"
 
 namespace SALTSA
