@@ -100,7 +100,6 @@ int main( const int argc, const char *argv[] )
 	double t=0;
 	std::vector< double > host_parameters(num_host_parameters,0);
 
-	SALTSA::phase current_phase(x,y,z,vx,vy,vz,t);
 	SALTSA::accel_function accel_func(host_group_orbit);
 
 	std::ofstream out;

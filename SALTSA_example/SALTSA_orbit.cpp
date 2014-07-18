@@ -9,14 +9,23 @@
 
  \**********************************************************************/
 
+
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <stdexcept>
 #include <sstream>
-#include "SALTSA.h"
+#include "SALTSA_unitconvs.h"
+#include "SALTSA_misc_functions.hpp"
+#include "SALTSA_interpolator.h"
+#include "SALTSA_astro.h"
+#include "SALTSA_file_functions.h"
+#include "SALTSA_phase.hpp"
+#include "SALTSA_functor.hpp"
 #include "SALTSA_orbit.h"
-#include "SALTSA_solvers.hpp"
 #include "SALTSA_calculus.hpp"
+#include "SALTSA_solvers.hpp"
+#include "SALTSA.h"
 
 using namespace std;
 
