@@ -12,8 +12,6 @@
 #ifndef __SALTSA_VECTOR_HPP_INCLUDED__
 #define __SALTSA_VECTOR_HPP_INCLUDED__
 
-#include <cstdlib>
-#include <cmath>
 #include <algorithm>
 
 #include "SALTSA_global.h"
