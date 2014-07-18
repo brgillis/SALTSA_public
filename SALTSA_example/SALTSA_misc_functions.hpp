@@ -309,6 +309,37 @@ inline const double Gaus_pdf( const double x, const double mean = 0,
 			/ ( std_dev * sqrt( 2 * pi ) );
 }
 
+/**
+ *
+ * @param value
+ * @param epsilon
+ * @return
+ */
+inline const int round_int( const double value, const double epsilon = ROUNDING_EPSILON )
+{
+
+	if ( value < 0.0 )
+		return -round_int( -value, epsilon );
+
+	double ipart;
+	std::modf( value, &ipart );
+
+	// If 'value' is exctly halfway between two integers
+	if ( fabs( value - ( ipart + 0.5 ) ) < epsilon )
+	{
+		// If 'ipart' is even then return 'ipart'
+		if ( std::fmod( ipart, 2.0 ) < epsilon )
+			return (int)ipart;
+
+		// Else return the nearest even integer
+		return (int)ceil( ipart + 0.5 );
+	}
+
+	// Otherwise use the usual round to closest
+	// (Either symmetric half-up or half-down will do
+	return (int)floor( value + 0.5 );
+}
+
 // Add two or three values in quadrature.
 /**
  *

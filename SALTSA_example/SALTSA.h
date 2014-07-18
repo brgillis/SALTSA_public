@@ -237,7 +237,7 @@
 #include <vector>
 #include <stdexcept>
 #include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.h"
+#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_interpolator.h"
 #include "SALTSA_astro.h"
 #include "SALTSA_orbit.h"

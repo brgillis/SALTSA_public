@@ -33,8 +33,9 @@ SALTSA_astro.h
 #include <string>
 #include <sstream>
 #include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.h"
+#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_cache.hpp"
+#include "SALTSA_functor.hpp"
 
 /** Constant Definitions **/
 #if (1)

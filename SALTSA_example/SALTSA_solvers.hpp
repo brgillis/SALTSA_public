@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <cmath>
 #include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.h"
+#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_vector.hpp"
 
 namespace SALTSA

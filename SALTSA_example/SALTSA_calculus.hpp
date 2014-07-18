@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <cmath>
 #include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.h"
+#include "SALTSA_misc_functions.hpp"
 
 namespace SALTSA
 {
@@ -893,43 +893,6 @@ inline const int leapfrog_step( double & x, double & y,
 	vx = new_vx;
 	vy = new_vy;
 	vz = new_vz;
-	return result;
-}
-
-/**
- *
- * @param p
- * @param new_p
- * @param t_step
- * @param accel_func
- * @param silent
- * @return
- */
-template< typename f >
-inline const int leapfrog_step( const phase &p, phase & new_p,
-		const double &t_step, const f *accel_func,
-		const bool silent = false )
-{
-	return leapfrog_step( p.x, p.y, p.z, p.vx, p.vy, p.vz, new_p.x, new_p.y,
-			new_p.z, new_p.vx, new_p.vy, new_p.vz, t_step, accel_func, silent );
-}
-
-/**
- *
- * @param p
- * @param t_step
- * @param accel_func
- * @param silent
- * @return
- */
-template< typename f >
-inline const int leapfrog_step( phase & p, const double & t_step,
-		const f *accel_func, const bool silent = false )
-{
-	int result;
-	phase new_p;
-	result = leapfrog_step( p, new_p, t_step, accel_func, silent );
-	p = new_p;
 	return result;
 }
 

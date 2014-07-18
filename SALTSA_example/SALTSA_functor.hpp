@@ -31,9 +31,6 @@ SALTSA_misc_functions.h
 #include <iostream>
 #include <memory>
 
-#include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.hpp"
-
 namespace SALTSA
 {
 
@@ -256,54 +253,7 @@ public:
 	}
 };
 
-struct phase
-/**********************************************
- phase
- -----
-
- A structure representing the full phase of an
- object (position and velocity) and also time,
- to help limit the number of variables that need
- to be passed to certain functions.
-
- All member variables are public, and may be
- accessed directly. Units should be in the
- default set: m for position, m/s for velocity,
- s for time.
-
- **********************************************/
-{
-	double x, y, z;double vx, vy, vz;double t;
-	phase( double init_x = 0, double init_y = 0,
-	double init_z = 0, double init_vx = 0,
-	double init_vy = 0, double init_vz = 0,
-	double init_t = 0 );
-	const int set_phase( double init_x = 0, double init_y = 0,
-	double init_z = 0, double init_vx = 0,
-	double init_vy = 0, double init_vz = 0,
-	double init_t = 0 );
-};
-
 #endif // end class declarations
-
-/** Global function declarations **/
-#if (1)
-// Rounds to nearest integer, preferring even values if in the middle of two integers (within epsilon distance of the middle)
-const int round_int( const double value, const double epsilon =
-		ROUNDING_EPSILON );
-
-// Returns a random variable from a Gaussian distribution
-const double Gaus_rand( const double mean = 0, const double stddev = 1 );
-
-// Returns a random variable from a Gaussian distribution in log space
-// Note that "mean" here is the desired mean, NOT the peak of the function (which differ in log space). If you want to use
-// the peak, simply use the standard Gaus_rand version instead.
-const double log10Gaus_rand( const double mean = 0, const double stddev = 1 );
-
-// Returns a Poisson random variable.
-const int Pois_rand( const double lambda = 1 );
-
-#endif // End global function declarations
 
 } // end namespace SALTSA
 

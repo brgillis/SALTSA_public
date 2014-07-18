@@ -7,7 +7,7 @@
 #include <new>
 #include <fstream>
 #include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.h"
+#include "SALTSA_misc_functions.hpp"
 #include "SALTSA_astro.h"
 #include "SALTSA_calculus.hpp"
 #include "SALTSA_solvers.hpp"
