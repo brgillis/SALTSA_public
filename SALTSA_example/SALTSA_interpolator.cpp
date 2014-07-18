@@ -7,6 +7,8 @@
  *      Author: brg
  */
 
+#include <stdexcept>
+
 #include "SALTSA_interpolator.h"
 
 // Global function implementations
