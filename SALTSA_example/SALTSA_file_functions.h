@@ -12,14 +12,6 @@
 
 #include "SALTSA_global.h"
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <memory>
-
-#include "SALTSA_unitconvs.h"
-#include "SALTSA_misc_functions.hpp"
-
 namespace SALTSA {
 
 // Prints a formatted table in the passed stream. header is a vector of strings representing the labels for each column,

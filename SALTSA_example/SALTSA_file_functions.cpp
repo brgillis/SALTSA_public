@@ -7,6 +7,13 @@
  *      Author: brg
  */
 
+
+#include <cstdlib>
+#include <cmath>
+#include <iostream>
+
+#include "SALTSA_misc_functions.hpp"
+
 #include "SALTSA_file_functions.h"
 
 /**
