@@ -119,9 +119,7 @@ const int SALTSA::print_table( std::ostream & out_stream,
 		const std::vector< std::vector< std::string > > &data,
 		const bool skip_header, const bool silent )
 {
-	vector< int > width;
-	if ( int errcode = SALTSA::make_array( width, num_columns ) )
-		return errcode + LOWER_LEVEL_ERROR;
+	vector< int > width(num_columns);
 
 	try
 	{
@@ -197,9 +195,7 @@ const int SALTSA::print_table( std::ostream & out_stream,
 		const std::vector< std::vector< std::string > > & data,
 		const bool silent )
 {
-	vector< int > width;
-	if ( int errcode = SALTSA::make_array( width, num_columns ) )
-		return errcode + LOWER_LEVEL_ERROR;
+	vector< int > width(num_columns);
 
 	try
 	{

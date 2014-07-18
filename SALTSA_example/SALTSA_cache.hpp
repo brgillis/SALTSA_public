@@ -161,7 +161,7 @@ private:
 
 			// Set up data
 			SPCP(name)->_resolutions_ = (int)( ( SPCP(name)->_maxes_ - SPCP(name)->_mins_ ) / SPCP(name)->_steps_ ) + 1;
-			make_array( SPCP(name)->_results_, SPCP(name)->_resolutions_ );
+			SPCP(name)->_results_.resize(SPCP(name)->_resolutions_);
 
 			// Read in data
 
@@ -237,7 +237,8 @@ private:
 	const int _unload() const throw()
 	{
 		SPCP(name)->_loaded_ = false;
-		return del_array( SPCP(name)->_results_ );
+		SPCP(name)->_results_.clear();
+		return 0;
 	}
 	/**
 	 *
@@ -259,8 +260,7 @@ private:
 
 		// Set up data
 		SPCP(name)->_resolutions_ = (int)( ( SPCP(name)->_maxes_ - SPCP(name)->_mins_ ) / SPCP(name)->_steps_ ) + 1;
-		if ( make_array( SPCP(name)->_results_, SPCP(name)->_resolutions_ ) )
-			return 1;
+		SPCP(name)->_results_.resize(SPCP(name)->_resolutions_ );
 
 		// Calculate data
 		for ( double x = SPCP(name)->_mins_; x < SPCP(name)->_maxes_; x += SPCP(name)->_steps_ )

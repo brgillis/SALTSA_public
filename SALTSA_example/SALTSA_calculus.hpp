@@ -197,14 +197,12 @@ inline const int differentiate( const f * func,
 		power_flag = false;
 
 	// Delete std::vectors we'll be overwriting in case they previously existed
-	del_array( out_params );
-	del_array2d( Jacobian, num_in_params );
+	out_params.clear();
+	Jacobian.clear();
 
 	// Set up differentials
-	if ( int errcode = make_array( d_in_params, num_in_params ) )
-		return errcode + LOWER_LEVEL_ERROR;
-	if ( int errcode = make_array( test_in_params, num_in_params ) )
-		return errcode + LOWER_LEVEL_ERROR;
+	d_in_params.resize( num_in_params );
+	test_in_params.resize( num_in_params );
 
 	// Check if any in_params are zero. If so, estimate small factor from other in_params
 	for ( unsigned int i = 0; i < num_in_params; i++ )
@@ -284,9 +282,9 @@ inline const int differentiate( const f * func,
 		} // for( int i = 0; i < num_out_params; i++)
 	} // for( unsigned int j = 0; j < num_in_params; j++)
 
-	del_array( base_out_params );
-	del_array( test_out_params );
-	del_array( d_in_params );
+	base_out_params.clear();
+	test_out_params.clear();
+	d_in_params.clear();
 	return 0;
 }
 

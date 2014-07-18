@@ -4459,7 +4459,6 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 	double current_deltarho;
 	std::vector< double > satellite_parameters;
 	std::vector< double > host_parameters;
-	int num_satellite_parameters = 0;
 	int num_host_parameters = 0;
 	int counter = 0;
 	double step_length_factor = 1;
@@ -4943,10 +4942,9 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 	int num_columns = num_columns_base + num_extra_satellite_columns
 			+ num_extra_host_columns;
 
-	if ( make_array1d( header, num_columns ) )
-		return 1;
-	if ( make_array2d( data, num_columns, num_rows ) )
-		return 1;
+	header.resize(num_columns);
+	data.resize(num_columns);
+	for(int i=0; i<num_columns; i++) data[i].resize(num_rows);
 
 	header[0] = "#";
 	header[1] = "t";
@@ -4968,7 +4966,6 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 	if ( num_extra_satellite_columns > 0 )
 	{
 		int extra_column_counter = 0;
-		int num_parameter_names = 0;
 		std::vector< std::string > parameter_names( 0 );
 
 		if ( _current_satellite_ptr_->get_parameter_names( parameter_names ) )
@@ -4999,7 +4996,6 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 	if ( num_extra_host_columns > 0 )
 	{
 		int extra_column_counter = 0;
-		int num_parameter_names = 0;
 		std::vector< std::string > parameter_names( 0 );
 
 		if ( _current_host_ptr_->get_parameter_names( parameter_names ) )
@@ -6146,8 +6142,7 @@ const int SALTSA::gabdt_function::operator()(
 	double R = dist3d( in_params[0], in_params[1], in_params[2] );
 
 	unsigned int num_out_params = 3;
-	if ( make_array( out_params, num_out_params ) )
-		return 1;
+	out_params.resize(num_out_params );
 	if ( R == 0 )
 	{
 		// Special handling for this case, returning a zero result
