@@ -855,7 +855,7 @@ const int brgastro::tNFW_profile::set_parameters(
 
 const BRG_MASS brgastro::tNFW_profile::mvir() const
 {
-	return _mvir0_; // Not technically correct, but close enough for our purposes
+	return enc_mass(rvir()); // Not technically correct, but close enough for our purposes
 }
 const BRG_MASS brgastro::tNFW_profile::mvir0() const
 {
@@ -878,7 +878,7 @@ const BRG_MASS brgastro::tNFW_profile::mtot() const
 
 const BRG_VELOCITY brgastro::tNFW_profile::vvir() const
 {
-	return std::pow( 10 * Gc * H() * mvir(), 1. / 3. );
+	return std::pow( 10 * Gc * H() * _mvir0_, 1. / 3. );
 }
 const BRG_DISTANCE brgastro::tNFW_profile::rvir() const
 {
@@ -1128,7 +1128,7 @@ const int brgastro::tNFW_profile::truncate_to_fraction( const double f,
 	}
 	else
 	{
-		double new_tau_val = brgastro::taufm( f, _c_, _tau_ );
+		double new_tau_val = brgastro::taufm( f, _c_, _tau_, min(0.1*(1-f),0.00001) );
 		if ( new_tau_val < 0 )
 		{
 			if ( !silent )
@@ -3575,7 +3575,7 @@ const double brgastro::integrate_distance( const double z1_init,
 #if (1)
 
 const double brgastro::taufm( const double m_ratio, double conc,
-		double tau_init, const bool silent )
+		double tau_init, double precision, const bool silent )
 {
 
 	//Gives tau for a given Mtot/Mvir.
@@ -3597,7 +3597,7 @@ const double brgastro::taufm( const double m_ratio, double conc,
 	tautest[0] = tau_init / 2;
 	mbest = 1e99;
 
-	while ( taustepsize > 0.00001 * conc )
+	while ( taustepsize > precision * conc )
 	{
 		taustepsize /= 2;
 		tautest[1] = tautest[0] - taustepsize;

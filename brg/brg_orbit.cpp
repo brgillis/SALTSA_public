@@ -12,6 +12,12 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <stdexcept>
+#include <sstream>
+#include <utility>
+
+#include "brg_global.h"
+
 #include "brg_units.h"
 #include "brg_functions.h"
 #include "SALTSA_interpolator.h"
@@ -54,8 +60,8 @@ double brgastro::stripping_orbit::_default_step_factor_min_ = 0.01; // Minimum a
 
 #if(1)
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 0.675; // Tuned
-double brgastro::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.1; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_amplification_ = 0.625; // Tuned
+double brgastro::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.15; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_amplification_ = 3.0; // Tuned
 double brgastro::stripping_orbit::_default_tidal_shocking_persistance_ = 1.0; // How long shocking is active for
 double brgastro::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affects interplay of stripping and satellite halo profile
@@ -2133,7 +2139,23 @@ const int brgastro::stripping_orbit::get_final_fmret( double & fmret ) const
 }
 
 const int brgastro::stripping_orbit::get_final_sum_deltarho(
-BRG_UNITS & final_sum_deltarho ) const
+		long double & final_sum_deltarho ) const
+{
+	if ( !_calculated_ )
+	{
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	_final_good_segment()->get_final_sum_deltarho( final_sum_deltarho );
+	return 0;
+}
+
+const int brgastro::stripping_orbit::get_final_sum_deltarho(
+		double & final_sum_deltarho ) const
 {
 	if ( !_calculated_ )
 	{
@@ -3379,7 +3401,7 @@ const int brgastro::stripping_orbit_segment::set_init_satellite(
 }
 
 const int brgastro::stripping_orbit_segment::set_init_sum_deltarho(
-		const BRG_UNITS &new_init_sum_deltarho )
+		const long double &new_init_sum_deltarho )
 {
 	_init_sum_delta_rho_ = new_init_sum_deltarho;
 	return 0;
@@ -3583,7 +3605,6 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 	BRG_UNITS current_deltarho;
 	std::vector< BRG_UNITS > satellite_parameters;
 	std::vector< BRG_UNITS > host_parameters;
-	int num_satellite_parameters = 0;
 	int num_host_parameters = 0;
 	int counter = 0;
 	double step_length_factor = 1;
@@ -3717,6 +3738,8 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 		}
 	}
 
+	BRG_MASS init_mtot = _current_satellite_ptr_->mtot();
+
 	// Loop over time
 	for ( t = t_min_to_use; t < t_max_to_use;
 			t += t_step * step_length_factor )
@@ -3772,14 +3795,21 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			mret_list.push_back( mret_list.at( counter - 1 ) * mret );
 			_current_satellite_ptr_->truncate_to_fraction( mret );
 
-			//mass_list.push_back( mass_list.at(counter-1) * brgastro::tidal_strip_retained( host, init_mass, tau_list.at(counter-1), r, vr, vt, t_step*step_length_factor, sum_deltarho_list.at(counter-1) ) );
-			//tau_list.push_back( brgastro::taufm( mass_list.at(counter)/safe_d(mass_list.at(0)), conc ) );
+			// Calculate adjusted fraction (so numerical errors don't cause a consistent
+			// offset to add up).
+
+			double adjusted_mret = mret_list.back() * init_mtot/safe_d(_current_satellite_ptr_->mtot());
+			if( isbad(adjusted_mret) or (adjusted_mret>1.1) or (adjusted_mret<0)) adjusted_mret = 0;
+
+			_current_satellite_ptr_->truncate_to_fraction( adjusted_mret );
+
+			//mass_list.push_back( mass_list.at(counter-1) * SALTSA::tidal_strip_retained( host, init_mass, tau_list.at(counter-1), r, vr, vt, t_step*step_length_factor, sum_deltarho_list.at(counter-1) ) );
+			//tau_list.push_back( SALTSA::taufm( mass_list.at(counter)/safe_d(mass_list.at(0)), conc ) );
 
 			// Effects of shocking
 
 			double t_shock = r / safe_d(v);
-			double t_recover = _current_satellite_ptr_->rhmvir()
-					/ safe_d(_current_satellite_ptr_->vhmvir());
+			double t_recover = _current_satellite_ptr_->othmtot()/(2*pi);
 			double x;
 			double gabdt_scaling_factor;
 
@@ -4044,7 +4074,6 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 	if ( num_extra_satellite_columns > 0 )
 	{
 		int extra_column_counter = 0;
-		int num_parameter_names = 0;
 		std::vector< std::string > parameter_names( 0 );
 
 		if ( _current_satellite_ptr_->get_parameter_names( parameter_names ) )
@@ -4075,7 +4104,6 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 	if ( num_extra_host_columns > 0 )
 	{
 		int extra_column_counter = 0;
-		int num_parameter_names = 0;
 		std::vector< std::string > parameter_names( 0 );
 
 		if ( _current_host_ptr_->get_parameter_names( parameter_names ) )
@@ -4394,7 +4422,7 @@ const int brgastro::stripping_orbit_segment::get_final_fmret( double & fmret,
 }
 
 const int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
-BRG_UNITS & final_sum_deltarho, const bool silent ) const
+long double & final_sum_deltarho, const bool silent ) const
 {
 	if ( !_calculated_ )
 	{
@@ -4407,6 +4435,23 @@ BRG_UNITS & final_sum_deltarho, const bool silent ) const
 	}
 	if(_bad_result_) return UNSPECIFIED_ERROR;
 	final_sum_deltarho = _sum_delta_rho_list_.back();
+	return 0;
+}
+
+const int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
+		double & final_sum_deltarho, const bool silent ) const
+{
+	if ( !_calculated_ )
+	{
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	if(_bad_result_) return UNSPECIFIED_ERROR;
+	final_sum_deltarho = (double)_sum_delta_rho_list_.back();
 	return 0;
 }
 
@@ -4511,9 +4556,9 @@ const BRG_MASS brgastro::stripping_orbit_segment::final_mret() const
 	return result;
 }
 
-const BRG_UNITS brgastro::stripping_orbit_segment::final_sum_deltarho() const
+const long double brgastro::stripping_orbit_segment::final_sum_deltarho() const
 {
-	BRG_UNITS result;
+	long double result;
 
 	if ( get_final_sum_deltarho( result ) )
 	{
@@ -4612,7 +4657,7 @@ const int brgastro::solve_rt_grid_function::operator()(
 	BRG_MASS delta_M;
 	r = std::fabs( in_param );
 
-	delta_M = sum_rho * 4. / 3. * pi * std::pow( r, 3 );
+	delta_M = sum_delta_rho * 4. / 3. * pi * std::pow( r, 3 );
 
 	if ( r == 0 )
 	{
@@ -4633,18 +4678,18 @@ brgastro::solve_rt_grid_function::solve_rt_grid_function()
 {
 	omega = 0;
 	Daccel = 0;
-	sum_rho = 0;
+	sum_delta_rho = 0;
 	satellite_ptr = 0;
 	return;
 }
 brgastro::solve_rt_grid_function::solve_rt_grid_function(
 		const BRG_UNITS init_omega, const density_profile *init_satellite,
-		const BRG_UNITS init_Daccel, const BRG_UNITS init_sum_rho )
+		const BRG_UNITS init_Daccel, const long double init_sum_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
 	Daccel = init_Daccel;
-	sum_rho = init_sum_rho;
+	sum_delta_rho = init_sum_rho;
 	return;
 }
 
@@ -4658,7 +4703,7 @@ const int brgastro::solve_rt_it_function::operator()(
 
 	r = std::fabs( in_param );
 
-	delta_M = sum_rho * 4. / 3. * pi * std::pow( r, 3 );
+	delta_M = sum_delta_rho * 4. / 3. * pi * std::pow( r, 3 );
 
 	r3 = Gc * ( satellite_ptr->enc_mass( r ) - delta_M )
 			/ safe_d( omega * omega + Daccel );
@@ -4678,17 +4723,17 @@ brgastro::solve_rt_it_function::solve_rt_it_function()
 	omega = 0;
 	satellite_ptr = 0;
 	Daccel = 0;
-	sum_rho = 0;
+	sum_delta_rho = 0;
 	return;
 }
 brgastro::solve_rt_it_function::solve_rt_it_function(
 		const BRG_UNITS init_omega, const density_profile *init_satellite,
-		const BRG_UNITS init_Daccel, const BRG_UNITS init_sum_rho )
+		const BRG_UNITS init_Daccel, const long double init_sum_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
 	Daccel = init_Daccel;
-	sum_rho = init_sum_rho;
+	sum_delta_rho = init_sum_rho;
 	return;
 }
 
@@ -4787,6 +4832,7 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 	unsigned int num_in_params = 3, num_out_params = 3;
 	std::vector< BRG_UNITS > in_params( num_in_params, 0 ), out_params(
 			num_out_params, 0 );
+	std::vector< std::vector< BRG_UNITS > > Jacobian;
 	make_array2d( _dv_, num_out_params, num_in_params );
 
 	in_params[0] = _x_;
@@ -4794,7 +4840,7 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 	in_params[2] = _z_;
 
 	if ( differentiate( &gabdtf, num_in_params, in_params, num_out_params,
-			out_params, _dv_ ) )
+			out_params, Jacobian ) )
 	{
 		if ( !silent )
 			std::cerr << "ERROR: Cannot differentiate in gabdt::calc_dv().\n";
@@ -4805,7 +4851,7 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 	for ( unsigned int i = 0; i < num_out_params; i++ )
 		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
-			_dv_[i][j] *= _dt_;
+			_dv_[i][j] = Jacobian[i][j]*_dt_;
 		}
 
 	_is_cached_ = true;
@@ -4845,7 +4891,7 @@ const BRG_DISTANCE brgastro::gabdt::r() const
 {
 	return _r_;
 }
-const std::vector< std::vector< BRG_UNITS > > brgastro::gabdt::dv() const
+const std::vector< std::vector< long double > > brgastro::gabdt::dv() const
 {
 	if ( !_is_cached_ )
 	{
@@ -4854,7 +4900,7 @@ const std::vector< std::vector< BRG_UNITS > > brgastro::gabdt::dv() const
 	}
 	return _dv_;
 }
-const BRG_UNITS brgastro::gabdt::dv( const int x_i, const int y_i ) const
+const long double brgastro::gabdt::dv( const int x_i, const int y_i ) const
 {
 	return dv()[x_i][y_i];
 }
@@ -5014,7 +5060,7 @@ const int brgastro::gabdt_function::operator()(
 const double brgastro::stripping_orbit_segment::tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,
 		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const BRG_UNITS &sum_rho ) const
+		const BRG_TIME &time_step, const long double &sum_rho ) const
 {
 	BRG_DISTANCE new_rt;
 	BRG_TIME inst_orbital_period, hm_period, stripping_period;
@@ -5049,7 +5095,7 @@ const double brgastro::stripping_orbit_segment::tidal_strip_retained( const dens
 const BRG_DISTANCE brgastro::stripping_orbit_segment::get_rt( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,
 		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const BRG_UNITS &sum_rho,
+		const BRG_TIME &time_step, const long double &sum_rho,
 		const bool silent ) const
 {
 	BRG_UNITS omega;

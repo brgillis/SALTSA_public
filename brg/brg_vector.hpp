@@ -9,6 +9,8 @@
  *  This file contains element-wise operations for vectors, plus mathematical operations for vectors.
  */
 
+// !!! UNTESTED
+
 #ifndef __BRG_VECTOR_HPP_INCLUDED__
 #define __BRG_VECTOR_HPP_INCLUDED__
 
