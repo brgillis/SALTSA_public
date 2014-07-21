@@ -21,6 +21,15 @@ bool p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double>
 bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
 
 	class interpolator {
+public:
+
+	enum allowed_interpolation_type {
+		LOWER,
+		UPPER,
+		LINEAR,
+		SPLINE
+	}; // end enum allowed_interpolation_type
+
 	private:
 #if (1)
 
@@ -32,24 +41,31 @@ bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
 		mutable tk::spline _spline_;
 		mutable bool _spline_cached_;
 
+		static allowed_interpolation_type _default_interpolation_type_;
+		allowed_interpolation_type _interpolation_type_;
+
 		void _set_spline_points() const;
 
 #endif // end private members and methods
 	public:
-		enum allowed_interpolation_type {
-			LOWER,
-			UPPER,
-			LINEAR,
-			SPLINE
-		}; // end enum allowed_interpolation_type
-
-		static allowed_interpolation_type default_interpolation_type;
-		allowed_interpolation_type interpolation_type;
+#if (1)
 
 		interpolator();
 
 		void clear();
 		void clear_points();
+
+		// Accessors to current and default interpolation types
+		static const allowed_interpolation_type default_interpolation_type()
+			{return _default_interpolation_type_;}
+		const allowed_interpolation_type interpolation_type() const
+			{return _interpolation_type_;}
+
+		// Set functions for the current and default interpolation types
+		static void set_default_interpolation_type(const allowed_interpolation_type new_default_type);
+		void set_default_interpolation_type(const allowed_interpolation_type new_default_type,
+				const bool override_current);
+		void set_interpolation_type(const allowed_interpolation_type new_type);
 
 		// This version doesn't check for duplicate x values, but if one does exist, an exception will
 		// eventually be thrown
@@ -67,6 +83,8 @@ bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
 		std::vector< std::pair<double,double> > & sorted_data() const;
 
 		const double operator()(const double x) const;
+
+#endif // public
 
 	}; // end class interpolator
 
