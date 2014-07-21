@@ -246,42 +246,6 @@
 namespace brgastro
 {
 
-/** Global parameters **/
-#if (1)
-#ifndef __ORBIT_VARS_DEFINED__
-#define __ORBIT_VARS_DEFINED__
-
-//// Tuning parameters, for how strong stripping and shocking are and when shocking is active
-////const double tidal_stripping_amplification = 1; // Kamiab
-////const double tidal_stripping_deceleration = 0; // Kamiab
-////const double tidal_shocking_amplification = 3.4; // Kamiab
-////const double tidal_stripping_amplification = 1; // From Taylor
-////const double tidal_stripping_deceleration = 0; // From Taylor
-////const double tidal_shocking_amplification = 3; // From Taylor
-//const double tidal_stripping_amplification = 0.6; // Tuned
-//const double tidal_stripping_deceleration = -0.125; // Tuned
-//const double tidal_shocking_amplification = 3.0; // Tuned
-//const double tidal_shocking_persistance = 1.0; // How long shocking is active for
-//const double tidal_shocking_power = -1.5; // From Taylor
-////const double tidal_shocking_power = -2.5; // From Kamiab
-//
-//// Integration parameters
-//const int default_spline_resolution = 100; // Default number of steps for which stripping is calculated
-//
-//// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
-//// This gives smaller steps when the satellite is moving faster.
-//// If you want to turn off adaptive step size, set step_length_power to 0
-//// Alternatively, set step_length_power to 1 for even steps in position
-//const double default_v_0 = 400 * unitconv::kmpstomps; // 400 km/s
-//const double default_r_0 = 400 * unitconv::kpctom; // 400 kpc
-//const double step_length_power = 1.5;
-//const double step_factor_max = 10; // Maximum allowed value of (v_0/v)^(step_length_power)
-//const double step_factor_min = 0.01; // Minimum allowed value of (v_0/v)^(step_length_power)
-
-#endif
-
-#endif // end Global parameters
-
 /** Class Forward Declarations **/
 #if (1)
 // These declarations allow the various classes to point to each other without worry about
@@ -637,6 +601,17 @@ class stripping_orbit
 	 full briefing on what you should do with it.
 
 	 \************************************************************/
+public:
+	// Define the allowed interpolation types with an enum
+
+	enum allowed_interpolation_type {
+		LOWER,
+		UPPER,
+		LINEAR,
+		SPLINE,
+		UNSET
+	}; // end enum allowed_interpolation_type
+
 private:
 #if (1)
 
@@ -644,6 +619,9 @@ private:
 #if(1)
 	// Default number of steps for which stripping is calculated
 	static int _default_spline_resolution_;
+
+	// Default interpolation method
+	static allowed_interpolation_type _default_interpolation_type_;
 
 	// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
 	// This gives smaller steps when the satellite is moving faster.
@@ -658,7 +636,11 @@ private:
 
 	// Integration parameters
 #if(1)
+	// Number of steps for which stripping is calculated
 	int _spline_resolution_;
+
+	// Interpolation method
+	allowed_interpolation_type _interpolation_type_;
 
 	// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
 	// This gives smaller steps when the satellite is moving faster.
@@ -758,21 +740,33 @@ public:
 
 	// Setting default integration parameters
 #if(1)
+	static const int set_default_resolution( const int new_default_spline_resolution);
 	const int set_default_resolution( const int new_default_spline_resolution,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_interpolation_type(
+			const allowed_interpolation_type new_default_interpolation_type);
+	const int set_default_interpolation_type(
+			const allowed_interpolation_type new_default_interpolation_type,
+			const bool override_current=false,
+			const bool silent=false );
+	static const int set_default_v_0( const double new_default_v_0);
 	const int set_default_v_0( const double new_default_v_0,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_r_0( const double new_default_r_0);
 	const int set_default_r_0( const double new_default_r_0,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_step_length_power( const double new_default_step_length_power);
 	const int set_default_step_length_power( const double new_default_step_length_power,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_step_factor_max( const double new_default_step_factor_max);
 	const int set_default_step_factor_max( const double new_default_step_factor_max,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_step_factor_min( const double new_default_step_factor_min);
 	const int set_default_step_factor_min( const double new_default_step_factor_min,
 			const bool override_current=false,
 			const bool silent=false );
@@ -807,6 +801,8 @@ public:
 #if(1)
 	const int set_resolution( const int new_spline_resolution,
 			const bool silent=false );
+	const int set_interpolation_type( const allowed_interpolation_type new_type,
+			const bool silent=false );
 	const int set_v_0( const double new_v_0,
 			const bool silent=false );
 	const int set_r_0( const double new_r_0,
@@ -837,6 +833,7 @@ public:
 	// Resetting integration parameters
 #if(1)
 	const int reset_resolution();
+	const int reset_interpolation_type();
 	const int reset_v_0();
 	const int reset_r_0();
 	const int reset_step_length_power();

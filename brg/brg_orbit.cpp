@@ -45,6 +45,9 @@ double brgastro::spline_derivative::_default_sample_precision_ = 0.01;
 // Default number of steps for which stripping is calculated
 int brgastro::stripping_orbit::_default_spline_resolution_ = 100;
 
+// Default interpolation type
+int brgastro::stripping_orbit::_default_spline_resolution_ = UNSET;
+
 // Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
 // This gives smaller steps when the satellite is moving faster.
 // If you want to turn off adaptive step size, set step_length_power to 0
@@ -1056,6 +1059,17 @@ const int brgastro::stripping_orbit::clear_init_host()
 
 // Setting default integration parameters
 #if(1)
+const int brgastro::stripping_orbit::set_default_resolution( const int new_default_resolution)
+{
+	if ( new_default_resolution < 2 )
+	{
+		std::cerr
+				<< "WARNING: Attempt to set default resolution to value below minimum of 2.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	_default_spline_resolution_ = new_default_resolution;
+	return 0;
+}
 const int brgastro::stripping_orbit::set_default_resolution( const int new_default_resolution,
 		const bool override_current,
 		const bool silent )
@@ -1073,7 +1087,38 @@ const int brgastro::stripping_orbit::set_default_resolution( const int new_defau
 	}
 	_default_spline_resolution_ = new_default_resolution;
 
-	reset_resolution();
+	if(override_current) reset_resolution();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_interpolation_type(
+		const allowed_interpolation_type new_default_interpolation_type)
+{
+	_default_interpolation_type_ = new_default_interpolation_type;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_interpolation_type(
+		const allowed_interpolation_type new_default_interpolation_type,
+		const bool override_current,
+		const bool silent)
+{
+	// Check if anything is actually changing here
+	if ( new_default_interpolation_type == _default_interpolation_type_ )
+		return 0;
+	_default_interpolation_type_ = new_default_interpolation_type;
+
+	if(override_current) reset_interpolation_type();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0)
+{
+
+	if ( new_default_v_0 <= 0 )
+	{
+		std::cerr
+				<< "WARNING: Attempt to set default v_0 to value at or below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	_default_v_0_ = new_default_v_0;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0,
@@ -1093,7 +1138,19 @@ const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v
 	}
 	_default_v_0_ = new_default_v_0;
 
-	reset_v_0();
+	if(override_current) reset_v_0();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0)
+{
+
+	if ( new_default_r_0 <= 0 )
+	{
+		std::cerr
+				<< "WARNING: Attempt to set default r_0 to value at or below minimum of 0.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	_default_r_0_ = new_default_r_0;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0,
@@ -1113,7 +1170,13 @@ const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r
 	}
 	_default_r_0_ = new_default_r_0;
 
-	reset_r_0();
+	if(override_current) reset_r_0();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_step_length_power(
+		const double new_default_step_length_power)
+{
+	_default_step_length_power_ = new_default_step_length_power;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_step_length_power(
@@ -1126,7 +1189,20 @@ const int brgastro::stripping_orbit::set_default_step_length_power(
 		return 0;
 	_default_step_length_power_ = new_default_step_length_power;
 
-	reset_step_length_power();
+	if(override_current) reset_step_length_power();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_step_factor_max(
+		const double new_default_step_factor_max)
+{
+
+	if ( new_default_step_factor_max < 1 )
+	{
+		std::cerr
+				<< "WARNING: Attempt to set default step_factor_max to value below minimum of 1.\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	_default_step_factor_max_ = new_default_step_factor_max;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_step_factor_max(
@@ -1147,7 +1223,13 @@ const int brgastro::stripping_orbit::set_default_step_factor_max(
 	}
 	_default_step_factor_max_ = new_default_step_factor_max;
 
-	reset_step_factor_max();
+	if(override_current) reset_step_factor_max();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_step_factor_min(
+		const double new_default_step_factor_min)
+{
+	_default_step_factor_min_ = new_default_step_factor_min;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_step_factor_min(
@@ -1168,7 +1250,7 @@ const int brgastro::stripping_orbit::set_default_step_factor_min(
 	}
 	_default_step_factor_min_ = new_default_step_factor_min;
 
-	reset_step_factor_min();
+	if(override_current) reset_step_factor_min();
 	return 0;
 }
 #endif
@@ -1288,6 +1370,16 @@ const int brgastro::stripping_orbit::set_resolution( const int new_resolution,
 	}
 	clear_calcs();
 	_spline_resolution_ = new_resolution;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_interpolation_type(
+		const allowed_interpolation_type new_type,
+		const bool silent=false )
+{
+	// Check if anything is actually changing here
+	if ( _interpolation_type_ == new_type )
+		return 0;
+	_interpolation_type_ = new_type;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_v_0( const double new_v_0,
@@ -1473,6 +1565,16 @@ const int brgastro::stripping_orbit::reset_resolution()
 
 	clear_calcs();
 	_spline_resolution_ = _default_spline_resolution_;
+	return 0;
+}
+const int brgastro::stripping_orbit::reset_interpolation_type()
+{
+	// Check if anything is actually changing here
+	if ( _interpolation_type_ == _default_interpolation_type_ )
+		return 0;
+
+	clear_calcs();
+	_interpolation_type_ = _default_interpolation_type_;
 	return 0;
 }
 const int brgastro::stripping_orbit::reset_v_0()
