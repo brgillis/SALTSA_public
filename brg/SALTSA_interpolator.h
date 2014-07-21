@@ -51,7 +51,13 @@ bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
 		void clear();
 		void clear_points();
 
+		// This version doesn't check for duplicate x values, but if one does exist, an exception will
+		// eventually be thrown
 		void add_point(const double x, const double y);
+
+		// This version checks if there's a point with a duplicate x value. If so, it throws an
+		// exception
+		void try_add_point(const double x, const double y);
 
 		unsigned int size() const
 		{

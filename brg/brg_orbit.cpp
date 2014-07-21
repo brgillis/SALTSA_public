@@ -3793,7 +3793,6 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 					t_step * step_length_factor,
 					_sum_delta_rho_list_.at( counter - 1 ) );
 			mret_list.push_back( mret_list.at( counter - 1 ) * mret );
-			_current_satellite_ptr_->truncate_to_fraction( mret );
 
 			// Calculate adjusted fraction (so numerical errors don't cause a consistent
 			// offset to add up).

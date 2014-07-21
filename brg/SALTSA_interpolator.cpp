@@ -69,6 +69,20 @@ void SALTSA::interpolator::add_point(const double x, const double y)
 	_sorted_data_cached_ = false;
 }
 
+void SALTSA::interpolator::try_add_point(const double x, const double y)
+{
+	for (unsigned int i=0;i<_data_.size();i++)
+	{
+		if(x==_data_[i].first)
+		{
+			throw std::runtime_error("ERROR: Attempt to add point to interpolator with duplicate domain value.");
+		}
+	}
+	_data_.push_back(std::make_pair(x,y));
+	_spline_cached_ = false;
+	_sorted_data_cached_ = false;
+}
+
 std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() const
 {
 	if(_sorted_data_cached_)
