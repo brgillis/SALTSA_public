@@ -873,10 +873,10 @@ public:
 	const int set_init_satellite( const density_profile *new_init_satellite ); // Uses pointer to existing profile
 	const int set_init_host( const density_profile *new_init_host ); // Uses pointer to existing profile
 	const int set_tNFW_init_satellite( const BRG_MASS &new_init_mvir0,
-			const double z = 0, const double new_init_c = 0,
-			const double new_init_tau = 0 ); // Creates a new profile
+			const double z = 0, const double new_init_c = -1,
+			const double new_init_tau = -1 ); // Creates a new profile
 	const int set_tNFW_init_host( const BRG_MASS &new_mvir0, const double z = 0,
-			const double new_c = 0, const double new_tau = 0 ); // Creates a new profile
+			const double new_c = -1, const double new_tau = -1 ); // Creates a new profile
 	const int clear_init_satellite();
 	const int clear_init_host();
 
@@ -1196,10 +1196,10 @@ public:
 
 	// Set initial/global parameters
 	const int set_tNFW_init_satellite( const BRG_MASS &new_init_mvir0,
-			const double z = 0, const double new_init_c = 0,
-			const double new_init_tau = 0 );
+			const double z = 0, const double new_init_c = -1,
+			const double new_init_tau = -1 );
 	const int set_tNFW_host( const BRG_MASS &new_mvir0, const double z = 0,
-			const double new_c = 0, const double new_tau = 0 );
+			const double new_c = -1, const double new_tau = -1 );
 	const int set_t_min( const BRG_TIME &new_t_min );
 	const int set_t_max( const BRG_TIME &new_t_max );
 	const int reset_t_min();
