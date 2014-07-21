@@ -528,8 +528,8 @@ public:
 
 	// Set initial/global parameters
 	const int set_tNFW_init_satellite( const double &new_init_mvir0,
-			const double z = 0, const double new_init_c = 0,
-			const double new_init_tau = 0 );
+			const double z = 0, const double new_init_c =-1,
+			const double new_init_tau = -1 );
 	const int set_tNFW_host( const double &new_mvir0, const double z = 0,
 			const double new_c = 0, const double new_tau = 0 );
 	const int set_t_min( const double &new_t_min );

@@ -494,10 +494,10 @@ public:
 	const int set_init_satellite( const density_profile *new_init_satellite ); // Uses pointer to existing profile
 	const int set_init_host( const density_profile *new_init_host ); // Uses pointer to existing profile
 	const int set_tNFW_init_satellite( const double &new_init_mvir0,
-			const double z = 0, const double new_init_c = 0,
-			const double new_init_tau = 0 ); // Creates a new profile
+			const double z = 0, const double new_init_c = -1,
+			const double new_init_tau = -1 ); // Creates a new profile
 	const int set_tNFW_init_host( const double &new_mvir0, const double z = 0,
-			const double new_c = 0, const double new_tau = 0 ); // Creates a new profile
+			const double new_c = -1, const double new_tau = -1 ); // Creates a new profile
 	const int clear_init_satellite();
 	const int clear_init_host();
 

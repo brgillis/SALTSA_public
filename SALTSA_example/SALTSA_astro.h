@@ -196,6 +196,7 @@ inline const double cfm( const double mass, const double z = 0 ) // Concentratio
 }
 inline const double mftau( const double tau, const double conc ) // Mtot/Mvir from tau
 {
+	if(tau<=0) return 0;
 	double M0oM200 = 1 / ( log( 1 + conc ) - conc / ( 1 + conc ) );
 	double result =
 			M0oM200 * tau * tau / std::pow( tau * tau + 1, 2 )
