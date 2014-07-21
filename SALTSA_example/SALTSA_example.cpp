@@ -30,8 +30,8 @@ int main( const int argc, const char *argv[] )
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
 	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 100000; // Base number of steps to take to integrate stripping
-	const int spline_points = 100000; // Number of points in the orbit we tell the stripping integrator
+	const int stripping_resolution = 30000; // Base number of steps to take to integrate stripping
+	const int spline_points = 30000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
@@ -127,8 +127,8 @@ int main( const int argc, const char *argv[] )
 	// Set up tuning parameters for SALTSA. Since we'll be doing a lot of orbits here, we override the
 	// default tuning parameters. The "true" here causes these functions to also override the current
 	// value of the tuning parameters when changing the default.
-	test_orbit.set_default_tidal_stripping_amplification(0.65,true);
-	test_orbit.set_default_tidal_stripping_deceleration(0.125,true);
+	test_orbit.set_default_tidal_stripping_amplification(0.625,true);
+	test_orbit.set_default_tidal_stripping_deceleration(0.15,true);
 
 	// We only want to have tau of the satellite be output here, so we set its value in the
 	// output parameters array to true, and leave the rest as false

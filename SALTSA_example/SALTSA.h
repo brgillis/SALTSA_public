@@ -629,6 +629,7 @@ public:
 
 	// Get final data (returns 1 on failure)
 	const int get_final_mret( double & mret ) const;
+	const int get_final_sum_deltarho( long double & final_sum_deltarho ) const;
 	const int get_final_sum_deltarho( double & final_sum_deltarho ) const;
 	const int get_final_fmret( double & final_fmret ) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt ) const;

@@ -386,7 +386,7 @@ const double SALTSA::tNFW_profile::mtot() const
  */
 const double SALTSA::tNFW_profile::vvir() const
 {
-	return std::pow( 10 * Gc * H() * mvir(), 1. / 3. );
+	return std::pow( 10 * Gc * H() * _mvir0_, 1. / 3. );
 }
 /**
  *

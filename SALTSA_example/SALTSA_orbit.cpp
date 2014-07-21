@@ -28,6 +28,7 @@
 #include "SALTSA_functor.hpp"
 #include "SALTSA_calculus.hpp"
 #include "SALTSA_solvers.hpp"
+
 #include "SALTSA_orbit.h"
 #include "SALTSA.h"
 
@@ -2688,7 +2689,28 @@ const int SALTSA::stripping_orbit::get_final_fmret( double & fmret ) const
  * @return
  */
 const int SALTSA::stripping_orbit::get_final_sum_deltarho(
-double & final_sum_deltarho ) const
+		long double & final_sum_deltarho ) const
+{
+	if ( !_calculated_ )
+	{
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	_final_good_segment()->get_final_sum_deltarho( final_sum_deltarho );
+	return 0;
+}
+
+/**
+ *
+ * @param final_sum_deltarho
+ * @return
+ */
+const int SALTSA::stripping_orbit::get_final_sum_deltarho(
+		double & final_sum_deltarho ) const
 {
 	if ( !_calculated_ )
 	{
@@ -3027,7 +3049,7 @@ SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 	_satellite_parameter_data_ = other_orbit_spline._satellite_parameter_data_;
 	_host_parameter_data_ = other_orbit_spline._host_parameter_data_;
 	_num_parameters_ = other_orbit_spline._num_parameters_;
-	mret_list = other_orbit_spline.mret_list;
+	_mret_list_ = other_orbit_spline._mret_list_;
 	_satellite_parameter_unitconvs_ =
 			other_orbit_spline._satellite_parameter_unitconvs_;
 	_satellite_output_parameters_ =
@@ -3144,7 +3166,7 @@ SALTSA::stripping_orbit_segment & SALTSA::stripping_orbit_segment::operator=(
 				other_orbit_spline._satellite_parameter_data_;
 		_host_parameter_data_ = other_orbit_spline._host_parameter_data_;
 		_num_parameters_ = other_orbit_spline._num_parameters_;
-		mret_list = other_orbit_spline.mret_list;
+		_mret_list_ = other_orbit_spline._mret_list_;
 		_satellite_parameter_unitconvs_ =
 				other_orbit_spline._satellite_parameter_unitconvs_;
 		_satellite_output_parameters_ =
@@ -3361,7 +3383,7 @@ const int SALTSA::stripping_orbit_segment::clear_calcs() const
 	_rt_list_.clear();
 	_rt_ratio_list_.clear();
 	_phase_output_list_.clear();
-	mret_list.clear();
+	_mret_list_.clear();
 	_delta_rho_list_.clear();
 	_sum_delta_rho_list_.clear();
 	_gabdt_list_.clear();
@@ -4133,7 +4155,7 @@ const int SALTSA::stripping_orbit_segment::_reserve( const int n,
 		return INVALID_ARGUMENTS_ERROR;
 	}
 	_phase_list_.reserve( n );
-	mret_list.reserve( n );
+	_mret_list_.reserve( n );
 	_phase_output_list_.reserve( n );
 	_rt_list_.reserve( n );
 	_rt_ratio_list_.reserve( n );
@@ -4192,7 +4214,7 @@ const int SALTSA::stripping_orbit_segment::set_init_satellite(
  * @return
  */
 const int SALTSA::stripping_orbit_segment::set_init_sum_deltarho(
-		const double &new_init_sum_deltarho )
+		const long double &new_init_sum_deltarho )
 {
 	_init_sum_delta_rho_ = new_init_sum_deltarho;
 	return 0;
@@ -4537,7 +4559,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 	_vy_spline_.set_spline_ptr( &_y_spline_ );
 	_vz_spline_.set_spline_ptr( &_z_spline_ );
 
-	mret_list.push_back( 1 );
+	_mret_list_.push_back( 1 );
 	_delta_rho_list_.push_back( current_deltarho );
 	_sum_delta_rho_list_.push_back( _init_sum_delta_rho_ );
 
@@ -4606,6 +4628,8 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 		}
 	}
 
+	const double init_mtot = _current_satellite_ptr_->mtot();
+
 	// Loop over time
 	for ( t = t_min_to_use; t < t_max_to_use;
 			t += t_step * step_length_factor )
@@ -4658,8 +4682,15 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 					_current_satellite_ptr_, r, vr, vt,
 					t_step * step_length_factor,
 					_sum_delta_rho_list_.at( counter - 1 ) );
-			mret_list.push_back( mret_list.at( counter - 1 ) * mret );
-			_current_satellite_ptr_->truncate_to_fraction( mret );
+			_mret_list_.push_back( _mret_list_.at( counter - 1 ) * mret );
+
+			// Calculate adjusted fraction (so numerical errors don't cause a consistent
+			// offset to add up).
+
+			double adjusted_mret = _mret_list_.back() * init_mtot/safe_d(_current_satellite_ptr_->mtot());
+			if( isbad(adjusted_mret) or (adjusted_mret>1.1) or (adjusted_mret<0)) adjusted_mret = 0;
+
+			_current_satellite_ptr_->truncate_to_fraction( adjusted_mret );
 
 			//mass_list.push_back( mass_list.at(counter-1) * SALTSA::tidal_strip_retained( host, init_mass, tau_list.at(counter-1), r, vr, vt, t_step*step_length_factor, sum_deltarho_list.at(counter-1) ) );
 			//tau_list.push_back( SALTSA::taufm( mass_list.at(counter)/safe_d(mass_list.at(0)), conc ) );
@@ -4667,8 +4698,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 			// Effects of shocking
 
 			double t_shock = r / safe_d(v);
-			double t_recover = _current_satellite_ptr_->rhmvir()
-					/ safe_d(_current_satellite_ptr_->vhmvir());
+			double t_recover = _current_satellite_ptr_->othmtot()/(2*pi);
 			double x;
 			double gabdt_scaling_factor;
 
@@ -5111,12 +5141,12 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 						* unitconv::mtokpc / unitconv::stoGyr;
 		data[9][i] = ss.str();
 		ss.str( "" );
-		ss << mret_list.at( i ) * mret_multiplier;
+		ss << _mret_list_.at( i ) * mret_multiplier;
 		data[10][i] = ss.str();
 		ss.str( "" );
 		if ( i > 0 )
 			ss
-					<< ( 1 - mret_list.at( i ) / mret_list.at( i - 1 ) )
+					<< ( 1 - _mret_list_.at( i ) / _mret_list_.at( i - 1 ) )
 							/ ( _phase_output_list_.at( i ).t
 									- _phase_output_list_.at( i - 1 ).t );
 		else
@@ -5333,7 +5363,7 @@ double & mret, const bool silent ) const
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	mret = _init_satellite_ptr_->mvir()*mret_list.back();
+	mret = _init_satellite_ptr_->mvir()*_mret_list_.back();
 	return 0;
 }
 /**
@@ -5354,7 +5384,7 @@ const int SALTSA::stripping_orbit_segment::get_final_fmret( double & fmret,
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	fmret = mret_list.back() / safe_d(mret_list.front());
+	fmret = _mret_list_.back() / safe_d(_mret_list_.front());
 	return 0;
 }
 
@@ -5365,7 +5395,7 @@ const int SALTSA::stripping_orbit_segment::get_final_fmret( double & fmret,
  * @return
  */
 const int SALTSA::stripping_orbit_segment::get_final_sum_deltarho(
-double & final_sum_deltarho, const bool silent ) const
+		long double & final_sum_deltarho, const bool silent ) const
 {
 	if ( !_calculated_ )
 	{
@@ -5378,6 +5408,29 @@ double & final_sum_deltarho, const bool silent ) const
 	}
 	if(_bad_result_) return UNSPECIFIED_ERROR;
 	final_sum_deltarho = _sum_delta_rho_list_.back();
+	return 0;
+}
+
+/**
+ *
+ * @param final_sum_deltarho
+ * @param silent
+ * @return
+ */
+const int SALTSA::stripping_orbit_segment::get_final_sum_deltarho(
+		double & final_sum_deltarho, const bool silent ) const
+{
+	if ( !_calculated_ )
+	{
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	if(_bad_result_) return UNSPECIFIED_ERROR;
+	final_sum_deltarho = (double)_sum_delta_rho_list_.back();
 	return 0;
 }
 
@@ -5508,9 +5561,9 @@ const double SALTSA::stripping_orbit_segment::final_mret() const
  *
  * @return
  */
-const double SALTSA::stripping_orbit_segment::final_sum_deltarho() const
+const long double SALTSA::stripping_orbit_segment::final_sum_deltarho() const
 {
-	double result;
+	long double result;
 
 	if ( get_final_sum_deltarho( result ) )
 	{
@@ -5632,7 +5685,7 @@ const int SALTSA::solve_rt_grid_function::operator()(
 	double delta_M;
 	r = std::fabs( in_param );
 
-	delta_M = sum_rho * 4. / 3. * pi * std::pow( r, 3 );
+	delta_M = sum_delta_rho * 4. / 3. * pi * std::pow( r, 3 );
 
 	if ( r == 0 )
 	{
@@ -5656,7 +5709,7 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function()
 {
 	omega = 0;
 	Daccel = 0;
-	sum_rho = 0;
+	sum_delta_rho = 0;
 	satellite_ptr = 0;
 	return;
 }
@@ -5669,12 +5722,12 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function()
  */
 SALTSA::solve_rt_grid_function::solve_rt_grid_function(
 		const double init_omega, const density_profile *init_satellite,
-		const double init_Daccel, const double init_sum_rho )
+		const double init_Daccel, const long double init_sum_delta_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
 	Daccel = init_Daccel;
-	sum_rho = init_sum_rho;
+	sum_delta_rho = init_sum_delta_rho;
 	return;
 }
 
@@ -5695,7 +5748,7 @@ const int SALTSA::solve_rt_it_function::operator()(
 
 	r = std::fabs( in_param );
 
-	delta_M = sum_rho * 4. / 3. * pi * std::pow( r, 3 );
+	delta_M = sum_delta_rho * 4. / 3. * pi * std::pow( r, 3 );
 
 	r3 = Gc * ( satellite_ptr->enc_mass( r ) - delta_M )
 			/ safe_d( omega * omega + Daccel );
@@ -5718,7 +5771,7 @@ SALTSA::solve_rt_it_function::solve_rt_it_function()
 	omega = 0;
 	satellite_ptr = 0;
 	Daccel = 0;
-	sum_rho = 0;
+	sum_delta_rho = 0;
 	return;
 }
 /**
@@ -5730,12 +5783,12 @@ SALTSA::solve_rt_it_function::solve_rt_it_function()
  */
 SALTSA::solve_rt_it_function::solve_rt_it_function(
 		const double init_omega, const density_profile *init_satellite,
-		const double init_Daccel, const double init_sum_rho )
+		const double init_Daccel, const long double init_sum_delta_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
 	Daccel = init_Daccel;
-	sum_rho = init_sum_rho;
+	sum_delta_rho = init_sum_delta_rho;
 	return;
 }
 
@@ -5887,6 +5940,7 @@ const int SALTSA::gabdt::calc_dv( const bool silent ) const
 	unsigned int num_in_params = 3, num_out_params = 3;
 	std::vector< double > in_params( num_in_params, 0 ), out_params(
 			num_out_params, 0 );
+	std::vector< std::vector< double> > Jacobian;
 	make_array2d( _dv_, num_out_params, num_in_params );
 
 	in_params[0] = _x_;
@@ -5894,7 +5948,7 @@ const int SALTSA::gabdt::calc_dv( const bool silent ) const
 	in_params[2] = _z_;
 
 	if ( differentiate( &gabdtf, num_in_params, in_params, num_out_params,
-			out_params, _dv_ ) )
+			out_params, Jacobian ) )
 	{
 		if ( !silent )
 			std::cerr << "ERROR: Cannot differentiate in gabdt::calc_dv().\n";
@@ -5905,7 +5959,7 @@ const int SALTSA::gabdt::calc_dv( const bool silent ) const
 	for ( unsigned int i = 0; i < num_out_params; i++ )
 		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
-			_dv_[i][j] *= _dt_;
+			_dv_[i][j] = Jacobian[i][j]*_dt_;
 		}
 
 	_is_cached_ = true;
@@ -5973,7 +6027,7 @@ const double SALTSA::gabdt::r() const
  *
  * @return
  */
-const std::vector< std::vector< double > > SALTSA::gabdt::dv() const
+const std::vector< std::vector< long double > > SALTSA::gabdt::dv() const
 {
 	if ( !_is_cached_ )
 	{
@@ -5988,7 +6042,7 @@ const std::vector< std::vector< double > > SALTSA::gabdt::dv() const
  * @param y_i
  * @return
  */
-const double SALTSA::gabdt::dv( const int x_i, const int y_i ) const
+const long double SALTSA::gabdt::dv( const int x_i, const int y_i ) const
 {
 	return dv()[x_i][y_i];
 }
@@ -6198,7 +6252,7 @@ const int SALTSA::gabdt_function::operator()(
 const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const double &r,
 		const double &vr, const double &vt,
-		const double &time_step, const double &sum_rho ) const
+		const double &time_step, const long double &sum_rho ) const
 {
 	double new_rt;
 	double inst_orbital_period, hm_period, stripping_period;
@@ -6245,7 +6299,7 @@ const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const densit
 const double SALTSA::stripping_orbit_segment::get_rt( const density_profile *host_group,
 		const density_profile *satellite, const double &r,
 		const double &vr, const double &vt,
-		const double &time_step, const double &sum_rho,
+		const double &time_step, const long double &sum_rho,
 		const bool silent ) const
 {
 	double omega;

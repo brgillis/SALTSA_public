@@ -9,7 +9,6 @@
 
 #ifndef SALTSA_PHASE_HPP_
 #define SALTSA_PHASE_HPP_
-
 namespace SALTSA {
 
 struct phase

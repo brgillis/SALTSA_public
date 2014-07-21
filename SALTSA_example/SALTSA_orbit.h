@@ -277,7 +277,7 @@ private:
 	const density_profile *_host_ptr_;
 
 	double _x_, _y_, _z_, _r_;double _dt_;
-	mutable std::vector< std::vector< double > > _dv_;
+	mutable std::vector< std::vector< long double > > _dv_;
 
 public:
 
@@ -313,8 +313,8 @@ public:
 	const double y() const;
 	const double z() const;
 	const double r() const;
-	const std::vector< std::vector< double > > dv() const; // involves calculation if necessary
-	const double dv( const int x_i, const int y_i ) const; // involves calculation if necessary
+	const std::vector< std::vector< long double > > dv() const; // involves calculation if necessary
+	const long double dv( const int x_i, const int y_i ) const; // involves calculation if necessary
 
 	// Operator overloading
 	const double operator*( const gabdt & other_gabdt ) const; // Dot-product(ish) operator
@@ -407,7 +407,7 @@ private:
 	// Initial parameters
 	const density_profile *_init_host_ptr_, *_init_satellite_ptr_;
 	mutable density_profile *_current_host_ptr_, *_current_satellite_ptr_;
-	double _init_sum_delta_rho_;
+	long double _init_sum_delta_rho_;
 	gabdt _init_sum_gabdt_;
 
 	// Global parameters
@@ -429,10 +429,10 @@ private:
 	mutable std::vector< SALTSA::interpolator > _host_parameter_splines_;
 
 	// Vectors for output data
-	mutable std::vector< double > _delta_rho_list_, _sum_delta_rho_list_,
+	mutable std::vector< double > _delta_rho_list_,
 			_x_data_, _y_data_, _z_data_, _vx_data_, _vy_data_, _vz_data_,
 			_rt_list_, _rt_ratio_list_;
-	mutable std::vector< double > mret_list;
+	mutable std::vector< long double > _sum_delta_rho_list_, _mret_list_;
 	mutable std::vector< std::vector< double > > _satellite_parameter_data_; // Keeps track of satellite's parameters (ie. mass, tau)
 	mutable std::vector< std::vector< double > > _host_parameter_data_;
 
@@ -536,7 +536,7 @@ public:
 	const int set_t_max( const double &new_t_max );
 	const int reset_t_min();
 	const int reset_t_max();
-	const int set_init_sum_deltarho( const double &new_init_sum_deltarho );
+	const int set_init_sum_deltarho( const long double &new_init_sum_deltarho );
 	const int set_init_sum_gabdt( const gabdt &new_init_gabdt );
 	const int set_init_satellite( const density_profile *new_init_satellite );
 	const int set_init_host( const density_profile *new_init_host );
@@ -617,15 +617,17 @@ public:
 	const double tidal_strip_retained( const density_profile *host,
 			const density_profile *satellite, const double &r,
 			const double &vr, const double &vt,
-			const double &time_step, const double &sum_rho = 0 ) const;
+			const double &time_step, const long double &sum_delta_rho = 0 ) const;
 	const double get_rt( const density_profile *host,
 			const density_profile *satellite, const double &r,
 			const double &vr, const double &vt,
-			const double &time_step, const double &sum_rho,
+			const double &time_step, const long double &sum_delta_rho,
 			const bool silent = false ) const;
 
 	// Get final data (returns 1 on error)
 	const int get_final_mret( double & mret,
+			const bool silent = false ) const;
+	const int get_final_sum_deltarho( long double & final_sum_deltarho,
 			const bool silent = false ) const;
 	const int get_final_sum_deltarho( double & final_sum_deltarho,
 			const bool silent = false ) const;
@@ -640,7 +642,7 @@ public:
 
 	// Get final data (throws exception on error)
 	const double final_mret() const;
-	const double final_sum_deltarho() const;
+	const long double final_sum_deltarho() const;
 	const double final_fmret() const;
 	const gabdt final_sum_gabdt() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!
@@ -664,12 +666,12 @@ class solve_rt_it_function: public functor< double > // Always uses one param, r
 public:
 	const density_profile *satellite_ptr;
 
-	double sum_rho, Daccel, omega;
+	long double sum_delta_rho, Daccel, omega;
 	const int operator()( const double & in_param,
 	double & out_param, const bool silent = false ) const;
 	solve_rt_it_function( const double init_omega,
 			const density_profile *init_satellite, const double init_Daccel,
-			const double init_sum_rho = 0 );
+			const long double init_sum_delta_rho = 0 );
 
 	solve_rt_it_function();
 };
@@ -688,12 +690,12 @@ class solve_rt_grid_function: public functor< double >
 public:
 	const density_profile *satellite_ptr;
 
-	double sum_rho, Daccel, omega;
+	long double sum_delta_rho, Daccel, omega;
 	const int operator()( const double & in_param,
 	double & out_param, const bool silent = false ) const;
 	solve_rt_grid_function( const double init_omega,
 			const density_profile *init_satellite, const double init_Daccel,
-			const double init_sum_rho = 0 );
+			const long double init_sum_delta_rho = 0 );
 
 	solve_rt_grid_function();
 };
