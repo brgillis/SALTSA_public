@@ -1,5 +1,5 @@
-/*
- * brg_calculus.hpp
+/**
+ * @file SALTSA_calculus.hpp
  *
  *  Created on: 8 Apr 2014
  *      Author: brg

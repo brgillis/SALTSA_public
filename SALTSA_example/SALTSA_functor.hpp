@@ -1,6 +1,6 @@
 /**********************************************************************\
-SALTSA_misc_functions.h
- -----------
+ @file SALTSA_functor.hpp
+ ------------------------
 
  If this header is used, the source file SALTSA_misc_functions.cpp must be included
  and compiled with the project. This file automatically includes

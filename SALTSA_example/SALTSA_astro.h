@@ -1,6 +1,6 @@
 /**********************************************************************\
-SALTSA_astro.h
- -----------
+ @file SALTSA_astro.h
+ --------------------
 
  If this header is used, the source file SALTSA_astro.cpp must be included
  and compiled with the project.

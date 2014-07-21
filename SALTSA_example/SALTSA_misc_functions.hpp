@@ -1,6 +1,6 @@
 /**********************************************************************
- SALTSA_misc_functions.hpp
- -----------------
+ @file SALTSA_misc_functions.hpp
+ -------------------------------
 
  This is a self-contained header file, automatically included along with
  brg_functions.h. This file contains various template and inline

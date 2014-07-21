@@ -1,5 +1,5 @@
 /**********************************************************************
- SALTSA.h
+ @file SALTSA.h
  -----------
 
  This is the header file for classes and functions which handle tidal

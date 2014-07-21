@@ -1,5 +1,5 @@
-/*
- * SALTSA_cache.h
+/**
+ * @file SALTSA_cache.h
  *
  *  Created on: 25 Apr 2014
  *      Author: brg
@@ -250,14 +250,13 @@ private:
 	 */
 	const int _calc( const bool silent = false ) const
 	{
-		int i = 0;
 
 		// Test that range is sane
 		if ( ( SPCP(name)->_maxes_ <= SPCP(name)->_mins_ ) || ( SPCP(name)->_steps_ <= 0 ) )
 		{
 			if ( !silent )
 				std::cerr
-						<< "ERROR: Bad range passed to brg_cache::_calc() for " + static_cast<const name*>(this)->_name_base() + "\n";
+						<< "ERROR: Bad range passed to brg_cache::_calc() for " + SPCP(name)->_name_base() + "\n";
 			return INVALID_ARGUMENTS_ERROR;
 		}
 
@@ -266,16 +265,21 @@ private:
 		SPCP(name)->_results_.resize(SPCP(name)->_resolutions_ );
 
 		// Calculate data
-		for ( double x = SPCP(name)->_mins_; x < SPCP(name)->_maxes_; x += SPCP(name)->_steps_ )
+		double x = SPCP(name)->_mins_;
+		bool bad_result=false;
+#pragma omp parallel for
+		for ( unsigned int i = 0; i < SPCP(name)->_resolutions_; i++ )
 		{
 			double result = 0;
 			if(SPCP(name)->_calculate(x, result))
 			{
-				return UNSPECIFIED_ERROR;
+				bad_result=true;
 			}
 			SPCP(name)->_results_.at(i) = result;
-			i++;
+			x += SPCP(name)->_steps_;
 		}
+
+		if(bad_result) return UNSPECIFIED_ERROR;
 
 		SPCP(name)->_loaded_ = true;
 

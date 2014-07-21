@@ -1,5 +1,5 @@
 /**********************************************************************\
-SALTSA_unitconvs.h
+@file SALTSA_unitconvs.h
  -----------
 
  unitconv namespace: Namespace containing various unit conversions.

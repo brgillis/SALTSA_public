@@ -1,5 +1,5 @@
-/*
- * SALTSA_solvers.hpp
+/**
+ * @file SALTSA_solvers.hpp
  *
  *  Created on:     8 April 2014
  *  Last modified:  8 April 2014
