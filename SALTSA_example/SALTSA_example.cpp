@@ -14,9 +14,11 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <utility> // Just needed for some file loading here
 
 #include "SALTSA.h"
 #include "SALTSA_calculus.hpp" // This is just used to generate an orbit in this file.
+#include "SALTSA_file_functions.h" // This is just used for file loading done here
 
 /**
  *
@@ -30,8 +32,8 @@ int main( const int argc, const char *argv[] )
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
 	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 30000; // Base number of steps to take to integrate stripping
-	const int spline_points = 30000; // Number of points in the orbit we tell the stripping integrator
+	const int stripping_resolution = 1000; // Base number of steps to take to integrate stripping
+	const int spline_points = 1000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
@@ -79,8 +81,8 @@ int main( const int argc, const char *argv[] )
 			t_step = total_time/orbit_resolution;
 
 	// Set-up for the names of files we want to output
-	const std::string orbital_file_name_base = "SALTSA_example_orbit_";
-	const std::string orbital_file_name_tail = ".dat";
+	const std::string output_file_name_base = "SALTSA_example_orbit_";
+	const std::string output_file_name_tail = ".dat";
 
 	// Set-up for orbit trajectories
 
@@ -107,7 +109,7 @@ int main( const int argc, const char *argv[] )
 	std::ofstream out;
 	std::stringstream ss;
 
-	std::string orbital_file_name = "";
+	std::string output_file_name = "";
 
 	SALTSA::stripping_orbit test_orbit(host_group,init_satellite);
 
@@ -201,11 +203,11 @@ int main( const int argc, const char *argv[] )
 
 		// Set up the name of the file we want to output to
 		ss.str("");
-		ss << orbital_file_name_base << i << orbital_file_name_tail;
-		orbital_file_name = ss.str();
+		ss << output_file_name_base << i << output_file_name_tail;
+		output_file_name = ss.str();
 
 		// Tell the user we've started to work on this orbit
-		std::cout << "Working on " << orbital_file_name << "... " << std::flush;
+		std::cout << "Working on " << output_file_name << "... " << std::flush;
 
 		// Now we'll integrate out the orbit. We'll use a leapfrog(-ish) integrator I programmed
 		// for this.
@@ -262,7 +264,7 @@ int main( const int argc, const char *argv[] )
 		}
 
 		// Output to the appropriate file
-		out.open(orbital_file_name.c_str()); // Open the file
+		out.open(output_file_name.c_str()); // Open the file
 		test_orbit.print_full_data( &out ); // Tell SALTSA to output to it
 		out.close(); // Close the file
 		out.clear(); // Clear the stream (needed on certain systems when it'll be reused)
@@ -273,6 +275,320 @@ int main( const int argc, const char *argv[] )
 		// various circularities, storing the results in ASCII text files.
 	}
 #endif
+
+	// File reading and stripping calculation
+#if (1)
+	// Now, let's demonstrate how MATSA can compare to another stripping estimate.
+	// We'll start by loading the data we generated before, and then doing various comparison
+	// runs, so we can see how the results change with different integration types.
+
+	// Set up
+#if (1)
+	// Get the name of the file we'll use
+	unsigned int comparison_index = 7;
+	ss.str("");
+	ss << output_file_name_base << comparison_index << output_file_name_tail;
+	std::string comparison_file_name = ss.str();
+
+	// Declare vectors to store the orbit data in
+	std::vector<double> t_data;
+
+	std::vector<double> x_data;
+	std::vector<double> y_data;
+	std::vector<double> z_data;
+
+	std::vector<double> vx_data;
+	std::vector<double> vy_data;
+	std::vector<double> vz_data;
+
+	std::vector<double> host_mvir0_data;
+	std::vector<double> host_z_data;
+	std::vector<double> host_c_data;
+	std::vector<double> host_tau_data;
+
+	std::vector<double> comparison_mret_data;
+#endif // Set up
+
+	// Loading the data
+#if (1)
+	// Since the data has been saved in a standard ASCII table, we can use the loading
+	// functions I've programmed to load it relatively easily. Since the saved data
+	// can have a variable number of columns, we'll use a function which parses the
+	// header to find the right column for each vector.
+
+	// To use this function, we'll need to set up "key"s, which connect strings to look
+	// for in the header to vectors to put data into. We'll then pass a vector of these
+	// keys to the load_table_columns function.
+
+	// Declare the key vector
+	typedef std::pair<std::string, std::vector<double> * > key;
+	std::vector<key> header_keys(0);
+
+	// Load it with keys for each column we want to use, using std::make_pair to easily
+	// construct keys
+	header_keys.push_back( std::make_pair("t",&t_data) );
+
+	header_keys.push_back( std::make_pair("x",&x_data) );
+	header_keys.push_back( std::make_pair("y",&y_data) );
+	header_keys.push_back( std::make_pair("z",&z_data) );
+
+	header_keys.push_back( std::make_pair("vx",&vx_data) );
+	header_keys.push_back( std::make_pair("vy",&vy_data) );
+	header_keys.push_back( std::make_pair("vz",&vz_data) );
+
+	header_keys.push_back( std::make_pair("Host_mvir0",&host_mvir0_data) );
+	header_keys.push_back( std::make_pair("Host_z",&host_z_data) );
+	header_keys.push_back( std::make_pair("Host_c",&host_c_data) );
+	header_keys.push_back( std::make_pair("Host_tau",&host_tau_data) );
+
+	header_keys.push_back( std::make_pair("m_ret",&comparison_mret_data) );
+
+	// And now actually load it
+	// An exception will be thrown here if a column we want isn't found in the file, or if it's
+	// improperly formatted.
+	SALTSA::load_table_columns(comparison_file_name, header_keys);
+
+	// Now, all the vectors should be loaded. Let's pass the data into SALTSA
+
+	test_orbit.clear();
+	test_orbit = SALTSA::stripping_orbit(host_group, init_satellite);
+
+	for(unsigned int i=0; i<t_data.size(); i++)
+	{
+		// Add the points, making sure to convert units here
+		// Note that we also add the value for retained mass on at the end here
+		test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+				y_data.at(i)*unitconv::kpctom,
+				z_data.at(i)*unitconv::kpctom,
+				vx_data.at(i)*unitconv::kmpstomps,
+				vy_data.at(i)*unitconv::kmpstomps,
+				vz_data.at(i)*unitconv::kmpstomps,
+				t_data.at(i)*unitconv::Gyrtos,
+				comparison_mret_data.at(i));
+
+		host_parameters.clear();
+		host_parameters.push_back(host_mvir0_data.at(i)*unitconv::ttMsuntokg);
+		host_parameters.push_back(host_z_data.at(i));
+		host_parameters.push_back(host_c_data.at(i));
+		host_parameters.push_back(host_tau_data.at(i));
+
+		test_orbit.add_host_parameter_point(host_parameters,
+				t_data.at(i)*unitconv::Gyrtos);
+	}
+
+#endif // Loading the data
+
+
+	// Various test cases
+#if (1)
+
+	// General set-up for the orbit
+	test_orbit.set_satellite_output_parameters(num_satellite_parameters, satellite_output_parameters);
+	test_orbit.set_host_output_parameters(num_host_parameters, host_output_parameters);
+	test_orbit.set_host_parameter_unitconvs(num_host_parameters, host_output_parameter_unitconvs);
+	test_orbit.set_resolution(stripping_resolution);
+
+	// Let's try changing the resolution
+#if (1)
+
+	// High resolution
+	test_orbit.set_resolution(10*stripping_resolution);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_hires_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will automatically calculate here
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// Low resolution
+	test_orbit.set_resolution(0.1*stripping_resolution);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_lores_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// Change resolution back to how it was before
+	test_orbit.set_resolution(stripping_resolution);
+
+#endif // Let's try changing the resolution
+
+	// Different interpolation types
+#if (1)
+
+	// Linear interpolation
+	test_orbit.set_interpolation_type(SALTSA::stripping_orbit::LINEAR);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_lininterp_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// No interpolation (LOWER just uses the closest value below it)
+	test_orbit.set_interpolation_type(SALTSA::stripping_orbit::LOWER);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_nointerp_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// Change interpolation back to how it was before
+	test_orbit.set_interpolation_type(SALTSA::stripping_orbit::UNSET); // Which results in spline interpolation here
+
+#endif // Different interpolation types
+
+	// Different adaptive step size methods
+#if (1)
+
+	// Constant-time step size
+	test_orbit.set_step_length_power(0.);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_noadaptstep_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// Strongly adaptive step size
+	test_orbit.set_step_length_power(3.);
+	test_orbit.set_step_factor_min(0.001);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_strongadaptstep_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// Change adaptive step length back to how it was before
+	test_orbit.reset_step_length_power();
+	test_orbit.reset_step_factor_min();
+
+#endif // Different adaptive step size methods
+
+	// Skipping velocity values
+#if (1)
+
+	// For this one, we'll actually have to go back and completely reload the orbit to show
+	// how this can be done
+
+	// Let's only give velocity for every fourth point
+	unsigned int v_skip_interval = 4;
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_skipsomev_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	test_orbit.clear_points(); // This clears all position, velocity, and mass comparison points,
+	                           // but not host parameter points
+
+	for(unsigned int i=0; i<t_data.size(); i++)
+	{
+		if(SALTSA::divisible(i,v_skip_interval))
+		{
+			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+					y_data.at(i)*unitconv::kpctom,
+					z_data.at(i)*unitconv::kpctom,
+					vx_data.at(i)*unitconv::kmpstomps,
+					vy_data.at(i)*unitconv::kmpstomps,
+					vz_data.at(i)*unitconv::kmpstomps,
+					t_data.at(i)*unitconv::Gyrtos,
+					comparison_mret_data.at(i));
+		}
+		else
+		{
+			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+					y_data.at(i)*unitconv::kpctom,
+					z_data.at(i)*unitconv::kpctom,
+					t_data.at(i)*unitconv::Gyrtos,
+					comparison_mret_data.at(i));
+		}
+	}
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// Let's not give any velocity points
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_skipallv_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	test_orbit.clear_points(); // This clears all position, velocity, and mass comparison points,
+	                           // but not host parameter points
+
+	for(unsigned int i=0; i<t_data.size(); i++)
+	{
+		test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+				y_data.at(i)*unitconv::kpctom,
+				z_data.at(i)*unitconv::kpctom,
+				t_data.at(i)*unitconv::Gyrtos,
+				comparison_mret_data.at(i));
+	}
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+#endif // Skipping velocity values
+
+#endif // Various test cases
+
+#endif // File reading and stripping calculation
 
 	return 0;
 }

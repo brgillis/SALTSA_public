@@ -230,6 +230,9 @@
 
  \**********************************************************************/
 
+#ifndef __SALTSA_H_INCLUDED__
+#define __SALTSA_H_INCLUDED__
+
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -238,10 +241,19 @@
 
 #include "SALTSA_interpolator.h"
 #include "SALTSA_astro.h"
-#include "SALTSA_orbit.h"
 
 namespace SALTSA
 {
+
+ /** Class Forward Declarations **/
+ #if (1)
+ // These declarations allow the various classes to point to each other without worry about
+ // which order they're declared in. (Order does still matter for classes containing other
+ // classes, though.)
+ class stripping_orbit_segment;
+ class gabdt;
+
+ #endif // end Class forward declarations
 
 /** Class Definitions **/
 #if (1)
@@ -258,6 +270,17 @@ class stripping_orbit
 	 full briefing on what you should do with it.
 
 	 \************************************************************/
+public:
+	// Define the allowed interpolation types with an enum
+
+	enum allowed_interpolation_type {
+		LOWER,
+		UPPER,
+		LINEAR,
+		SPLINE,
+		UNSET
+	}; // end enum allowed_interpolation_type
+
 private:
 #if (1)
 
@@ -265,6 +288,9 @@ private:
 #if(1)
 	// Default number of steps for which stripping is calculated
 	static int _default_spline_resolution_;
+
+	// Default interpolation method
+	static allowed_interpolation_type _default_interpolation_type_;
 
 	// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
 	// This gives smaller steps when the satellite is moving faster.
@@ -279,7 +305,11 @@ private:
 
 	// Integration parameters
 #if(1)
+	// Number of steps for which stripping is calculated
 	int _spline_resolution_;
+
+	// Interpolation method
+	allowed_interpolation_type _interpolation_type_;
 
 	// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
 	// This gives smaller steps when the satellite is moving faster.
@@ -320,6 +350,7 @@ private:
 	double _t_min_natural_value_, _t_max_natural_value_,
 	         _t_min_override_value_, _t_max_override_value_;
 	bool _override_t_min_, _override_t_max_; // Tells if min/max have been set manually, so the manual settings can be used
+	mutable bool _likely_disrupted_;
 #endif
 
 	// Data for output info for satellite and host_ptr
@@ -363,8 +394,13 @@ private:
 
 	const std::vector< SALTSA::stripping_orbit_segment >::iterator _final_good_segment() const;
 
-	// Initialisation function
+	// Private methods
 	const int _init();
+	const int _pass_parameters_to_segment(
+			SALTSA::stripping_orbit_segment & segment,
+			SALTSA::density_profile *temp_satellite=NULL,
+			SALTSA::density_profile *temp_host=NULL,
+			unsigned int resolution=0) const;
 #endif
 public:
 #if (1)
@@ -379,21 +415,33 @@ public:
 
 	// Setting default integration parameters
 #if(1)
+	static const int set_default_resolution( const int new_default_spline_resolution);
 	const int set_default_resolution( const int new_default_spline_resolution,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_interpolation_type(
+			const allowed_interpolation_type new_default_interpolation_type);
+	const int set_default_interpolation_type(
+			const allowed_interpolation_type new_default_interpolation_type,
+			const bool override_current=false,
+			const bool silent=false );
+	static const int set_default_v_0( const double new_default_v_0);
 	const int set_default_v_0( const double new_default_v_0,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_r_0( const double new_default_r_0);
 	const int set_default_r_0( const double new_default_r_0,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_step_length_power( const double new_default_step_length_power);
 	const int set_default_step_length_power( const double new_default_step_length_power,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_step_factor_max( const double new_default_step_factor_max);
 	const int set_default_step_factor_max( const double new_default_step_factor_max,
 			const bool override_current=false,
 			const bool silent=false );
+	static const int set_default_step_factor_min( const double new_default_step_factor_min);
 	const int set_default_step_factor_min( const double new_default_step_factor_min,
 			const bool override_current=false,
 			const bool silent=false );
@@ -428,6 +476,8 @@ public:
 #if(1)
 	const int set_resolution( const int new_spline_resolution,
 			const bool silent=false );
+	const int set_interpolation_type( const allowed_interpolation_type new_type,
+			const bool silent=false );
 	const int set_v_0( const double new_v_0,
 			const bool silent=false );
 	const int set_r_0( const double new_r_0,
@@ -458,6 +508,7 @@ public:
 	// Resetting integration parameters
 #if(1)
 	const int reset_resolution();
+	const int reset_interpolation_type();
 	const int reset_v_0();
 	const int reset_r_0();
 	const int reset_step_length_power();
@@ -544,6 +595,8 @@ public:
 	// Default integration parameters
 #if(1)
 	static const int & default_spline_resolution() {return _default_spline_resolution_;}
+	static const allowed_interpolation_type & default_interpolation_type()
+		{return _default_interpolation_type_;}
 	static const double & default_v_0() {return _default_v_0_;}
 	static const double & default_r_0() {return _default_r_0_;}
 	static const double & default_step_length_power() {return _default_step_length_power_;}
@@ -565,6 +618,8 @@ public:
 	// Integration parameters
 #if(1)
 	const int & spline_resolution() const {return _spline_resolution_;}
+	const allowed_interpolation_type & interpolation_type()
+		{return _interpolation_type_;}
 	const double & v_0() const {return _v_0_;}
 	const double & r_0() const {return _r_0_;}
 	const double & step_length_power() const {return _step_length_power_;}
@@ -644,6 +699,7 @@ public:
 	const double final_fmret() const;
 	const gabdt final_sum_gabdt() const;
 	const double last_infall_time() const;
+	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates clone. Make sure to delete!
 #endif
@@ -655,3 +711,6 @@ public:
 
 } // end namespace SALTSA
 
+#include "SALTSA_orbit.h"
+
+#endif // __SALTSA_H_INCLUDED__

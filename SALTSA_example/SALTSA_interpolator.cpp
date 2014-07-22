@@ -7,19 +7,9 @@
  *      Author: brg
  */
 
-#include <stdexcept>
-#include <vector>
-#include <utility>
-
 #include "SALTSA_interpolator.h"
 
 // Global function implementations
-/**
- *
- * @param pair1
- * @param pair2
- * @return
- */
 bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2)
 {
 	if(pair1.first == pair2.first)
@@ -28,24 +18,35 @@ bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double
 }
 
 // Global function implementations
-/**
- *
- * @param pair1
- * @param v2
- * @return
- */
 bool SALTSA::p1first_lt_v2(std::pair<double,double> pair1, double v2)
 {
 	return (pair1.first < v2);
 }
 
 // Implement interpolator static variables
-SALTSA::interpolator::allowed_interpolation_type SALTSA::interpolator::default_interpolation_type = SPLINE;
+SALTSA::interpolator::allowed_interpolation_type SALTSA::interpolator::_default_interpolation_type_ = SPLINE;
 
 // Implement interpolator methods
-/**
- *
- */
+
+// Set functions for the current and default interpolation types
+void SALTSA::interpolator::set_default_interpolation_type(
+		const allowed_interpolation_type new_default_type)
+{
+	_default_interpolation_type_ = new_default_type;
+}
+void SALTSA::interpolator::set_default_interpolation_type(
+		const allowed_interpolation_type new_default_type,
+		const bool override_current)
+{
+	_default_interpolation_type_ = new_default_type;
+	set_interpolation_type(_default_interpolation_type_);
+}
+void SALTSA::interpolator::set_interpolation_type(
+		const allowed_interpolation_type new_type)
+{
+	_interpolation_type_ = new_type;
+}
+
 void SALTSA::interpolator::_set_spline_points() const
 {
 	std::vector<double> x_points(0), y_points(0);
@@ -60,28 +61,19 @@ void SALTSA::interpolator::_set_spline_points() const
 	_spline_cached_ = true;
 }
 
-/**
- *
- */
 SALTSA::interpolator::interpolator()
 {
-	interpolation_type = default_interpolation_type;
+	_interpolation_type_ = _default_interpolation_type_;
 	_spline_cached_ = false;
 	_sorted_data_cached_ = false;
 }
 
-/**
- *
- */
 void SALTSA::interpolator::clear()
 {
 	clear_points();
-	interpolation_type = default_interpolation_type;
+	_interpolation_type_ = _default_interpolation_type_;
 }
 
-/**
- *
- */
 void SALTSA::interpolator::clear_points()
 {
 	_data_.clear();
@@ -90,11 +82,6 @@ void SALTSA::interpolator::clear_points()
 	_sorted_data_cached_ = false;
 }
 
-/**
- *
- * @param x
- * @param y
- */
 void SALTSA::interpolator::add_point(const double x, const double y)
 {
 	_data_.push_back(std::make_pair(x,y));
@@ -102,10 +89,20 @@ void SALTSA::interpolator::add_point(const double x, const double y)
 	_sorted_data_cached_ = false;
 }
 
-/**
- *
- * @return
- */
+void SALTSA::interpolator::try_add_point(const double x, const double y)
+{
+	for (unsigned int i=0;i<_data_.size();i++)
+	{
+		if(x==_data_[i].first)
+		{
+			throw std::runtime_error("ERROR: Attempt to add point to interpolator with duplicate domain value.");
+		}
+	}
+	_data_.push_back(std::make_pair(x,y));
+	_spline_cached_ = false;
+	_sorted_data_cached_ = false;
+}
+
 std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() const
 {
 	if(_sorted_data_cached_)
@@ -118,21 +115,19 @@ std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() co
 	return _sorted_data_;
 }
 
-/**
- *
- * @param x
- * @return
- */
 const double SALTSA::interpolator::operator()(const double x) const
 {
-	if(interpolation_type==SPLINE)
+	if(_interpolation_type_==SPLINE)
 	{
+		if(_data_.size() < 2)
+			throw std::runtime_error("ERROR: Interpolator called before at least 2 points were loaded.\n");
+
 		if(!_spline_cached_)
 			_set_spline_points();
 
 		return _spline_(x);
 	}
-	else if(interpolation_type==LINEAR)
+	else if(_interpolation_type_==LINEAR)
 	{
 		if(_data_.size() < 2)
 			throw std::runtime_error("ERROR: Interpolator called before at least 2 points were loaded.\n");
@@ -154,7 +149,7 @@ const double SALTSA::interpolator::operator()(const double x) const
 		}
 		else
 		{
-			std::vector< std::pair<double,double> >::iterator it;
+			std::vector< std::pair<double,double> >::iterator it=_sorted_data_.end();
 
 			it = std::lower_bound(_sorted_data_.begin(),_sorted_data_.end(),
 					x,p1first_lt_v2);
@@ -170,22 +165,22 @@ const double SALTSA::interpolator::operator()(const double x) const
 
 		return ylo + (yhi-ylo)/(xhi-xlo);
 	}
-	else if(interpolation_type==LOWER)
+	else if(_interpolation_type_==LOWER)
 	{
 		if(_data_.size() < 1)
 			throw std::runtime_error("ERROR: Interpolator called before at least 1 point was loaded.\n");
 
-		if(x<sorted_data().front().first)
+		if(x<=sorted_data().front().first)
 		{
 			return _sorted_data_.front().second;
 		}
-		else if(x>_sorted_data_.back().first)
+		else if(x>=_sorted_data_.back().first)
 		{
 			return _sorted_data_.back().second;
 		}
 		else
 		{
-			std::vector< std::pair<double,double> >::iterator it;
+			std::vector< std::pair<double,double> >::iterator it=_sorted_data_.end();
 
 			it = std::lower_bound(_sorted_data_.begin(),_sorted_data_.end(),
 					x,p1first_lt_v2);
@@ -196,22 +191,22 @@ const double SALTSA::interpolator::operator()(const double x) const
 			return (it-1)->second;
 		}
 	}
-	else if(interpolation_type==UPPER)
+	else if(_interpolation_type_==UPPER)
 	{
 		if(_data_.size() < 1)
 			throw std::runtime_error("ERROR: Interpolator called before at least 1 point was loaded.\n");
 
-		if(x<sorted_data().front().first)
+		if(x<=sorted_data().front().first)
 		{
 			return _sorted_data_.front().second;
 		}
-		else if(x>_sorted_data_.back().first)
+		else if(x>=_sorted_data_.back().first)
 		{
 			return _sorted_data_.back().second;
 		}
 		else
 		{
-			std::vector< std::pair<double,double> >::iterator it;
+			std::vector< std::pair<double,double> >::iterator it=_sorted_data_.end();
 
 			it = std::lower_bound(_sorted_data_.begin(),_sorted_data_.end(),
 					x,p1first_lt_v2);
