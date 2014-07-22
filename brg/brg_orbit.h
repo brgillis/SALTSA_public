@@ -232,6 +232,9 @@
 
  \**********************************************************************/
 
+#ifndef __BRG_ORBIT_H_INCLUDED__
+#define __BRG_ORBIT_H_INCLUDED__
+
 #include "brg_global.h"
 
 #include <cstdlib>
@@ -256,12 +259,12 @@ namespace brgastro
 class stripping_orbit;
 class stripping_orbit_segment;
 
-class spline_derivative;
+class interpolator_derivative;
 class gabdt;
 
-class spline_function;
-class spline_derivative_function;
-class spline_derivative_weight_function;
+class interpolator_function;
+class interpolator_derivative_function;
+class interpolator_derivative_weight_function;
 class solve_rt_it_function;
 class solve_rt_grid_function;
 class gabdt_function;
@@ -270,7 +273,7 @@ class gabdt_function;
 
 /** Class Definitions **/
 #if (1)
-class spline_function: public functor< BRG_UNITS >
+class interpolator_function: public functor< BRG_UNITS >
 {
 	/************************************************************
 	 spline_function
@@ -290,42 +293,42 @@ class spline_function: public functor< BRG_UNITS >
 
 private:
 
-	SALTSA::interpolator *_spline_ptr_;
-	bool _spline_ptr_set_up_;
+	SALTSA::interpolator *_interpolator_ptr_;
+	bool _interpolator_ptr_set_up_;
 
 public:
 
 	// Constructors
-	spline_function();
-	spline_function( SALTSA::interpolator *init_spline_ptr );
+	interpolator_function();
+	interpolator_function( SALTSA::interpolator *init_interpolator_ptr );
 
 	// Destructor
-	virtual ~spline_function()
+	virtual ~interpolator_function()
 	{
 	}
 
 	// Set functions
-	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
+	const int set_interpolator_ptr( SALTSA::interpolator *new_interpolator_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+			BRG_UNITS & out_param, const bool silent = false ) const;
 
 };
-// class spline_function
+// class interpolator_function
 
-class spline_derivative_function: public functor< BRG_UNITS >
+class interpolator_derivative_function: public functor< BRG_UNITS >
 {
 	/************************************************************
-	 spline_derivative_function
+	 interpolator_derivative_function
 	 --------------------------
 
 	 Child of function_class
 
 	 This class is used to provide a function_class * for getting
-	 the derivative of a spline at a given point.
+	 the derivative of an interpolator at a given point.
 
-	 Use of this class is handled by the spline_derivative class.
+	 Use of this class is handled by the interpolator_derivative class.
 	 No need for the end-user to worry too much about how this
 	 works.
 
@@ -333,43 +336,43 @@ class spline_derivative_function: public functor< BRG_UNITS >
 
 private:
 
-	spline_function _spline_function_;
-	bool _spline_function_set_up_;
+	interpolator_function _interpolator_function_;
+	bool _interpolator_function_set_up_;
 
 public:
 
 	// Constructors
-	spline_derivative_function();
-	spline_derivative_function( SALTSA::interpolator *init_spline_ptr );
+	interpolator_derivative_function();
+	interpolator_derivative_function( SALTSA::interpolator *init_interpolator_ptr );
 
 	// Destructor
-	virtual ~spline_derivative_function()
+	virtual ~interpolator_derivative_function()
 	{
 	}
 
 	// Set functions
-	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
+	const int set_spline_ptr( SALTSA::interpolator *new_interpolator_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+			BRG_UNITS & out_param, const bool silent = false ) const;
 
 };
-// class spline_derivative_function
+// class interpolator_derivative_function
 
-class spline_derivative_weight_function: public functor< BRG_UNITS >
+class interpolator_derivative_weight_function: public functor< BRG_UNITS >
 {
 	/************************************************************
-	 spline_derivative_weight_function
+	 interpolator_derivative_weight_function
 	 ---------------------------------
 
 	 Child of function_class
 
 	 This class is used to provide a function_class * for getting
 	 the weight of various points in the smoothing kernel for
-	 calculating the derivative of a spline.
+	 calculating the derivative of an interpolator.
 
-	 Use of this class is handled by the spline_derivative class.
+	 Use of this class is handled by the interpolator_derivative class.
 	 No need for the end-user to worry too much about how this
 	 works.
 
@@ -383,10 +386,10 @@ private:
 public:
 
 	// Constructors
-	spline_derivative_weight_function();
+	interpolator_derivative_weight_function();
 
 	// Destructor
-	virtual ~spline_derivative_weight_function()
+	virtual ~interpolator_derivative_weight_function()
 	{
 	}
 
@@ -403,31 +406,31 @@ public:
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
-	BRG_UNITS & out_param, const bool silent = false ) const;
+			BRG_UNITS & out_param, const bool silent = false ) const;
 };
-// class spline_derivative_sample_function
+// class interpolator_derivative_sample_function
 
-class spline_derivative
+class interpolator_derivative
 {
 	/************************************************************
-	 spline_derivative
+	 interpolator_derivative
 	 -----------------
 
-	 This class operates like a magnet::math::Spline with added
+	 This class operates like an interpolator with added
 	 features. The same functions can be used as with the basic
-	 Spline class, but this class also has the ability to point
-	 to a different spline, which this spline is intended to be
+	 interpolator class, but this class also has the ability to point
+	 to a different interpolator, which this is intended to be
 	 the derivative of. Then, "unknown" domain points can be
 	 passed to this class, and it will calculate the derivative of
-	 the other spline at those points to help fill in gaps.
+	 the other interpolator at those points to help fill in gaps.
 
 	 The points passed to this can all be "known" (domain and range
 	 passed), all "unknown" (only domain passed, range calculated),
 	 or a mix of the two.
 
 	 Unknown points are calculated using a smoothing kernel to help
-	 handle noise in the pointed-to spline. This must be adjusted
-	 by hand based on how noisy the spline's points are for optimal
+	 handle noise in the pointed-to interpolator. This must be adjusted
+	 by hand based on how noisy the interpolator's points are for optimal
 	 results. The noisier it is, the wider the kernel should be.
 	 Use the set_sample_scale(...) and set_sample_max_width(...)
 	 functions to adjust the kernel size (the scale is the sigma of
@@ -436,12 +439,12 @@ class spline_derivative
 
 	 \************************************************************/
 private:
-	SALTSA::interpolator *_spline_ptr_;
-	mutable SALTSA::interpolator _known_spline_, _estimated_spline_;
-	bool _spline_ptr_set_up_;
+	SALTSA::interpolator *_interpolator_ptr_;
+	mutable SALTSA::interpolator _known_interpolator_, _estimated_interpolator_;
+	bool _interpolator_ptr_set_up_;
 	mutable bool _calculated_;
 
-	spline_function _spline_func_;
+	interpolator_function _interpolator_func_;
 
 	std::vector< double > _unknown_t_list_;
 
@@ -450,18 +453,20 @@ private:
 	double _sample_scale_, _sample_max_width_, _sample_precision_;
 	mutable double _t_min_, _t_max_;
 
+	SALTSA::interpolator::allowed_interpolation_type _interpolation_type_;
+
 public:
 	// Constructors
-	spline_derivative();
-	spline_derivative( SALTSA::interpolator *init_spline_ptr );
+	interpolator_derivative();
+	interpolator_derivative( SALTSA::interpolator *init_interpolator_ptr );
 
 	// Destructors
-	virtual ~spline_derivative()
+	virtual ~interpolator_derivative()
 	{
 	}
 
 	// Set functions
-	const int set_spline_ptr( SALTSA::interpolator *new_spline_ptr );
+	const int set_spline_ptr( SALTSA::interpolator *new_interpolator_ptr );
 	const int clear_spline_ptr();
 	const int set_default_sample_scale( double new_default_sample_scale );
 	const int set_default_sample_max_width(
@@ -470,6 +475,9 @@ public:
 	const int set_sample_max_width( double new_sample_max_width );
 	const int reset_sample_scale(); // Sets it to default
 	const int reset_sample_max_width(); // Sets it to default
+	const int set_interpolation_type(
+			SALTSA::interpolator::allowed_interpolation_type new_interpolation_type);
+	const int reset_interpolation_type();
 
 	// Functions for adding/clearing points
 	const int add_point( const double t, const double x );
@@ -485,7 +493,7 @@ public:
 	// Get functions
 	const double operator()( double xval ) const;
 };
-// class spline_derivative
+// class interpolator_derivative
 
 class gabdt
 {
@@ -681,6 +689,7 @@ private:
 	BRG_TIME _t_min_natural_value_, _t_max_natural_value_,
 	         _t_min_override_value_, _t_max_override_value_;
 	bool _override_t_min_, _override_t_max_; // Tells if min/max have been set manually, so the manual settings can be used
+	mutable bool _likely_disrupted_;
 #endif
 
 	// Data for output info for satellite and host_ptr
@@ -724,8 +733,13 @@ private:
 
 	const std::vector< brgastro::stripping_orbit_segment >::iterator _final_good_segment() const;
 
-	// Initialisation function
+	// Private methods
 	const int _init();
+	const int _pass_parameters_to_segment(
+			brgastro::stripping_orbit_segment & segment,
+			brgastro::density_profile *temp_satellite=NULL,
+			brgastro::density_profile *temp_host=NULL,
+			unsigned int resolution=0) const;
 #endif
 public:
 #if (1)
@@ -920,6 +934,8 @@ public:
 	// Default integration parameters
 #if(1)
 	static const int & default_spline_resolution() {return _default_spline_resolution_;}
+	static const allowed_interpolation_type & default_interpolation_type()
+		{return _default_interpolation_type_;}
 	static const double & default_v_0() {return _default_v_0_;}
 	static const double & default_r_0() {return _default_r_0_;}
 	static const double & default_step_length_power() {return _default_step_length_power_;}
@@ -941,6 +957,8 @@ public:
 	// Integration parameters
 #if(1)
 	const int & spline_resolution() const {return _spline_resolution_;}
+	const allowed_interpolation_type & interpolation_type()
+		{return _interpolation_type_;}
 	const double & v_0() const {return _v_0_;}
 	const double & r_0() const {return _r_0_;}
 	const double & step_length_power() const {return _step_length_power_;}
@@ -1020,6 +1038,7 @@ public:
 	const double final_fmret() const;
 	const gabdt final_sum_gabdt() const;
 	const BRG_TIME last_infall_time() const;
+	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates clone. Make sure to delete!
 #endif
@@ -1046,6 +1065,9 @@ private:
 	// Integration parameters
 #if(1)
 	int _spline_resolution_;
+
+	// Interpolation method
+	stripping_orbit::allowed_interpolation_type _interpolation_type_;
 
 	// Variable step length tweaking: Time step length is proportional to (v_0/v)^(step_length_power)
 	// This gives smaller steps when the satellite is moving faster.
@@ -1081,7 +1103,7 @@ private:
 	mutable bool _record_full_data_;
 	bool _host_loaded_, _satellite_loaded_;
 	mutable bool _calculated_, _bad_result_, _current_satellite_in_use_,
-			_current_host_in_use_;
+			_current_host_in_use_, _likely_disrupted_;
 	bool _evolving_host_;
 	bool _using_private_init_host_, _using_private_init_satellite_;
 	tNFW_profile _private_tNFW_init_host_, _private_tNFW_init_satellite_;
@@ -1090,7 +1112,7 @@ private:
 	// Must be mutable since the spline class used doesn't allow conceptual constness for calculating
 	mutable SALTSA::interpolator _x_spline_, _y_spline_, _z_spline_,
 			_test_mass_spline_;
-	mutable spline_derivative _vx_spline_, _vy_spline_, _vz_spline_;
+	mutable interpolator_derivative _vx_spline_, _vy_spline_, _vz_spline_;
 	mutable std::vector< SALTSA::interpolator > _host_parameter_splines_;
 
 	// Vectors for output data
@@ -1120,6 +1142,7 @@ private:
 			const BRG_TIME &t_step, const bool silent = false ) const;
 	const double _step_length_factor( const BRG_VELOCITY & v, const BRG_DISTANCE & r ) const;
 	const BRG_DISTANCE _rvir( const int index = 0 ) const;
+	const int _pass_interpolation_type() const;
 #endif
 
 public:
@@ -1162,6 +1185,8 @@ public:
 	// Setting integration parameters
 #if(1)
 	const int set_resolution( const int new_spline_resolution,
+			const bool silent=false );
+	const int set_interpolation_type( const stripping_orbit::allowed_interpolation_type new_type,
 			const bool silent=false );
 	const int set_v_0( const double new_v_0,
 			const bool silent=false );
@@ -1254,6 +1279,8 @@ public:
 	// Integration parameters
 #if(1)
 	const int & spline_resolution() const {return _spline_resolution_;}
+	const stripping_orbit::allowed_interpolation_type & interpolation_type()
+		{return _interpolation_type_;}
 	const double & v_0() const {return _v_0_;}
 	const double & r_0() const {return _r_0_;}
 	const double & step_length_power() const {return _step_length_power_;}
@@ -1310,6 +1337,7 @@ public:
 	const long double final_sum_deltarho() const;
 	const double final_fmret() const;
 	const gabdt final_sum_gabdt() const;
+	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates a clone. Make sure to delete!
 
@@ -1368,4 +1396,6 @@ public:
 #endif // end class definitions
 
 } // end namespace brgastro
+
+#endif __BRG_ORBIT_H_INCLUDED__
 
