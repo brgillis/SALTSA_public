@@ -2172,6 +2172,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		return UNSPECIFIED_ERROR;
 	}
 
+	if((_bad_result_) || (_likely_disrupted_)) return UNSPECIFIED_ERROR;
 	return 0;
 
 }
@@ -2546,11 +2547,11 @@ const brgastro::density_profile * brgastro::stripping_orbit::final_satellite() c
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_satellite() without init_satellite assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) )
-		return _init_satellite_ptr_; // Sanest option in this case
+	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) || (_likely_disrupted_) )
+		return _init_satellite_ptr_; // Sanest/safest option in this case
 	else
 		return _final_good_segment()->final_satellite();
 }
@@ -2569,11 +2570,11 @@ const brgastro::density_profile * brgastro::stripping_orbit::final_host() const
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_host() without init_host assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) )
-		return _init_host_ptr_; // Sanest option in this case
+	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) || (_likely_disrupted_) )
+		return _init_host_ptr_; // Sanest/safest option in this case
 	else
 		return _final_good_segment()->final_host();
 }
@@ -4099,6 +4100,8 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 						_vx_spline_( t ), _vy_spline_( t ), _vz_spline_( t ),
 						t ) );
 	_calculated_ = true;
+
+	if((_bad_result_) || (_likely_disrupted_)) return UNSPECIFIED_ERROR;
 	return 0;
 }
 
@@ -4547,7 +4550,14 @@ const BRG_UNITS brgastro::stripping_orbit_segment::_delta_rho(
 	{
 		if(!silent)
 		{
-			std::cerr << "ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n";
+			std::cerr << "ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n"
+					<< "x = " << x << std::endl
+					<< "_tidal_shocking_power_ = " << _tidal_shocking_power_ << std::endl
+					<< "_tidal_shocking_amplification_ = " << _tidal_shocking_amplification_ << std::endl
+					<< "gabdt product with sum = " << (_gabdt_list_[index] * _sum_gabdt_list_[index - 1]) << std::endl
+					<< "gabdt product with self = " << (_gabdt_list_[index] * _gabdt_list_[index]) << std::endl;
+
+
 			std::cerr.flush();
 		}
 		throw std::runtime_error("ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n");
@@ -4885,10 +4895,10 @@ const brgastro::density_profile * brgastro::stripping_orbit_segment::final_satel
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_satellite() without init_satellite assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( _bad_result_ )
+	if( _bad_result_ || _likely_disrupted_ )
 		return _init_satellite_ptr_; // Sanest option in this case
 	else
 		return _current_satellite_ptr_;
@@ -4908,10 +4918,10 @@ const brgastro::density_profile * brgastro::stripping_orbit_segment::final_host(
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_host() without init_host assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( _bad_result_ )
+	if( _bad_result_ || _likely_disrupted_ )
 		return _init_host_ptr_; // Sanest option in this case
 	else
 		return _current_host_ptr_;
