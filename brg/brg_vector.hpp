@@ -9,7 +9,7 @@
  *  This file contains element-wise operations for vectors, plus mathematical operations for vectors.
  */
 
-// !!! UNTESTED
+// !!! Not fully tested yet
 
 #ifndef __BRG_VECTOR_HPP_INCLUDED__
 #define __BRG_VECTOR_HPP_INCLUDED__
@@ -24,6 +24,7 @@ namespace brgastro {
 
 // Element-wise functions
 #if (1)
+// These apply a standard function to each element of a vector and return a vector of results
 
 // Element-wise generic function
 #if (1)
@@ -152,6 +153,9 @@ const std::vector<T1> rand_vector(const f func, const T1 & v1, const std::vector
 }
 
 #endif
+
+// Element-wise math
+#if (1)
 
 // Element-wise addition
 #if (1)
@@ -601,9 +605,310 @@ const std::vector<T> safe_d( const std::vector<T> & v )
 
 #endif // Element-wise safe_d
 
+#endif // Element-wise math
+
+// Element-wise comparison (always return a vector of bools)
+#if (1)
+
+// Element-wise equal
+#if (1)
+template< typename T1, typename T2 >
+const std::vector<bool> equal( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] == v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> equal( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] == v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> equal( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<bool> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = (v2[i] == v1);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const bool equal( const T1 & v1, const T2 & v2 )
+{
+	return (v1 == v2);
+}
+
+#endif // Element-wise equal
+
+// Element-wise not_equal
+#if (1)
+template< typename T1, typename T2 >
+const std::vector<bool> not_equal( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] != v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> not_equal( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] != v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> not_equal( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<bool> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = (v2[i] != v1);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const bool not_equal( const T1 & v1, const T2 & v2 )
+{
+	return (v1 != v2);
+}
+
+#endif // Element-wise not_equal
+
+// Element-wise less_than
+#if (1)
+template< typename T1, typename T2 >
+const std::vector<bool> less_than( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] < v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> less_than( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] < v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> less_than( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<bool> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = (v1 < v2[i]);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const bool less_than( const T1 & v1, const T2 & v2 )
+{
+	return (v1 < v2);
+}
+
+#endif // Element-wise less_than
+
+// Element-wise greater_than
+#if (1)
+template< typename T1, typename T2 >
+const std::vector<bool> greater_than( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] > v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> greater_than( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] > v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> greater_than( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<bool> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = (v1 > v2[i]);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const bool greater_than( const T1 & v1, const T2 & v2 )
+{
+	return (v1 > v2);
+}
+
+#endif // Element-wise equal
+
+// Element-wise less_than_or_equal
+#if (1)
+template< typename T1, typename T2 >
+const std::vector<bool> less_than_or_equal( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] <= v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> less_than_or_equal( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] <= v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> less_than_or_equal( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<bool> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = (v1 <= v2[i]);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const bool less_than_or_equal( const T1 & v1, const T2 & v2 )
+{
+	return (v1 <= v2);
+}
+
+#endif // Element-wise less_than_or_equal
+
+// Element-wise greater_than_or_equal
+#if (1)
+template< typename T1, typename T2 >
+const std::vector<bool> greater_than_or_equal( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] >= v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> greater_than_or_equal( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<bool> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = (v1[i] >= v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<bool> greater_than_or_equal( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<bool> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = (v1 >= v2[i]);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const bool greater_than_or_equal( const T1 & v1, const T2 & v2 )
+{
+	return (v1 >= v2);
+}
+
+#endif // Element-wise greater_than_or_equal
+
+#endif // Element-wise comparison
+
 #endif // Element-wise functions
 
-// Mathematical functions
+// Summary functions
 #if (1)
 
 // Sum
@@ -686,6 +991,84 @@ const T std(const T v)
 }
 
 #endif // Standard Deviation
+
+// Functions on bool vectors
+#if (1)
+
+// all_true
+#if (1)
+inline const bool all_true(const std::vector<bool> v)
+{
+	for(unsigned int i=0; i < v.size(); i++)
+	{
+		if(!(v[i])) return false;
+	}
+	return true;
+}
+
+inline const bool all_true(const bool v)
+{
+	return v;
+}
+#endif // all_true
+
+// all_false
+#if (1)
+inline const bool all_false(const std::vector<bool> v)
+{
+	for(unsigned int i=0; i < v.size(); i++)
+	{
+		if(v[i]) return false;
+	}
+	return true;
+}
+
+inline const bool all_false(const bool v)
+{
+	return (!v);
+}
+#endif // all_false
+
+// not_all_true
+#if (1)
+inline const bool not_all_true(const std::vector<bool> v)
+{
+	return !all_true(v);
+}
+
+inline const bool not_all_true(const bool v)
+{
+	return !v;
+}
+#endif // not_all_true
+
+// not_all_false
+#if (1)
+inline const bool not_all_false(const std::vector<bool> v)
+{
+	return !all_false(v);
+}
+
+inline const bool not_all_false(const bool v)
+{
+	return v;
+}
+#endif // all_false
+
+// some_true_some_false
+#if (1)
+inline const bool some_true_some_false(const std::vector<bool> v)
+{
+	return ( (!all_true(v)) && (!all_false(v)) );
+}
+
+inline const bool some_true_some_false(const bool v)
+{
+	return false;
+}
+#endif // some_true_some_false
+
+#endif // Functions on bool vectors
 
 #endif // Mathematical functions
 
