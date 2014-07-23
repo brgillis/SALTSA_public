@@ -111,35 +111,54 @@ inline const int differentiate( const f * func,
 	if ( int errcode = ( *func )( in_params, base_out_params, silent ) )
 		return errcode + LOWER_LEVEL_ERROR;
 
-	// Loop over input and output dimensions to get Jacobian
-	for ( unsigned int j = 0; j < num_in_params; j++ )
-	{
-		// Set up test input parameters
-		for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
-		{
-			if ( j2 == j )
-			{
-				test_in_params = in_params + d_in_params;
-			} // if( j2==j )
-			else
-			{
-				test_in_params = in_params;
-			} // else
-		}
+	bool bad_function_result = false;
+	unsigned int counter = 0;
 
-		// Run the function to get value at test point
-		if ( int errcode = ( *func )( test_in_params, test_out_params,
-				silent ) )
-			return errcode + LOWER_LEVEL_ERROR;
-
-		// Record this derivative
-		for ( unsigned int i = 0; i < num_out_params; i++ )
+	do {
+		bad_function_result = false;
+		// Loop over input and output dimensions to get Jacobian
+		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
-			Jacobian = ( test_out_params - base_out_params ) / d_in_params;
-			if ( power_flag )
-				Jacobian *= power * safe_pow( base_out_params, power - 1 );
-		} // for( int i = 0; i < num_out_params; i++)
-	} // for( unsigned int j = 0; j < num_in_params; j++)
+			// Set up test input parameters
+			for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
+			{
+				if ( j2 == j )
+				{
+					test_in_params = in_params + d_in_params;
+				} // if( j2==j )
+				else
+				{
+					test_in_params = in_params;
+				} // else
+			}
+
+			// Run the function to get value at test point
+			if ( int errcode = ( *func )( test_in_params, test_out_params,
+					silent ) )
+			{
+				bad_function_result = true;
+				d_in_params /= 10; // Try again with smaller step
+				continue;
+			}
+
+			// Record this derivative
+			for ( unsigned int i = 0; i < num_out_params; i++ )
+			{
+				Jacobian = ( test_out_params - base_out_params ) / d_in_params;
+				if ( power_flag )
+					Jacobian *= power * safe_pow( base_out_params, power - 1 );
+				if(isbad(Jacobian))
+				{
+					bad_function_result = true;
+					d_in_params /= 10; // Try again with smaller step
+					continue;
+				}
+			} // for( int i = 0; i < num_out_params; i++)
+		} // for( unsigned int j = 0; j < num_in_params; j++)
+		counter++;
+	} while ((bad_function_result) && (counter<3));
+
+	if(counter==3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
 
 	return 0;
 }
@@ -241,40 +260,59 @@ inline const int differentiate( const f * func,
 		return errcode + LOWER_LEVEL_ERROR;
 
 	// Loop over input and output dimensions to get Jacobian
-	for ( unsigned int j = 0; j < num_in_params; j++ )
-	{
-		// Set up test input parameters
-		for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
-		{
-			if ( j2 == j )
-			{
-				test_in_params[j2] = in_params[j2] + d_in_params[j2];
-			} // if( j2==j )
-			else
-			{
-				test_in_params[j2] = in_params[j2];
-			} // else
-		}
 
-		// Run the function to get value at test point
-		if ( int errcode = ( *func )( test_in_params, test_out_params,
-				silent ) )
-			return errcode + LOWER_LEVEL_ERROR;
-
-		// Record this derivative
-		for ( unsigned int i = 0; i < num_out_params; i++ )
+	bool bad_function_result = false;
+	unsigned int counter = 0;
+	do {
+		bad_function_result = false;
+		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
-			Jacobian[i][j] = ( test_out_params[i] - base_out_params[i] )
-					/ d_in_params[j];
-			if ( power_flag )
-				Jacobian[i][j] *= power
-						* safe_pow( base_out_params[i], power - 1 );
-		} // for( int i = 0; i < num_out_params; i++)
-	} // for( unsigned int j = 0; j < num_in_params; j++)
+			// Set up test input parameters
+			for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
+			{
+				if ( j2 == j )
+				{
+					test_in_params[j2] = in_params[j2] + d_in_params[j2];
+				} // if( j2==j )
+				else
+				{
+					test_in_params[j2] = in_params[j2];
+				} // else
+			}
+
+			// Run the function to get value at test point
+			if ( int errcode = ( *func )( test_in_params, test_out_params,
+					silent ) )
+			{
+				bad_function_result = true;
+				d_in_params = divide(d_in_params,10); // Try again with smaller step size
+				continue;
+			}
+
+			// Record this derivative
+			for ( unsigned int i = 0; i < num_out_params; i++ )
+			{
+				Jacobian[i][j] = ( test_out_params[i] - base_out_params[i] )
+						/ d_in_params[j];
+				if ( power_flag )
+					Jacobian[i][j] *= power
+							* safe_pow( base_out_params[i], power - 1 );
+				if(isbad(Jacobian[i][j]))
+				{
+					bad_function_result = true;
+					d_in_params = divide(d_in_params,10); // Try again with smaller step size
+					continue;
+				}
+			} // for( int i = 0; i < num_out_params; i++)
+		} // for( unsigned int j = 0; j < num_in_params; j++)
+	} while (bad_function_result && (counter<3));
 
 	del_array( base_out_params );
 	del_array( test_out_params );
 	del_array( d_in_params );
+
+	if(counter==3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
+
 	return 0;
 }
 

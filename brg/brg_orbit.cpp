@@ -5128,16 +5128,34 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 			out_params, Jacobian ) )
 	{
 		if ( !silent )
+		{
 			std::cerr << "ERROR: Cannot differentiate in gabdt::calc_dv().\n";
+			std::cerr.flush();
+		}
 		return 1;
 	}
 
 	// Multiply by dt
+	bool bad_value = false;
 	for ( unsigned int i = 0; i < num_out_params; i++ )
 		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
-			_dv_[i][j] = Jacobian[i][j]*_dt_;
+			if(isbad(Jacobian[i][j]))
+			{
+				_dv_[i][j] = 0;
+				bad_value = true;
+			}
+			else;
+			{
+				_dv_[i][j] = Jacobian[i][j]*_dt_;
+			}
 		}
+
+	if(bad_value && (!silent))
+	{
+		std::cerr << "WARNING: Bad value in Jacobian in calculation of gabdt. Treating as zero to be safe.\n";
+		std::cerr.flush();
+	}
 
 	_is_cached_ = true;
 
