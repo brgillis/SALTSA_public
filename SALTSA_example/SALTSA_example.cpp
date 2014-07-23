@@ -285,7 +285,10 @@ int main( const int argc, const char *argv[] )
 	// Set up
 #if (1)
 	// Get the name of the file we'll use
-	unsigned int comparison_index = 7;
+
+	// We'll use the orbit with circularity .2, which is where we see resolution effects
+	// beginning to play a big role.
+	unsigned int comparison_index = 10;
 	ss.str("");
 	ss << output_file_name_base << comparison_index << output_file_name_tail;
 	std::string comparison_file_name = ss.str();
@@ -314,7 +317,11 @@ int main( const int argc, const char *argv[] )
 	// Since the data has been saved in a standard ASCII table, we can use the loading
 	// functions I've programmed to load it relatively easily. Since the saved data
 	// can have a variable number of columns, we'll use a function which parses the
-	// header to find the right column for each vector.
+	// header to find the right column for each vector. (Try varying which satellite
+	// parameters are output to test this. The number of those output will affect the
+	// indices of the host parameters, but this function will pick them out appropriately
+	// anyway. This will only fail if the density profile for the host is changed, which
+	// would change the names of its parameters.)
 
 	// To use this function, we'll need to set up "key"s, which connect strings to look
 	// for in the header to vectors to put data into. We'll then pass a vector of these
@@ -504,6 +511,12 @@ int main( const int argc, const char *argv[] )
 	out.close();
 	out.clear();
 
+	// Note that the strongly adaptive step size takes many more steps (about 80% as many as the
+	// high-resolution run), but it is indeed more accurate. It comes to the same result as the
+	// high-resolution run, but with a bit fewer steps. So it's likely more efficient to make
+	// the step size more strongly adaptive than to increase the resolution directly, as this
+	// results in more points near pericentre, where they're most needed.
+
 	// Change adaptive step length back to how it was before
 	test_orbit.reset_step_length_power();
 	test_orbit.reset_step_factor_min();
@@ -516,8 +529,8 @@ int main( const int argc, const char *argv[] )
 	// For this one, we'll actually have to go back and completely reload the orbit to show
 	// how this can be done
 
-	// Let's only give velocity for every fourth point
-	unsigned int v_skip_interval = 4;
+	// Let's only give velocity for every other point
+	unsigned int v_skip_interval = 2;
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << "_skipsomev_comp" << output_file_name_tail;
@@ -584,7 +597,94 @@ int main( const int argc, const char *argv[] )
 	out.close();
 	out.clear();
 
+	// Lesson here: For particularly eccentric orbits, the differentiation performed by SALTSA
+	// to estimate velocity tends to systematically underestimate the spikes near pericentre,
+	// resulting in an underestimate of tidal stripping there compared to if velocity data
+	// is given.
+
 #endif // Skipping velocity values
+
+	// Telling SALTSA about fewer points on the orbit
+#if (1)
+	// Let's see what happens if we only tell SALTSA about one in every ten points
+	// on the orbit.
+
+	// Once more, we'll have to reload the orbit
+
+	// Let's only load one tenth as many points
+	double t_skip_interval = 10*total_time/spline_points;
+	double t_next = 0;
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_fewerorbitpoints_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	test_orbit.clear_points(); // This clears all position, velocity, and mass comparison points,
+	                           // but not host parameter points
+
+	for(unsigned int i=0; i<t_data.size(); i++)
+	{
+		// Load the first point after each t interval (to simulate initially using
+		// only one-tenth the points. If we just only input every tenth, we'll also
+		// mimic the adaptive step size used, which we don't want to do here.)
+		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
+		{
+			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+					y_data.at(i)*unitconv::kpctom,
+					z_data.at(i)*unitconv::kpctom,
+					vx_data.at(i)*unitconv::kmpstomps,
+					vy_data.at(i)*unitconv::kmpstomps,
+					vz_data.at(i)*unitconv::kmpstomps,
+					t_data.at(i)*unitconv::Gyrtos,
+					comparison_mret_data.at(i));
+			t_next += t_skip_interval;
+		}
+	}
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	// (Some ringing occurs here in the comparison m_ret data; this is due to spline
+	// interpolation being used to guess intermediate points so a value can be plotted
+	// for them.)
+
+	// This looks bad... can we compensate for this by increasing resolution?
+
+	test_orbit.set_resolution(10*stripping_resolution);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_fewerorbitpoints_hires_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will automatically calculate here
+	std::cout << "Done!\n";
+
+	out.close();
+	out.clear();
+
+	test_orbit.set_resolution(stripping_resolution);
+
+	// Lesson here: For eccentric orbits, having too few actual data points along the orbit's
+	// path can lead to an underestimation of stripping, which can't simply be fixed with
+	// increasing resolution in SALTSA - only more orbit snapshots will help.
+	//
+	// This could be a significant issue, as we have to use 1000 snapshots here to get
+	// decent results, but most simulations will only give on order of 100 snapshots
+	// (where we see a problem).
+	//
+	// Future versions of SALTSA may try to account for this, for instance by using the
+	// orbit's circularity to better estimate how close its pericentre is.
+
+#endif // Telling SALTSA about fewer points on the orbit
 
 #endif // Various test cases
 

@@ -2464,6 +2464,8 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		return UNSPECIFIED_ERROR;
 	}
 
+	if(_bad_result_ || _likely_disrupted_) return UNSPECIFIED_ERROR;
+
 	return 0;
 
 }
@@ -2943,11 +2945,11 @@ const SALTSA::density_profile * SALTSA::stripping_orbit::final_satellite() const
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_satellite() without init_satellite assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) )
-		return _init_satellite_ptr_; // Sanest option in this case
+	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) || (_likely_disrupted_) )
+		return _init_satellite_ptr_; // Sanest/safest option in this case
 	else
 		return _final_good_segment()->final_satellite();
 }
@@ -2970,11 +2972,11 @@ const SALTSA::density_profile * SALTSA::stripping_orbit::final_host() const
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_host() without init_host assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) )
-		return _init_host_ptr_; // Sanest option in this case
+	if( (_bad_result_) || (_final_good_segment()==_orbit_segments_.end()) || (_likely_disrupted_) )
+		return _init_host_ptr_; // Sanest/safest option in this case
 	else
 		return _final_good_segment()->final_host();
 }
@@ -4781,6 +4783,9 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 						_vx_spline_( t ), _vy_spline_( t ), _vz_spline_( t ),
 						t ) );
 	_calculated_ = true;
+
+	if(_bad_result_ || _likely_disrupted_) return UNSPECIFIED_ERROR;
+
 	return 0;
 }
 
@@ -5685,10 +5690,10 @@ const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_satellite
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_satellite() without init_satellite assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
-	if( _bad_result_ )
+	if( _bad_result_ || _likely_disrupted_ )
 		return _init_satellite_ptr_; // Sanest option in this case
 	else
 		return _current_satellite_ptr_;
@@ -5715,7 +5720,7 @@ const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_host() co
 			return 0;
 		}
 	}
-	if( _bad_result_ )
+	if( _bad_result_ || _likely_disrupted_ )
 		return _init_host_ptr_; // Sanest option in this case
 	else
 		return _current_host_ptr_;
