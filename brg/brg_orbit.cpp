@@ -2105,10 +2105,8 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					{
 						throw std::runtime_error("ERROR: Could not pass parameters to orbit segment.\n");
 					}
-					if ( _orbit_segments_.at( i ).calc() )
-					{
-						throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
-					}
+					// Calculate it at this stage, and check if it's disrupted or some other suspicious
+					// result
 					if (_orbit_segments_.at( i ).likely_disrupted())
 					{
 						_likely_disrupted_ = true;
@@ -2130,10 +2128,15 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					_final_good_segment_ = _orbit_segments_.begin() + i;
 				}
 				catch (exception &e) {
-					del_obj(temp_satellite);
-					del_obj(temp_host);
 					if(_likely_disrupted_)
+					{
 						fmret = 0;
+						if ( _final_fmret_list_.size() > 0 )
+							_final_fmret_list_.push_back( fmret * _final_fmret_list_.back() );
+						else
+							_final_fmret_list_.push_back( fmret );
+						break;
+					}
 					else
 						fmret = 1;
 					if( !silent )
@@ -2152,8 +2155,8 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 				_final_fmret_list_.push_back( fmret );
 		}
 
-		delete temp_satellite;
-		delete temp_host;
+		del_obj(temp_satellite);
+		del_obj(temp_host);
 
 		_calculated_ = true;
 	}
@@ -4032,18 +4035,16 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			double t_recover = _current_satellite_ptr_->othmtot()/(2*pi);
 			double x;
 			double gabdt_scaling_factor;
+			x = max(0,t_shock / safe_d(t_recover) / ( 2 * pi ));
 
-			if(isbad(t_recover) or (t_recover<=0))
+			if(isbad(t_recover) or (t_recover<=0) or isbad(x) or (x<=0))
 			{
-				x = 0;
-				gabdt_scaling_factor = 0;
 				_likely_disrupted_ = true;
 				_bad_result_ = true;
 				break;
 			}
 			else
 			{
-				x = max(0,t_shock / safe_d(t_recover) / ( 2 * pi ));
 				gabdt_scaling_factor = max(0,1
 									- ( t_step * step_length_factor
 											/ safe_d( t_recover * _tidal_shocking_persistance_ ) ) );
