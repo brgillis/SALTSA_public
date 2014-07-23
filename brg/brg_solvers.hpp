@@ -15,7 +15,7 @@
 #include <cmath>
 #include "brg_units.h"
 #include "brg_functions.h"
-#include "brg_vector.hpp"
+#include "brg_vector_functions.hpp"
 
 namespace brgastro
 {

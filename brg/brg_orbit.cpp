@@ -648,6 +648,8 @@ brgastro::stripping_orbit::stripping_orbit(
 
 	_orbit_segments_ = other_stripping_orbit._orbit_segments_;
 
+	_likely_disrupted_ = other_stripping_orbit._likely_disrupted_;
+
 	if( (other_stripping_orbit._final_good_segment_ == other_stripping_orbit._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
 	{
 		_final_good_segment_ = _orbit_segments_.end();
@@ -773,6 +775,8 @@ brgastro::stripping_orbit & brgastro::stripping_orbit::operator=(
 				other_stripping_orbit._private_tNFW_init_satellite_;
 
 		_orbit_segments_ = other_stripping_orbit._orbit_segments_;
+
+		_likely_disrupted_ = other_stripping_orbit._likely_disrupted_;
 
 		if( (other_stripping_orbit._final_good_segment_ == other_stripping_orbit._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
 		{
@@ -4606,6 +4610,26 @@ const double brgastro::stripping_orbit_segment::_step_length_factor( const BRG_V
 	// Low-r -> small step factor (and the inverse), bounded by max and min
 	double step_length_factor_r = bound( _step_factor_min_,
 			std::pow( std::fabs(r / safe_d( r_0 )), _step_length_power_ ), _step_factor_max_);
+
+	if(isbad(step_length_factor_r))
+	{
+		std::cerr << "WARNING: Bad step_length_factor_r: " << step_length_factor_r
+				<< "r = " << r
+				<< "r_0 = " << r_0 << std::endl;
+		if(isgood(step_length_factor_v)) return step_length_factor_v;
+	}
+
+	if(isbad(step_length_factor_v))
+	{
+		std::cerr << "WARNING: Bad step_length_factor_v: " << step_length_factor_r
+				<< "v = " << r
+				<< "v_0 = " << r_0 << std::endl;
+		if(isgood(step_length_factor_r))
+			return step_length_factor_v;
+		else
+			return 1;
+	}
+
 	// Use the smaller of the two calculated factors
 	return min(step_length_factor_v,step_length_factor_r);
 }
@@ -5205,7 +5229,7 @@ const std::vector< std::vector< long double > > brgastro::gabdt::dv() const
 }
 const long double brgastro::gabdt::dv( const int x_i, const int y_i ) const
 {
-	return dv()[x_i][y_i];
+	return dv().at(x_i).at(y_i);
 }
 
 brgastro::gabdt & brgastro::gabdt::operator=( const gabdt &other_gabdt )
@@ -5239,6 +5263,8 @@ const BRG_UNITS brgastro::gabdt::operator*( const gabdt & other_gabdt ) const //
 		for ( int y_i = 0; y_i < 3; y_i++ )
 		{
 			result += dv().at(x_i).at(y_i)*other_gabdt.dv().at(x_i).at(y_i);
+			if(isbad(result)) std::cerr << "WARNING: Bad result in gabdt dot-product when multiplying "
+					<< dv().at(x_i).at(y_i) << " and " << other_gabdt.dv().at(x_i).at(y_i) << endl;
 		}
 	}
 	return result;
@@ -5256,7 +5282,10 @@ brgastro::gabdt & brgastro::gabdt::operator+=( const gabdt & other_gabdt )
 	{
 		for ( int y_i = 0; y_i < 3; y_i++ )
 		{
-			_dv_[x_i][y_i] += other_gabdt.dv()[x_i][y_i];
+			long double tmp = _dv_.at(x_i).at(y_i);
+			_dv_.at(x_i).at(y_i) += other_gabdt.dv().at(x_i).at(y_i);
+			if(isbad(_dv_[x_i][y_i])) std::cerr << "WARNING: Bad result in gabdt dot-product when multiplying "
+					<< tmp << " and " << other_gabdt.dv().at(x_i).at(y_i) << endl;
 		}
 	}
 	return *this;
@@ -5276,6 +5305,11 @@ brgastro::gabdt brgastro::gabdt::operator+( const gabdt & other_gabdt ) const
 
 brgastro::gabdt & brgastro::gabdt::operator*=( const double scale_fraction )
 {
+	if(isbad(scale_fraction))
+	{
+		std::cerr << "WARNING: Bad scale fraction passed to gabdt*=: " << scale_fraction << endl;
+		return *this;
+	}
 	if ( !_is_cached_ )
 		if ( calc_dv() )
 		{

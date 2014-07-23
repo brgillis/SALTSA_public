@@ -1397,5 +1397,5 @@ public:
 
 } // end namespace brgastro
 
-#endif __BRG_ORBIT_H_INCLUDED__
+#endif //__BRG_ORBIT_H_INCLUDED__
 

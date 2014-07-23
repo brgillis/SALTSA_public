@@ -133,8 +133,7 @@ inline const int differentiate( const f * func,
 			}
 
 			// Run the function to get value at test point
-			if ( int errcode = ( *func )( test_in_params, test_out_params,
-					silent ) )
+			if (( *func )( test_in_params, test_out_params,silent ) )
 			{
 				bad_function_result = true;
 				d_in_params /= 10; // Try again with smaller step
@@ -281,11 +280,11 @@ inline const int differentiate( const f * func,
 			}
 
 			// Run the function to get value at test point
-			if ( int errcode = ( *func )( test_in_params, test_out_params,
-					silent ) )
+			if (( *func )( test_in_params, test_out_params, silent ) )
 			{
 				bad_function_result = true;
-				d_in_params = divide(d_in_params,10); // Try again with smaller step size
+				for(unsigned int j=0; j< in_params.size(); j++)
+					d_in_params[j] /= 10; // Try again with smaller step size
 				continue;
 			}
 
@@ -300,7 +299,8 @@ inline const int differentiate( const f * func,
 				if(isbad(Jacobian[i][j]))
 				{
 					bad_function_result = true;
-					d_in_params = divide(d_in_params,10); // Try again with smaller step size
+					for(unsigned int j=0; j< in_params.size(); j++)
+						d_in_params[j] /= 10; // Try again with smaller step size
 					continue;
 				}
 			} // for( int i = 0; i < num_out_params; i++)
