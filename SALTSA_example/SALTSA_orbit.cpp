@@ -665,6 +665,8 @@ SALTSA::stripping_orbit::stripping_orbit(
 
 	_orbit_segments_ = other_stripping_orbit._orbit_segments_;
 
+	_likely_disrupted_ = other_stripping_orbit._likely_disrupted_;
+
 	if( (other_stripping_orbit._final_good_segment_ == other_stripping_orbit._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
 	{
 		_final_good_segment_ = _orbit_segments_.end();
@@ -2380,7 +2382,7 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 								std::cerr
 										<< "ERROR: Could not connect orbit segments properly.\n";
 							std::cerr.flush();
-							throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+							throw std::runtime_error("ERROR: Could not connect orbit segments properly.\n");
 						}
 					}
 					last_good_segment = i;
@@ -2393,25 +2395,19 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 					{
 						throw std::runtime_error("ERROR: Could not pass parameters to orbit segment.\n");
 					}
-					if ( _orbit_segments_.at( i ).calc() )
-					{
-						throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
-					}
 					// Calculate it at this stage, and check if it's disrupted or some other suspicious
 					// result
 					if (_orbit_segments_.at( i ).likely_disrupted())
 					{
 						_likely_disrupted_ = true;
+						_bad_result_ = true;
 						fmret = 0;
 						throw std::runtime_error("WARNING: Satellite halo likely disrupted.\n");
 					}
 					if (_orbit_segments_.at( i ).bad_result() )
 					{
-						if ( !silent )
-							std::cerr
-									<< "ERROR: Could not calculate stripping for orbit segment.\n";
-						std::cerr.flush();
-						throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+						_bad_result_ = true;
+						throw std::runtime_error("WARNING: Could not calculate stripping for orbit segment.\n");
 					}
 
 					_orbit_segments_.at( i ).get_final_fmret( fmret );
@@ -2420,19 +2416,21 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 					_final_good_segment_ = _orbit_segments_.begin() + i;
 				}
 				catch (exception &e) {
+					if( !silent )
+						std::cerr << e.what();
 					if(_likely_disrupted_)
 					{
 						fmret = 0;
-						if ( _final_fmret_list_.size() > 0 )
-							_final_fmret_list_.push_back( fmret * _final_fmret_list_.back() );
-						else
-							_final_fmret_list_.push_back( fmret );
-						break;
 					}
 					else
+					{
 						fmret = 1;
-					if( !silent )
-						std::cerr << e.what();
+					}
+					if ( _final_fmret_list_.size() > 0 )
+						_final_fmret_list_.push_back( fmret * _final_fmret_list_.back() );
+					else
+						_final_fmret_list_.push_back( fmret );
+					break;
 				}
 
 			}
@@ -3100,7 +3098,7 @@ SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 	}
 	else
 	{
-		_current_satellite_ptr_ = 0;
+		_current_satellite_ptr_ = NULL;
 	}
 	if ( _current_host_in_use_ )
 	{
@@ -3109,7 +3107,7 @@ SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 	}
 	else
 	{
-		_current_host_ptr_ = 0;
+		_current_host_ptr_ = NULL;
 	}
 	if ( _using_private_init_host_ )
 	{
@@ -3222,7 +3220,7 @@ SALTSA::stripping_orbit_segment & SALTSA::stripping_orbit_segment::operator=(
 		}
 		else
 		{
-			_current_satellite_ptr_ = 0;
+			_current_satellite_ptr_ = NULL;
 		}
 		if ( _current_host_in_use_ )
 		{
@@ -3231,7 +3229,7 @@ SALTSA::stripping_orbit_segment & SALTSA::stripping_orbit_segment::operator=(
 		}
 		else
 		{
-			_current_host_ptr_ = 0;
+			_current_host_ptr_ = NULL;
 		}
 		if ( _using_private_init_host_ )
 		{
@@ -3275,11 +3273,11 @@ SALTSA::stripping_orbit_segment::~stripping_orbit_segment()
 {
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
 }
 
@@ -3354,21 +3352,21 @@ const int SALTSA::stripping_orbit_segment::clear()
 	_init_sum_delta_rho_ = 0;
 	_init_sum_gabdt_.override_zero();
 
-	_init_host_ptr_ = 0;
-	_init_satellite_ptr_ = 0;
+	_init_host_ptr_ = NULL;
+	_init_satellite_ptr_ = NULL;
 
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
 
-	_current_satellite_ptr_ = 0;
+	_current_satellite_ptr_ = NULL;
 	_current_satellite_in_use_ = false;
-	_current_host_ptr_ = 0;
+	_current_host_ptr_ = NULL;
 	_current_host_in_use_ = false;
 	_host_loaded_ = false;
 	_satellite_loaded_ = false;
@@ -4188,7 +4186,7 @@ const int SALTSA::stripping_orbit_segment::set_init_host(
 	_init_host_ptr_ = new_init_host;
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
 	_current_host_ptr_ = _init_host_ptr_->density_profile_clone();
 	_current_host_in_use_ = true;
@@ -4209,7 +4207,7 @@ const int SALTSA::stripping_orbit_segment::set_init_satellite(
 	_init_satellite_ptr_ = new_init_satellite;
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	_current_satellite_ptr_ = _init_satellite_ptr_->density_profile_clone();
 	_current_satellite_in_use_ = true;
@@ -4262,7 +4260,7 @@ const int SALTSA::stripping_orbit_segment::set_tNFW_init_satellite(
 
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	_current_satellite_ptr_ = _init_satellite_ptr_->density_profile_clone();
 	_current_satellite_in_use_ = true;
@@ -4303,7 +4301,7 @@ const int SALTSA::stripping_orbit_segment::set_tNFW_host(
 
 			if ( _current_satellite_in_use_ )
 			{
-				delete _current_satellite_ptr_;
+				del_obj(_current_satellite_ptr_);
 			}
 			_current_satellite_ptr_ =
 					_init_satellite_ptr_->density_profile_clone();
@@ -4427,10 +4425,10 @@ const int SALTSA::stripping_orbit_segment::clear_init_sum_gabdt()
  */
 const int SALTSA::stripping_orbit_segment::clear_init_satellite()
 {
-	_init_satellite_ptr_ = 0;
+	_init_satellite_ptr_ = NULL;
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	_current_satellite_ptr_ = 0;
 	_current_satellite_in_use_ = false;
@@ -4445,12 +4443,12 @@ const int SALTSA::stripping_orbit_segment::clear_init_satellite()
  */
 const int SALTSA::stripping_orbit_segment::clear_init_host()
 {
-	_init_host_ptr_ = 0;
+	_init_host_ptr_ = NULL;
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
-	_current_host_ptr_ = 0;
+	_current_host_ptr_ = NULL;
 	_current_host_in_use_ = false;
 	_host_loaded_ = false;
 	_using_private_init_host_ = false;
@@ -4738,7 +4736,11 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 			current_gabdt.set_pos( _x_spline_( t ), _y_spline_( t ),
 					_z_spline_( t ) );
 			current_gabdt.set_dt( t_step * step_length_factor );
-			current_gabdt.calc_dv();
+			if(current_gabdt.calc_dv())
+			{
+				_bad_result_ = true;
+				break;
+			}
 			_gabdt_list_.push_back( current_gabdt );
 			_sum_gabdt_list_.push_back(
 					_sum_gabdt_list_.back() * gabdt_scaling_factor
@@ -5289,7 +5291,14 @@ const double SALTSA::stripping_orbit_segment::_delta_rho(
 	{
 		if(!silent)
 		{
-			std::cerr << "ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n";
+			std::cerr << "ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n"
+					<< "x = " << x << std::endl
+					<< "_tidal_shocking_power_ = " << _tidal_shocking_power_ << std::endl
+					<< "_tidal_shocking_amplification_ = " << _tidal_shocking_amplification_ << std::endl
+					<< "gabdt product with sum = " << (_gabdt_list_[index] * _sum_gabdt_list_[index - 1]) << std::endl
+					<< "gabdt product with self = " << (_gabdt_list_[index] * _gabdt_list_[index]) << std::endl;
+
+
 			std::cerr.flush();
 		}
 		throw std::runtime_error("ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n");
@@ -5717,7 +5726,7 @@ const SALTSA::density_profile * SALTSA::stripping_orbit_segment::final_host() co
 		else
 		{
 			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_host() without init_host assigned.\n");
-			return 0;
+			return NULL;
 		}
 	}
 	if( _bad_result_ || _likely_disrupted_ )
@@ -5773,7 +5782,7 @@ SALTSA::solve_rt_grid_function::solve_rt_grid_function()
 	omega = 0;
 	Daccel = 0;
 	sum_delta_rho = 0;
-	satellite_ptr = 0;
+	satellite_ptr = NULL;
 	return;
 }
 /**
@@ -5832,7 +5841,7 @@ const int SALTSA::solve_rt_it_function::operator()(
 SALTSA::solve_rt_it_function::solve_rt_it_function()
 {
 	omega = 0;
-	satellite_ptr = 0;
+	satellite_ptr = NULL;
 	Daccel = 0;
 	sum_delta_rho = 0;
 	return;
@@ -6124,7 +6133,7 @@ const std::vector< std::vector< long double > > SALTSA::gabdt::dv() const
  */
 const long double SALTSA::gabdt::dv( const int x_i, const int y_i ) const
 {
-	return dv()[x_i][y_i];
+	return dv().at(x_i).at(y_i);
 }
 
 /**
@@ -6190,7 +6199,10 @@ SALTSA::gabdt & SALTSA::gabdt::operator+=( const gabdt & other_gabdt )
 	{
 		for ( int y_i = 0; y_i < 3; y_i++ )
 		{
-			_dv_[x_i][y_i] += other_gabdt.dv()[x_i][y_i];
+			long double tmp = _dv_.at(x_i).at(y_i);
+			_dv_.at(x_i).at(y_i) += other_gabdt.dv().at(x_i).at(y_i);
+			if(isbad(_dv_[x_i][y_i])) std::cerr << "WARNING: Bad result in gabdt dot-product when multiplying "
+					<< tmp << " and " << other_gabdt.dv().at(x_i).at(y_i) << endl;
 		}
 	}
 	return *this;
@@ -6266,7 +6278,7 @@ SALTSA::gabdt SALTSA::gabdt::operator*( const double scale_fraction ) const
  */
 SALTSA::gabdt_function::gabdt_function()
 {
-	host_ptr = 0;
+	host_ptr = NULL;
 }
 
 /**

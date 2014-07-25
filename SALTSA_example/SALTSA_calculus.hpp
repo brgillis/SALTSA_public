@@ -59,6 +59,8 @@ inline const int differentiate( const f * func,
 	double test_out_params( 0 );
 	double small_factor_with_units = SMALL_FACTOR;
 
+	num_out_params = 1;
+
 	bool power_flag = false;
 	bool zero_in_flag = false;
 
@@ -118,35 +120,53 @@ inline const int differentiate( const f * func,
 	if ( int errcode = ( *func )( in_params, base_out_params, silent ) )
 		return errcode + LOWER_LEVEL_ERROR;
 
-	// Loop over input and output dimensions to get Jacobian
-	for ( unsigned int j = 0; j < num_in_params; j++ )
-	{
-		// Set up test input parameters
-		for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
-		{
-			if ( j2 == j )
-			{
-				test_in_params = in_params + d_in_params;
-			} // if( j2==j )
-			else
-			{
-				test_in_params = in_params;
-			} // else
-		}
+	bool bad_function_result = false;
+	unsigned int counter = 0;
 
-		// Run the function to get value at test point
-		if ( int errcode = ( *func )( test_in_params, test_out_params,
-				silent ) )
-			return errcode + LOWER_LEVEL_ERROR;
-
-		// Record this derivative
-		for ( unsigned int i = 0; i < num_out_params; i++ )
+	do {
+		counter++;
+		bad_function_result = false;
+		// Loop over input and output dimensions to get Jacobian
+		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
-			Jacobian = ( test_out_params - base_out_params ) / d_in_params;
-			if ( power_flag )
-				Jacobian *= power * safe_pow( base_out_params, power - 1 );
-		} // for( int i = 0; i < num_out_params; i++)
-	} // for( unsigned int j = 0; j < num_in_params; j++)
+			// Set up test input parameters
+			for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
+			{
+				if ( j2 == j )
+				{
+					test_in_params = in_params + d_in_params;
+				} // if( j2==j )
+				else
+				{
+					test_in_params = in_params;
+				} // else
+			}
+
+			// Run the function to get value at test point
+			if (( *func )( test_in_params, test_out_params,silent ) )
+			{
+				bad_function_result = true;
+				d_in_params /= 10; // Try again with smaller step
+				continue;
+			}
+
+			// Record this derivative
+			for ( unsigned int i = 0; i < num_out_params; i++ )
+			{
+				Jacobian = ( test_out_params - base_out_params ) / d_in_params;
+				if ( power_flag )
+					Jacobian *= power * safe_pow( base_out_params, power - 1 );
+				if(isbad(Jacobian))
+				{
+					bad_function_result = true;
+					d_in_params /= 10; // Try again with smaller step
+					continue;
+				}
+			} // for( int i = 0; i < num_out_params; i++)
+		} // for( unsigned int j = 0; j < num_in_params; j++)
+	} while ((bad_function_result) && (counter<3));
+
+	if(counter>=3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
 
 	return 0;
 }
@@ -252,40 +272,327 @@ inline const int differentiate( const f * func,
 		return errcode + LOWER_LEVEL_ERROR;
 
 	// Loop over input and output dimensions to get Jacobian
-	for ( unsigned int j = 0; j < num_in_params; j++ )
-	{
-		// Set up test input parameters
-		for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
-		{
-			if ( j2 == j )
-			{
-				test_in_params[j2] = in_params[j2] + d_in_params[j2];
-			} // if( j2==j )
-			else
-			{
-				test_in_params[j2] = in_params[j2];
-			} // else
-		}
 
-		// Run the function to get value at test point
-		if ( int errcode = ( *func )( test_in_params, test_out_params,
-				silent ) )
+	bool bad_function_result = false;
+	unsigned int counter = 0;
+	do {
+		counter++;
+		bad_function_result = false;
+		for ( unsigned int j = 0; j < num_in_params; j++ )
+		{
+			// Set up test input parameters
+			for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
+			{
+				if ( j2 == j )
+				{
+					test_in_params[j2] = in_params[j2] + d_in_params[j2];
+				} // if( j2==j )
+				else
+				{
+					test_in_params[j2] = in_params[j2];
+				} // else
+			}
+
+			// Run the function to get value at test point
+			if (( *func )( test_in_params, test_out_params, silent ) )
+			{
+				bad_function_result = true;
+				for(unsigned int j=0; j< in_params.size(); j++)
+					d_in_params[j] /= 10; // Try again with smaller step size
+				continue;
+			}
+
+			// Record this derivative
+			for ( unsigned int i = 0; i < num_out_params; i++ )
+			{
+				Jacobian[i][j] = ( test_out_params[i] - base_out_params[i] )
+						/ d_in_params[j];
+				if ( power_flag )
+					Jacobian[i][j] *= power
+							* safe_pow( base_out_params[i], power - 1 );
+				if(isbad(Jacobian[i][j]))
+				{
+					bad_function_result = true;
+					for(unsigned int j=0; j< in_params.size(); j++)
+						d_in_params[j] /= 10; // Try again with smaller step size
+					continue;
+				}
+			} // for( int i = 0; i < num_out_params; i++)
+		} // for( unsigned int j = 0; j < num_in_params; j++)
+	} while (bad_function_result && (counter<3));
+
+	del_array( base_out_params );
+	del_array( test_out_params );
+	del_array( d_in_params );
+
+	if(counter>=3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
+
+	return 0;
+}
+
+// Uses trapezoid-rule integration to estimate the integral of a function. Each output parameter is integrated independantly. For multiple input parameters,
+// the function works iteratively, using the "passed" parameters seen at the end of the function. These parameters should not be entered by the user unless
+// you're sure you know what you're doing. Due to the iterative nature of this function and the overhead involved, it may be unfeasibly slow for large-
+// dimensional integration. In the case of num_in_params > ~4, Monte Carlo integration is typically superior.
+// Note: For most smooth functions (of num_in_params < ~4), the integrate_Rhomberg function works better. This function is the superior choice for functions with // discontinuities cusps, corners, etc. It also has the benefit that the time spent is predefined by the input parameters, unlike the Rhomberg method which
+// must find convergence, so there is no worry about facing a bizarre function which may take surprisingly long to integrate.
+//
+// Parameters:
+// in_params_step: (first version only) The size of the steps used when integrating. Smaller is more accurate, but slower (order 1/in_params_step time).
+// num_samples: (second version only) The number of steps used when integrating. Larger is more accurate, but slower (order num_samples time).
+// num_passed_in_params & passed_in_params: Ignore these unless you know what you're doing.
+
+// Scalar-in, scaler-out version. !!! Needs clean-up after testing
+template< typename f, typename T >
+inline const int integrate( const f * func, const unsigned int num_in_params,
+		T & min_in_params, T & max_in_params, T & in_params_step,
+		unsigned int & num_out_params, T & out_params,
+		const unsigned int num_passed_in_params = 0,
+		const T & passed_in_params = 0, const bool silent = false )
+{
+	T in_params( 0 );
+	T temp_out_params( 0 );
+	T last_out_params( 0 );
+
+	bool array_created = false; // So we can only create the out_params array once, after the first step
+	int num_steps;
+
+	// Calculate number of steps for integration
+	for ( unsigned int i = 0; i < num_in_params; i++ )
+	{
+		num_steps = (int)( ( max_in_params - min_in_params )
+				/ safe_d( in_params_step ) ) + 1;
+	}
+
+	// Were any params passed in from a previous iteration?
+	if ( num_passed_in_params > 0 )
+	{
+		// Fill up in_params with the passed parameters
+		for ( unsigned int j = 0; j < num_passed_in_params; j++ )
+		{
+			in_params = passed_in_params;
+		} // for( int j = 0; j < num_passed_params; j++ )
+	} // if ( num_passed_params > 0 )
+
+	// Standard trapezoid rule integration routine now
+
+	array_created = false;
+	for ( int i = 0; i < num_steps; i++ )
+	{
+		in_params = min_in_params + in_params_step * i;
+
+		// If we have output params from last time, shift them to the last_out_params array
+		last_out_params = temp_out_params;
+
+		// Call function at this value
+		if ( int errcode = ( *func )( in_params, temp_out_params, silent ) )
 			return errcode + LOWER_LEVEL_ERROR;
 
-		// Record this derivative
-		for ( unsigned int i = 0; i < num_out_params; i++ )
+		// Create output param arrays if necessary
+		if ( !array_created )
 		{
-			Jacobian[i][j] = ( test_out_params[i] - base_out_params[i] )
-					/ d_in_params[j];
-			if ( power_flag )
-				Jacobian[i][j] *= power
-						* safe_pow( base_out_params[i], power - 1 );
-		} // for( int i = 0; i < num_out_params; i++)
-	} // for( unsigned int j = 0; j < num_in_params; j++)
+			array_created = true;
+		} // If this is the first time, we don't do anything. Wait till next round to start adding in
+		else
+		{
 
-	base_out_params.clear();
-	test_out_params.clear();
-	d_in_params.clear();
+			// Update the output parameters with those from the function call using trapezoidal rule
+			for ( unsigned int j = 0; j < num_out_params; j++ )
+			{
+				out_params += ( last_out_params + temp_out_params )
+						* in_params_step / 2.;
+			}
+
+		}
+
+	} // for( int i = 0; i < num_steps[0]; i++ )
+
+	return 0;
+}
+
+// Vector-in, vector-out version
+template< typename f, typename T >
+inline const int integrate( const f * func, const unsigned int num_in_params,
+		const std::vector< T > & min_in_params,
+		const std::vector< T > & max_in_params,
+		const std::vector< T > & in_params_step, unsigned int & num_out_params,
+		std::vector< T > & out_params,
+		const unsigned int num_passed_in_params = 0,
+		const std::vector< T > & passed_in_params = std::vector< T >( 0 ),
+		const bool silent = false )
+{
+	std::vector< T > in_params( 0 );
+	std::vector< T > new_min_in_params( 0 );
+	std::vector< T > new_max_in_params( 0 );
+	std::vector< T > new_in_params_step( 0 );
+	std::vector< T > new_passed_in_params( 0 );
+	std::vector< T > temp_out_params( 0 );
+	std::vector< T > last_out_params( 0 );
+
+	bool array_created = false; // So we can only create the out_params array once, after the first step
+	std::vector< int > num_steps;
+	int param_starting_index;
+	int new_num_in_params = 0, new_num_passed_params = 0, num_tot_params =
+			num_in_params + num_passed_in_params;
+
+	// Check that we have a sane number of input parameters
+	if ( ( num_in_params < 1 ) || ( num_in_params > MAX_STACK_DEPTH )
+			|| ( num_in_params != min_in_params.size() )
+			|| ( num_in_params != max_in_params.size() )
+			|| ( num_in_params != in_params_step.size() )
+			|| ( num_passed_in_params != passed_in_params.size() ) )
+	{
+		if ( !silent )
+			std::cerr
+					<< "ERROR: Bad number of input params passed to integrate().\n";
+		return INVALID_ARGUMENTS_ERROR;
+	}
+
+	if ( int errcode = make_array( num_steps, num_in_params ) )
+		return errcode + LOWER_LEVEL_ERROR;
+	if ( int errcode = make_array( in_params, num_tot_params ) )
+		return errcode + LOWER_LEVEL_ERROR;
+
+	// Delete out_params array if it exists
+	del_array( out_params );
+
+	// Calculate number of steps for integration
+	for ( unsigned int i = 0; i < num_in_params; i++ )
+	{
+		num_steps[i] = (int)( ( max_in_params[i] - min_in_params[i] )
+				/ safe_d( in_params_step[i] ) ) + 1;
+	}
+
+	// Were any params passed in from a previous iteration?
+	if ( num_passed_in_params > 0 )
+	{
+		// Fill up in_params with the passed parameters
+		for ( unsigned int j = 0; j < num_passed_in_params; j++ )
+		{
+			in_params[j] = passed_in_params[j];
+		} // for( int j = 0; j < num_passed_params; j++ )
+	} // if ( num_passed_params > 0 )
+
+	param_starting_index = num_passed_in_params; // Set index for parameter we'll be integrating over
+
+	if ( num_in_params < 1 ) // To catch errors that might have slipped through
+	{
+		return errorNOS( silent );
+	}
+	else if ( num_in_params == 1 )     // if (num_in_params < 1)
+	{
+		// Standard trapezoid rule integration routine now
+
+		array_created = false;
+		for ( int i = 0; i < num_steps[0]; i++ )
+		{
+			in_params[param_starting_index] = min_in_params[0]
+					+ in_params_step[0] * i;
+
+			// If we have output params from last time, shift them to the last_out_params array
+			if ( temp_out_params.size() > 0 )
+			{
+				for ( unsigned int j = 0; j < num_out_params; j++ )
+					last_out_params[j] = temp_out_params[j];
+				del_array( temp_out_params );
+			}
+
+			// Call function at this value
+			if ( int errcode = ( *func )( in_params, temp_out_params,
+					silent ) )
+				return errcode + LOWER_LEVEL_ERROR;
+
+			// Create output param arrays if necessary
+			if ( !array_created )
+			{
+				if ( int errcode = make_array( out_params, num_out_params ) )
+					return errcode + LOWER_LEVEL_ERROR;
+				if ( int errcode = make_array( last_out_params,
+						num_out_params ) )
+					return errcode + LOWER_LEVEL_ERROR;
+				array_created = true;
+			} // If this is the first time, we don't do anything. Wait till next round to start adding in
+			else
+			{
+
+				// Update the output parameters with those from the function call usind trapezoidal rule
+				for ( unsigned int j = 0; j < num_out_params; j++ )
+				{
+					out_params[j] +=
+							( last_out_params[j] + temp_out_params[j] )
+									* in_params_step[0] / 2.;
+				}
+
+			}
+
+		} // for( int i = 0; i < num_steps[0]; i++ )
+
+	}
+	else if ( num_in_params > 1 )   // else if(num_in_params == 1)
+	{
+		// In this case, we're going to have to iterate, calling the integration function for each step to integrate other dimensions
+
+		// Set up new passed parameter array
+		new_num_passed_params = num_passed_in_params + 1;
+		new_num_in_params = num_in_params - 1;
+		if ( int errcode = make_array( new_passed_in_params,
+				new_num_passed_params ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		for ( unsigned int i = 0; i < num_passed_in_params; i++ )
+			new_passed_in_params[i] = passed_in_params[i];
+
+		// Set up new in-parameter arrays, excluding this first parameter
+		if ( int errcode = make_array( new_min_in_params, num_in_params - 1 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( int errcode = make_array( new_max_in_params, num_in_params - 1 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( int errcode = make_array( new_in_params_step,
+				num_in_params - 1 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		for ( unsigned int i = 0; i < num_in_params - 1; i++ )
+		{
+			new_min_in_params[i] = min_in_params[i + 1];
+			new_max_in_params[i] = max_in_params[i + 1];
+			new_in_params_step[i] = in_params_step[i + 1];
+		} // for( int i = 0; i < num_in_params-1; i++)
+
+		array_created = false;
+		for ( int i = 0; i < num_steps[param_starting_index]; i++ )
+		{
+			// Determine input param and add it to passed parameters array
+			new_passed_in_params[new_num_passed_params - 1] =
+					min_in_params[param_starting_index]
+							+ in_params_step[param_starting_index] * i;
+
+			// Call integrate on remaining in_params
+			if ( int errcode = integrate( func, new_num_in_params,
+					new_min_in_params, new_max_in_params, new_in_params_step,
+					num_out_params, temp_out_params, new_num_passed_params,
+					new_passed_in_params ) )
+				return errcode + LOWER_LEVEL_ERROR;
+
+			// Create output param array if necessary
+			if ( !array_created )
+			{
+				if ( int errcode = make_array( out_params, num_out_params ) )
+					return errcode + LOWER_LEVEL_ERROR;
+				array_created = true;
+			}
+
+			// Update the output parameters with those from the integrate call
+			for ( unsigned int j = 0; j < num_out_params; j++ )
+			{
+				out_params[j] += temp_out_params[j]
+						* in_params_step[param_starting_index];
+			}
+		}
+
+	}
+	else     // else if (num_in_params > 1)
+	{
+		return errorNOS( silent );
+	} // else
+
 	return 0;
 }
 

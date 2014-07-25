@@ -33,12 +33,12 @@ namespace SALTSA {
 class stripping_orbit;
 class stripping_orbit_segment;
 
-class spline_derivative;
+class interpolator_derivative;
 class gabdt;
 
-class spline_function;
-class spline_derivative_function;
-class spline_derivative_weight_function;
+class interpolator_function;
+class interpolator_derivative_function;
+class interpolator_derivative_weight_function;
 class solve_rt_it_function;
 class solve_rt_grid_function;
 class gabdt_function;
@@ -50,7 +50,7 @@ class gabdt_function;
 class interpolator_function: public functor< double >
 {
 	/************************************************************
-	 interpolator_function
+	 spline_function
 	 ---------------
 
 	 Child of function_class
