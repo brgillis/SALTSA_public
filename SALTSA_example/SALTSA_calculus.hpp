@@ -321,10 +321,6 @@ inline const int differentiate( const f * func,
 		} // for( unsigned int j = 0; j < num_in_params; j++)
 	} while (bad_function_result && (counter<3));
 
-	del_array( base_out_params );
-	del_array( test_out_params );
-	del_array( d_in_params );
-
 	if(counter>=3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
 
 	return 0;
@@ -448,10 +444,8 @@ inline const int integrate( const f * func, const unsigned int num_in_params,
 		return INVALID_ARGUMENTS_ERROR;
 	}
 
-	if ( int errcode = make_array( num_steps, num_in_params ) )
-		return errcode + LOWER_LEVEL_ERROR;
-	if ( int errcode = make_array( in_params, num_tot_params ) )
-		return errcode + LOWER_LEVEL_ERROR;
+	num_steps.resize(num_in_params);
+	in_params.resize(num_tot_params);
 
 	// Delete out_params array if it exists
 	del_array( out_params );
