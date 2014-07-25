@@ -820,11 +820,11 @@ const int make_array5d(
 template< class obj_type >
 inline const int del_obj( obj_type * & obj_pointer, const bool silent = false )
 {
-	if ( obj_pointer == 0 )
-		return UNSPECIFIED_ERROR;
+	int result = 0;
+	if ( obj_pointer == NULL ) return UNSPECIFIED_ERROR;
 	delete obj_pointer;
 	obj_pointer = NULL;
-	return 0;
+	return result;
 }
 template< class obj_type >
 inline const int del_obj( BRG_UNIQUE_PTR<obj_type> & obj_pointer, const bool silent=false )

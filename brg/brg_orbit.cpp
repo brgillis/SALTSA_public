@@ -2096,7 +2096,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 								std::cerr
 										<< "ERROR: Could not connect orbit segments properly.\n";
 							std::cerr.flush();
-							throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+							throw std::runtime_error("ERROR: Could not connect orbit segments properly.\n");
 						}
 					}
 					last_good_segment = i;
@@ -2114,16 +2114,14 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					if (_orbit_segments_.at( i ).likely_disrupted())
 					{
 						_likely_disrupted_ = true;
+						_bad_result_ = true;
 						fmret = 0;
 						throw std::runtime_error("WARNING: Satellite halo likely disrupted.\n");
 					}
 					if (_orbit_segments_.at( i ).bad_result() )
 					{
-						if ( !silent )
-							std::cerr
-									<< "ERROR: Could not calculate stripping for orbit segment.\n";
-						std::cerr.flush();
-						throw std::runtime_error("ERROR: Could not calculate stripping for orbit segment.\n");
+						_bad_result_ = true;
+						throw std::runtime_error("WARNING: Could not calculate stripping for orbit segment.\n");
 					}
 
 					_orbit_segments_.at( i ).get_final_fmret( fmret );
@@ -2132,19 +2130,21 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					_final_good_segment_ = _orbit_segments_.begin() + i;
 				}
 				catch (exception &e) {
+					if( !silent )
+						std::cerr << e.what();
 					if(_likely_disrupted_)
 					{
 						fmret = 0;
-						if ( _final_fmret_list_.size() > 0 )
-							_final_fmret_list_.push_back( fmret * _final_fmret_list_.back() );
-						else
-							_final_fmret_list_.push_back( fmret );
-						break;
 					}
 					else
+					{
 						fmret = 1;
-					if( !silent )
-						std::cerr << e.what();
+					}
+					if ( _final_fmret_list_.size() > 0 )
+						_final_fmret_list_.push_back( fmret * _final_fmret_list_.back() );
+					else
+						_final_fmret_list_.push_back( fmret );
+					break;
 				}
 
 			}
@@ -2159,13 +2159,20 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 				_final_fmret_list_.push_back( fmret );
 		}
 
+		if(_bad_result_)
+			std::cerr << "DEBUG_MESSAGE: 1.\n";
+
 		del_obj(temp_satellite);
 		del_obj(temp_host);
+
+		if(_bad_result_)
+			std::cerr << "DEBUG_MESSAGE: 2.\n";
 
 		_calculated_ = true;
 	}
 	catch (const std::exception &e)
 	{
+		std::cerr << "DEBUG_MESSAGE: 3.\n";
 		clear_calcs();
 		del_obj(temp_satellite);
 		del_obj(temp_host);
@@ -2176,7 +2183,11 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		return UNSPECIFIED_ERROR;
 	}
 
-	if((_bad_result_) || (_likely_disrupted_)) return UNSPECIFIED_ERROR;
+	if((_bad_result_) || (_likely_disrupted_))
+	{
+		std::cerr << "DEBUG_MESSAGE: 4.\n";
+		return UNSPECIFIED_ERROR;
+	}
 	return 0;
 
 }
@@ -2691,7 +2702,7 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	}
 	else
 	{
-		_current_satellite_ptr_ = 0;
+		_current_satellite_ptr_ = NULL;
 	}
 	if ( _current_host_in_use_ )
 	{
@@ -2700,7 +2711,7 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	}
 	else
 	{
-		_current_host_ptr_ = 0;
+		_current_host_ptr_ = NULL;
 	}
 	if ( _using_private_init_host_ )
 	{
@@ -2808,7 +2819,7 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 		}
 		else
 		{
-			_current_satellite_ptr_ = 0;
+			_current_satellite_ptr_ = NULL;
 		}
 		if ( _current_host_in_use_ )
 		{
@@ -2817,7 +2828,7 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 		}
 		else
 		{
-			_current_host_ptr_ = 0;
+			_current_host_ptr_ = NULL;
 		}
 		if ( _using_private_init_host_ )
 		{
@@ -2852,11 +2863,11 @@ brgastro::stripping_orbit_segment::~stripping_orbit_segment()
 {
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
 }
 
@@ -2923,21 +2934,21 @@ const int brgastro::stripping_orbit_segment::clear()
 	_init_sum_delta_rho_ = 0;
 	_init_sum_gabdt_.override_zero();
 
-	_init_host_ptr_ = 0;
-	_init_satellite_ptr_ = 0;
+	_init_host_ptr_ = NULL;
+	_init_satellite_ptr_ = NULL;
 
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
 
-	_current_satellite_ptr_ = 0;
+	_current_satellite_ptr_ = NULL;
 	_current_satellite_in_use_ = false;
-	_current_host_ptr_ = 0;
+	_current_host_ptr_ = NULL;
 	_current_host_in_use_ = false;
 	_host_loaded_ = false;
 	_satellite_loaded_ = false;
@@ -3596,7 +3607,7 @@ const int brgastro::stripping_orbit_segment::set_init_host(
 	_init_host_ptr_ = new_init_host;
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
 	_current_host_ptr_ = _init_host_ptr_->density_profile_clone();
 	_current_host_in_use_ = true;
@@ -3612,7 +3623,7 @@ const int brgastro::stripping_orbit_segment::set_init_satellite(
 	_init_satellite_ptr_ = new_init_satellite;
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	_current_satellite_ptr_ = _init_satellite_ptr_->density_profile_clone();
 	_current_satellite_in_use_ = true;
@@ -3647,7 +3658,7 @@ const int brgastro::stripping_orbit_segment::set_tNFW_init_satellite(
 
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	_current_satellite_ptr_ = _init_satellite_ptr_->density_profile_clone();
 	_current_satellite_in_use_ = true;
@@ -3680,7 +3691,7 @@ const int brgastro::stripping_orbit_segment::set_tNFW_host(
 
 			if ( _current_satellite_in_use_ )
 			{
-				delete _current_satellite_ptr_;
+				del_obj(_current_satellite_ptr_);
 			}
 			_current_satellite_ptr_ =
 					_init_satellite_ptr_->density_profile_clone();
@@ -3766,10 +3777,10 @@ const int brgastro::stripping_orbit_segment::clear_init_sum_gabdt()
 }
 const int brgastro::stripping_orbit_segment::clear_init_satellite()
 {
-	_init_satellite_ptr_ = 0;
+	_init_satellite_ptr_ = NULL;
 	if ( _current_satellite_in_use_ )
 	{
-		delete _current_satellite_ptr_;
+		del_obj(_current_satellite_ptr_);
 	}
 	_current_satellite_ptr_ = 0;
 	_current_satellite_in_use_ = false;
@@ -3780,12 +3791,12 @@ const int brgastro::stripping_orbit_segment::clear_init_satellite()
 }
 const int brgastro::stripping_orbit_segment::clear_init_host()
 {
-	_init_host_ptr_ = 0;
+	_init_host_ptr_ = NULL;
 	if ( _current_host_in_use_ )
 	{
-		delete _current_host_ptr_;
+		del_obj(_current_host_ptr_);
 	}
-	_current_host_ptr_ = 0;
+	_current_host_ptr_ = NULL;
 	_current_host_in_use_ = false;
 	_host_loaded_ = false;
 	_using_private_init_host_ = false;
@@ -4059,7 +4070,11 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			current_gabdt.set_pos( _x_spline_( t ), _y_spline_( t ),
 					_z_spline_( t ) );
 			current_gabdt.set_dt( t_step * step_length_factor );
-			current_gabdt.calc_dv();
+			if(current_gabdt.calc_dv())
+			{
+				_bad_result_ = true;
+				break;
+			}
 			_gabdt_list_.push_back( current_gabdt );
 			_sum_gabdt_list_.push_back(
 					_sum_gabdt_list_.back() * gabdt_scaling_factor
@@ -4988,7 +5003,7 @@ brgastro::solve_rt_grid_function::solve_rt_grid_function()
 	omega = 0;
 	Daccel = 0;
 	sum_delta_rho = 0;
-	satellite_ptr = 0;
+	satellite_ptr = NULL;
 	return;
 }
 brgastro::solve_rt_grid_function::solve_rt_grid_function(
@@ -5030,7 +5045,7 @@ const int brgastro::solve_rt_it_function::operator()(
 brgastro::solve_rt_it_function::solve_rt_it_function()
 {
 	omega = 0;
-	satellite_ptr = 0;
+	satellite_ptr = NULL;
 	Daccel = 0;
 	sum_delta_rho = 0;
 	return;
@@ -5156,6 +5171,10 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 			std::cerr << "ERROR: Cannot differentiate in gabdt::calc_dv().\n";
 			std::cerr.flush();
 		}
+		for ( unsigned int i = 0; i < num_out_params; i++ )
+			for ( unsigned int j = 0; j < num_in_params; j++ )
+				_dv_[i][j] = 0; // To be safe;
+		_is_cached_ = true;
 		return 1;
 	}
 
@@ -5348,7 +5367,7 @@ brgastro::gabdt brgastro::gabdt::operator*( const double scale_fraction ) const
 
 brgastro::gabdt_function::gabdt_function()
 {
-	host_ptr = 0;
+	host_ptr = NULL;
 }
 
 const int brgastro::gabdt_function::operator()(

@@ -11,8 +11,8 @@
 
 // !!! Not fully tested yet
 
-#ifndef __BRG_VECTOR_HPP_INCLUDED__
-#define __BRG_VECTOR_HPP_INCLUDED__
+#ifndef __BRG_VECTOR_FUNCTIONS_HPP_INCLUDED__
+#define __BRG_VECTOR_FUNCTIONS_HPP_INCLUDED__
 
 #include "brg_global.h"
 
@@ -380,7 +380,7 @@ const std::vector<T1> pow( const std::vector<T1> & v1, const T2 &v2 )
 
 	for(unsigned int i = 0; i < v1.size(); i++)
 	{
-		result[i] = pow(v1[i], v2);
+		result[i] = std::pow(v1[i], v2);
 	}
 
 	return result;
@@ -393,7 +393,7 @@ const std::vector<T1> pow( const T2 & v1, const std::vector<T1> &v2 )
 
 	for(unsigned int i = 0; i < v2.size(); i++)
 	{
-		result[i] = pow(v1, v2[i]);
+		result[i] = std::pow(v1, v2[i]);
 	}
 
 	return result;
@@ -406,6 +406,50 @@ const T1 pow( const T1 & v1, const T2 & v2 )
 }
 
 #endif // Element-wise power
+
+// Element-wise safe power
+#if (1)
+
+template< typename T1, typename T2 >
+const std::vector<T1> safe_pow( const std::vector<T1> & v1, const std::vector<T2> &v2 )
+{
+	std::vector<T1> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = safe_pow(v1[i], v2.at(i));
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<T1> safe_pow( const std::vector<T1> & v1, const T2 &v2 )
+{
+	std::vector<T1> result(v1.size());
+
+	for(unsigned int i = 0; i < v1.size(); i++)
+	{
+		result[i] = safe_pow(v1[i], v2);
+	}
+
+	return result;
+}
+
+template< typename T1, typename T2 >
+const std::vector<T1> safe_pow( const T2 & v1, const std::vector<T1> &v2 )
+{
+	std::vector<T1> result(v2.size());
+
+	for(unsigned int i = 0; i < v2.size(); i++)
+	{
+		result[i] = safe_pow(v1, v2[i]);
+	}
+
+	return result;
+}
+
+#endif // Element-wise safe power
 
 // Element-wise max
 #if (1)
@@ -553,7 +597,7 @@ const std::vector<T> sqrt( const std::vector<T> & v )
 
 	for(unsigned int i = 0; i < v.size(); i++)
 	{
-		result[i] = sqrt(v[i]);
+		result[i] = std::sqrt(v[i]);
 	}
 
 	return result;
@@ -566,6 +610,24 @@ const T sqrt( const T & v )
 }
 
 #endif // Element-wise square root
+
+// Element-wise safe square root
+#if (1)
+
+template< typename T >
+const std::vector<T> safe_sqrt( const std::vector<T> & v )
+{
+	std::vector<T> result(v.size(),0);
+
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		result[i] = safe_sqrt(v[i]);
+	}
+
+	return result;
+}
+
+#endif // Element-wise safe square root
 
 // Element-wise exponential
 #if (1)
@@ -609,6 +671,20 @@ const std::vector<T> safe_d( const std::vector<T> & v )
 
 // Element-wise comparison (always return a vector of bools)
 #if (1)
+
+// Element-wise not
+#if (1)
+
+inline const std::vector<bool> & operator!( std::vector<bool> v )
+{
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		v[i] = !v[i];
+	}
+	return v;
+}
+
+#endif // Element-wise not
 
 // Element-wise equal
 #if (1)
@@ -1078,4 +1154,4 @@ inline const bool some_true_some_false(const bool v)
 
 
 
-#endif // __BRG_VECTOR_HPP_INCLUDED__
+#endif // __BRG_VECTOR_FUNCTIONS_HPP_INCLUDED__

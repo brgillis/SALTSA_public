@@ -103,7 +103,11 @@ const double pi = 3.14159265358979323846;
 #endif // #ifdef _BRG_USE_CPP_11_STD_
 
 #ifndef NULL
+#ifdef _BRG_USE_CPP_11_STD_
+#define NULL nullptr
+#else
 #define NULL (void *)0
+#endif // _BRG_USE_CPP_11_STD_
 #endif // #ifndef NULL
 
 // Error code values

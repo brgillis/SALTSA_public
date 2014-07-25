@@ -45,6 +45,8 @@ inline const int differentiate( const f * func,
 	BRG_UNITS test_out_params( 0 );
 	BRG_UNITS small_factor_with_units = SMALL_FACTOR;
 
+	num_out_params = 1;
+
 	bool power_flag = false;
 	bool zero_in_flag = false;
 
@@ -115,6 +117,7 @@ inline const int differentiate( const f * func,
 	unsigned int counter = 0;
 
 	do {
+		counter++;
 		bad_function_result = false;
 		// Loop over input and output dimensions to get Jacobian
 		for ( unsigned int j = 0; j < num_in_params; j++ )
@@ -154,10 +157,9 @@ inline const int differentiate( const f * func,
 				}
 			} // for( int i = 0; i < num_out_params; i++)
 		} // for( unsigned int j = 0; j < num_in_params; j++)
-		counter++;
 	} while ((bad_function_result) && (counter<3));
 
-	if(counter==3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
+	if(counter>=3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
 
 	return 0;
 }
@@ -263,6 +265,7 @@ inline const int differentiate( const f * func,
 	bool bad_function_result = false;
 	unsigned int counter = 0;
 	do {
+		counter++;
 		bad_function_result = false;
 		for ( unsigned int j = 0; j < num_in_params; j++ )
 		{
@@ -311,7 +314,7 @@ inline const int differentiate( const f * func,
 	del_array( test_out_params );
 	del_array( d_in_params );
 
-	if(counter==3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
+	if(counter>=3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
 
 	return 0;
 }

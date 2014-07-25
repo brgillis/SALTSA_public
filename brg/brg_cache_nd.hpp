@@ -15,8 +15,8 @@
 #include <string>
 #include <sstream>
 #include <exception>
-#include "brg_multi_vector.hpp"
 #include "brg_vector.hpp"
+#include "brg_vector_functions.hpp"
 #include "brg_global.h"
 #include "brg_units.h"
 #include "brg_functions.h"
@@ -30,10 +30,10 @@
 // SPP: "Static Polymorphic Pointer"
 #define SPP(name) static_cast<name*>(this)
 
-#define DECLARE_BRG_CACHE_STATIC_VARS(init_num_dim)		               \
-	static std::vector<double> _mins_, _maxes_, _steps_;           \
-	static std::vector<unsigned int> _resolutions_;                \
-	static brgastro::multi_vector<double, init_num_dim> _results_;          \
+#define DECLARE_BRG_CACHE_STATIC_VARS(init_num_dim)		           \
+	static brgastro::vector<double> _mins_, _maxes_, _steps_;      \
+	static brgastro::vector<unsigned int> _resolutions_;           \
+	static brgastro::vector<double> _results_;                     \
 											                       \
 	static std::string _file_name_;                                \
 	static std::string _header_string_;                            \
@@ -43,18 +43,20 @@
 	static unsigned int _sig_digits_;                              \
 	static unsigned int _num_dim_;
 
+// Be careful when using this not to use the default constructor for init_steps, which would result in
+// divide-by-zero errors
 #define DEFINE_BRG_CACHE_STATIC_VARS(class_name,init_mins,init_maxes,init_steps,init_num_dim) \
-	double brgastro::class_name::_mins_ = init_mins;							 \
-	double brgastro::class_name::_maxes_ = init_maxes; 						     \
-	double brgastro::class_name::_steps_ = init_steps; 						     \
-	bool brgastro::class_name::_loaded_ = false;							     \
-	bool brgastro::class_name::_initialised_ = false;					     	\
-	unsigned int brgastro::class_name::_sig_digits_ = 8;				     	\
-	unsigned int brgastro::class_name::_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(init_maxes,init_mins), safe_d(init_steps)), 1), 1);;\
-	std::string brgastro::class_name::_file_name_ = "";					     	\
-	std::string brgastro::class_name::_header_string_ = "";			     		\
-	static brgastro::multi_vector<double, init_num_dim> brgastro::class_name::_results_;                        \
-	static unsigned int brgastro::class_name::_num_dim_ = init_num_dim;
+	brgastro::vector<double> brgastro::class_name::_mins_ = init_mins;	                      \
+	brgastro::vector<double> brgastro::class_name::_maxes_ = init_maxes;                      \
+	brgastro::vector<double> brgastro::class_name::_steps_ = init_steps;                      \
+	bool brgastro::class_name::_loaded_ = false;							                  \
+	bool brgastro::class_name::_initialised_ = false;					                      \
+	unsigned int brgastro::class_name::_sig_digits_ = 12;				     	              \
+	brgastro::vector<double> brgastro::class_name::_resolutions_ = max( (((init_maxes-init_mins) / safe_d(init_steps))+1), 1);\
+	std::string brgastro::class_name::_file_name_ = "";					     	              \
+	std::string brgastro::class_name::_header_string_ = "";			     		              \
+	brgastro::vector<double> brgastro::class_name::_results_;                                 \
+	unsigned int brgastro::class_name::_num_dim_ = init_num_dim;
 
 namespace brgastro
 {
@@ -77,7 +79,7 @@ private:
 	{
 		if(SPCP(name)->_initialised_) return 0;
 
-		SPCP(name)->_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(SPCP(name)->_maxes_,SPCP(name)->_mins_), safe_d(SPCP(name)->_steps_)), 1), 1);
+		SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
 		SPCP(name)->_file_name_ = SPCP(name)->_name_base() + "_cache.dat";
 		SPCP(name)->_header_string_ = "# " + SPCP(name)->_name_base() + "_cache v1.0";
 
@@ -165,12 +167,12 @@ private:
 			}
 
 			// Set up data
-			SPCP(name)->_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(SPCP(name)->_maxes_,SPCP(name)->_mins_), safe_d(SPCP(name)->_steps_)), 1), 1);
+			SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
 			SPCP(name)->_results_.resize(SPCP(name)->_resolutions_);
 
 			// Read in data
 			i = 0;
-			std::vector<unsigned int> position(_num_dim_,0);
+			brgastro::vector<unsigned int> position(_num_dim_,0);
 			while ( ( !in_file.eof() ) && ( i < product(SPCP(name)->_resolutions_) ) )
 			{
 				in_file >> SPCP(name)->_results_(position);
@@ -233,15 +235,16 @@ private:
 
 		// Set up data
 		SPCP(name)->_resolutions_.resize(_num_dim_);
-		SPCP(name)->_resolutions_ = (std::vector<unsigned int>)max( add( divide(subtract(SPCP(name)->_maxes_,SPCP(name)->_mins_), safe_d(SPCP(name)->_steps_)), 1), 1);
-		SPCP(name)->_results_.resize(SPCP(name)->_resolutions_ );
+		SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
+		SPCP(name)->_results_.reshape(SPCP(name)->_resolutions_ );
 
-		unsigned int i = 0;
-		std::vector<unsigned int> position(_num_dim_,0);
-		for ( double x = SPCP(name)->_mins_; x < SPCP(name)->_maxes_; x += SPCP(name)->_steps_ )
+		brgastro::vector<unsigned int> position(_num_dim_,0);
+		brgastro::vector<double> x(_num_dim_,0);
+		for ( unsigned int i = 0; i < SPCP(name)->_results_.size(); i++ )
 		{
+			x = SPCP(name)->_mins_ + position*SPCP(name)->_steps_;
 			double result = 0;
-			if(SPCP(name)->_calculate(position, result))
+			if(SPCP(name)->_calculate(x, result))
 			{
 				return UNSPECIFIED_ERROR;
 			}
@@ -291,7 +294,7 @@ private:
 
 		// Output data			// Read in data
 		unsigned int i = 0;
-		std::vector<unsigned int> position(_num_dim_,0);
+		brgastro::vector<unsigned int> position(_num_dim_,0);
 		while ( i < product(SPCP(name)->_resolutions_) )
 		{
 			out_file << SPCP(name)->_results_(position) << "\t";
@@ -353,8 +356,8 @@ public:
 		return 0;
 	} // const int set_file_name()
 
-	const int set_range( const std::vector<double> & new_mins, const std::vector<double> & new_maxes,
-			const std::vector<double> & new_steps, const bool silent = false )
+	const int set_range( const brgastro::vector<double> & new_mins, const brgastro::vector<double> & new_maxes,
+			const brgastro::vector<double> & new_steps, const bool silent = false )
 	{
 		if(!SPCP(name)->_initialised_) SPP(name)->_init();
 
@@ -408,11 +411,11 @@ public:
 		}
 	} // const int set_precision()
 
-	const BRG_UNITS get( const std::vector<double> x, const bool silent = false ) const
+	const BRG_UNITS get( const brgastro::vector<double> x, const bool silent = false ) const
 	{
 
-		std::vector<double> xlo, xhi;
-		std::vector<unsigned int> x_i; // Lower nearby array points
+		brgastro::vector<double> xlo, xhi;
+		brgastro::vector<unsigned int> x_i; // Lower nearby array points
 #ifdef _BRG_USE_UNITS_
 		BRG_UNITS result = SPCP(name)->_units(); // Ensure the result has the proper units
 		result = 0;
@@ -442,12 +445,12 @@ public:
 			}
 		}
 
-		x_i = (std::vector<unsigned int>)divide( subtract( x, SPCP(name)->_mins_ ), SPCP(name)->_steps_ );
-		x_i = brgastro::max( x_i, std::vector<unsigned int>(_num_dim_,0) );
-		x_i = brgastro::min( x_i, std::vector<unsigned int>(_num_dim_,SPCP(name)->_resolutions_ - 2) );
+		x_i = ( x - SPCP(name)->_mins_ ) / SPCP(name)->_steps_ ;
+		x_i = brgastro::max( x_i, 0 );
+		x_i = brgastro::min( x_i, SPCP(name)->_resolutions_ - 2 );
 
-		xlo = add(SPCP(name)->_mins_, multiply(SPCP(name)->_steps_, x_i));
-		xhi = add(SPCP(name)->_mins_, multiply(SPCP(name)->_steps_, add( x_i, 1 )));
+		xlo = SPCP(name)->_mins_ + SPCP(name)->_steps_ * x_i;
+		xhi = SPCP(name)->_mins_ + SPCP(name)->_steps_ * ( x_i + 1 );
 
 		const unsigned int num_surrounding_points = std::pow(2,_num_dim_);
 		std::vector< std::vector<bool> > use_high(_num_dim_);
@@ -464,7 +467,7 @@ public:
 
 		result = 0;
 		double total_weight = 0;
-		std::vector<unsigned int> position(_num_dim_);
+		brgastro::vector<unsigned int> position(_num_dim_);
 
 		for(unsigned int j=0; j < num_surrounding_points; j++)
 		{
@@ -491,87 +494,6 @@ public:
 		return result;
 
 	} // get()
-
-	const BRG_UNITS inverse_get( const double y, const bool silent = false ) const
-	{
-		if(!SPCP(name)->_initialised_) SPCP(name)->_init();
-
-		// Check if it's possible to do an inverse get
-		if((SPCP(name)->_is_monotonic_!=1)&&((SPCP(name)->_is_monotonic_!=-1)))
-		{
-			// Not a monotonic function. Inverse get isn't possible
-			std::string err = "ERROR: Attempt to use inverse_get in cache for " + SPCP(name)->_file_name_ + " for function which isn't monotonic.\n";
-			if ( !silent )
-				std::cerr << err;
-			throw std::runtime_error(err);
-		}
-
-
-		double xlo, xhi, ylo, yhi;
-#ifdef _BRG_USE_UNITS_
-		BRG_UNITS result = SPCP(name)->_inverse_units(); // Ensure the result has the proper units
-		result = 0;
-#else
-		double result = 0;
-#endif
-
-		if ( !SPCP(name)->_loaded_ )
-		{
-			#pragma omp critical(load_brg_cache)
-			if ( SPCP(name)->_load( silent ) )
-			{
-				result = -1;
-			}
-		}
-		if ( result == -1 )
-		{
-			std::string err = "ERROR: Could neither load " + SPCP(name)->_file_name_ + " nor calculate in brg_cache::inverse_get()\n";
-			if ( !silent )
-				std::cerr << err;
-			throw std::runtime_error(err);
-		}
-
-		if(SPCP(name)->_is_monotonic_==1)
-		{
-
-			for ( unsigned int x_i = 0; x_i < SPCP(name)->_resolutions_ - 1; x_i++ )
-			{
-				// Loop through till we find the proper y or reach the end
-				yhi = SPCP(name)->_results_.at(x_i);
-				if ( ( yhi > y ) || (x_i >= SPCP(name)->_resolutions_ - 2) )
-				{
-					ylo = SPCP(name)->_results_.at(x_i + 1);
-
-					xlo = SPCP(name)->_mins_ + SPCP(name)->_steps_ * x_i;
-					xhi = SPCP(name)->_mins_ + SPCP(name)->_steps_ * ( x_i + 1 );
-					result = xlo + ( xhi - xlo ) * ( y - ylo ) / safe_d( yhi - ylo );
-					break;
-				}
-			}
-		} // if(_is_monotonic_==1)
-		else
-		{
-
-			for ( unsigned int x_i = 0; x_i < SPCP(name)->_resolutions_ - 1; x_i++ )
-			{
-				// Loop through till we find the proper y or reach the end
-				ylo = SPCP(name)->_results_.at(x_i);
-				if ( ( ylo < y ) || (x_i >= SPCP(name)->_resolutions_ - 2) )
-				{
-					yhi = SPCP(name)->_results_.at(x_i + 1);
-
-					xlo = SPCP(name)->_mins_ + SPCP(name)->_steps_ * x_i;
-					xhi = SPCP(name)->_mins_ + SPCP(name)->_steps_ * ( x_i + 1 );
-					result = xlo + ( xhi - xlo ) * ( y - ylo ) / safe_d( yhi - ylo );
-					break;
-				}
-			}
-
-		} // _is_monotonic == -1
-
-		return result;
-
-	}
 
 	// Recalculate function. Call if you want to overwrite a cache when something's changed in the code
 	// (for instance, the _calculate() function has been altered)
@@ -614,12 +536,13 @@ template<typename name>
 double brgastro::brg_cache<name>::_maxes_(0);
 
 template<typename name>
-double brgastro::brg_cache<name>::_steps_(0); // Never let any of the steps be zero
+double brgastro::brg_cache<name>::_steps_(0,2); // Never let any of the steps be zero
+
+// These ones don't need to be altered for each child, but they must be copied
 
 template<typename name>
-brgastro::multi_vector<double,0> brgastro::brg_cache<name>::_results_; // Get the number of dimensions right in the template
+brgastro::vector<double> brgastro::brg_cache<name>::_results_;
 
-// These ones don't need to be altered for each child, but they should be copied
 template<typename name>
 bool brgastro::brg_cache<name>::_loaded_ = false;
 
@@ -627,7 +550,7 @@ template<typename name>
 bool brgastro::brg_cache<name>::_initialised_ = false;
 
 template<typename name>
-unsigned int brgastro::brg_cache<name>::_sig_digits_ = 8;
+unsigned int brgastro::brg_cache<name>::_sig_digits_ = 12;
 
 template<typename name>
 unsigned int brgastro::brg_cache<name>::_resolutions_ = 0;

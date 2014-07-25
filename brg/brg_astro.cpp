@@ -2868,7 +2868,7 @@ const int brgastro::accel_function::set_host_ptr(
 const int brgastro::accel_function::operator()( const BRG_UNITS & in_param,
 BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -2881,7 +2881,7 @@ BRG_UNITS & out_param, const bool silent ) const
 
 brgastro::accel_function::accel_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 }
 brgastro::accel_function::accel_function( const density_profile *init_host )
 {
@@ -2904,7 +2904,7 @@ const int brgastro::spherical_density_function::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -2918,7 +2918,7 @@ const int brgastro::spherical_density_function::operator()(
 
 brgastro::spherical_density_function::spherical_density_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 }
 brgastro::spherical_density_function::spherical_density_function(
 		const density_profile *init_host )
@@ -2949,7 +2949,7 @@ const int brgastro::projected_density_function::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -2963,7 +2963,7 @@ const int brgastro::projected_density_function::operator()(
 
 brgastro::projected_density_function::projected_density_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_offset_R_ = 0;
 }
 
@@ -2990,7 +2990,7 @@ const int brgastro::cylindrical_density_function::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -3003,7 +3003,7 @@ const int brgastro::cylindrical_density_function::operator()(
 
 brgastro::cylindrical_density_function::cylindrical_density_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 }
 brgastro::cylindrical_density_function::cylindrical_density_function(
 		const density_profile *init_host )
@@ -3032,7 +3032,7 @@ const int brgastro::solve_rhm_function::set_target_mass(
 const int brgastro::solve_rhm_function::operator()( const BRG_UNITS & in_param,
 BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -3047,7 +3047,7 @@ BRG_UNITS & out_param, const bool silent ) const
 
 brgastro::solve_rhm_function::solve_rhm_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_target_mass_ = 0;
 }
 ;
@@ -3080,7 +3080,7 @@ const int brgastro::offset_ring_dens_function::operator()(
 		const BRG_UNITS &in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -3104,7 +3104,7 @@ const int brgastro::offset_ring_dens_function::set_host_ptr(
 
 brgastro::offset_ring_dens_function::offset_ring_dens_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_R_ = 0;
 	_R0_ = 0;
 }
@@ -3134,7 +3134,7 @@ const int brgastro::offset_circ_dens_function::operator()(
 		const std::vector< BRG_UNITS > &in_params,
 		std::vector< BRG_UNITS > & out_params, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -3168,7 +3168,7 @@ const int brgastro::offset_circ_dens_function::set_host_ptr(
 
 brgastro::offset_circ_dens_function::offset_circ_dens_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_R0_ = 0;
 }
 
@@ -3193,7 +3193,7 @@ const int brgastro::offset_WLsig_function::operator()(
 		const BRG_UNITS &in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -3215,7 +3215,7 @@ const int brgastro::offset_WLsig_function::set_host_ptr(
 
 brgastro::offset_WLsig_function::offset_WLsig_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_R_ = 0;
 }
 
@@ -3242,7 +3242,7 @@ const int brgastro::offset_WLsig_weight_function::operator()(
 		BRG_UNITS & out_param, const bool silent ) const
 {
 	BRG_UNITS result;
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -3276,7 +3276,7 @@ const int brgastro::offset_WLsig_weight_function::set_host_ptr(
 
 brgastro::offset_WLsig_weight_function::offset_WLsig_weight_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_c_ = 0;
 }
 

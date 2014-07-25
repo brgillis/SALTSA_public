@@ -566,7 +566,7 @@ template<typename name>
 short int brgastro::brg_cache<name>::_is_monotonic_ = 0;
 
 template<typename name>
-unsigned int brgastro::brg_cache<name>::_sig_digits_ = 8;
+unsigned int brgastro::brg_cache<name>::_sig_digits_ = 12;
 
 template<typename name>
 unsigned int brgastro::brg_cache<name>::_resolutions_ = 0;
