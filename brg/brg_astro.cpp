@@ -1087,7 +1087,7 @@ const int brgastro::tNFW_profile::get_parameters( std::vector< BRG_UNITS > & par
 		parameters.at( 2 ) = _c_;
 		parameters.at( 3 ) = _tau_;
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS( silent );
 	}
@@ -1106,7 +1106,7 @@ const int brgastro::tNFW_profile::get_parameter_names( std::vector< std::string 
 		parameter_names.at( 2 ) = "c";
 		parameter_names.at( 3 ) = "tau";
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS( silent );
 	}
@@ -1318,7 +1318,7 @@ const int brgastro::point_mass_profile::get_parameter_names(std::vector< std::st
 		parameter_names.at( 0 ) = "mass";
 		parameter_names.at( 1 ) = "z";
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS();
 	}
@@ -1354,11 +1354,7 @@ const int brgastro::dfa_cache::_calculate( const double in_params, double & out_
 	{
 		out_params = brgastro::integrate_add( 0, in_params );
 	}
-	catch(std::exception &e)
-	{
-		return LOWER_LEVEL_ERROR;
-	}
-	catch(...)
+	catch( const std::exception &e)
 	{
 		return LOWER_LEVEL_ERROR;
 	}
@@ -1485,7 +1481,8 @@ const int brgastro::add_cache::load( const bool silent )
 const int brgastro::add_cache::unload()
 {
 	loaded = false;
-	return del_array2d( dmod, z_res );
+	dmod.clear();
+	return 0;
 }
 
 const int brgastro::add_cache::calc( const bool silent )
@@ -1671,7 +1668,7 @@ const int brgastro::tfa_cache::_calculate( const double in_params, double & out_
 	{
 		out_params = -brgastro::integrate_ltd( 0, brgastro::zfa( in_params ) ) / c;
 	}
-	catch(std::exception &e)
+	catch(const std::exception &e)
 	{
 		std::cerr << "ERROR: Could not calculate cache for " << _name_base() << "\n"
 				<< "Exception: " << e.what() << "\n";
@@ -1803,7 +1800,8 @@ const int brgastro::tNFW_sig_cache::load( const bool silent )
 const int brgastro::tNFW_sig_cache::unload()
 {
 	loaded = false;
-	return del_array3d( signal, halo_z_res, halo_m_res );
+	signal.clear();
+	return 0;
 }
 
 const int brgastro::tNFW_sig_cache::calc( const bool silent )
@@ -2172,7 +2170,8 @@ const int brgastro::tNFW_offset_sig_cache::load( const bool silent )
 const int brgastro::tNFW_offset_sig_cache::unload()
 {
 	loaded = false;
-	return del_array4d( signal, halo_z_res, halo_m_res, r_res );
+	signal.clear();
+	return 0;
 }
 
 const int brgastro::tNFW_offset_sig_cache::calc( const bool silent )
@@ -2580,7 +2579,8 @@ const int brgastro::tNFW_group_sig_cache::load( const bool silent )
 const int brgastro::tNFW_group_sig_cache::unload()
 {
 	loaded = false;
-	return del_array4d( signal, halo_z_res, halo_m_res, r_res );
+	signal.clear();
+	return 0;
 }
 
 const int brgastro::tNFW_group_sig_cache::calc( const bool silent )
@@ -3259,7 +3259,6 @@ const int brgastro::offset_WLsig_weight_function::operator()(
 		BRG_UNIQUE_PTR<brgastro::density_profile> group_profile(_host_ptr_->density_profile_clone());
 		group_profile->set_c(_c_);
 		result = 2 * pi * in_param * group_profile->proj_dens(in_param);
-		del_obj(group_profile);
 	}
 
 	out_param = result;

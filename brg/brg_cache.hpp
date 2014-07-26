@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include "brg_global.h"
@@ -223,7 +224,8 @@ private:
 	const int _unload() const throw()
 	{
 		SPCP(name)->_loaded_ = false;
-		return del_array( SPCP(name)->_results_ );
+		SPCP(name)->_results_.clear();
+		return 0;
 	}
 	const int _calc( const bool silent = false ) const
 	{

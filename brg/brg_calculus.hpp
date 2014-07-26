@@ -198,8 +198,8 @@ inline const int differentiate( const f * func,
 		power_flag = false;
 
 	// Delete std::vectors we'll be overwriting in case they previously existed
-	del_array( out_params );
-	del_array2d( Jacobian, num_in_params );
+	out_params.clear();
+	Jacobian.clear();
 
 	// Set up differentials
 	if ( int errcode = make_array( d_in_params, num_in_params ) )
@@ -309,10 +309,6 @@ inline const int differentiate( const f * func,
 			} // for( int i = 0; i < num_out_params; i++)
 		} // for( unsigned int j = 0; j < num_in_params; j++)
 	} while (bad_function_result && (counter<3));
-
-	del_array( base_out_params );
-	del_array( test_out_params );
-	del_array( d_in_params );
 
 	if(counter>=3) return UNSPECIFIED_ERROR; // We can't get good results at any nearby points
 
@@ -945,7 +941,7 @@ inline const int integrate_Rhomberg( const f * func,
 		return errcode + LOWER_LEVEL_ERROR;
 
 	// Delete out_params array if it exists
-	del_array( out_params );
+	out_params.clear();
 
 	// Were any params passed in from a previous iteration?
 	if ( num_passed_in_params > 0 )

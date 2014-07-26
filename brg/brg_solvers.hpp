@@ -492,7 +492,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 			total_weight = num_in_params;
 		}
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS( silent );
 	}
@@ -735,7 +735,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 			total_weight = num_in_params;
 		}
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 
 		return errorNOS( silent );
@@ -954,7 +954,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 			in_params_step.at( i ) = ( init_max_in_params.at( i )
 					- init_min_in_params.at( i ) ) / steps;
 	}
-	catch ( std::exception & )
+	catch ( const std::out_of_range & )
 	{
 		if ( !silent )
 			std::cerr
@@ -1057,7 +1057,7 @@ const int solve_MCMC( const f * func, const T init_in_param, const T init_min_in
 			if(func(test_in_param, out_param, silent))
 				good_result = false;
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			good_result = false;
 		}
@@ -1124,7 +1124,7 @@ const int solve_MCMC( const f * func, const T init_in_param, const T init_min_in
 			}
 		}
 	}
-	catch(std::exception &e)
+	catch(const std::exception &e)
 	{
 		// Just leave it, no need to do anything
 	}
@@ -1252,7 +1252,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 			if(( *func )(test_in_params, out_params, silent))
 				good_result = false;
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			good_result = false;
 		}
@@ -1321,7 +1321,7 @@ const int solve_MCMC( const f * func, const std::vector<T> & init_in_params,
 			}
 		}
 	}
-	catch(std::exception &e)
+	catch(const std::exception &e)
 	{
 		// Just leave it, no need to do anything
 	}

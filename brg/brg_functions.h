@@ -32,7 +32,7 @@ brg_functions.h
 #include <memory>
 
 #include "brg_units.h"
-#include "brg_functions.hpp"
+#include "brg_misc_functions.hpp"
 
 namespace brgastro
 {
@@ -288,9 +288,6 @@ struct phase
 
 /** Global function declarations **/
 #if (1)
-// Rounds to nearest integer, preferring even values if in the middle of two integers (within epsilon distance of the middle)
-const int round_int( const double value, const double epsilon =
-		ROUNDING_EPSILON );
 
 // Prints a formatted table in the passed stream. header is a vector of strings representing the labels for each column,
 // and data is a 2-d vector of the data to be printed, in the format data[c][r], where c is the column index and r is the row index.

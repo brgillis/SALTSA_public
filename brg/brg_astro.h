@@ -1199,7 +1199,7 @@ public:
 	}
 	virtual const BRG_VELOCITY vhmtot( const bool silent = false ) const // Orbital velocity at rhmtot
 	{
-		return _v_from_r( rhmvir( silent ) );
+		return _v_from_r( rhmtot( silent ) );
 	}
 	virtual const BRG_VELOCITY vhm( const bool silent = false ) const // Orbital velocity at rhm
 	{

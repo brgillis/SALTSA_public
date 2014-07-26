@@ -51,30 +51,6 @@ BRG_TIME init_t )
 
 /** Global function implementations **/
 #if (1)
-const int brgastro::round_int( const double value, const double epsilon )
-{
-
-	if ( value < 0.0 )
-		return -brgastro::round_int( -value, epsilon );
-
-	double ipart;
-	std::modf( value, &ipart );
-
-	// If 'value' is exctly halfway between two integers
-	if ( fabs( value - ( ipart + 0.5 ) ) < epsilon )
-	{
-		// If 'ipart' is even then return 'ipart'
-		if ( std::fmod( ipart, 2.0 ) < epsilon )
-			return (int)ipart;
-
-		// Else return the nearest even integer
-		return (int)ceil( ipart + 0.5 );
-	}
-
-	// Otherwise use the usual round to closest
-	// (Either symmetric half-up or half-down will do0
-	return (int)floor( value + 0.5 );
-}
 
 const int brgastro::print_table( std::ostream & out_stream,
 		const int num_columns, const int num_rows,
@@ -366,7 +342,7 @@ const int brgastro::load_table_columns( const std::string & table_file_name,
 					}
 					*(header_links.at(i).second) = column_data;
 				}
-				catch (std::exception &e)
+				catch (const std::out_of_range &e)
 				{
 					throw std::runtime_error("Improperly formatted data table in load_table_columns.");
 				}

@@ -675,7 +675,7 @@ const std::vector<T> safe_d( const std::vector<T> & v )
 // Element-wise not
 #if (1)
 
-inline const std::vector<bool> & operator!( std::vector<bool> v )
+inline const std::vector<bool> operator!( std::vector<bool> v )
 {
 	for(unsigned int i = 0; i < v.size(); i++)
 	{

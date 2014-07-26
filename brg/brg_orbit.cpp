@@ -1026,12 +1026,6 @@ const int brgastro::stripping_orbit::add_discontinuity_time(
 		std::cerr.flush();
 		return UNSPECIFIED_ERROR;
 	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_discontinuity_time().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
 	return 0;
 }
 
@@ -2129,7 +2123,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					// Record this as the final good segment, in case we don't find any more afterward
 					_final_good_segment_ = _orbit_segments_.begin() + i;
 				}
-				catch (exception &e) {
+				catch (const exception &e) {
 					if( !silent )
 						std::cerr << e.what();
 					if(_likely_disrupted_)
@@ -2540,7 +2534,7 @@ const bool & brgastro::stripping_orbit::likely_disrupted() const
 		{
 			calc();
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			// Do nothing on exception here
 		}
@@ -4051,7 +4045,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			double t_recover = _current_satellite_ptr_->othmtot()/(2*pi);
 			double x;
 			double gabdt_scaling_factor;
-			x = max(0,t_shock / safe_d(t_recover) / ( 2 * pi ));
+			x = max(0.,t_shock / safe_d(t_recover) / ( 2 * pi ));
 
 			if(isbad(t_recover) or (t_recover<=0) or isbad(x) or (x<=0))
 			{
@@ -4061,7 +4055,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			}
 			else
 			{
-				gabdt_scaling_factor = max(0,1
+				gabdt_scaling_factor = max(0.,1
 									- ( t_step * step_length_factor
 											/ safe_d( t_recover * _tidal_shocking_persistance_ ) ) );
 			}
@@ -4106,7 +4100,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			}
 
 		}
-		catch ( std::exception & e )
+		catch ( const std::exception & e )
 		{
 			_calculated_ = true; // We know there's an issue, so we won't calculate again unless something changes
 			_bad_result_ = true;
@@ -4238,12 +4232,13 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 						num_extra_satellite_columns++;
 				}
 			}
-			catch ( std::exception & )
+			catch ( const std::exception &e )
 			{
 				if ( !silent )
 					std::cerr
 							<< "WARNING: Error reading satellite_output_parameters.\n"
-							<< "No extra parameters will be output.\n";
+							<< "No extra parameters will be output.\n"
+							<< e.what();
 				num_extra_satellite_columns = 0;
 			}
 		}
@@ -4280,12 +4275,13 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 						num_extra_host_columns++;
 				}
 			}
-			catch ( std::exception & )
+			catch ( const std::exception &e )
 			{
 				if ( !silent )
 					std::cerr
 							<< "WARNING: Error reading host_output_parameters.\n"
-							<< "No extra parameters will be output.\n";
+							<< "No extra parameters will be output.\n"
+							<< e.what();
 				num_extra_host_columns = 0;
 			}
 		}
@@ -4335,7 +4331,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 					ss << "Satellite_" << parameter_names.at( i );
 					header[num_columns_base + extra_column_counter] = ss.str();
 				}
-				catch ( std::exception & )
+				catch ( const std::out_of_range & )
 				{
 					ss.str( "" );
 					ss << "Unknown_parameter_" << ( extra_column_counter + 1 );
@@ -4365,7 +4361,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 					header[num_columns_base + num_extra_satellite_columns
 							+ extra_column_counter] = ss.str();
 				}
-				catch ( std::exception & )
+				catch ( const std::out_of_range & )
 				{
 					ss.str( "" );
 					ss << "Unknown_parameter_"
@@ -4505,7 +4501,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 						data[num_columns_base + extra_column_counter][i] =
 								ss.str();
 					}
-					catch ( std::exception & )
+					catch ( const std::out_of_range & )
 					{
 						ss.str( "" );
 						ss << DBL_MIN;
@@ -4536,7 +4532,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 						data[num_columns_base + num_extra_satellite_columns
 								+ extra_column_counter][i] = ss.str();
 					}
-					catch ( std::exception & )
+					catch ( const std::out_of_range & )
 					{
 						ss.str( "" );
 						ss << DBL_MIN;
@@ -4652,14 +4648,7 @@ const double brgastro::stripping_orbit_segment::_step_length_factor( const BRG_V
 const BRG_DISTANCE brgastro::stripping_orbit_segment::_rvir(
 		const int index ) const
 {
-	try
-	{
-		return _current_satellite_ptr_->rvir();
-	}
-	catch ( std::exception & )
-	{
-		return -1;
-	}
+	return _current_satellite_ptr_->rvir();
 }
 const int brgastro::stripping_orbit_segment::_pass_interpolation_type() const
 {
@@ -4912,7 +4901,7 @@ const bool & brgastro::stripping_orbit_segment::likely_disrupted() const
 		{
 			calc();
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			// Do nothing on exception here
 		}

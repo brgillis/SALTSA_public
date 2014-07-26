@@ -106,7 +106,7 @@ public:
 		{
 			v::push_back(val);
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			_shape_[0] -= 1;
 			throw;
@@ -121,7 +121,7 @@ public:
 		{
 			return v::insert(position,val);
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			_shape_[0] -= 1;
 			throw;
@@ -136,7 +136,7 @@ public:
 			v::insert(position,n,val);
 			_shape_[0] += n;
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			throw;
 		}
@@ -151,7 +151,7 @@ public:
 			v::insert(position,n,val);
 			_shape_[0] = size();
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			throw;
 		}
@@ -165,7 +165,7 @@ public:
 		{
 			return v::erase(position);
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			_shape_[0] += 1;
 			throw;
@@ -181,7 +181,7 @@ public:
 			_shape_[0] = size();
 			return result;
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			throw;
 		}
@@ -219,7 +219,7 @@ public:
 		{
 			v::emplace(position,args);
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			_shape_[0] -= 1;
 			throw;
@@ -235,7 +235,7 @@ public:
 		{
 			v::emplace_back(args);
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			_shape_[0] -= 1;
 			throw;

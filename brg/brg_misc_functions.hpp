@@ -1,5 +1,5 @@
 /**********************************************************************
- brg_functions.hpp
+ brg_misc_functions.hpp
  -----------------
 
  This is a self-contained header file, automatically included along with
@@ -13,27 +13,17 @@
 
  \**********************************************************************/
 
-#ifndef __BRG_FUNCTIONS_HPP_INCLUDED__
-#define __BRG_FUNCTIONS_HPP_INCLUDED__
+#ifndef __BRG_MISC_FUNCTIONS_HPP_INCLUDED__
+#define __BRG_MISC_FUNCTIONS_HPP_INCLUDED__
+
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <limits>
+
+#include <boost/math/special_functions/erf.hpp>
 
 #include "brg_global.h"
-
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <new>
-#include <fstream>
-#include <memory>
-#include <boost/math/special_functions/erf.hpp>
-#ifndef __USE_CPP_11_STD__
-#include <boost/shared_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
-#endif // #ifndef __USE_CPP_11_STD__
-
-#ifdef _BRG_USE_UNITS_
-#include "brg_units.h"
-#endif
 
 namespace brgastro
 {
@@ -59,25 +49,29 @@ inline const int memory_error( const bool silent = false )
 }
 
 // Returns true if val is Not a Number - Personal implementation, to make sure it's included
-inline const bool isnan( double val )
+template< typename T >
+inline const bool isnan( T val )
 {
 	return ( val != val );
 }
 
 // Returns true if val is infinity - ''
-inline const bool isinf( double val )
+template< typename T >
+inline const bool isinf( T val )
 {
-	return fabs( val ) > DBL_MAX;
+	return std::fabs( val ) > std::numeric_limits<T>::max();
 }
 
 // Returns true if val is NaN or Inf
-inline const bool isbad( double val )
+template< typename T >
+inline const bool isbad( T val )
 {
 	return ( isnan( val ) || isinf( val ) );
 }
 
 // Returns true if val is neither NaN nor Inf
-inline const bool isgood( double val )
+template< typename T >
+inline const bool isgood( T val )
 {
 	return !isbad( val );
 }
@@ -87,49 +81,21 @@ inline const bool isgood( double val )
 // different types, so the function goes for the most general
 // type of number allowed (unit_obj if units are being used,
 // otherwise double).
-template< class T >
-inline const T min( const T &a, const T &b )
-{
-	return ( a < b ? a : b );
-}
-template< class T >
-inline const T max( const T &a, const T &b )
-{
-	return ( a < b ? b : a );
-}
-template< class T >
-inline const T bound( const T &lower_bound, const T &a, const T &upper_bound)
-{
-	return min( max( lower_bound, a ) , upper_bound);
-}
-#ifdef _BRG_USE_UNITS_
-template<class T1, class T2>
-inline const brgastro::unit_obj min(const T1 a, const T2 b)
-{
-	return( (a<b) ? brgastro::unit_obj(a) : brgastro::unit_obj(b) );
-}
-template<class T1, class T2>
-inline const brgastro::unit_obj max(const T1 a, const T2 b)
-{
-	return( (a<b) ? brgastro::unit_obj(b) : brgastro::unit_obj(a) );
-}
-template< class T1, class T2, class T3 >
-inline const brgastro::unit_obj bound( const T1 &lower_bound, const T2 &a, const T3 &upper_bound)
-{
-	return min( max( lower_bound, a ) , upper_bound);
-}
-#else
 template< class T1, class T2 >
-inline const double min( const T1 a, const T2 b )
+inline const T1 min( const T1 a, const T2 b )
 {
-	return ( a < b ? (double)a : (double)b );
+	return ( a < b ? a : (T1)b );
 }
 template< class T1, class T2 >
-inline const double max( const T1 a, const T2 b )
+inline const T1 max( const T1 a, const T2 b )
 {
-	return ( a < b ? (double)b : (double)a );
+	return ( a < b ? (T1)b : a );
 }
-#endif
+template<  class T1, class T2, class T3 >
+inline const T2 bound( const T1 lower_bound, const T2 a, const T3 upper_bound)
+{
+	return min( max( a, lower_bound ) , upper_bound);
+}
 
 // The below two variants return by reference, in case you
 // want to do something like min_ref( a, b) = 0 to set the
@@ -147,7 +113,8 @@ inline T & max_ref( T &a, T &b )
 }
 
 // Returns true if a is evenly divisible by b
-inline const bool divisible( const int a, const int b )
+template< typename Ta, typename Tb >
+inline const bool divisible( const Ta a, const Tb b )
 {
 	if(b==0) return false;
 	return ( a % b == 0 );
@@ -180,9 +147,9 @@ inline const double safe_sqrt( const int a ) // Special case for integers due to
 	}
 #endif
 
-	if ( a == INT_MIN )
+	if ( a == std::numeric_limits<int>::min() )
 	{
-		res = INT_MAX;
+		res = std::numeric_limits<int>::max();
 	}
 	else
 	{
@@ -190,39 +157,10 @@ inline const double safe_sqrt( const int a ) // Special case for integers due to
 	}
 	return sqrt( res );
 }
-inline const double safe_pow( const int a, const double x )
+template< class Ta, class Tx >
+inline const Ta safe_pow( const Ta a, const Tx x )
 {
-	int res;
-	double ipart;
-
-	std::modf( a, &ipart );
-
-	if ( ( a < 0 ) && ( ipart != a ) )
-	{
-#ifdef _BRG_WARN_FOR_SAFE_FUNCTIONS_TRIGGERED_
-		std::cerr << "WARNING: safe_pow() prevented error from negative input.\n";
-#endif
-
-		if ( INT_MIN == a )
-		{
-			res = INT_MAX;
-		}
-		else
-		{
-			res = -a;
-		}
-	}
-	else
-	{
-		res = a;
-	}
-
-	return std::pow( res, x );
-}
-template< class T >
-inline const T safe_pow( const T a, const double x )
-{
-	T res;
+	Ta res;
 	double ipart;
 
 	std::modf( a, &ipart );
@@ -275,16 +213,39 @@ const T safe_d( const T a )
 }
 
 // Gaussian PDF
-inline const double Gaus_pdf( const double x, const double mean = 0,
-		const double std_dev = 1 )
+template< typename Tx >
+inline const double Gaus_pdf( const Tx x )
+{
+	return Gaus_pdf(x,0.,1.);
+}
+template< typename Tx, typename Tmean >
+inline const double Gaus_pdf( const Tx x, const Tmean mean )
+{
+	return Gaus_pdf(x,mean,1.);
+}
+template< typename Tx, typename Tmean, typename Tstddev >
+inline const double Gaus_pdf( const Tx x, const Tmean mean = 0,
+		const Tstddev std_dev = 1 )
 {
 	return exp( -pow( x - mean, 2 ) / ( 2 * std_dev * std_dev ) )
 			/ ( std_dev * sqrt( 2 * pi ) );
 }
 
 // Function to integrate a Gaussian from min to max
-inline const double Gaus_int( const double min, const double max,
-		const double mean = 0, const double std_dev = 1 )
+template< typename Tlo, typename Thi, typename Tmean, typename Tstddev >
+inline const double Gaus_int( const Tlo min, const Thi max)
+{
+	return Gaus_int(min,max,0.,1.);
+}
+template< typename Tlo, typename Thi, typename Tmean>
+inline const double Gaus_int( const Tlo min, const Thi max,
+		const Tmean mean)
+{
+	return Gaus_int(min,max,mean,1.);
+}
+template< typename Tlo, typename Thi, typename Tmean, typename Tstddev >
+inline const double Gaus_int( const Tlo min, const Thi max,
+		const Tmean mean, const Tstddev std_dev )
 {
 	double klo = ( min - mean ) / std_dev;
 	double khi = ( max - mean ) / std_dev;
@@ -293,177 +254,153 @@ inline const double Gaus_int( const double min, const double max,
 }
 
 // Add two or three values in quadrature.
-inline const double quad_add( const double v1, const double v2,
-		const double v3 = 0 )
+template < typename T1, typename T2 >
+inline const T1 quad_add( const T1 v1, const T2 v2)
+{
+	return sqrt( v1 * v1 + v2 * v2);
+}
+template < typename T1, typename T2, typename T3 >
+inline const T1 quad_add( const T1 v1, const T2 v2,
+		const T3 v3 )
 {
 	return sqrt( v1 * v1 + v2 * v2 + v3 * v3 );
 }
 
 // Subtract one value from another in quadrature
-inline const double quad_sub( const double v1, const double v2 )
+template < typename T1, typename T2 >
+inline const T1 quad_sub( const T1 v1, const T2 v2 )
 {
 	return safe_sqrt( v1 * v1 - v2 * v2 );
 }
 
-// unit_obj versions of the above
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj quad_add( const unit_obj v1, const unit_obj v2, const unit_obj v3=0 )
-{
-	return sqrt( v1*v1 + v2*v2 + v3*v3 );
-}
-inline const unit_obj quad_sub( const unit_obj v1, const unit_obj v2 )
-{
-	return safe_sqrt( v1*v1 - v2*v2 );
-}
-#endif
-
 // Function to calculate the distance between two points in 2-dimensions
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist2d( const unit_obj x1, const unit_obj y1, const unit_obj x2, const unit_obj y2 )
-#else
-inline const double dist2d( const double x1, const double y1, const double x2,
-		const double y2 )
-#endif
+template < typename Tx1, typename Ty1, typename Tx2, typename Ty2 >
+inline const Tx1 dist2d( const Tx1 x1, const Ty1 y1, const Tx2 x2,
+		const Ty2 y2 )
 {
 	return quad_add( x2 - x1, y2 - y1 );
 }
 // Function to calculate the distance between a point and (0,0) in 2-dimensions
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist2d( const unit_obj x1, const unit_obj y1 )
-#else
-inline const double dist2d( const double x1, const double y1 )
-#endif
+template < typename Tx1, typename Ty1 >
+inline const Tx1 dist2d( const Tx1 x1, const Ty1 y1 )
 {
 	return quad_add( x1, y1 );
 }
 
 // Use the law of cosines to calculate hypotenuse length (lc=Law of Cosines)
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj lc_add( const unit_obj x1, const unit_obj y1, const unit_obj a1 )
-#else
-inline const double lc_add( const double x1, const double y1, const double a1 )
-#endif
+template < typename Tx1, typename Ty1, typename Ta1 >
+inline const Tx1 lc_add( const Tx1 x1, const Ty1 y1, const Ta1 a1 )
 {
 	return safe_sqrt( x1 * x1 + y1 * y1 - 2 * x1 * y1 * cos( a1 ) );
 }
 
 // Like dist2d, but using corrections for spherical geometry
-#ifdef _BRG_USE_UNITS_
-inline const unit_angle skydist2d( const unit_angle ra1, const unit_angle dec1, const unit_angle ra2, const unit_angle dec2 )
-#else
-inline const double skydist2d( const double ra1, const double dec1,
-		const double ra2, const double dec2 )
-#endif
+template< typename Tr1, typename Td1, typename Tr2, typename Td2 >
+inline const Tr1 skydist2d( const Tr1 ra1, const Td1 dec1,
+		const Tr2 ra2, const Td2 dec2 )
 {
-	return quad_add( ( ra2 - ra1 ) * cos( ( dec2 + dec1 ) / 2 ), dec2 - dec1 );
+	return quad_add( ( ra2 - ra1 ) * std::cos( ( dec2 + dec1 ) / 2 ), dec2 - dec1 );
 }
 
 // 3-D distance between two points
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist3d( const unit_obj x1, const unit_obj y1, const unit_obj z1, const unit_obj x2, const unit_obj y2, const unit_obj z2 )
-#else
-inline const double dist3d( const double x1, const double y1, const double z1,
-		const double x2, const double y2, const double z2 )
-#endif
+template < typename Tx1, typename Ty1, typename Tz1, typename Tx2, typename Ty2, typename Tz2 >
+inline const Tx1 dist3d( const Tx1 x1, const Ty1 y1, const Tz1 z1,
+		const Tx2 x2, const Ty2 y2, const Tz2 z2 )
 {
 	return quad_add( x2 - x1, y2 - y1, z2 - z1 );
 }
 
 // 3-D distance from (0,0,0)
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dist3d( const unit_obj x1, const unit_obj y1, const unit_obj z1 )
-#else
-inline const double dist3d( const double x1, const double y1, const double z1 )
-#endif
+template < typename Tx, typename Ty, typename Tz >
+inline const Tx dist3d( const Tx x1, const Ty y1, const Tz z1 )
 {
 	return quad_add( x1, y1, z1 );
 }
 
+template< typename T >
+const int round_int( const T value, const double epsilon=DBL_EPSILON )
+{
+
+	if ( value < 0.0 )
+		return -round_int( -value, epsilon );
+
+	double ipart;
+	std::modf( value, &ipart );
+
+	// If 'value' is exctly halfway between two integers
+	if ( fabs( value - ( ipart + 0.5 ) ) < epsilon )
+	{
+		// If 'ipart' is even then return 'ipart'
+		if ( std::fmod( ipart, 2.0 ) < epsilon )
+			return (int)ipart;
+
+		// Else return the nearest even integer
+		return (int)ceil( ipart + 0.5 );
+	}
+
+	// Otherwise use the usual round to closest
+	// (Either symmetric half-up or half-down will do0
+	return (int)floor( value + 0.5 );
+}
+
 // Distance between two vectors, where the dimensions are weighted by vector c
 // An exception is thrown if the vectors aren't of equal sizes
-inline const double weighted_dist( std::vector< double > a,
-		std::vector< double > b, std::vector< double > c =
-				std::vector< double >( 0 ) )
+template< typename Ta, typename Tb >
+inline const Ta weighted_dist( std::vector< Ta > a,
+		std::vector< Tb > b )
 {
-	double result = 0;
-	if ( c.size() == 0 )
-		c.resize( a.size(), 1 );
-	if ( ( a.size() != b.size() ) || ( a.size() != c.size() ) )
+	Ta result = 0;
+	if ( a.size() != b.size() )
 	{
 		throw std::runtime_error("ERROR: Vectors in weighted_dist have unequal sizes.\n");
-		return -1;
 	}
 	for ( unsigned int i = 0; i < a.size(); i++ )
 	{
-		result += std::pow( ( b.at( i ) - a.at( i ) ) * c.at( i ), 2 );
+		result += std::pow( ( b[i] - a[i] ) , 2 );
 	}
 	result = safe_sqrt( result );
 	return result;
 }
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj weighted_dist(std::vector<unit_obj> a, std::vector<unit_obj> b, std::vector<double> c = std::vector<double>(0))
+template< typename Ta, typename Tb, typename Tc >
+inline const Ta weighted_dist( std::vector< Ta > a,
+		std::vector< Tb > b, std::vector< Tc > c )
 {
-	unit_obj result = 0;
-	if(c.size() == 0) c.resize(a.size());
-	if((a.size() != b.size())||(a.size() != c.size()))
+	Ta result = 0;
+	if ( ( a.size() != b.size() ) || ( a.size() != c.size() ) )
 	{
 		throw std::runtime_error("ERROR: Vectors in weighted_dist have unequal sizes.\n");
-		return -1;
 	}
-	for(unsigned int i = 0; i < a.size(); i++)
+	for ( size_t i = 0; i < a.size(); i++ )
 	{
-		result += pow((b.at(i)-a.at(i))*c.at(i),2);
+		result += std::pow( ( b[i] - a[i] ) * c[i], 2 );
 	}
-	result = safe_sqrt(result);
+	result = safe_sqrt( result );
 	return result;
 }
-#endif
 
 // Dot-product of two vectors in 3-D space or two vectors
 // For two vectors, an exception is thrown if they aren't the same size
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dot_product( const unit_obj x1, const unit_obj y1, const unit_obj z1, const unit_obj x2, const unit_obj y2, const unit_obj z2 )
-{
-	return x1*x2+y1*y2+z1*z2;
-}
-#else
-inline const double dot_product( const double x1, const double y1,
-		const double z1, const double x2, const double y2, const double z2 )
+template< typename Tx1, typename Ty1, typename Tz1, typename Tx2, typename Ty2, typename Tz2 >
+inline const Tx1 dot_product( const Tx1 x1, const Ty1 y1,
+		const Tz1 z1, const Tx2 x2, const Ty2 y2, const Tz2 z2 )
 {
 	return x1 * x2 + y1 * y2 + z1 * z2;
 }
-#endif
-inline const double dot_product( std::vector< double > a,
-		std::vector< double > b )
+template< typename T1, typename T2 >
+inline const double dot_product( const std::vector< T1 > & a,
+		const std::vector< T2 > & b )
 {
 	if ( ( a.size() != b.size() ) )
 	{
 		throw std::runtime_error("ERROR: Vectors in dot_product have unequal sizes.\n");
-		return 0;
 	}
 	double result = 0;
-	for ( unsigned int i = 0; i < a.size(); i++ )
+	for ( size_t i = 0; i < a.size(); i++ )
 	{
-		result += a.at( i ) * b.at( i );
+		result += a[i] * b[i];
 	}
 	return result;
 }
-#ifdef _BRG_USE_UNITS_
-inline const unit_obj dot_product(std::vector<unit_obj> a, std::vector<unit_obj> b)
-{
-	if((a.size() != b.size()))
-	{
-		throw std::runtime_error("ERROR: Vectors in dot_product have unequal sizes.\n");
-		return 0;
-	}
-	unit_obj result = 0;
-	for(unsigned int i = 0; i < a.size(); i++)
-	{
-		result += a.at(i)*b.at(i);
-	}
-	return result;
-}
-#endif
 
 // Generates a random double between min and max
 inline const double drand( double min, double max )
@@ -488,17 +425,47 @@ inline const int sign( const T a )
 // Set_zero function - a way for other template functions to "clear" or initialize a value in various ways
 // Types of variables for which the method is defined will return 0, otherwise it will do nothing and
 // return 1;
-inline const int set_zero( int obj )
+inline const int set_zero( int & obj )
 {
 	obj = 0;
 	return 0;
 }
-inline const int set_zero( double obj )
+inline const int set_zero( long int & obj )
 {
 	obj = 0;
 	return 0;
 }
-inline const int set_zero( float obj )
+inline const int set_zero( short int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( unsigned int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( unsigned long int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( unsigned short int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( double & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( long double & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( float & obj )
 {
 	obj = 0;
 	return 0;
@@ -519,6 +486,12 @@ template< class T >
 inline const int set_zero( std::vector< T > vec )
 {
 	return vec.clear();
+}
+template< class T >
+inline const int set_zero( T *obj )
+{
+	obj = NULL;
+	return 0;
 }
 template< class obj_type >
 inline const int set_zero( obj_type obj )
@@ -814,22 +787,13 @@ const int make_array5d(
 }
 
 // Delete functions to simply delete dynamically assigned objects, arrays, and multiple-dimension arrays
-// These aren't actually necessary for anything but normal pointers, but the other forms are included
-// so pointers can be exchanged with vectors and unique/auto_ptrs with minimal issue.
 
 template< class obj_type >
-inline const int del_obj( obj_type * & obj_pointer, const bool silent = false )
+inline const int del_obj( obj_type * & obj_pointer, const bool silent = false ) throw()
 {
-	int result = 0;
 	if ( obj_pointer == NULL ) return UNSPECIFIED_ERROR;
 	delete obj_pointer;
 	obj_pointer = NULL;
-	return result;
-}
-template< class obj_type >
-inline const int del_obj( BRG_UNIQUE_PTR<obj_type> & obj_pointer, const bool silent=false )
-{
-	obj_pointer.reset();
 	return 0;
 }
 
@@ -842,39 +806,6 @@ inline const int del_array1d( array_type * & array_pointer,
 	delete[] array_pointer;
 	array_pointer = NULL;
 	return 0;
-}
-template< class array_type >
-inline const int del_array( array_type * & array_pointer, const int num_elem =
-		0, const bool silent = false )
-{
-	return del_array1d( array_pointer );
-}
-#ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
-inline const int del_array1d( std::unique_ptr<array_type []> & array_pointer, const int num_elem=0, const bool silent=false )
-{
-	if( array_pointer == 0 ) return INVALID_ARGUMENTS_ERROR;
-	array_pointer = NULL;
-	return 0;
-}
-template <class array_type>
-inline const int del_array( std::unique_ptr<array_type []> & array_pointer, const int num_elem=0, const bool silent=false )
-{
-	return del_array1d(array_pointer);
-}
-#endif
-template< class array_type >
-inline const int del_array1d( std::vector< array_type > & array_pointer,
-		const int num_elem = 0, const bool silent = false )
-{
-	array_pointer.clear();
-	return 0;
-}
-template< class array_type >
-inline const int del_array( std::vector< array_type > & array_pointer,
-		const int num_elem = 0, const bool silent = false )
-{
-	return del_array1d( array_pointer );
 }
 
 template< class array_type >
@@ -893,30 +824,6 @@ inline const int del_array2d( array_type ** & array_pointer,
 
 	return 0;
 }
-#ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
-inline const int del_array2d( std::unique_ptr<std::unique_ptr<array_type []> []> & array_pointer, const int num_elem1, const int num_elem2=0, const bool silent=false )
-{
-	if( array_pointer == 0 ) return INVALID_ARGUMENTS_ERROR;
-	for( int i = 0; i < num_elem1; i++)
-	{
-		if(int errcode = del_array(array_pointer[i])) return errcode+LOWER_LEVEL_ERROR;
-	}
-	array_pointer = NULL;
-
-	return 0;
-}
-#endif
-template< class array_type >
-inline const int del_array2d(
-		std::vector< std::vector< array_type > > & array_pointer,
-		const int num_elem1, const int num_elem2 = 0,
-		const bool silent = false )
-{
-	array_pointer.clear();
-
-	return 0;
-}
 
 template< class array_type >
 inline const int del_array3d( array_type *** & array_pointer,
@@ -932,31 +839,6 @@ inline const int del_array3d( array_type *** & array_pointer,
 	}
 	delete[] array_pointer;
 	array_pointer = NULL;
-
-	return 0;
-}
-#ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
-inline const int del_array3d( std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> & array_pointer,
-		const int num_elem1, const int num_elem2, const int num_elem3=0, const bool silent=false )
-{
-	if( array_pointer == 0 ) return INVALID_ARGUMENTS_ERROR;
-	for( int i = 0; i < num_elem1; i++)
-	{
-		if(int errcode = del_array2d(array_pointer[i], num_elem2)) return errcode+LOWER_LEVEL_ERROR;
-	}
-	array_pointer = NULL;
-
-	return 0;
-}
-#endif
-template< class array_type >
-inline const int del_array3d(
-		std::vector< std::vector< std::vector< array_type > > > & array_pointer,
-		const int num_elem1, const int num_elem2, const int num_elem3 = 0,
-		const bool silent = false )
-{
-	array_pointer.clear();
 
 	return 0;
 }
@@ -979,32 +861,6 @@ inline const int del_array4d( array_type **** & array_pointer,
 
 	return 0;
 }
-#ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
-const int del_array4d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []>
-		& array_pointer, const int num_elem1, const int num_elem2, const int num_elem3,
-		const int num_elem4=0, const bool silent=false )
-{
-	if( array_pointer == 0 ) return INVALID_ARGUMENTS_ERROR;
-	for( int i = 0; i < num_elem1; i++)
-	{
-		if(int errcode = del_array3d(array_pointer[i], num_elem2, num_elem3)) return errcode+LOWER_LEVEL_ERROR;
-	}
-	array_pointer = NULL;
-
-	return 0;
-}
-#endif
-template< class array_type >
-const int del_array4d(
-		std::vector< std::vector< std::vector< std::vector< array_type > > > > & array_pointer,
-		const int num_elem1, const int num_elem2, const int num_elem3,
-		const int num_elem4 = 0, const bool silent = false )
-{
-	array_pointer.clear();
-
-	return 0;
-}
 
 template< class array_type >
 const int del_array5d( array_type ***** & array_pointer, const int num_elem1,
@@ -1024,38 +880,9 @@ const int del_array5d( array_type ***** & array_pointer, const int num_elem1,
 
 	return 0;
 }
-#ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
-const int del_array5d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []>
-		[]> []> []> []> & array_pointer, const int num_elem1, const int num_elem2, const int num_elem3,
-		const int num_elem4, const int num_elem5=0, const bool silent=false )
-{
-	if( array_pointer == 0 ) return INVALID_ARGUMENTS_ERROR;
-	for( int i = 0; i < num_elem1; i++)
-	{
-		if(int errcode = del_array4d(array_pointer[i], num_elem2, num_elem3, num_elem4)) return errcode+LOWER_LEVEL_ERROR;
-	}
-	array_pointer = NULL;
-
-	return 0;
-}
-#endif
-template< class array_type >
-const int del_array5d(
-		std::vector<
-				std::vector<
-						std::vector< std::vector< std::vector< array_type > > > > > & array_pointer,
-		const int num_elem1, const int num_elem2, const int num_elem3,
-		const int num_elem4, const int num_elem5 = 0,
-		const bool silent = false )
-{
-	array_pointer.clear();
-
-	return 0;
-}
 #endif // Ending functions
 
 
 } // end namespace brgastro
 
-#endif
+#endif // __BRG_MISC_FUNCTIONS_HPP_INCLUDED__
