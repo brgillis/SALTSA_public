@@ -1,21 +1,21 @@
-/**       @file SALTSA_interpolator.h
+/**       @file brg_interpolator.h
  *
- *     Project: SALTSA_example
- *        Path: /SALTSA_example/SALTSA_interpolator.h
+ *     Project: brg_example
+ *        Path: /brg_example/brg_interpolator.h
  *
  *  Created on: 16 Jul 2014
  *      Author: brg
  */
 
-#ifndef __SALTSA_INTERPOLATOR_H_INCLUDED__
-#define __SALTSA_INTERPOLATOR_H_INCLUDED__
+#ifndef __BRG_INTERPOLATOR_H_INCLUDED__
+#define __BRG_INTERPOLATOR_H_INCLUDED__
 
 #include <cstdlib>
 #include <vector>
 #include <stdexcept>
 #include "tk_spline.h"
 
-namespace SALTSA {
+namespace brgastro {
 
 bool p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2);
 bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
@@ -88,8 +88,8 @@ public:
 
 	}; // end class interpolator
 
-} // end namespace SALTSA
+} // end namespace brgastro
 
 
 
-#endif //__SALTSA_INTERPOLATOR_H_INCLUDED__
+#endif //__BRG_INTERPOLATOR_H_INCLUDED__

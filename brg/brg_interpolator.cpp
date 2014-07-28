@@ -1,16 +1,16 @@
-/**       @file SALTSA_interpolator.cpp
+/**       @file brg_interpolator.cpp
  *
- *     Project: SALTSA_example
- *        Path: /SALTSA_example/SALTSA_interpolator.cpp
+ *     Project: brg_example
+ *        Path: /brg_example/brg_interpolator.cpp
  *
  *  Created on: 16 Jul 2014
  *      Author: brg
  */
 
-#include "SALTSA_interpolator.h"
+#include "brg_interpolator.h"
 
 // Global function implementations
-bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2)
+bool brgastro::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2)
 {
 	if(pair1.first == pair2.first)
 		throw std::runtime_error("ERROR: Two points passed to interpolator have same domain value.\n");
@@ -18,36 +18,36 @@ bool SALTSA::p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double
 }
 
 // Global function implementations
-bool SALTSA::p1first_lt_v2(std::pair<double,double> pair1, double v2)
+bool brgastro::p1first_lt_v2(std::pair<double,double> pair1, double v2)
 {
 	return (pair1.first < v2);
 }
 
 // Implement interpolator static variables
-SALTSA::interpolator::allowed_interpolation_type SALTSA::interpolator::_default_interpolation_type_ = SPLINE;
+brgastro::interpolator::allowed_interpolation_type brgastro::interpolator::_default_interpolation_type_ = SPLINE;
 
 // Implement interpolator methods
 
 // Set functions for the current and default interpolation types
-void SALTSA::interpolator::set_default_interpolation_type(
+void brgastro::interpolator::set_default_interpolation_type(
 		const allowed_interpolation_type new_default_type)
 {
 	_default_interpolation_type_ = new_default_type;
 }
-void SALTSA::interpolator::set_default_interpolation_type(
+void brgastro::interpolator::set_default_interpolation_type(
 		const allowed_interpolation_type new_default_type,
 		const bool override_current)
 {
 	_default_interpolation_type_ = new_default_type;
 	set_interpolation_type(_default_interpolation_type_);
 }
-void SALTSA::interpolator::set_interpolation_type(
+void brgastro::interpolator::set_interpolation_type(
 		const allowed_interpolation_type new_type)
 {
 	_interpolation_type_ = new_type;
 }
 
-void SALTSA::interpolator::_set_spline_points() const
+void brgastro::interpolator::_set_spline_points() const
 {
 	std::vector<double> x_points(0), y_points(0);
 	sorted_data(); // Ensure it's cached
@@ -61,20 +61,20 @@ void SALTSA::interpolator::_set_spline_points() const
 	_spline_cached_ = true;
 }
 
-SALTSA::interpolator::interpolator()
+brgastro::interpolator::interpolator()
 {
 	_interpolation_type_ = _default_interpolation_type_;
 	_spline_cached_ = false;
 	_sorted_data_cached_ = false;
 }
 
-void SALTSA::interpolator::clear()
+void brgastro::interpolator::clear()
 {
 	clear_points();
 	_interpolation_type_ = _default_interpolation_type_;
 }
 
-void SALTSA::interpolator::clear_points()
+void brgastro::interpolator::clear_points()
 {
 	_data_.clear();
 	_sorted_data_.clear();
@@ -82,14 +82,14 @@ void SALTSA::interpolator::clear_points()
 	_sorted_data_cached_ = false;
 }
 
-void SALTSA::interpolator::add_point(const double x, const double y)
+void brgastro::interpolator::add_point(const double x, const double y)
 {
 	_data_.push_back(std::make_pair(x,y));
 	_spline_cached_ = false;
 	_sorted_data_cached_ = false;
 }
 
-void SALTSA::interpolator::try_add_point(const double x, const double y)
+void brgastro::interpolator::try_add_point(const double x, const double y)
 {
 	for (unsigned int i=0;i<_data_.size();i++)
 	{
@@ -103,19 +103,19 @@ void SALTSA::interpolator::try_add_point(const double x, const double y)
 	_sorted_data_cached_ = false;
 }
 
-std::vector< std::pair<double,double> > & SALTSA::interpolator::sorted_data() const
+std::vector< std::pair<double,double> > & brgastro::interpolator::sorted_data() const
 {
 	if(_sorted_data_cached_)
 		return _sorted_data_;
 
 	_sorted_data_ = _data_;
-	std::sort(_sorted_data_.begin(),_sorted_data_.end(),SALTSA::p1first_lt_p2first);
+	std::sort(_sorted_data_.begin(),_sorted_data_.end(),brgastro::p1first_lt_p2first);
 
 	_sorted_data_cached_ = true;
 	return _sorted_data_;
 }
 
-const double SALTSA::interpolator::operator()(const double x) const
+const double brgastro::interpolator::operator()(const double x) const
 {
 	if(_interpolation_type_==SPLINE)
 	{

@@ -2180,7 +2180,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 							}
 							catch(const std::exception &e)
 							{
-								std::cerr << "WARNING: Attempt to readd point to m_ret_interpolator.\n";
+								std::cerr << "WARNING: Attempt to re-add point to m_ret_interpolator.\n";
 								std::cerr.flush();
 							}
 						}
