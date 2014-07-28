@@ -13,12 +13,13 @@
 #include <vector>
 #include <iterator>
 #include <stdexcept>
+#include <memory>
 
 #include "brg_vector_functions.hpp"
 
 namespace brgastro {
 
-template<typename T, typename A=T>
+template < class T, class A = std::allocator<T> >
 class vector: private std::vector<T,A>
 {
 	typedef std::vector<T,A> v;
@@ -448,7 +449,7 @@ public:
 	template<typename T_o, typename A_o>
 	vector(const vector<T_o, A_o> & other)
 	{
-		reshape(other._shape_);
+		reshape(other.shape());
 		for(vsize_t i=0; i<other.size(); i++) v::operator[](i) = other[i];
 	}
 	template<typename T_o, typename A_o>
@@ -458,7 +459,7 @@ public:
 		for(vsize_t i=0; i<other.size(); i++) v::operator[](i) = other[i];
 	}
 	template<typename T_o, size_t N>
-	vector( const T (&array)[N] )
+	vector( const T_o (&array)[N] )
 	{
 		resize(N);
 		for(vsize_t i=0; i<N; i++) v::operator[](i) = array[i];

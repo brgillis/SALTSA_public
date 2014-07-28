@@ -38,7 +38,10 @@ double brgastro::grid_cache::_z_grid_step_ = 0.1;
 DEFINE_BRG_CACHE_STATIC_VARS( dfa_cache, 0, 5, 0.01 );
 
 // Initialisation for brgastro::add_cache
-DEFINE_BRG_CACHE_ND_STATIC_VARS( add_cache, 0, 5, 0.01, 2 );
+double temp_mins[] = {0,0};
+double temp_maxes[] = {0,0};
+double temp_steps[] = {0,0};
+DEFINE_BRG_CACHE_ND_STATIC_VARS( add_cache, temp_mins, temp_maxes, temp_steps, 2 );
 
 // Initialisation for brgastro::tfa_cache
 DEFINE_BRG_CACHE_STATIC_VARS( tfa_cache, 0.001, 1.02, 0.001 );

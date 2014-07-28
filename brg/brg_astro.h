@@ -317,7 +317,7 @@ private:
 
 	DECLARE_BRG_CACHE_ND_STATIC_VARS();
 
-	friend class brg_cache;
+	friend class brg_cache_nd;
 
 protected:
 

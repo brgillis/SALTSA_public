@@ -52,7 +52,9 @@
 	bool brgastro::class_name::_loaded_ = false;							                     \
 	bool brgastro::class_name::_initialised_ = false;					                         \
 	unsigned int brgastro::class_name::_sig_digits_ = 12;				     	                 \
-	brgastro::vector<double> brgastro::class_name::_resolutions_ = max( (((init_maxes-init_mins) / safe_d(init_steps))+1), 1);\
+	brgastro::vector<unsigned int> brgastro::class_name::_resolutions_ =                         \
+		max( (((brgastro::class_name::_maxes_-brgastro::class_name::_mins_) /                    \
+				safe_d(brgastro::class_name::_steps_))+1), 1);\
 	std::string brgastro::class_name::_file_name_ = "";					     	                 \
 	std::string brgastro::class_name::_header_string_ = "";			     		                 \
 	brgastro::vector<double> brgastro::class_name::_results_;                                    \
@@ -171,7 +173,7 @@ private:
 			SPCP(name)->_results_.resize(SPCP(name)->_resolutions_);
 
 			// Read in data
-			i = 0;
+			unsigned int i = 0;
 			brgastro::vector<unsigned int> position(_num_dim_,0);
 			while ( ( !in_file.eof() ) && ( i < product(SPCP(name)->_resolutions_) ) )
 			{
@@ -530,36 +532,36 @@ public:
 // These ones must be specialised for default values. The zeros in the initialisers and templates
 // should be replaced with the number of dimensions.
 template<typename name>
-double brgastro::brg_cache<name>::_mins_(0);
+brgastro::vector<double> brgastro::brg_cache_nd<name>::_mins_ = {0};
 
 template<typename name>
-double brgastro::brg_cache<name>::_maxes_(0);
+brgastro::vector<double> brgastro::brg_cache_nd<name>::_maxes_ = {0};
 
 template<typename name>
-double brgastro::brg_cache<name>::_steps_(0,2); // Never let any of the steps be zero
+brgastro::vector<double> brgastro::brg_cache_nd<name>::_steps_ = {2}; // Never let any of the steps be zero
 
 // These ones don't need to be altered for each child, but they must be copied
 
 template<typename name>
-brgastro::vector<double> brgastro::brg_cache<name>::_results_;
+brgastro::vector<double> brgastro::brg_cache_nd<name>::_results_;
 
 template<typename name>
-bool brgastro::brg_cache<name>::_loaded_ = false;
+bool brgastro::brg_cache_nd<name>::_loaded_ = false;
 
 template<typename name>
-bool brgastro::brg_cache<name>::_initialised_ = false;
+bool brgastro::brg_cache_nd<name>::_initialised_ = false;
 
 template<typename name>
-unsigned int brgastro::brg_cache<name>::_sig_digits_ = 12;
+unsigned int brgastro::brg_cache_nd<name>::_sig_digits_ = 12;
 
 template<typename name>
-unsigned int brgastro::brg_cache<name>::_resolutions_ = 0;
+brgastro::vector<unsigned int> brgastro::brg_cache_nd<name>::_resolutions_ = {0};
 
 template<typename name>
-std::string brgastro::brg_cache<name>::_file_name_ = "";
+std::string brgastro::brg_cache_nd<name>::_file_name_ = "";
 
 template<typename name>
-std::string brgastro::brg_cache<name>::_header_string_ = "";
+std::string brgastro::brg_cache_nd<name>::_header_string_ = "";
 
 #endif
 
