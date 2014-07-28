@@ -588,7 +588,6 @@ brgastro::stripping_orbit::stripping_orbit(
 	_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
 #endif
 
-	_num_patameters_ = other_stripping_orbit._num_patameters_;
 	_satellite_parameter_unitconvs_ =
 			other_stripping_orbit._satellite_parameter_unitconvs_;
 	_satellite_output_parameters_ =
@@ -608,28 +607,35 @@ brgastro::stripping_orbit::stripping_orbit(
 
 	_final_fmret_list_ = other_stripping_orbit._final_fmret_list_;
 
-	_x_spline_points_ = other_stripping_orbit._x_spline_points_;
-	_y_spline_points_ = other_stripping_orbit._y_spline_points_;
-	_z_spline_points_ = other_stripping_orbit._z_spline_points_;
-	_test_mass_spline_points_ =
-			other_stripping_orbit._test_mass_spline_points_;
-	_vx_spline_points_ = other_stripping_orbit._vx_spline_points_;
-	_vy_spline_points_ = other_stripping_orbit._vy_spline_points_;
-	_vz_spline_points_ = other_stripping_orbit._vz_spline_points_;
-	_vx_spline_unknown_points_ =
-			other_stripping_orbit._vx_spline_unknown_points_;
-	_vy_spline_unknown_points_ =
-			other_stripping_orbit._vy_spline_unknown_points_;
-	_vz_spline_unknown_points_ =
-			other_stripping_orbit._vz_spline_unknown_points_;
-	_host_parameter_spline_points_ =
-			other_stripping_orbit._host_parameter_spline_points_;
+	_x_points_ = other_stripping_orbit._x_points_;
+	_y_points_ = other_stripping_orbit._y_points_;
+	_z_points_ = other_stripping_orbit._z_points_;
+	_test_mass_points_ =
+			other_stripping_orbit._test_mass_points_;
+	_test_mass_error_interpolator_ =
+			other_stripping_orbit._test_mass_error_interpolator_;
+	_test_mass_interpolator_ =
+			other_stripping_orbit._test_mass_interpolator_;
+	_vx_points_ = other_stripping_orbit._vx_points_;
+	_vy_points_ = other_stripping_orbit._vy_points_;
+	_vz_points_ = other_stripping_orbit._vz_points_;
+	_vx_unknown_points_ =
+			other_stripping_orbit._vx_unknown_points_;
+	_vy_unknown_points_ =
+			other_stripping_orbit._vy_unknown_points_;
+	_vz_unknown_points_ =
+			other_stripping_orbit._vz_unknown_points_;
+	_host_parameter_points_ =
+			other_stripping_orbit._host_parameter_points_;
+	_m_ret_interpolator_ =
+			other_stripping_orbit._m_ret_interpolator_;
+
+	_t_points_ = other_stripping_orbit._t_points_;
+	_host_param_t_points_ = other_stripping_orbit._host_param_t_points_;
+
 	_discontinuity_times_ = other_stripping_orbit._discontinuity_times_;
 	_cleaned_discontinuity_times_ =
 			other_stripping_orbit._cleaned_discontinuity_times_;
-	_num_discontinuities_ = other_stripping_orbit._num_discontinuities_;
-	_num_cleaned_discontinuities_ =
-			other_stripping_orbit._num_cleaned_discontinuities_;
 
 	_init_host_ptr_ = other_stripping_orbit._init_host_ptr_;
 	_init_satellite_ptr_ = other_stripping_orbit._init_satellite_ptr_;
@@ -714,7 +720,6 @@ brgastro::stripping_orbit & brgastro::stripping_orbit::operator=(
 		_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
 #endif
 
-		_num_patameters_ = other_stripping_orbit._num_patameters_;
 		_satellite_parameter_unitconvs_ =
 				other_stripping_orbit._satellite_parameter_unitconvs_;
 		_satellite_output_parameters_ =
@@ -735,28 +740,35 @@ brgastro::stripping_orbit & brgastro::stripping_orbit::operator=(
 
 		_final_fmret_list_ = other_stripping_orbit._final_fmret_list_;
 
-		_x_spline_points_ = other_stripping_orbit._x_spline_points_;
-		_y_spline_points_ = other_stripping_orbit._y_spline_points_;
-		_z_spline_points_ = other_stripping_orbit._z_spline_points_;
-		_test_mass_spline_points_ =
-				other_stripping_orbit._test_mass_spline_points_;
-		_vx_spline_points_ = other_stripping_orbit._vx_spline_points_;
-		_vy_spline_points_ = other_stripping_orbit._vy_spline_points_;
-		_vz_spline_points_ = other_stripping_orbit._vz_spline_points_;
-		_vx_spline_unknown_points_ =
-				other_stripping_orbit._vx_spline_unknown_points_;
-		_vy_spline_unknown_points_ =
-				other_stripping_orbit._vy_spline_unknown_points_;
-		_vz_spline_unknown_points_ =
-				other_stripping_orbit._vz_spline_unknown_points_;
-		_host_parameter_spline_points_ =
-				other_stripping_orbit._host_parameter_spline_points_;
+		_x_points_ = other_stripping_orbit._x_points_;
+		_y_points_ = other_stripping_orbit._y_points_;
+		_z_points_ = other_stripping_orbit._z_points_;
+		_test_mass_points_ =
+				other_stripping_orbit._test_mass_points_;
+		_test_mass_interpolator_ =
+				other_stripping_orbit._test_mass_interpolator_;
+		_test_mass_error_interpolator_ =
+				other_stripping_orbit._test_mass_error_interpolator_;
+		_vx_points_ = other_stripping_orbit._vx_points_;
+		_vy_points_ = other_stripping_orbit._vy_points_;
+		_vz_points_ = other_stripping_orbit._vz_points_;
+		_vx_unknown_points_ =
+				other_stripping_orbit._vx_unknown_points_;
+		_vy_unknown_points_ =
+				other_stripping_orbit._vy_unknown_points_;
+		_vz_unknown_points_ =
+				other_stripping_orbit._vz_unknown_points_;
+		_host_parameter_points_ =
+				other_stripping_orbit._host_parameter_points_;
+		_m_ret_interpolator_ =
+				other_stripping_orbit._m_ret_interpolator_;
+
+		_t_points_ = other_stripping_orbit._t_points_;
+		_host_param_t_points_ = other_stripping_orbit._host_param_t_points_;
+
 		_discontinuity_times_ = other_stripping_orbit._discontinuity_times_;
 		_cleaned_discontinuity_times_ =
 				other_stripping_orbit._cleaned_discontinuity_times_;
-		_num_discontinuities_ = other_stripping_orbit._num_discontinuities_;
-		_num_cleaned_discontinuities_ =
-				other_stripping_orbit._num_cleaned_discontinuities_;
 
 		_init_host_ptr_ = other_stripping_orbit._init_host_ptr_;
 		_init_satellite_ptr_ = other_stripping_orbit._init_satellite_ptr_;
@@ -841,6 +853,7 @@ brgastro::stripping_orbit *brgastro::stripping_orbit::stripping_orbit_clone()
 const int brgastro::stripping_orbit::clear()
 {
 	clear_calcs();
+	clear_points();
 
 	// Integration parameters
 #if(1)
@@ -867,28 +880,11 @@ const int brgastro::stripping_orbit::clear()
 	_host_parameter_unitconvs_.clear();
 	_host_output_parameters_.clear();
 
-	_x_spline_points_.clear();
-	_y_spline_points_.clear();
-	_z_spline_points_.clear();
-	_vx_spline_points_.clear();
-	_vy_spline_points_.clear();
-	_vz_spline_points_.clear();
-	_vx_spline_unknown_points_.clear();
-	_vy_spline_unknown_points_.clear();
-	_vz_spline_unknown_points_.clear();
-	_test_mass_spline_points_.clear();
-	_host_parameter_spline_points_.clear();
-
-	_t_min_natural_value_ = DBL_MAX;
-	_t_max_natural_value_ = ( -DBL_MAX );
 	_t_min_override_value_ = DBL_MAX;
 	_t_max_override_value_ = ( -DBL_MAX );
 	_override_t_min_ = false;
 	_override_t_max_ = false;
-	_num_patameters_ = 0;
 	_record_full_data_ = false;
-	_num_discontinuities_ = 0;
-	_num_cleaned_discontinuities_ = 0;
 
 	_init_host_ptr_ = 0;
 	_init_satellite_ptr_ = 0;
@@ -908,6 +904,7 @@ const int brgastro::stripping_orbit::clear_calcs() const
 	_num_segments_ = 0;
 	_final_good_segment_ = _orbit_segments_.end();
 	_final_fmret_list_.clear();
+	_m_ret_interpolator_.clear();
 
 	_calculated_ = false;
 	_bad_result_ = false;
@@ -917,19 +914,35 @@ const int brgastro::stripping_orbit::clear_calcs() const
 
 const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_TIME &t,
-		const double new_mass )
+		const double test_mass, const double test_mass_error )
+{
+	// Check if there's already a point with this t value
+	for(size_t i=0; i++; i<_t_points_.size())
+	{
+		if(t==_t_points_[i])
+			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
+	}
+	return force_add_point(x, y, z, t, test_mass, test_mass_error );
+}
+
+const int brgastro::stripping_orbit::force_add_point( const BRG_DISTANCE &x,
+		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_TIME &t,
+		const double test_mass, const double test_mass_error )
 {
 	_calculated_ = false;
 	try
 	{
-		_x_spline_points_.push_back( std::pair< double, double >( t, x ) );
-		_y_spline_points_.push_back( std::pair< double, double >( t, y ) );
-		_z_spline_points_.push_back( std::pair< double, double >( t, z ) );
-		_vx_spline_unknown_points_.push_back( t );
-		_vy_spline_unknown_points_.push_back( t );
-		_vz_spline_unknown_points_.push_back( t );
-		_test_mass_spline_points_.push_back(
-				std::pair< double, double >( t, new_mass ) );
+		_x_points_.push_back( std::pair< double, double >( t, x ) );
+		_y_points_.push_back( std::pair< double, double >( t, y ) );
+		_z_points_.push_back( std::pair< double, double >( t, z ) );
+		_vx_unknown_points_.push_back( t );
+		_vy_unknown_points_.push_back( t );
+		_vz_unknown_points_.push_back( t );
+		_test_mass_points_.push_back(
+				std::pair< double, double >( t, test_mass ) );
+		_test_mass_interpolator_.add_point(t, test_mass);
+		_test_mass_error_interpolator_.add_point(t, test_mass_error);
+		_t_points_.push_back(t);
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -939,12 +952,6 @@ const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 	{
 		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n"
 				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n";
 		std::cerr.flush();
 		return UNSPECIFIED_ERROR;
 	}
@@ -954,19 +961,36 @@ const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
 		const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
-		const double new_test_mass )
+		const double test_mass, const double test_mass_error )
+{
+	// Check if there's already a point with this t value
+	for(size_t i=0; i++; i<_t_points_.size())
+	{
+		if(t==_t_points_[i])
+			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
+	}
+	return force_add_point(x, y, z, vx, vy, vz, t, test_mass, test_mass_error );
+}
+
+const int brgastro::stripping_orbit::force_add_point( const BRG_DISTANCE &x,
+		const BRG_DISTANCE &y, const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
+		const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
+		const double test_mass, const double test_mass_error )
 {
 	_calculated_ = false;
 	try
 	{
-		_x_spline_points_.push_back( std::pair< double, double >( t, x ) );
-		_y_spline_points_.push_back( std::pair< double, double >( t, y ) );
-		_z_spline_points_.push_back( std::pair< double, double >( t, z ) );
-		_vx_spline_points_.push_back( std::pair< double, double >( t, vx ) );
-		_vy_spline_points_.push_back( std::pair< double, double >( t, vy ) );
-		_vz_spline_points_.push_back( std::pair< double, double >( t, vz ) );
-		_test_mass_spline_points_.push_back(
-				std::pair< double, double >( t, new_test_mass ) );
+		_x_points_.push_back( std::pair< double, double >( t, x ) );
+		_y_points_.push_back( std::pair< double, double >( t, y ) );
+		_z_points_.push_back( std::pair< double, double >( t, z ) );
+		_vx_points_.push_back( std::pair< double, double >( t, vx ) );
+		_vy_points_.push_back( std::pair< double, double >( t, vy ) );
+		_vz_points_.push_back( std::pair< double, double >( t, vz ) );
+		_test_mass_points_.push_back(
+				std::pair< double, double >( t, test_mass ) );
+		_test_mass_interpolator_.add_point( t, test_mass );
+		_test_mass_error_interpolator_.add_point( t, test_mass_error );
+		_t_points_.push_back(t);
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -979,16 +1003,23 @@ const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 		std::cerr.flush();
 		return UNSPECIFIED_ERROR;
 	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
 	return 0;
 }
 
 const int brgastro::stripping_orbit::add_host_parameter_point(
+		const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
+		const bool silent )
+{
+	// Check if there's already a point with this t value
+	for(size_t i=0; i++; i<_host_param_t_points_.size())
+	{
+		if(t==_host_param_t_points_[i])
+			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
+	}
+	return force_add_host_parameter_point( parameters, t, silent );
+}
+
+const int brgastro::stripping_orbit::force_add_host_parameter_point(
 		const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
 		const bool silent )
 {
@@ -1001,10 +1032,11 @@ const int brgastro::stripping_orbit::add_host_parameter_point(
 		return INVALID_ARGUMENTS_ERROR;
 	}
 
-	_host_parameter_spline_points_.push_back(
+	_host_parameter_points_.push_back(
 			std::pair< double, std::vector< BRG_UNITS > >( t, parameters ) );
+	_host_param_t_points_.push_back(t);
 
-	if ( _host_parameter_spline_points_.size() >= 2 )
+	if ( _host_parameter_points_.size() >= 2 )
 		_host_is_evolving_ = true;
 
 	_calculated_ = false;
@@ -1031,13 +1063,28 @@ const int brgastro::stripping_orbit::add_discontinuity_time(
 
 const int brgastro::stripping_orbit::clear_points()
 {
-	_x_spline_points_.clear();
-	_y_spline_points_.clear();
-	_z_spline_points_.clear();
-	_vx_spline_points_.clear();
-	_vy_spline_points_.clear();
-	_vz_spline_points_.clear();
-	_test_mass_spline_points_.clear();
+	_x_points_.clear();
+	_y_points_.clear();
+	_z_points_.clear();
+
+	_vx_points_.clear();
+	_vy_points_.clear();
+	_vz_points_.clear();
+
+	_vx_unknown_points_.clear();
+	_vy_unknown_points_.clear();
+	_vz_unknown_points_.clear();
+
+	_test_mass_points_.clear();
+	_test_mass_interpolator_.clear();
+	_test_mass_error_interpolator_.clear();
+
+	_t_points_.clear();
+	_host_param_t_points_.clear();
+
+	_t_min_natural_value_ = DBL_MAX;
+	_t_max_natural_value_ = ( -DBL_MAX );
+
 	_calculated_ = false;
 	return 0;
 }
@@ -1049,7 +1096,7 @@ const int brgastro::stripping_orbit::clear_discontinuity_times()
 }
 const int brgastro::stripping_orbit::clear_host_parameter_points()
 {
-	_host_parameter_spline_points_.clear();
+	_host_parameter_points_.clear();
 	_calculated_ = false;
 	return 0;
 }
@@ -1778,10 +1825,10 @@ const int brgastro::stripping_orbit::set_t_max( const BRG_TIME &new_t_max )
 const int brgastro::stripping_orbit::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
-	for ( unsigned int i = 0; i < _x_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
 	{
-		if ( _x_spline_points_.at( i ).first < _t_min_natural_value_ )
-			_t_min_natural_value_ = _x_spline_points_.at( i ).first;
+		if ( _x_points_.at( i ).first < _t_min_natural_value_ )
+			_t_min_natural_value_ = _x_points_.at( i ).first;
 	}
 	_override_t_min_ = false;
 	return 0;
@@ -1789,10 +1836,10 @@ const int brgastro::stripping_orbit::reset_t_min()
 const int brgastro::stripping_orbit::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
-	for ( unsigned int i = 0; i < _x_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
 	{
-		if ( _x_spline_points_.at( i ).first > _t_max_natural_value_ )
-			_t_max_natural_value_ = _x_spline_points_.at( i ).first;
+		if ( _x_points_.at( i ).first > _t_max_natural_value_ )
+			_t_max_natural_value_ = _x_points_.at( i ).first;
 	}
 	_override_t_max_ = false;
 	return 0;
@@ -1850,10 +1897,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 
 	// Add each point to its proper segment
 
-	for ( unsigned int i = 0; i < _x_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
 	{
-		double t = _x_spline_points_.at( i ).first;
-		double x = _x_spline_points_.at( i ).second;
+		double t = _x_points_.at( i ).first;
+		double x = _x_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1863,10 +1910,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_x_point( x, t );
 	}
 
-	for ( unsigned int i = 0; i < _y_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _y_points_.size(); i++ )
 	{
-		double t = _y_spline_points_.at( i ).first;
-		double y = _y_spline_points_.at( i ).second;
+		double t = _y_points_.at( i ).first;
+		double y = _y_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1876,10 +1923,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_y_point( y, t );
 	}
 
-	for ( unsigned int i = 0; i < _z_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _z_points_.size(); i++ )
 	{
-		double t = _z_spline_points_.at( i ).first;
-		double z = _z_spline_points_.at( i ).second;
+		double t = _z_points_.at( i ).first;
+		double z = _z_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1889,10 +1936,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_z_point( z, t );
 	}
 
-	for ( unsigned int i = 0; i < _vx_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vx_points_.size(); i++ )
 	{
-		double t = _vx_spline_points_.at( i ).first;
-		double vx = _vx_spline_points_.at( i ).second;
+		double t = _vx_points_.at( i ).first;
+		double vx = _vx_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1902,10 +1949,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_vx_point( vx, t );
 	}
 
-	for ( unsigned int i = 0; i < _vy_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vy_points_.size(); i++ )
 	{
-		double t = _vy_spline_points_.at( i ).first;
-		double vy = _vy_spline_points_.at( i ).second;
+		double t = _vy_points_.at( i ).first;
+		double vy = _vy_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1915,10 +1962,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_vy_point( vy, t );
 	}
 
-	for ( unsigned int i = 0; i < _vz_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vz_points_.size(); i++ )
 	{
-		double t = _vz_spline_points_.at( i ).first;
-		double vz = _vz_spline_points_.at( i ).second;
+		double t = _vz_points_.at( i ).first;
+		double vz = _vz_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1928,9 +1975,9 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_vz_point( vz, t );
 	}
 
-	for ( unsigned int i = 0; i < _vx_spline_unknown_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vx_unknown_points_.size(); i++ )
 	{
-		double t = _vx_spline_unknown_points_.at( i );
+		double t = _vx_unknown_points_.at( i );
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1940,9 +1987,9 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_unknown_vx_point( t );
 	}
 
-	for ( unsigned int i = 0; i < _vy_spline_unknown_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vy_unknown_points_.size(); i++ )
 	{
-		double t = _vy_spline_unknown_points_.at( i );
+		double t = _vy_unknown_points_.at( i );
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1952,9 +1999,9 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_unknown_vy_point( t );
 	}
 
-	for ( unsigned int i = 0; i < _vz_spline_unknown_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vz_unknown_points_.size(); i++ )
 	{
-		double t = _vz_spline_unknown_points_.at( i );
+		double t = _vz_unknown_points_.at( i );
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1964,10 +2011,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_unknown_vz_point( t );
 	}
 
-	for ( unsigned int i = 0; i < _test_mass_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _test_mass_points_.size(); i++ )
 	{
-		double t = _test_mass_spline_points_.at( i ).first;
-		double test_mass = _test_mass_spline_points_.at( i ).second;
+		double t = _test_mass_points_.at( i ).first;
+		double test_mass = _test_mass_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -1978,11 +2025,11 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 				t );
 	}
 
-	for ( unsigned int i = 0; i < _host_parameter_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _host_parameter_points_.size(); i++ )
 	{
-		double t = _host_parameter_spline_points_.at( i ).first;
+		double t = _host_parameter_points_.at( i ).first;
 		std::vector< BRG_UNITS > host_parameters =
-				_host_parameter_spline_points_.at( i ).second;
+				_host_parameter_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2116,6 +2163,27 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					{
 						_bad_result_ = true;
 						throw std::runtime_error("WARNING: Could not calculate stripping for orbit segment.\n");
+					}
+
+					// If we're recording full data, fill up _m_ret_spline_points_ with new points
+					if(_record_full_data_)
+					{
+						std::vector< std::pair< double, double > > new_m_rets =
+								_orbit_segments_[i].mret_points();
+						for(size_t j=0; j<new_m_rets.size(); j++)
+						{
+							try
+							{
+								_m_ret_interpolator_.try_add_point(
+										new_m_rets[j].first,
+										fmret*new_m_rets[j].second);
+							}
+							catch(const std::exception &e)
+							{
+								std::cerr << "WARNING: Attempt to readd point to m_ret_interpolator.\n";
+								std::cerr.flush();
+							}
+						}
 					}
 
 					_orbit_segments_.at( i ).get_final_fmret( fmret );
@@ -2308,6 +2376,22 @@ const int brgastro::stripping_orbit::get_final_mret( BRG_MASS & mret ) const
 	}
 	return 0;
 }
+const int brgastro::stripping_orbit::get_mret_at_t( const BRG_TIME & t, BRG_MASS & mret) const
+{
+	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
+	{
+		if ( int errcode = set_record_full_data( true ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	mret = _init_satellite_ptr_->mvir()*max( _m_ret_interpolator_(t), 0. );
+	return 0;
+}
 const int brgastro::stripping_orbit::get_final_fmret( double & fmret ) const
 {
 	if(likely_disrupted())
@@ -2326,6 +2410,46 @@ const int brgastro::stripping_orbit::get_final_fmret( double & fmret ) const
 			return UNSPECIFIED_ERROR;
 		}
 		fmret = _final_fmret_list_.back();
+	}
+	return 0;
+}
+const int brgastro::stripping_orbit::get_fmret_at_t( const BRG_TIME & t, double & fmret) const
+{
+	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
+	{
+		if ( int errcode = set_record_full_data( true ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	fmret = max( _m_ret_interpolator_(t), 0. );
+	return 0;
+}
+const int brgastro::stripping_orbit::get_comp_fmret_at_t( const BRG_TIME & t, double & fmret) const
+{
+	try
+	{
+		fmret = _test_mass_interpolator_(t);
+	}
+	catch(const std::exception &e)
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	return 0;
+}
+const int brgastro::stripping_orbit::get_comp_fmret_error_at_t( const BRG_TIME & t, double & fmret) const
+{
+	try
+	{
+		fmret = _test_mass_error_interpolator_(t);
+	}
+	catch(const std::exception &e)
+	{
+		return UNSPECIFIED_ERROR;
 	}
 	return 0;
 }
@@ -2481,6 +2605,16 @@ const BRG_MASS brgastro::stripping_orbit::final_mret() const
 	}
 	return result;
 }
+const BRG_MASS brgastro::stripping_orbit::mret_at_t(const BRG_TIME & t) const
+{
+	BRG_MASS result = -1;
+
+	if ( get_mret_at_t( t, result ) )
+	{
+		throw std::runtime_error("ERROR: Could not calculate stripping in stripping_orbit::final_mret.\n");
+	}
+	return result;
+}
 
 const BRG_UNITS brgastro::stripping_orbit::final_sum_deltarho() const
 {
@@ -2502,6 +2636,24 @@ const double brgastro::stripping_orbit::final_fmret() const
 		throw std::runtime_error("ERROR: Could not calculate stripping in stripping_orbit::final_fmret.\n");
 	}
 	return result;
+}
+const double brgastro::stripping_orbit::fmret_at_t(const BRG_TIME &t) const
+{
+	double result = -1;
+
+	if ( get_fmret_at_t( t, result ) )
+	{
+		throw std::runtime_error("ERROR: Could not calculate stripping in stripping_orbit::final_fmret.\n");
+	}
+	return result;
+}
+const double brgastro::stripping_orbit::comp_fmret_at_t(const BRG_TIME & t) const
+{
+	return _test_mass_interpolator_(t);
+}
+const double brgastro::stripping_orbit::comp_fmret_error_at_t(const BRG_TIME & t) const
+{
+	return _test_mass_error_interpolator_(t);
 }
 
 const brgastro::gabdt brgastro::stripping_orbit::final_sum_gabdt() const
@@ -2646,7 +2798,7 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	_satellite_parameter_data_ = other_orbit_spline._satellite_parameter_data_;
 	_host_parameter_data_ = other_orbit_spline._host_parameter_data_;
 	_num_parameters_ = other_orbit_spline._num_parameters_;
-	mret_list = other_orbit_spline.mret_list;
+	_mret_list_ = other_orbit_spline._mret_list_;
 	_satellite_parameter_unitconvs_ =
 			other_orbit_spline._satellite_parameter_unitconvs_;
 	_satellite_output_parameters_ =
@@ -2760,7 +2912,7 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 				other_orbit_spline._satellite_parameter_data_;
 		_host_parameter_data_ = other_orbit_spline._host_parameter_data_;
 		_num_parameters_ = other_orbit_spline._num_parameters_;
-		mret_list = other_orbit_spline.mret_list;
+		_mret_list_ = other_orbit_spline._mret_list_;
 		_satellite_parameter_unitconvs_ =
 				other_orbit_spline._satellite_parameter_unitconvs_;
 		_satellite_output_parameters_ =
@@ -2958,7 +3110,7 @@ const int brgastro::stripping_orbit_segment::clear_calcs() const
 	_rt_list_.clear();
 	_rt_ratio_list_.clear();
 	_phase_output_list_.clear();
-	mret_list.clear();
+	_mret_list_.clear();
 	_delta_rho_list_.clear();
 	_sum_delta_rho_list_.clear();
 	_gabdt_list_.clear();
@@ -3584,7 +3736,7 @@ const int brgastro::stripping_orbit_segment::_reserve( const int n,
 		return INVALID_ARGUMENTS_ERROR;
 	}
 	_phase_list_.reserve( n );
-	mret_list.reserve( n );
+	_mret_list_.reserve( n );
 	_phase_output_list_.reserve( n );
 	_rt_list_.reserve( n );
 	_rt_ratio_list_.reserve( n );
@@ -3899,7 +4051,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 	// Set up interpolation type
 	_pass_interpolation_type();
 
-	mret_list.push_back( 1 );
+	_mret_list_.push_back( 1 );
 	_delta_rho_list_.push_back( current_deltarho );
 	_sum_delta_rho_list_.push_back( _init_sum_delta_rho_ );
 
@@ -3939,7 +4091,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 	step_length_factor = _step_length_factor(v, r);
 
 	_rt_list_.push_back(
-			get_rt( _current_host_ptr_, _current_satellite_ptr_, r,
+			_get_rt( _current_host_ptr_, _current_satellite_ptr_, r,
 					vr, vt, t_step, current_deltarho ) );
 	_rt_ratio_list_.push_back( _rt_list_.at( 0 ) / _rvir() );
 
@@ -4018,16 +4170,16 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 
 			// Calculate effects of tidal stripping and shocks
 			// Effects of stripping
-			mret = tidal_strip_retained( _current_host_ptr_,
+			mret = _tidal_strip_retained( _current_host_ptr_,
 					_current_satellite_ptr_, r, vr, vt,
 					t_step * step_length_factor,
 					_sum_delta_rho_list_.at( counter - 1 ) );
-			mret_list.push_back( mret_list.at( counter - 1 ) * mret );
+			_mret_list_.push_back( _mret_list_.at( counter - 1 ) * mret );
 
 			// Calculate adjusted fraction (so numerical errors don't cause a consistent
 			// offset to add up).
 
-			double adjusted_mret = mret_list.back() * init_mtot/safe_d(_current_satellite_ptr_->mtot());
+			double adjusted_mret = _mret_list_.back() * init_mtot/safe_d(_current_satellite_ptr_->mtot());
 			if( isbad(adjusted_mret) or (adjusted_mret>1.1) or (adjusted_mret<0)) adjusted_mret = 0;
 
 			_current_satellite_ptr_->truncate_to_fraction( adjusted_mret );
@@ -4083,7 +4235,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 							_sum_delta_rho_list_.back() + current_deltarho);
 
 			_rt_list_.push_back(
-					get_rt( _current_host_ptr_,
+					_get_rt( _current_host_ptr_,
 							_current_satellite_ptr_, r, vr, vt,
 							t_step * step_length_factor,
 							_sum_delta_rho_list_.at( counter - 1 ) ) );
@@ -4188,7 +4340,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 		if ( int errcode = set_record_full_data( true ) )
 			return errcode + LOWER_LEVEL_ERROR;
 		if ( calc() )
-			return 1;
+			return UNSPECIFIED_ERROR;
 	}
 
 	num_rows = _phase_output_list_.size();
@@ -4446,12 +4598,12 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 						* unitconv::mtokpc / unitconv::stoGyr;
 		data[9][i] = ss.str();
 		ss.str( "" );
-		ss << mret_list.at( i ) * mret_multiplier;
+		ss << _mret_list_.at( i ) * mret_multiplier;
 		data[10][i] = ss.str();
 		ss.str( "" );
 		if ( i > 0 )
 			ss
-					<< ( 1 - mret_list.at( i ) / mret_list.at( i - 1 ) )
+					<< ( 1 - _mret_list_.at( i ) / _mret_list_.at( i - 1 ) )
 							/ ( _phase_output_list_.at( i ).t
 									- _phase_output_list_.at( i - 1 ).t );
 		else
@@ -4699,7 +4851,7 @@ BRG_MASS & mret, const bool silent ) const
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	mret = _init_satellite_ptr_->mvir()*mret_list.back();
+	mret = _init_satellite_ptr_->mvir()*_mret_list_.back();
 	return 0;
 }
 const int brgastro::stripping_orbit_segment::get_final_fmret( double & fmret,
@@ -4714,7 +4866,32 @@ const int brgastro::stripping_orbit_segment::get_final_fmret( double & fmret,
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	fmret = mret_list.back() / safe_d(mret_list.front());
+	fmret = _mret_list_.back() / safe_d(_mret_list_.front());
+	return 0;
+}
+const int brgastro::stripping_orbit_segment::get_mret_points(
+		std::vector< std::pair<double,double> > & mret_points,
+		const bool silent ) const
+{
+	if ( (!_calculated_) || (!_record_full_data_) )
+	{
+		set_record_full_data(true);
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+
+	mret_points.clear();
+	for(size_t i = 0; i<_phase_output_list_.size(); i++)
+	{
+		mret_points.push_back( std::make_pair(
+				_phase_output_list_[i].t,
+				_mret_list_.at(i)));
+	}
+
 	return 0;
 }
 
@@ -4877,6 +5054,16 @@ const double brgastro::stripping_orbit_segment::final_fmret() const
 		std::cerr.flush();
 		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_fmret.\n");
 	}
+	return result;
+}
+const std::vector< std::pair<double,double> > brgastro::stripping_orbit_segment::mret_points() const
+{
+	std::vector< std::pair<double,double> > result;
+	if( get_mret_points(result) )
+	{
+		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::mret_points.\n");
+	}
+
 	return result;
 }
 
@@ -5402,7 +5589,7 @@ const int brgastro::gabdt_function::operator()(
 
 // brgastro function definitions
 #if (1)
-const double brgastro::stripping_orbit_segment::tidal_strip_retained( const density_profile *host_group,
+const double brgastro::stripping_orbit_segment::_tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,
 		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
 		const BRG_TIME &time_step, const long double &sum_rho ) const
@@ -5419,7 +5606,7 @@ const double brgastro::stripping_orbit_segment::tidal_strip_retained( const dens
 		stripping_period = inst_orbital_period *
 			std::pow(hm_period/safe_d(inst_orbital_period), _tidal_stripping_deceleration_);
 
-	new_rt = get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
+	new_rt = _get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
 
 	if ( !( new_rt > 0 ) )
 		mass_frac_lost_total = 0;
@@ -5437,7 +5624,7 @@ const double brgastro::stripping_orbit_segment::tidal_strip_retained( const dens
 	return mass_frac_retained;
 }
 
-const BRG_DISTANCE brgastro::stripping_orbit_segment::get_rt( const density_profile *host_group,
+const BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,
 		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
 		const BRG_TIME &time_step, const long double &sum_rho,

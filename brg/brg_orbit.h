@@ -694,7 +694,6 @@ private:
 
 	// Data for output info for satellite and host_ptr
 #if(1)
-	int _num_patameters_;
 	std::vector< double > _satellite_parameter_unitconvs_,
 			_host_parameter_unitconvs_;
 	std::vector< bool > _satellite_output_parameters_,
@@ -703,19 +702,19 @@ private:
 
 	// Lists of points on the orbit and related info
 #if(1)
-	std::vector< std::pair< double, double > > _x_spline_points_,
-			_y_spline_points_, _z_spline_points_, _d_spline_points_,
-			_test_mass_spline_points_;
-	std::vector< std::pair< double, double > > _vx_spline_points_,
-			_vy_spline_points_, _vz_spline_points_;
-	std::vector< double > _vx_spline_unknown_points_,
-			_vy_spline_unknown_points_, _vz_spline_unknown_points_;
-	std::vector< std::pair< double, std::vector< BRG_UNITS > > > _host_parameter_spline_points_;
+	std::vector< std::pair< double, double > > _x_points_,
+			_y_points_, _z_points_, _test_mass_points_;
+	std::vector< std::pair< double, double > > _vx_points_,
+			_vy_points_, _vz_points_;
+	std::vector< double > _vx_unknown_points_,
+			_vy_unknown_points_, _vz_unknown_points_,
+			_t_points_, _host_param_t_points_;
+	std::vector< std::pair< double, std::vector< BRG_UNITS > > > _host_parameter_points_;
 	std::vector< double > _discontinuity_times_;
 	mutable std::vector< double > _cleaned_discontinuity_times_;
+	mutable SALTSA::interpolator _m_ret_interpolator_;
+	mutable SALTSA::interpolator _test_mass_interpolator_, _test_mass_error_interpolator_;
 	mutable std::vector< double > _final_fmret_list_;
-	int _num_discontinuities_;
-	mutable int _num_cleaned_discontinuities_;
 	mutable std::vector< brgastro::stripping_orbit_segment > _orbit_segments_;
 #endif
 
@@ -869,12 +868,21 @@ public:
 	const int add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
 			const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
 			const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
-			const double new_test_mass = 1 );
+			const double test_mass = 1, const double test_mass_error = 1 );
+	const int force_add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
+			const BRG_DISTANCE &z, const BRG_VELOCITY &vx,
+			const BRG_VELOCITY &vy, const BRG_VELOCITY &vz, const BRG_TIME &t,
+			const double test_mass = 1, const double test_mass_error = 1 );
 	const int add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
 			const BRG_DISTANCE &z, const BRG_TIME &t,
-			const double new_test_mass = 1 ); // Only use if v is unknown
+			const double new_test_mass = 1, const double test_mass_error = 1 ); // Only use if v is unknown
+	const int force_add_point( const BRG_DISTANCE &x, const BRG_DISTANCE &y,
+			const BRG_DISTANCE &z, const BRG_TIME &t,
+			const double new_test_mass = 1, const double test_mass_error = 1 ); // Only use if v is unknown
 	const int add_discontinuity_time( const BRG_TIME &t ); // Splits into segments to be calculated individually
 	const int add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
+			const bool silent = false ); // Tells how host_ptr is evolving
+	const int force_add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, const BRG_TIME &t,
 			const bool silent = false ); // Tells how host_ptr is evolving
 	const int clear_points();
 	const int clear_discontinuity_times();
@@ -989,18 +997,17 @@ public:
 	const std::vector< bool > & satellite_output_parameters() const {return _satellite_output_parameters_;};
 	const std::vector< bool > & host_output_parameters() const {return _host_output_parameters_;};
 
-	const std::vector< std::pair< double, double > > & x_spline_points() const {return _x_spline_points_;};
-	const std::vector< std::pair< double, double > > & y_spline_points() const {return _y_spline_points_;};
-	const std::vector< std::pair< double, double > > & z_spline_points() const {return _z_spline_points_;};
-	const std::vector< std::pair< double, double > > & vx_spline_points() const {return _vx_spline_points_;};
-	const std::vector< std::pair< double, double > > & vy_spline_points() const {return _vy_spline_points_;};
-	const std::vector< std::pair< double, double > > & vz_spline_points() const {return _vz_spline_points_;};
-	const std::vector< double > & vx_spline_unknown_points() const {return _vx_spline_unknown_points_;};
-	const std::vector< double > & vy_spline_unknown_points() const {return _vy_spline_unknown_points_;};
-	const std::vector< double > & vz_spline_unknown_points() const {return _vz_spline_unknown_points_;};
-	const std::vector< std::pair< double, double > > & d_spline_points() const {return _d_spline_points_;};
-	const std::vector< std::pair< double, double > > & test_mass_spline_points() const {return _test_mass_spline_points_;};
-	const std::vector< std::pair< double, std::vector< BRG_UNITS > > > & host_parameter_spline_points() const {return _host_parameter_spline_points_;};
+	const std::vector< std::pair< double, double > > & x_spline_points() const {return _x_points_;};
+	const std::vector< std::pair< double, double > > & y_spline_points() const {return _y_points_;};
+	const std::vector< std::pair< double, double > > & z_spline_points() const {return _z_points_;};
+	const std::vector< std::pair< double, double > > & vx_spline_points() const {return _vx_points_;};
+	const std::vector< std::pair< double, double > > & vy_spline_points() const {return _vy_points_;};
+	const std::vector< std::pair< double, double > > & vz_spline_points() const {return _vz_points_;};
+	const std::vector< double > & vx_spline_unknown_points() const {return _vx_unknown_points_;};
+	const std::vector< double > & vy_spline_unknown_points() const {return _vy_unknown_points_;};
+	const std::vector< double > & vz_spline_unknown_points() const {return _vz_unknown_points_;};
+	const std::vector< std::pair< double, double > > & test_mass_spline_points() const {return _test_mass_points_;};
+	const std::vector< std::pair< double, std::vector< BRG_UNITS > > > & host_parameter_spline_points() const {return _host_parameter_points_;};
 	const std::vector< double > & discontinuity_times() const {return _discontinuity_times_;};
 
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
@@ -1023,9 +1030,13 @@ public:
 
 	// Get final data (returns 1 on failure)
 	const int get_final_mret( BRG_MASS & mret ) const;
+	const int get_mret_at_t( const BRG_TIME & t, BRG_MASS & mret) const;
 	const int get_final_sum_deltarho( long double & final_sum_deltarho ) const;
 	const int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho ) const;
 	const int get_final_fmret( double & final_fmret ) const;
+	const int get_fmret_at_t( const BRG_TIME & t, double & fmret ) const;
+	const int get_comp_fmret_at_t( const BRG_TIME & t, double & mret) const;
+	const int get_comp_fmret_error_at_t( const BRG_TIME & t, double & mret) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt ) const;
 	const int get_last_infall_time( BRG_TIME & t ) const;
 	const int clone_final_satellite(
@@ -1034,8 +1045,12 @@ public:
 
 	// Get final data (throws exception on failure)
 	const BRG_MASS final_mret() const;
+	const BRG_MASS mret_at_t(const BRG_TIME & t) const;
 	const BRG_UNITS final_sum_deltarho() const;
 	const double final_fmret() const;
+	const double fmret_at_t(const BRG_TIME & t) const;
+	const double comp_fmret_at_t(const BRG_TIME & t) const;
+	const double comp_fmret_error_at_t(const BRG_TIME & t) const;
 	const gabdt final_sum_gabdt() const;
 	const BRG_TIME last_infall_time() const;
 	const bool & likely_disrupted() const;
@@ -1119,7 +1134,7 @@ private:
 	mutable std::vector< BRG_UNITS > _delta_rho_list_,
 			_x_data_, _y_data_, _z_data_, _vx_data_, _vy_data_, _vz_data_,
 			_rt_list_, _rt_ratio_list_;
-	mutable std::vector< long double > _sum_delta_rho_list_, mret_list;
+	mutable std::vector< long double > _sum_delta_rho_list_, _mret_list_;
 	mutable std::vector< std::vector< BRG_UNITS > > _satellite_parameter_data_; // Keeps track of satellite's parameters (ie. mass, tau)
 	mutable std::vector< std::vector< BRG_UNITS > > _host_parameter_data_;
 
@@ -1143,6 +1158,17 @@ private:
 	const double _step_length_factor( const BRG_VELOCITY & v, const BRG_DISTANCE & r ) const;
 	const BRG_DISTANCE _rvir( const int index = 0 ) const;
 	const int _pass_interpolation_type() const;
+
+	// Calculation assistance functions
+	const double _tidal_strip_retained( const density_profile *host,
+			const density_profile *satellite, const BRG_DISTANCE &r,
+			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
+			const BRG_TIME &time_step, const long double &sum_delta_rho = 0 ) const;
+	const BRG_DISTANCE _get_rt( const density_profile *host,
+			const density_profile *satellite, const BRG_DISTANCE &r,
+			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
+			const BRG_TIME &time_step, const long double &sum_delta_rho,
+			const bool silent = false ) const;
 #endif
 
 public:
@@ -1305,17 +1331,6 @@ public:
 	const BRG_TIME & t_min_natural_value() const {return _t_min_natural_value_;};
 #endif
 
-	// Calculation assistance functions
-	const double tidal_strip_retained( const density_profile *host,
-			const density_profile *satellite, const BRG_DISTANCE &r,
-			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-			const BRG_TIME &time_step, const long double &sum_delta_rho = 0 ) const;
-	const BRG_DISTANCE get_rt( const density_profile *host,
-			const density_profile *satellite, const BRG_DISTANCE &r,
-			const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-			const BRG_TIME &time_step, const long double &sum_delta_rho,
-			const bool silent = false ) const;
-
 	// Get final data (returns 1 on error)
 	const int get_final_mret( BRG_MASS & mret,
 			const bool silent = false ) const;
@@ -1324,6 +1339,8 @@ public:
 	const int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho,
 			const bool silent = false ) const;
 	const int get_final_fmret( double & final_fmret,
+			const bool silent = false ) const;
+	const int get_mret_points( std::vector< std::pair<double,double> > & mret_points,
 			const bool silent = false ) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt, const bool silent =
 			false ) const;
@@ -1336,6 +1353,7 @@ public:
 	const BRG_MASS final_mret() const;
 	const long double final_sum_deltarho() const;
 	const double final_fmret() const;
+	const std::vector< std::pair<double,double> > mret_points() const;
 	const gabdt final_sum_gabdt() const;
 	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!
