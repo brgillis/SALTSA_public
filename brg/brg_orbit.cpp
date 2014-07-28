@@ -2252,20 +2252,13 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 				_final_fmret_list_.push_back( fmret );
 		}
 
-		if(_bad_result_)
-			std::cerr << "DEBUG_MESSAGE: 1.\n";
-
 		del_obj(temp_satellite);
 		del_obj(temp_host);
-
-		if(_bad_result_)
-			std::cerr << "DEBUG_MESSAGE: 2.\n";
 
 		_calculated_ = true;
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "DEBUG_MESSAGE: 3.\n";
 		clear_calcs();
 		del_obj(temp_satellite);
 		del_obj(temp_host);
@@ -2278,7 +2271,6 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 
 	if((_bad_result_) || (_likely_disrupted_))
 	{
-		std::cerr << "DEBUG_MESSAGE: 4.\n";
 		return UNSPECIFIED_ERROR;
 	}
 	return 0;

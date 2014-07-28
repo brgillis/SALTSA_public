@@ -97,7 +97,7 @@ public:
 		v::assign(n,val);
 		reshape(shape_t(_num_dim_,n));
 	}
-	void push_back (const T & val)
+	vector<T,A &> push_back (const T & val)
 	{
 		if(_num_dim_ != 1)
 			throw std::out_of_range;
@@ -111,6 +111,7 @@ public:
 			_shape_[0] -= 1;
 			throw;
 		}
+		return *this;
 	}
 	iterator insert (iterator position, const T & val)
 	{
@@ -453,6 +454,12 @@ public:
 	{
 		resize(other.size());
 		for(vsize_t i=0; i<other_vector.size(); i++) v[i] = other[i];
+	}
+	template<typename T_o>
+	vector( const T (&array)[N] )
+	{
+		resize(N);
+		for(vsize_t i=0; i<N; i++) v[i] = array[i];
 	}
 	template<typename T_o, typename A_o>
 	vector(const T_o & other)
