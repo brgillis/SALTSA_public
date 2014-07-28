@@ -19,6 +19,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <limits>
 
 #include "SALTSA_global.h"
 
@@ -56,45 +57,29 @@ inline const int memory_error( const bool silent = false )
 }
 
 // Returns true if val is Not a Number - Personal implementation, to make sure it's included
-/**
- *
- * @param val
- * @return
- */
-inline const bool isnan( double val )
+template< typename T >
+inline const bool isnan( T val )
 {
 	return ( val != val );
 }
 
 // Returns true if val is infinity - ''
-/**
- *
- * @param val
- * @return
- */
-inline const bool isinf( double val )
+template< typename T >
+inline const bool isinf( T val )
 {
-	return fabs( val ) > DBL_MAX;
+	return std::fabs( val ) > std::numeric_limits<T>::max();
 }
 
 // Returns true if val is NaN or Inf
-/**
- *
- * @param val
- * @return
- */
-inline const bool isbad( double val )
+template< typename T >
+inline const bool isbad( T val )
 {
 	return ( isnan( val ) || isinf( val ) );
 }
 
 // Returns true if val is neither NaN nor Inf
-/**
- *
- * @param val
- * @return
- */
-inline const bool isgood( double val )
+template< typename T >
+inline const bool isgood( T val )
 {
 	return !isbad( val );
 }
@@ -104,72 +89,55 @@ inline const bool isgood( double val )
 // different types, so the function goes for the most general
 // type of number allowed (unit_obj if units are being used,
 // otherwise double).
-/**
- *
- * @param a
- * @param b
- * @return
- */
-template< class T >
-inline const T min( const T &a, const T &b )
-{
-	return ( a < b ? a : b );
-}
-/**
- *
- * @param a
- * @param b
- * @return
- */
-template< class T >
-inline const T max( const T &a, const T &b )
-{
-	return ( a < b ? b : a );
-}
-/**
- *
- * @param lower_bound
- * @param a
- * @param upper_bound
- * @return
- */
-template< class T >
-inline const T bound( const T &lower_bound, const T &a, const T &upper_bound)
-{
-	return min( max( lower_bound, a ) , upper_bound);
-}
-/**
- *
- * @param a
- * @param b
- * @return
- */
 template< class T1, class T2 >
-inline const double min( const T1 a, const T2 b )
+inline const T1 min( const T1 a, const T2 b )
 {
-	return ( a < b ? (double)a : (double)b );
+	return ( a < b ? a : (T1)b );
 }
-/**
- *
- * @param a
- * @param b
- * @return
- */
 template< class T1, class T2 >
-inline const double max( const T1 a, const T2 b )
+inline const T1 max( const T1 a, const T2 b )
 {
-	return ( a < b ? (double)b : (double)a );
+	return ( a < b ? (T1)b : a );
 }
-/**
- *
- * @param a
- * @param b
- * @return
- */
-inline const bool divisible( const int a, const int b )
+template<  class T1, class T2, class T3 >
+inline const T2 bound( const T1 lower_bound, const T2 a, const T3 upper_bound)
+{
+	return min( max( a, lower_bound ) , upper_bound);
+}
+
+// Returns true if a is evenly divisible by b
+template< typename Ta, typename Tb >
+inline const bool divisible( const Ta a, const Tb b )
 {
 	if(b==0) return false;
 	return ( a % b == 0 );
+}
+
+// Rounds to nearest integer, favoring even
+template< typename T >
+const int round_int( const T value, const double epsilon=DBL_EPSILON )
+{
+
+	if ( value < 0.0 )
+		return -round_int( -value, epsilon );
+
+	double ipart;
+	std::modf( value, &ipart );
+
+	// If 'value' is exactly halfway between two integers
+	if ( fabs( value - ( ipart + 0.5 ) ) < epsilon )
+	{
+		// If 'ipart' is even then return 'ipart'
+		if ( std::fmod( ipart, 2.0 ) < epsilon )
+			return (int)ipart;
+
+		// Else return the nearest even integer
+		return (int)ceil( ipart + 0.5 );
+	}
+
+	// Otherwise use the usual round to closest
+	// (Either symmetric half-up or half-down will do0
+	return (int)floor( value + 0.5 );
 }
 
 // "Safe" functions - perform the operation specified, but will
@@ -209,9 +177,9 @@ inline const double safe_sqrt( const int a ) // Special case for integers due to
 	}
 #endif
 
-	if ( a == INT_MIN )
+	if ( a == std::numeric_limits<int>::min() )
 	{
-		res = INT_MAX;
+		res = std::numeric_limits<int>::max();
 	}
 	else
 	{
@@ -219,16 +187,10 @@ inline const double safe_sqrt( const int a ) // Special case for integers due to
 	}
 	return sqrt( res );
 }
-/**
- *
- * @param a
- * @param x
- * @return
- */
-template< class T >
-inline const T safe_pow( const T a, const double x )
+template< class Ta, class Tx >
+inline const Ta safe_pow( const Ta a, const Tx x )
 {
-	T res;
+	Ta res;
 	double ipart;
 
 	std::modf( a, &ipart );
@@ -286,157 +248,103 @@ const T safe_d( const T a )
 }
 
 // Gaussian PDF
-/**
- *
- * @param x
- * @param mean
- * @param std_dev
- * @return
- */
-inline const double Gaus_pdf( const double x, const double mean = 0,
-		const double std_dev = 1 )
+template< typename Tx >
+inline const double Gaus_pdf( const Tx x )
+{
+	return Gaus_pdf(x,0.,1.);
+}
+template< typename Tx, typename Tmean >
+inline const double Gaus_pdf( const Tx x, const Tmean mean )
+{
+	return Gaus_pdf(x,mean,1.);
+}
+template< typename Tx, typename Tmean, typename Tstddev >
+inline const double Gaus_pdf( const Tx x, const Tmean mean = 0,
+		const Tstddev std_dev = 1 )
 {
 	return exp( -pow( x - mean, 2 ) / ( 2 * std_dev * std_dev ) )
 			/ ( std_dev * sqrt( 2 * pi ) );
 }
 
-/**
- *
- * @param value
- * @param epsilon
- * @return
- */
-inline const int round_int( const double value, const double epsilon = ROUNDING_EPSILON )
-{
-
-	if ( value < 0.0 )
-		return -round_int( -value, epsilon );
-
-	double ipart;
-	std::modf( value, &ipart );
-
-	// If 'value' is exctly halfway between two integers
-	if ( fabs( value - ( ipart + 0.5 ) ) < epsilon )
-	{
-		// If 'ipart' is even then return 'ipart'
-		if ( std::fmod( ipart, 2.0 ) < epsilon )
-			return (int)ipart;
-
-		// Else return the nearest even integer
-		return (int)ceil( ipart + 0.5 );
-	}
-
-	// Otherwise use the usual round to closest
-	// (Either symmetric half-up or half-down will do
-	return (int)floor( value + 0.5 );
-}
-
 // Add two or three values in quadrature.
-/**
- *
- * @param v1
- * @param v2
- * @param v3
- * @return
- */
-inline const double quad_add( const double v1, const double v2,
-		const double v3 = 0 )
+template < typename T1, typename T2 >
+inline const T1 quad_add( const T1 v1, const T2 v2)
+{
+	return sqrt( v1 * v1 + v2 * v2);
+}
+template < typename T1, typename T2, typename T3 >
+inline const T1 quad_add( const T1 v1, const T2 v2,
+		const T3 v3 )
 {
 	return sqrt( v1 * v1 + v2 * v2 + v3 * v3 );
 }
 
 // Subtract one value from another in quadrature
-/**
- *
- * @param v1
- * @param v2
- * @return
- */
-inline const double quad_sub( const double v1, const double v2 )
+template < typename T1, typename T2 >
+inline const T1 quad_sub( const T1 v1, const T2 v2 )
 {
 	return safe_sqrt( v1 * v1 - v2 * v2 );
 }
 
 // Function to calculate the distance between two points in 2-dimensions
-/**
- *
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @return
- */
-inline const double dist2d( const double x1, const double y1, const double x2,
-		const double y2 )
+template < typename Tx1, typename Ty1, typename Tx2, typename Ty2 >
+inline const Tx1 dist2d( const Tx1 x1, const Ty1 y1, const Tx2 x2,
+		const Ty2 y2 )
 {
 	return quad_add( x2 - x1, y2 - y1 );
 }
 // Function to calculate the distance between a point and (0,0) in 2-dimensions
-/**
- *
- * @param x1
- * @param y1
- * @return
- */
-inline const double dist2d( const double x1, const double y1 )
+template < typename Tx1, typename Ty1 >
+inline const Tx1 dist2d( const Tx1 x1, const Ty1 y1 )
 {
 	return quad_add( x1, y1 );
 }
 
 // 3-D distance between two points
-/**
- *
- * @param x1
- * @param y1
- * @param z1
- * @param x2
- * @param y2
- * @param z2
- * @return
- */
-inline const double dist3d( const double x1, const double y1, const double z1,
-		const double x2, const double y2, const double z2 )
+template < typename Tx1, typename Ty1, typename Tz1, typename Tx2, typename Ty2, typename Tz2 >
+inline const Tx1 dist3d( const Tx1 x1, const Ty1 y1, const Tz1 z1,
+		const Tx2 x2, const Ty2 y2, const Tz2 z2 )
 {
 	return quad_add( x2 - x1, y2 - y1, z2 - z1 );
 }
 
 // 3-D distance from (0,0,0)
-/**
- *
- * @param x1
- * @param y1
- * @param z1
- * @return
- */
-inline const double dist3d( const double x1, const double y1, const double z1 )
+template < typename Tx, typename Ty, typename Tz >
+inline const Tx dist3d( const Tx x1, const Ty y1, const Tz z1 )
 {
 	return quad_add( x1, y1, z1 );
 }
 
 // Distance between two vectors, where the dimensions are weighted by vector c
 // An exception is thrown if the vectors aren't of equal sizes
-/**
- *
- * @param a
- * @param b
- * @param c
- * @return
- */
-inline const double weighted_dist( std::vector< double > a,
-		std::vector< double > b, std::vector< double > c =
-				std::vector< double >( 0 ) )
+template< typename Ta, typename Tb >
+inline const Ta weighted_dist( std::vector< Ta > a,
+		std::vector< Tb > b )
 {
-	double result = 0;
-	if ( c.size() == 0 )
-		c.resize( a.size(), 1 );
-	if ( ( a.size() != b.size() ) || ( a.size() != c.size() ) )
+	Ta result = 0;
+	if ( a.size() != b.size() )
 	{
 		throw std::runtime_error("ERROR: Vectors in weighted_dist have unequal sizes.\n");
-		return -1;
 	}
 	for ( unsigned int i = 0; i < a.size(); i++ )
 	{
-		result += std::pow( ( b.at( i ) - a.at( i ) ) * c.at( i ), 2 );
+		result += std::pow( ( b[i] - a[i] ) , 2 );
+	}
+	result = safe_sqrt( result );
+	return result;
+}
+template< typename Ta, typename Tb, typename Tc >
+inline const Ta weighted_dist( std::vector< Ta > a,
+		std::vector< Tb > b, std::vector< Tc > c )
+{
+	Ta result = 0;
+	if ( ( a.size() != b.size() ) || ( a.size() != c.size() ) )
+	{
+		throw std::runtime_error("ERROR: Vectors in weighted_dist have unequal sizes.\n");
+	}
+	for ( size_t i = 0; i < a.size(); i++ )
+	{
+		result += std::pow( ( b[i] - a[i] ) * c[i], 2 );
 	}
 	result = safe_sqrt( result );
 	return result;
@@ -444,39 +352,24 @@ inline const double weighted_dist( std::vector< double > a,
 
 // Dot-product of two vectors in 3-D space or two vectors
 // For two vectors, an exception is thrown if they aren't the same size
-/**
- *
- * @param x1
- * @param y1
- * @param z1
- * @param x2
- * @param y2
- * @param z2
- * @return
- */
-inline const double dot_product( const double x1, const double y1,
-		const double z1, const double x2, const double y2, const double z2 )
+template< typename Tx1, typename Ty1, typename Tz1, typename Tx2, typename Ty2, typename Tz2 >
+inline const Tx1 dot_product( const Tx1 x1, const Ty1 y1,
+		const Tz1 z1, const Tx2 x2, const Ty2 y2, const Tz2 z2 )
 {
 	return x1 * x2 + y1 * y2 + z1 * z2;
 }
-/**
- *
- * @param a
- * @param b
- * @return
- */
-inline const double dot_product( std::vector< double > a,
-		std::vector< double > b )
+template< typename T1, typename T2 >
+inline const double dot_product( const std::vector< T1 > & a,
+		const std::vector< T2 > & b )
 {
 	if ( ( a.size() != b.size() ) )
 	{
 		throw std::runtime_error("ERROR: Vectors in dot_product have unequal sizes.\n");
-		return 0;
 	}
 	double result = 0;
-	for ( unsigned int i = 0; i < a.size(); i++ )
+	for ( size_t i = 0; i < a.size(); i++ )
 	{
-		result += a.at( i ) * b.at( i );
+		result += a[i] * b[i];
 	}
 	return result;
 }
@@ -491,7 +384,7 @@ inline const double dot_product( std::vector< double > a,
 inline const double drand( double min, double max )
 {
 
-	return min + (max-min)*(double)std::rand() / RAND_MAX;
+	return min + (max-min)*drand48();
 
 } // double drand(double min, double max)
 
@@ -515,41 +408,58 @@ inline const int sign( const T a )
 // Set_zero function - a way for other template functions to "clear" or initialize a value in various ways
 // Types of variables for which the method is defined will return 0, otherwise it will do nothing and
 // return 1;
-/**
- *
- * @param obj
- * @return
- */
-inline const int set_zero( int obj )
+inline const int set_zero( int & obj )
 {
 	obj = 0;
 	return 0;
 }
-/**
- *
- * @param obj
- * @return
- */
-inline const int set_zero( double obj )
+inline const int set_zero( long int & obj )
 {
 	obj = 0;
 	return 0;
 }
-/**
- *
- * @param obj
- * @return
- */
-inline const int set_zero( float obj )
+inline const int set_zero( short int & obj )
 {
 	obj = 0;
 	return 0;
 }
-/**
- *
- * @param obj
- * @return
- */
+inline const int set_zero( unsigned int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( unsigned long int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( unsigned short int & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( double & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( long double & obj )
+{
+	obj = 0;
+	return 0;
+}
+inline const int set_zero( float & obj )
+{
+	obj = 0;
+	return 0;
+}
+#ifdef _BRG_USE_UNITS_
+inline const int set_zero( unit_obj obj)
+{
+	obj = 0;
+	return 0;
+}
+#endif
 inline const int set_zero( std::string obj )
 {
 	obj = "";
@@ -565,25 +475,88 @@ inline const int set_zero( std::vector< T > vec )
 {
 	return vec.clear();
 }
-/**
- *
- * @param obj
- * @return
- */
+template< class T >
+inline const int set_zero( T *obj )
+{
+	obj = NULL;
+	return 0;
+}
 template< class obj_type >
 inline const int set_zero( obj_type obj )
 {
 	return INVALID_ARGUMENTS_ERROR;
 }
 
-/**
- * Allocate memory to a 2-D array, printing an error and returning non-zero on failure.
- * @param array_pointer
- * @param num_elem1
- * @param num_elem2
- * @param silent
- * @return
- */
+// Various "make" functions, to allocate dynamic memory.
+// These functions return 0 on success, 1 on failure (not enough memory available).
+// After allocating memory, these functions initialize the new variables using the
+// set_zero function (see above).
+// Remember that if you use normal pointers, you have to delete the assigned variables
+// before they go out of scope. See the del_obj and del_array functions below for that
+
+template< class obj_type >
+const int make_obj( obj_type * & obj_pointer, const bool silent = false )
+{
+	obj_pointer = NULL;
+	obj_pointer = new ( std::nothrow ) obj_type;
+	if ( obj_pointer == 0 )
+		return memory_error( silent );
+	set_zero( *obj_pointer );
+	return 0;
+}
+
+template< class array_type >
+const int make_array1d( array_type * & array_pointer, const int num_elem,
+		const bool silent = false )
+{
+	array_pointer = new ( std::nothrow ) array_type[num_elem];
+	if ( array_pointer == 0 )
+		return memory_error( silent );
+	for ( int i = 0; i < num_elem; i++ )
+		set_zero( array_pointer[i] );
+	return 0;
+}
+template< class array_type >
+const int make_array( array_type * & array_pointer, const int num_elem,
+		const bool silent = false )
+{
+	return make_array1d( array_pointer, num_elem );
+}
+
+template< class array_type >
+const int make_array1d( std::vector< array_type > & array_pointer,
+		const int num_elem, const bool silent = false )
+{
+	array_pointer.clear();
+	array_pointer.resize( num_elem );
+	if ( array_pointer.empty() )
+		return memory_error( silent );
+	for ( int i = 0; i < num_elem; i++ )
+		set_zero( array_pointer[i] );
+	return 0;
+}
+template< class array_type >
+const int make_array( std::vector< array_type > & array_pointer,
+		const int num_elem, const bool silent = false )
+{
+	return make_array1d( array_pointer, num_elem );
+}
+
+template< class array_type >
+const int make_array2d( array_type ** & array_pointer, const int num_elem1,
+		const int num_elem2, const bool silent = false )
+{
+	array_pointer = new ( std::nothrow ) array_type *[num_elem1];
+	if ( array_pointer == 0 )
+		return memory_error( silent );
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array( array_pointer[i], num_elem2 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
+	return 0;
+}
+
 template< class array_type >
 const int make_array2d(
 		std::vector< std::vector< array_type > > & array_pointer,
@@ -595,42 +568,130 @@ const int make_array2d(
 		return memory_error( silent );
 	for ( int i = 0; i < num_elem1; i++ )
 	{
-		array_pointer[i].resize(num_elem2);
-		if ( array_pointer[i].empty() )
-			return memory_error( silent );
+		if ( int errcode = make_array( array_pointer[i], num_elem2 ) )
+			return errcode + LOWER_LEVEL_ERROR;
 	}
 	return 0;
 }
 
-/**
- * Nothrow way to dynamically create an object, returning nonzero on error. Initialise it
- * with the set_zero() function.
- * @param obj_pointer
- * @param silent
- * @return
- */
-template< class obj_type >
-const int make_obj( obj_type * & obj_pointer, const bool silent = false ) throw()
+template< class array_type >
+const int make_array3d( array_type *** & array_pointer, const int num_elem1,
+		const int num_elem2, const int num_elem3, const bool silent = false )
 {
-	obj_pointer = NULL;
-	obj_pointer = new ( std::nothrow ) obj_type;
-	if ( obj_pointer == NULL )
+	array_pointer = new ( std::nothrow ) array_type **[num_elem1];
+	if ( array_pointer == 0 )
 		return memory_error( silent );
-	set_zero( *obj_pointer );
+
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array2d( array_pointer[i], num_elem2,
+				num_elem3 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
 	return 0;
 }
 
-/**
- * Try to delete an object. Return 1 if it's already been deleted with this function
- * @param obj_pointer
- * @param silent
- * @return
- */
+template< class array_type >
+const int make_array3d(
+		std::vector< std::vector< std::vector< array_type > > > & array_pointer,
+		const int num_elem1, const int num_elem2, const int num_elem3,
+		const bool silent = false )
+{
+	array_pointer.clear();
+	array_pointer.resize( num_elem1 );
+	if ( array_pointer.empty() )
+		return memory_error( silent );
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array2d( array_pointer[i], num_elem2,
+				num_elem3 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
+	return 0;
+}
+
+template< class array_type >
+const int make_array4d( array_type **** & array_pointer, const int num_elem1,
+		const int num_elem2, const int num_elem3, const int num_elem4,
+		const bool silent = false )
+{
+	array_pointer = new ( std::nothrow ) array_type ***[num_elem1];
+	if ( array_pointer == 0 )
+		return memory_error( silent );
+
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array3d( array_pointer[i], num_elem2,
+				num_elem3, num_elem4 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
+	return 0;
+}
+
+template< class array_type >
+const int make_array4d(
+		std::vector< std::vector< std::vector< std::vector< array_type > > > > & array_pointer,
+		const int num_elem1, const int num_elem2, const int num_elem3,
+		const int num_elem4, const bool silent = false )
+{
+	array_pointer.clear();
+	array_pointer.resize( num_elem1 );
+	if ( array_pointer.empty() )
+		return memory_error( silent );
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array3d( array_pointer[i], num_elem2,
+				num_elem3, num_elem4 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
+	return 0;
+}
+
+template< class array_type >
+const int make_array5d( array_type ***** & array_pointer, const int num_elem1,
+		const int num_elem2, const int num_elem3, const int num_elem4,
+		const int num_elem5, const bool silent = false )
+{
+	array_pointer = new ( std::nothrow ) array_type ****[num_elem1];
+	if ( array_pointer == 0 )
+		return memory_error( silent );
+
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array4d( array_pointer[i], num_elem2,
+				num_elem3, num_elem4, num_elem5 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
+	return 0;
+}
+
+template< class array_type >
+const int make_array5d(
+		std::vector<
+				std::vector<
+						std::vector< std::vector< std::vector< array_type > > > > > & array_pointer,
+		const int num_elem1, const int num_elem2, const int num_elem3,
+		const int num_elem4, const int num_elem5, const bool silent = false )
+{
+	array_pointer.clear();
+	array_pointer.resize( num_elem1 );
+	if ( array_pointer.empty() )
+		return memory_error( silent );
+	for ( int i = 0; i < num_elem1; i++ )
+	{
+		if ( int errcode = make_array4d( array_pointer[i], num_elem2,
+				num_elem3, num_elem4, num_elem5 ) )
+			return errcode + LOWER_LEVEL_ERROR;
+	}
+	return 0;
+}
+
+// Delete functions to simply delete dynamically assigned objects, arrays, and multiple-dimension arrays
+
 template< class obj_type >
 inline const int del_obj( obj_type * & obj_pointer, const bool silent = false ) throw()
 {
-	if ( obj_pointer == NULL )
-		return UNSPECIFIED_ERROR;
+	if ( obj_pointer == NULL ) return UNSPECIFIED_ERROR;
 	delete obj_pointer;
 	obj_pointer = NULL;
 	return 0;

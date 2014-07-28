@@ -32,8 +32,8 @@ int main( const int argc, const char *argv[] )
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
 	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 1000; // Base number of steps to take to integrate stripping
-	const int spline_points = 1000; // Number of points in the orbit we tell the stripping integrator
+	const int stripping_resolution = 2000; // Base number of steps to take to integrate stripping
+	const int spline_points = 500; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
@@ -409,7 +409,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out ); // It will automatically calculate here
-	std::cout << "Done!\n";
+	double diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -425,7 +426,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -449,7 +451,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -465,7 +468,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -489,7 +493,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -506,7 +511,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -566,7 +572,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -592,7 +599,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -645,7 +653,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out );
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();
@@ -666,7 +675,8 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out ); // It will automatically calculate here
-	std::cout << "Done!\n";
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
 	out.clear();

@@ -224,7 +224,7 @@
  satellite halo at each time step.
 
 
- See the include brg_orbit_example.cpp file for an example on using this
+ See the include SALTSA_example.cpp file for an example on using this
  class.
 
 
@@ -355,7 +355,6 @@ private:
 
 	// Data for output info for satellite and host_ptr
 #if(1)
-	int _num_patameters_;
 	std::vector< double > _satellite_parameter_unitconvs_,
 			_host_parameter_unitconvs_;
 	std::vector< bool > _satellite_output_parameters_,
@@ -364,19 +363,19 @@ private:
 
 	// Lists of points on the orbit and related info
 #if(1)
-	std::vector< std::pair< double, double > > _x_spline_points_,
-			_y_spline_points_, _z_spline_points_, _d_spline_points_,
-			_test_mass_spline_points_;
-	std::vector< std::pair< double, double > > _vx_spline_points_,
-			_vy_spline_points_, _vz_spline_points_;
-	std::vector< double > _vx_spline_unknown_points_,
-			_vy_spline_unknown_points_, _vz_spline_unknown_points_;
-	std::vector< std::pair< double, std::vector< double > > > _host_parameter_spline_points_;
+	std::vector< std::pair< double, double > > _x_points_,
+			_y_points_, _z_points_, _test_mass_points_;
+	std::vector< std::pair< double, double > > _vx_points_,
+			_vy_points_, _vz_points_;
+	std::vector< double > _vx_unknown_points_,
+			_vy_unknown_points_, _vz_unknown_points_,
+			_t_points_, _host_param_t_points_;
+	std::vector< std::pair< double, std::vector< double > > > _host_parameter_points_;
 	std::vector< double > _discontinuity_times_;
 	mutable std::vector< double > _cleaned_discontinuity_times_;
+	mutable SALTSA::interpolator _m_ret_interpolator_;
+	mutable SALTSA::interpolator _test_mass_interpolator_, _test_mass_error_interpolator_;
 	mutable std::vector< double > _final_fmret_list_;
-	int _num_discontinuities_;
-	mutable int _num_cleaned_discontinuities_;
 	mutable std::vector< SALTSA::stripping_orbit_segment > _orbit_segments_;
 #endif
 
@@ -450,25 +449,35 @@ public:
 	// Setting default tuning parameters
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
+	static const int set_default_tidal_stripping_amplification(
+			const double new_default_tidal_stripping_amplification);
 	const int set_default_tidal_stripping_amplification(
 			const double new_default_tidal_stripping_amplification,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_stripping_deceleration(
+			const double new_default_tidal_stripping_deceleration);
 	const int set_default_tidal_stripping_deceleration(
 			const double new_default_tidal_stripping_deceleration,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_shocking_amplification(
+			const double new_default_tidal_shocking_amplification);
 	const int set_default_tidal_shocking_amplification(
 			const double new_default_tidal_shocking_amplification,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_shocking_persistance(
+			const double new_default_tidal_shocking_persistance);
 	const int set_default_tidal_shocking_persistance(
 			const double new_default_tidal_shocking_persistance,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_shocking_power(
+			const double new_default_tidal_shocking_power);
 	const int set_default_tidal_shocking_power(
 			const double new_default_tidal_shocking_power,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 #endif
 
@@ -530,12 +539,21 @@ public:
 	const int add_point( const double &x, const double &y,
 			const double &z, const double &vx,
 			const double &vy, const double &vz, const double &t,
-			const double new_test_mass = 1 );
+			const double test_mass = 1, const double test_mass_error = 1 );
+	const int force_add_point( const double &x, const double &y,
+			const double &z, const double &vx,
+			const double &vy, const double &vz, const double &t,
+			const double test_mass = 1, const double test_mass_error = 1 );
 	const int add_point( const double &x, const double &y,
 			const double &z, const double &t,
-			const double new_test_mass = 1 ); // Only use if v is unknown
+			const double new_test_mass = 1, const double test_mass_error = 1 ); // Only use if v is unknown
+	const int force_add_point( const double &x, const double &y,
+			const double &z, const double &t,
+			const double new_test_mass = 1, const double test_mass_error = 1 ); // Only use if v is unknown
 	const int add_discontinuity_time( const double &t ); // Splits into segments to be calculated individually
 	const int add_host_parameter_point( const std::vector< double > &parameters, const double &t,
+			const bool silent = false ); // Tells how host_ptr is evolving
+	const int force_add_host_parameter_point( const std::vector< double > &parameters, const double &t,
 			const bool silent = false ); // Tells how host_ptr is evolving
 	const int clear_points();
 	const int clear_discontinuity_times();
@@ -642,6 +660,20 @@ public:
 	const double & t_max_natural_value() const {return _t_max_natural_value_;};
 	const double & t_min_override_value() const {return _t_min_override_value_;};
 	const double & t_max_override_value() const {return _t_max_override_value_;};
+	const double & t_min() const
+	{
+		if(_override_t_min_)
+			return _t_min_override_value_;
+		else
+			return _t_min_natural_value_;
+	}
+	const double & t_max() const
+	{
+		if(_override_t_max_)
+			return _t_max_override_value_;
+		else
+			return _t_max_natural_value_;
+	}
 	const bool & override_t_min() const {return _override_t_min_;};
 	const bool & override_t_max() const {return _override_t_max_;};
 
@@ -650,18 +682,17 @@ public:
 	const std::vector< bool > & satellite_output_parameters() const {return _satellite_output_parameters_;};
 	const std::vector< bool > & host_output_parameters() const {return _host_output_parameters_;};
 
-	const std::vector< std::pair< double, double > > & x_spline_points() const {return _x_spline_points_;};
-	const std::vector< std::pair< double, double > > & y_spline_points() const {return _y_spline_points_;};
-	const std::vector< std::pair< double, double > > & z_spline_points() const {return _z_spline_points_;};
-	const std::vector< std::pair< double, double > > & vx_spline_points() const {return _vx_spline_points_;};
-	const std::vector< std::pair< double, double > > & vy_spline_points() const {return _vy_spline_points_;};
-	const std::vector< std::pair< double, double > > & vz_spline_points() const {return _vz_spline_points_;};
-	const std::vector< double > & vx_spline_unknown_points() const {return _vx_spline_unknown_points_;};
-	const std::vector< double > & vy_spline_unknown_points() const {return _vy_spline_unknown_points_;};
-	const std::vector< double > & vz_spline_unknown_points() const {return _vz_spline_unknown_points_;};
-	const std::vector< std::pair< double, double > > & d_spline_points() const {return _d_spline_points_;};
-	const std::vector< std::pair< double, double > > & test_mass_spline_points() const {return _test_mass_spline_points_;};
-	const std::vector< std::pair< double, std::vector< double > > > & host_parameter_spline_points() const {return _host_parameter_spline_points_;};
+	const std::vector< std::pair< double, double > > & x_spline_points() const {return _x_points_;};
+	const std::vector< std::pair< double, double > > & y_spline_points() const {return _y_points_;};
+	const std::vector< std::pair< double, double > > & z_spline_points() const {return _z_points_;};
+	const std::vector< std::pair< double, double > > & vx_spline_points() const {return _vx_points_;};
+	const std::vector< std::pair< double, double > > & vy_spline_points() const {return _vy_points_;};
+	const std::vector< std::pair< double, double > > & vz_spline_points() const {return _vz_points_;};
+	const std::vector< double > & vx_spline_unknown_points() const {return _vx_unknown_points_;};
+	const std::vector< double > & vy_spline_unknown_points() const {return _vy_unknown_points_;};
+	const std::vector< double > & vz_spline_unknown_points() const {return _vz_unknown_points_;};
+	const std::vector< std::pair< double, double > > & test_mass_spline_points() const {return _test_mass_points_;};
+	const std::vector< std::pair< double, std::vector< double > > > & host_parameter_spline_points() const {return _host_parameter_points_;};
 	const std::vector< double > & discontinuity_times() const {return _discontinuity_times_;};
 
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
@@ -681,6 +712,9 @@ public:
 
 	const std::vector<stripping_orbit_segment> & orbit_segments() const {return _orbit_segments_;};
 #endif
+
+	// Getting resultant data
+#if (1)
 
 	// Get final data (returns 1 on failure)
 	const int get_final_mret( double & mret ) const;
@@ -702,6 +736,25 @@ public:
 	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates clone. Make sure to delete!
+
+	// Get data at arbitrary time (returns 1 on failure)
+	const int get_mret_at_t( const double & t, double & mret) const; // Requires _record_full_data_
+	const int get_fmret_at_t( const double & t, double & fmret ) const; // Requires _record_full_data_
+	const int get_comp_fmret_at_t( const double & t, double & mret) const;
+	const int get_comp_fmret_error_at_t( const double & t, double & mret) const;
+
+	// Get data at arbitrary time (throws exception on failure)
+	const double mret_at_t(const double & t) const; // Requires _record_full_data_
+	const double fmret_at_t(const double & t) const; // Requires _record_full_data_
+	const double comp_fmret_at_t(const double & t) const;
+	const double comp_fmret_error_at_t(const double & t) const;
+
+	// Quality of fit. Both versions require _record_full_data_
+	const int get_quality_of_fit( double & Q, const unsigned int samples=100);
+	const double quality_of_fit(const unsigned int samples=100);
+
+#endif // Getting resultant data
+
 #endif
 
 };

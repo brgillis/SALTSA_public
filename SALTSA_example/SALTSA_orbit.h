@@ -470,6 +470,17 @@ private:
 	const double _step_length_factor( const double & v, const double & r ) const;
 	const double _rvir( const int index = 0 ) const;
 	const int _pass_interpolation_type() const;
+
+	// Calculation assistance functions
+	const double _tidal_strip_retained( const density_profile *host,
+			const density_profile *satellite, const double &r,
+			const double &vr, const double &vt,
+			const double &time_step, const long double &sum_delta_rho = 0 ) const;
+	const double _get_rt( const density_profile *host,
+			const density_profile *satellite, const double &r,
+			const double &vr, const double &vt,
+			const double &time_step, const long double &sum_delta_rho,
+			const bool silent = false ) const;
 #endif
 
 public:
@@ -632,17 +643,6 @@ public:
 	const double & t_min_natural_value() const {return _t_min_natural_value_;};
 #endif
 
-	// Calculation assistance functions
-	const double tidal_strip_retained( const density_profile *host,
-			const density_profile *satellite, const double &r,
-			const double &vr, const double &vt,
-			const double &time_step, const long double &sum_delta_rho = 0 ) const;
-	const double get_rt( const density_profile *host,
-			const density_profile *satellite, const double &r,
-			const double &vr, const double &vt,
-			const double &time_step, const long double &sum_delta_rho,
-			const bool silent = false ) const;
-
 	// Get final data (returns 1 on error)
 	const int get_final_mret( double & mret,
 			const bool silent = false ) const;
@@ -651,6 +651,8 @@ public:
 	const int get_final_sum_deltarho( double & final_sum_deltarho,
 			const bool silent = false ) const;
 	const int get_final_fmret( double & final_fmret,
+			const bool silent = false ) const;
+	const int get_mret_points( std::vector< std::pair<double,double> > & mret_points,
 			const bool silent = false ) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt, const bool silent =
 			false ) const;
@@ -663,6 +665,7 @@ public:
 	const double final_mret() const;
 	const long double final_sum_deltarho() const;
 	const double final_fmret() const;
+	const std::vector< std::pair<double,double> > mret_points() const;
 	const gabdt final_sum_gabdt() const;
 	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!

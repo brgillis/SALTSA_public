@@ -1,9 +1,9 @@
 /**********************************************************************
- brg_orbit.cpp
+ SALTSA_orbit.cpp
  -------------
 
  This file contains implementations of the classes and functions declared
- in the brg_orbit.h file. For the casual user, it is not necessary to
+ in the SALTSA_orbit.h file. For the casual user, it is not necessary to
  understand everything going here, and so I have not put as much effort
  into documenting it.
 
@@ -158,7 +158,7 @@ const int SALTSA::interpolator_derivative_function::operator()(
 		return NOT_SET_UP_ERROR;
 	}
 	double temp_out_params;
-	double Jacobian;
+	double Jacobian = 0;
 	unsigned int temp_num_out_params;
 
 	if ( differentiate( &_interpolator_function_, 1, in_param, temp_num_out_params,
@@ -605,7 +605,6 @@ SALTSA::stripping_orbit::stripping_orbit(
 	_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
 #endif
 
-	_num_patameters_ = other_stripping_orbit._num_patameters_;
 	_satellite_parameter_unitconvs_ =
 			other_stripping_orbit._satellite_parameter_unitconvs_;
 	_satellite_output_parameters_ =
@@ -625,28 +624,35 @@ SALTSA::stripping_orbit::stripping_orbit(
 
 	_final_fmret_list_ = other_stripping_orbit._final_fmret_list_;
 
-	_x_spline_points_ = other_stripping_orbit._x_spline_points_;
-	_y_spline_points_ = other_stripping_orbit._y_spline_points_;
-	_z_spline_points_ = other_stripping_orbit._z_spline_points_;
-	_test_mass_spline_points_ =
-			other_stripping_orbit._test_mass_spline_points_;
-	_vx_spline_points_ = other_stripping_orbit._vx_spline_points_;
-	_vy_spline_points_ = other_stripping_orbit._vy_spline_points_;
-	_vz_spline_points_ = other_stripping_orbit._vz_spline_points_;
-	_vx_spline_unknown_points_ =
-			other_stripping_orbit._vx_spline_unknown_points_;
-	_vy_spline_unknown_points_ =
-			other_stripping_orbit._vy_spline_unknown_points_;
-	_vz_spline_unknown_points_ =
-			other_stripping_orbit._vz_spline_unknown_points_;
-	_host_parameter_spline_points_ =
-			other_stripping_orbit._host_parameter_spline_points_;
+	_x_points_ = other_stripping_orbit._x_points_;
+	_y_points_ = other_stripping_orbit._y_points_;
+	_z_points_ = other_stripping_orbit._z_points_;
+	_test_mass_points_ =
+			other_stripping_orbit._test_mass_points_;
+	_test_mass_error_interpolator_ =
+			other_stripping_orbit._test_mass_error_interpolator_;
+	_test_mass_interpolator_ =
+			other_stripping_orbit._test_mass_interpolator_;
+	_vx_points_ = other_stripping_orbit._vx_points_;
+	_vy_points_ = other_stripping_orbit._vy_points_;
+	_vz_points_ = other_stripping_orbit._vz_points_;
+	_vx_unknown_points_ =
+			other_stripping_orbit._vx_unknown_points_;
+	_vy_unknown_points_ =
+			other_stripping_orbit._vy_unknown_points_;
+	_vz_unknown_points_ =
+			other_stripping_orbit._vz_unknown_points_;
+	_host_parameter_points_ =
+			other_stripping_orbit._host_parameter_points_;
+	_m_ret_interpolator_ =
+			other_stripping_orbit._m_ret_interpolator_;
+
+	_t_points_ = other_stripping_orbit._t_points_;
+	_host_param_t_points_ = other_stripping_orbit._host_param_t_points_;
+
 	_discontinuity_times_ = other_stripping_orbit._discontinuity_times_;
 	_cleaned_discontinuity_times_ =
 			other_stripping_orbit._cleaned_discontinuity_times_;
-	_num_discontinuities_ = other_stripping_orbit._num_discontinuities_;
-	_num_cleaned_discontinuities_ =
-			other_stripping_orbit._num_cleaned_discontinuities_;
 
 	_init_host_ptr_ = other_stripping_orbit._init_host_ptr_;
 	_init_satellite_ptr_ = other_stripping_orbit._init_satellite_ptr_;
@@ -736,7 +742,6 @@ SALTSA::stripping_orbit & SALTSA::stripping_orbit::operator=(
 		_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
 #endif
 
-		_num_patameters_ = other_stripping_orbit._num_patameters_;
 		_satellite_parameter_unitconvs_ =
 				other_stripping_orbit._satellite_parameter_unitconvs_;
 		_satellite_output_parameters_ =
@@ -757,28 +762,35 @@ SALTSA::stripping_orbit & SALTSA::stripping_orbit::operator=(
 
 		_final_fmret_list_ = other_stripping_orbit._final_fmret_list_;
 
-		_x_spline_points_ = other_stripping_orbit._x_spline_points_;
-		_y_spline_points_ = other_stripping_orbit._y_spline_points_;
-		_z_spline_points_ = other_stripping_orbit._z_spline_points_;
-		_test_mass_spline_points_ =
-				other_stripping_orbit._test_mass_spline_points_;
-		_vx_spline_points_ = other_stripping_orbit._vx_spline_points_;
-		_vy_spline_points_ = other_stripping_orbit._vy_spline_points_;
-		_vz_spline_points_ = other_stripping_orbit._vz_spline_points_;
-		_vx_spline_unknown_points_ =
-				other_stripping_orbit._vx_spline_unknown_points_;
-		_vy_spline_unknown_points_ =
-				other_stripping_orbit._vy_spline_unknown_points_;
-		_vz_spline_unknown_points_ =
-				other_stripping_orbit._vz_spline_unknown_points_;
-		_host_parameter_spline_points_ =
-				other_stripping_orbit._host_parameter_spline_points_;
+		_x_points_ = other_stripping_orbit._x_points_;
+		_y_points_ = other_stripping_orbit._y_points_;
+		_z_points_ = other_stripping_orbit._z_points_;
+		_test_mass_points_ =
+				other_stripping_orbit._test_mass_points_;
+		_test_mass_interpolator_ =
+				other_stripping_orbit._test_mass_interpolator_;
+		_test_mass_error_interpolator_ =
+				other_stripping_orbit._test_mass_error_interpolator_;
+		_vx_points_ = other_stripping_orbit._vx_points_;
+		_vy_points_ = other_stripping_orbit._vy_points_;
+		_vz_points_ = other_stripping_orbit._vz_points_;
+		_vx_unknown_points_ =
+				other_stripping_orbit._vx_unknown_points_;
+		_vy_unknown_points_ =
+				other_stripping_orbit._vy_unknown_points_;
+		_vz_unknown_points_ =
+				other_stripping_orbit._vz_unknown_points_;
+		_host_parameter_points_ =
+				other_stripping_orbit._host_parameter_points_;
+		_m_ret_interpolator_ =
+				other_stripping_orbit._m_ret_interpolator_;
+
+		_t_points_ = other_stripping_orbit._t_points_;
+		_host_param_t_points_ = other_stripping_orbit._host_param_t_points_;
+
 		_discontinuity_times_ = other_stripping_orbit._discontinuity_times_;
 		_cleaned_discontinuity_times_ =
 				other_stripping_orbit._cleaned_discontinuity_times_;
-		_num_discontinuities_ = other_stripping_orbit._num_discontinuities_;
-		_num_cleaned_discontinuities_ =
-				other_stripping_orbit._num_cleaned_discontinuities_;
 
 		_init_host_ptr_ = other_stripping_orbit._init_host_ptr_;
 		_init_satellite_ptr_ = other_stripping_orbit._init_satellite_ptr_;
@@ -797,6 +809,8 @@ SALTSA::stripping_orbit & SALTSA::stripping_orbit::operator=(
 				other_stripping_orbit._private_tNFW_init_satellite_;
 
 		_orbit_segments_ = other_stripping_orbit._orbit_segments_;
+
+		_likely_disrupted_ = other_stripping_orbit._likely_disrupted_;
 
 		if( (other_stripping_orbit._final_good_segment_ == other_stripping_orbit._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
 		{
@@ -878,6 +892,7 @@ SALTSA::stripping_orbit *SALTSA::stripping_orbit::stripping_orbit_clone()
 const int SALTSA::stripping_orbit::clear()
 {
 	clear_calcs();
+	clear_points();
 
 	// Integration parameters
 #if(1)
@@ -904,28 +919,11 @@ const int SALTSA::stripping_orbit::clear()
 	_host_parameter_unitconvs_.clear();
 	_host_output_parameters_.clear();
 
-	_x_spline_points_.clear();
-	_y_spline_points_.clear();
-	_z_spline_points_.clear();
-	_vx_spline_points_.clear();
-	_vy_spline_points_.clear();
-	_vz_spline_points_.clear();
-	_vx_spline_unknown_points_.clear();
-	_vy_spline_unknown_points_.clear();
-	_vz_spline_unknown_points_.clear();
-	_test_mass_spline_points_.clear();
-	_host_parameter_spline_points_.clear();
-
-	_t_min_natural_value_ = DBL_MAX;
-	_t_max_natural_value_ = ( -DBL_MAX );
 	_t_min_override_value_ = DBL_MAX;
 	_t_max_override_value_ = ( -DBL_MAX );
 	_override_t_min_ = false;
 	_override_t_max_ = false;
-	_num_patameters_ = 0;
 	_record_full_data_ = false;
-	_num_discontinuities_ = 0;
-	_num_cleaned_discontinuities_ = 0;
 
 	_init_host_ptr_ = 0;
 	_init_satellite_ptr_ = 0;
@@ -949,6 +947,7 @@ const int SALTSA::stripping_orbit::clear_calcs() const
 	_num_segments_ = 0;
 	_final_good_segment_ = _orbit_segments_.end();
 	_final_fmret_list_.clear();
+	_m_ret_interpolator_.clear();
 
 	_calculated_ = false;
 	_bad_result_ = false;
@@ -967,19 +966,35 @@ const int SALTSA::stripping_orbit::clear_calcs() const
  */
 const int SALTSA::stripping_orbit::add_point( const double &x,
 		const double &y, const double &z, const double &t,
-		const double new_mass )
+		const double test_mass, const double test_mass_error )
+{
+	// Check if there's already a point with this t value
+	for(size_t i=0; i<_t_points_.size(); i++)
+	{
+		if(t==_t_points_[i])
+			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
+	}
+	return force_add_point(x, y, z, t, test_mass, test_mass_error );
+}
+
+const int SALTSA::stripping_orbit::force_add_point( const double &x,
+		const double &y, const double &z, const double &t,
+		const double test_mass, const double test_mass_error )
 {
 	_calculated_ = false;
 	try
 	{
-		_x_spline_points_.push_back( std::pair< double, double >( t, x ) );
-		_y_spline_points_.push_back( std::pair< double, double >( t, y ) );
-		_z_spline_points_.push_back( std::pair< double, double >( t, z ) );
-		_vx_spline_unknown_points_.push_back( t );
-		_vy_spline_unknown_points_.push_back( t );
-		_vz_spline_unknown_points_.push_back( t );
-		_test_mass_spline_points_.push_back(
-				std::pair< double, double >( t, new_mass ) );
+		_x_points_.push_back( std::pair< double, double >( t, x ) );
+		_y_points_.push_back( std::pair< double, double >( t, y ) );
+		_z_points_.push_back( std::pair< double, double >( t, z ) );
+		_vx_unknown_points_.push_back( t );
+		_vy_unknown_points_.push_back( t );
+		_vz_unknown_points_.push_back( t );
+		_test_mass_points_.push_back(
+				std::pair< double, double >( t, test_mass ) );
+		_test_mass_interpolator_.add_point(t, test_mass);
+		_test_mass_error_interpolator_.add_point(t, test_mass_error);
+		_t_points_.push_back(t);
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -989,12 +1004,6 @@ const int SALTSA::stripping_orbit::add_point( const double &x,
 	{
 		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n"
 				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n";
 		std::cerr.flush();
 		return UNSPECIFIED_ERROR;
 	}
@@ -1016,19 +1025,36 @@ const int SALTSA::stripping_orbit::add_point( const double &x,
 const int SALTSA::stripping_orbit::add_point( const double &x,
 		const double &y, const double &z, const double &vx,
 		const double &vy, const double &vz, const double &t,
-		const double new_test_mass )
+		const double test_mass, const double test_mass_error )
+{
+	// Check if there's already a point with this t value
+	for(size_t i=0; i<_t_points_.size(); i++)
+	{
+		if(t==_t_points_[i])
+			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
+	}
+	return force_add_point(x, y, z, vx, vy, vz, t, test_mass, test_mass_error );
+}
+
+const int SALTSA::stripping_orbit::force_add_point( const double &x,
+		const double &y, const double &z, const double &vx,
+		const double &vy, const double &vz, const double &t,
+		const double test_mass, const double test_mass_error )
 {
 	_calculated_ = false;
 	try
 	{
-		_x_spline_points_.push_back( std::pair< double, double >( t, x ) );
-		_y_spline_points_.push_back( std::pair< double, double >( t, y ) );
-		_z_spline_points_.push_back( std::pair< double, double >( t, z ) );
-		_vx_spline_points_.push_back( std::pair< double, double >( t, vx ) );
-		_vy_spline_points_.push_back( std::pair< double, double >( t, vy ) );
-		_vz_spline_points_.push_back( std::pair< double, double >( t, vz ) );
-		_test_mass_spline_points_.push_back(
-				std::pair< double, double >( t, new_test_mass ) );
+		_x_points_.push_back( std::pair< double, double >( t, x ) );
+		_y_points_.push_back( std::pair< double, double >( t, y ) );
+		_z_points_.push_back( std::pair< double, double >( t, z ) );
+		_vx_points_.push_back( std::pair< double, double >( t, vx ) );
+		_vy_points_.push_back( std::pair< double, double >( t, vy ) );
+		_vz_points_.push_back( std::pair< double, double >( t, vz ) );
+		_test_mass_points_.push_back(
+				std::pair< double, double >( t, test_mass ) );
+		_test_mass_interpolator_.add_point( t, test_mass );
+		_test_mass_error_interpolator_.add_point( t, test_mass_error );
+		_t_points_.push_back(t);
 		if ( t < _t_min_natural_value_ )
 			_t_min_natural_value_ = t;
 		if ( t > _t_max_natural_value_ )
@@ -1038,12 +1064,6 @@ const int SALTSA::stripping_orbit::add_point( const double &x,
 	{
 		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n"
 				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n";
 		std::cerr.flush();
 		return UNSPECIFIED_ERROR;
 	}
@@ -1061,6 +1081,19 @@ const int SALTSA::stripping_orbit::add_host_parameter_point(
 		const std::vector< double > &parameters, const double &t,
 		const bool silent )
 {
+	// Check if there's already a point with this t value
+	for(size_t i=0; i<_host_param_t_points_.size(); i++)
+	{
+		if(t==_host_param_t_points_[i])
+			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
+	}
+	return force_add_host_parameter_point( parameters, t, silent );
+}
+
+const int SALTSA::stripping_orbit::force_add_host_parameter_point(
+		const std::vector< double > &parameters, const double &t,
+		const bool silent )
+{
 	// Check num_parameters matches vector size
 	if ( _init_host_ptr_->num_parameters() != parameters.size() )
 	{
@@ -1070,10 +1103,11 @@ const int SALTSA::stripping_orbit::add_host_parameter_point(
 		return INVALID_ARGUMENTS_ERROR;
 	}
 
-	_host_parameter_spline_points_.push_back(
+	_host_parameter_points_.push_back(
 			std::pair< double, std::vector< double > >( t, parameters ) );
+	_host_param_t_points_.push_back(t);
 
-	if ( _host_parameter_spline_points_.size() >= 2 )
+	if ( _host_parameter_points_.size() >= 2 )
 		_host_is_evolving_ = true;
 
 	_calculated_ = false;
@@ -1100,12 +1134,6 @@ const int SALTSA::stripping_orbit::add_discontinuity_time(
 		std::cerr.flush();
 		return UNSPECIFIED_ERROR;
 	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_discontinuity_time().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
 	return 0;
 }
 
@@ -1115,16 +1143,28 @@ const int SALTSA::stripping_orbit::add_discontinuity_time(
  */
 const int SALTSA::stripping_orbit::clear_points()
 {
-	_x_spline_points_.clear();
-	_y_spline_points_.clear();
-	_z_spline_points_.clear();
-	_vx_spline_points_.clear();
-	_vy_spline_points_.clear();
-	_vz_spline_points_.clear();
-	_vx_spline_unknown_points_.clear();
-	_vy_spline_unknown_points_.clear();
-	_vz_spline_unknown_points_.clear();
-	_test_mass_spline_points_.clear();
+	_x_points_.clear();
+	_y_points_.clear();
+	_z_points_.clear();
+
+	_vx_points_.clear();
+	_vy_points_.clear();
+	_vz_points_.clear();
+
+	_vx_unknown_points_.clear();
+	_vy_unknown_points_.clear();
+	_vz_unknown_points_.clear();
+
+	_test_mass_points_.clear();
+	_test_mass_interpolator_.clear();
+	_test_mass_error_interpolator_.clear();
+
+	_t_points_.clear();
+	_host_param_t_points_.clear();
+
+	_t_min_natural_value_ = DBL_MAX;
+	_t_max_natural_value_ = ( -DBL_MAX );
+
 	_calculated_ = false;
 	return 0;
 }
@@ -1144,7 +1184,7 @@ const int SALTSA::stripping_orbit::clear_discontinuity_times()
  */
 const int SALTSA::stripping_orbit::clear_host_parameter_points()
 {
-	_host_parameter_spline_points_.clear();
+	_host_parameter_points_.clear();
 	_calculated_ = false;
 	return 0;
 }
@@ -1463,13 +1503,13 @@ const int SALTSA::stripping_orbit::set_default_step_factor_min(
 // Setting default tuning parameters
 #if(1)
 
-/**
- *
- * @param new_default_tidal_stripping_amplification
- * @param override_current
- * @param silent
- * @return
- */
+const int SALTSA::stripping_orbit::set_default_tidal_stripping_amplification(
+		const double new_default_tidal_stripping_amplification)
+{
+	_default_tidal_stripping_amplification_ = new_default_tidal_stripping_amplification;
+	return 0;
+}
+
 const int SALTSA::stripping_orbit::set_default_tidal_stripping_amplification(
 		const double new_default_tidal_stripping_amplification,
 		const bool override_current,
@@ -1491,13 +1531,12 @@ const int SALTSA::stripping_orbit::set_default_tidal_stripping_amplification(
 	reset_tidal_stripping_amplification();
 	return 0;
 }
-/**
- *
- * @param new_default_tidal_stripping_deceleration
- * @param override_current
- * @param silent
- * @return
- */
+const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
+		const double new_default_tidal_stripping_deceleration)
+{
+	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
+	return 0;
+}
 const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
 		const double new_default_tidal_stripping_deceleration,
 		const bool override_current,
@@ -1511,13 +1550,12 @@ const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
 	reset_tidal_stripping_deceleration();
 	return 0;
 }
-/**
- *
- * @param new_default_tidal_shocking_amplification
- * @param override_current
- * @param silent
- * @return
- */
+const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
+		const double new_default_tidal_shocking_amplification)
+{
+	_default_tidal_shocking_amplification_ = new_default_tidal_shocking_amplification;
+	return 0;
+}
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
 		const double new_default_tidal_shocking_amplification,
 		const bool override_current,
@@ -1540,13 +1578,12 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
 
 	return 0;
 }
-/**
- *
- * @param new_default_tidal_shocking_persistance
- * @param override_current
- * @param silent
- * @return
- */
+const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
+		const double new_default_tidal_shocking_persistance)
+{
+	_default_tidal_shocking_persistance_ = new_default_tidal_shocking_persistance;
+	return 0;
+}
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
 		const double new_default_tidal_shocking_persistance,
 		const bool override_current,
@@ -1569,13 +1606,12 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
 
 	return 0;
 }
-/**
- *
- * @param new_default_tidal_shocking_power
- * @param override_current
- * @param silent
- * @return
- */
+const int SALTSA::stripping_orbit::set_default_tidal_shocking_power(
+		const double new_default_tidal_shocking_power)
+{
+	_default_tidal_shocking_power_ = new_default_tidal_shocking_power;
+	return 0;
+}
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_power(
 		const double new_default_tidal_shocking_power,
 		const bool override_current,
@@ -2056,10 +2092,10 @@ const int SALTSA::stripping_orbit::set_t_max( const double &new_t_max )
 const int SALTSA::stripping_orbit::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
-	for ( unsigned int i = 0; i < _x_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
 	{
-		if ( _x_spline_points_.at( i ).first < _t_min_natural_value_ )
-			_t_min_natural_value_ = _x_spline_points_.at( i ).first;
+		if ( _x_points_.at( i ).first < _t_min_natural_value_ )
+			_t_min_natural_value_ = _x_points_.at( i ).first;
 	}
 	_override_t_min_ = false;
 	return 0;
@@ -2071,10 +2107,10 @@ const int SALTSA::stripping_orbit::reset_t_min()
 const int SALTSA::stripping_orbit::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
-	for ( unsigned int i = 0; i < _x_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
 	{
-		if ( _x_spline_points_.at( i ).first > _t_max_natural_value_ )
-			_t_max_natural_value_ = _x_spline_points_.at( i ).first;
+		if ( _x_points_.at( i ).first > _t_max_natural_value_ )
+			_t_max_natural_value_ = _x_points_.at( i ).first;
 	}
 	_override_t_max_ = false;
 	return 0;
@@ -2142,10 +2178,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 
 	// Add each point to its proper segment
 
-	for ( unsigned int i = 0; i < _x_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
 	{
-		double t = _x_spline_points_.at( i ).first;
-		double x = _x_spline_points_.at( i ).second;
+		double t = _x_points_.at( i ).first;
+		double x = _x_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2155,10 +2191,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_x_point( x, t );
 	}
 
-	for ( unsigned int i = 0; i < _y_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _y_points_.size(); i++ )
 	{
-		double t = _y_spline_points_.at( i ).first;
-		double y = _y_spline_points_.at( i ).second;
+		double t = _y_points_.at( i ).first;
+		double y = _y_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2168,10 +2204,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_y_point( y, t );
 	}
 
-	for ( unsigned int i = 0; i < _z_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _z_points_.size(); i++ )
 	{
-		double t = _z_spline_points_.at( i ).first;
-		double z = _z_spline_points_.at( i ).second;
+		double t = _z_points_.at( i ).first;
+		double z = _z_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2181,10 +2217,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_z_point( z, t );
 	}
 
-	for ( unsigned int i = 0; i < _vx_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vx_points_.size(); i++ )
 	{
-		double t = _vx_spline_points_.at( i ).first;
-		double vx = _vx_spline_points_.at( i ).second;
+		double t = _vx_points_.at( i ).first;
+		double vx = _vx_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2194,10 +2230,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_vx_point( vx, t );
 	}
 
-	for ( unsigned int i = 0; i < _vy_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vy_points_.size(); i++ )
 	{
-		double t = _vy_spline_points_.at( i ).first;
-		double vy = _vy_spline_points_.at( i ).second;
+		double t = _vy_points_.at( i ).first;
+		double vy = _vy_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2207,10 +2243,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_vy_point( vy, t );
 	}
 
-	for ( unsigned int i = 0; i < _vz_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vz_points_.size(); i++ )
 	{
-		double t = _vz_spline_points_.at( i ).first;
-		double vz = _vz_spline_points_.at( i ).second;
+		double t = _vz_points_.at( i ).first;
+		double vz = _vz_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2220,9 +2256,9 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_vz_point( vz, t );
 	}
 
-	for ( unsigned int i = 0; i < _vx_spline_unknown_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vx_unknown_points_.size(); i++ )
 	{
-		double t = _vx_spline_unknown_points_.at( i );
+		double t = _vx_unknown_points_.at( i );
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2232,9 +2268,9 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_unknown_vx_point( t );
 	}
 
-	for ( unsigned int i = 0; i < _vy_spline_unknown_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vy_unknown_points_.size(); i++ )
 	{
-		double t = _vy_spline_unknown_points_.at( i );
+		double t = _vy_unknown_points_.at( i );
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2244,9 +2280,9 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_unknown_vy_point( t );
 	}
 
-	for ( unsigned int i = 0; i < _vz_spline_unknown_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _vz_unknown_points_.size(); i++ )
 	{
-		double t = _vz_spline_unknown_points_.at( i );
+		double t = _vz_unknown_points_.at( i );
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2256,10 +2292,10 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( segment_counter ).add_unknown_vz_point( t );
 	}
 
-	for ( unsigned int i = 0; i < _test_mass_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _test_mass_points_.size(); i++ )
 	{
-		double t = _test_mass_spline_points_.at( i ).first;
-		double test_mass = _test_mass_spline_points_.at( i ).second;
+		double t = _test_mass_points_.at( i ).first;
+		double test_mass = _test_mass_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2270,11 +2306,11 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 				t );
 	}
 
-	for ( unsigned int i = 0; i < _host_parameter_spline_points_.size(); i++ )
+	for ( unsigned int i = 0; i < _host_parameter_points_.size(); i++ )
 	{
-		double t = _host_parameter_spline_points_.at( i ).first;
+		double t = _host_parameter_points_.at( i ).first;
 		std::vector< double > host_parameters =
-				_host_parameter_spline_points_.at( i ).second;
+				_host_parameter_points_.at( i ).second;
 		int segment_counter = 0;
 		for ( int j = 0; j < _num_segments_ - 1; j++ )
 		{
@@ -2410,12 +2446,33 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 						throw std::runtime_error("WARNING: Could not calculate stripping for orbit segment.\n");
 					}
 
+					// If we're recording full data, fill up _m_ret_spline_points_ with new points
+					if(_record_full_data_)
+					{
+						std::vector< std::pair< double, double > > new_m_rets =
+								_orbit_segments_[i].mret_points();
+						for(size_t j=0; j<new_m_rets.size(); j++)
+						{
+							try
+							{
+								_m_ret_interpolator_.try_add_point(
+										new_m_rets[j].first,
+										fmret*new_m_rets[j].second);
+							}
+							catch(const std::exception &e)
+							{
+								std::cerr << "WARNING: Attempt to re-add point to m_ret_interpolator.\n";
+								std::cerr.flush();
+							}
+						}
+					}
+
 					_orbit_segments_.at( i ).get_final_fmret( fmret );
 
 					// Record this as the final good segment, in case we don't find any more afterward
 					_final_good_segment_ = _orbit_segments_.begin() + i;
 				}
-				catch (exception &e) {
+				catch (const std::exception &e) {
 					if( !silent )
 						std::cerr << e.what();
 					if(_likely_disrupted_)
@@ -2640,11 +2697,22 @@ const int SALTSA::stripping_orbit::get_final_mret( double & mret ) const
 	}
 	return 0;
 }
-/**
- *
- * @param fmret
- * @return
- */
+const int SALTSA::stripping_orbit::get_mret_at_t( const double & t, double & mret) const
+{
+	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
+	{
+		if ( int errcode = set_record_full_data( true ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	mret = _init_satellite_ptr_->mvir()*max( _m_ret_interpolator_(t), 0. );
+	return 0;
+}
 const int SALTSA::stripping_orbit::get_final_fmret( double & fmret ) const
 {
 	if(likely_disrupted())
@@ -2663,6 +2731,46 @@ const int SALTSA::stripping_orbit::get_final_fmret( double & fmret ) const
 			return UNSPECIFIED_ERROR;
 		}
 		fmret = _final_fmret_list_.back();
+	}
+	return 0;
+}
+const int SALTSA::stripping_orbit::get_fmret_at_t( const double & t, double & fmret) const
+{
+	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
+	{
+		if ( int errcode = set_record_full_data( true ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	fmret = max( _m_ret_interpolator_(t), 0. );
+	return 0;
+}
+const int SALTSA::stripping_orbit::get_comp_fmret_at_t( const double & t, double & fmret) const
+{
+	try
+	{
+		fmret = _test_mass_interpolator_(t);
+	}
+	catch(const std::exception &e)
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	return 0;
+}
+const int SALTSA::stripping_orbit::get_comp_fmret_error_at_t( const double & t, double & fmret) const
+{
+	try
+	{
+		fmret = _test_mass_error_interpolator_(t);
+	}
+	catch(const std::exception &e)
+	{
+		return UNSPECIFIED_ERROR;
 	}
 	return 0;
 }
@@ -2852,11 +2960,17 @@ const double SALTSA::stripping_orbit::final_mret() const
 	}
 	return result;
 }
+const double SALTSA::stripping_orbit::mret_at_t(const double & t) const
+{
+	double result = -1;
 
-/**
- *
- * @return
- */
+	if ( get_mret_at_t( t, result ) )
+	{
+		throw std::runtime_error("ERROR: Could not calculate stripping in stripping_orbit::final_mret.\n");
+	}
+	return result;
+}
+
 const double SALTSA::stripping_orbit::final_sum_deltarho() const
 {
 	double result = -1;
@@ -2882,11 +2996,25 @@ const double SALTSA::stripping_orbit::final_fmret() const
 	}
 	return result;
 }
+const double SALTSA::stripping_orbit::fmret_at_t(const double &t) const
+{
+	double result = -1;
 
-/**
- *
- * @return
- */
+	if ( get_fmret_at_t( t, result ) )
+	{
+		throw std::runtime_error("ERROR: Could not calculate stripping in stripping_orbit::final_fmret.\n");
+	}
+	return result;
+}
+const double SALTSA::stripping_orbit::comp_fmret_at_t(const double & t) const
+{
+	return _test_mass_interpolator_(t);
+}
+const double SALTSA::stripping_orbit::comp_fmret_error_at_t(const double & t) const
+{
+	return _test_mass_error_interpolator_(t);
+}
+
 const SALTSA::gabdt SALTSA::stripping_orbit::final_sum_gabdt() const
 {
 	SALTSA::gabdt result;
@@ -2921,7 +3049,7 @@ const bool & SALTSA::stripping_orbit::likely_disrupted() const
 		{
 			calc();
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			// Do nothing on exception here
 		}
@@ -2977,6 +3105,43 @@ const SALTSA::density_profile * SALTSA::stripping_orbit::final_host() const
 		return _init_host_ptr_; // Sanest/safest option in this case
 	else
 		return _final_good_segment()->final_host();
+}
+
+const int SALTSA::stripping_orbit::get_quality_of_fit( double & Q, const unsigned int samples)
+{
+	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
+	{
+		if ( int errcode = set_record_full_data( true ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	double temp_Q = 0;
+	double t_step = (t_max()-t_min())/samples;
+
+	for(double t=t_min(), tm=t_max(); t<tm; t+=t_step)
+	{
+		temp_Q += std::pow((_m_ret_interpolator_(t) - _test_mass_interpolator_(t))
+				/safe_d( _test_mass_error_interpolator_(t) ) ,2);
+	}
+
+	Q = temp_Q/safe_d(samples);
+
+	return 0;
+}
+
+const double SALTSA::stripping_orbit::quality_of_fit(const unsigned int samples)
+{
+	double Q=-1;
+	if(get_quality_of_fit(Q,samples))
+	{
+		throw std::runtime_error("Cannot determine quality of fit for stripping_orbit.");
+	}
+	return Q;
 }
 
 #endif // end SALTSA::stripping_orbit_segment class function definitions
@@ -4611,7 +4776,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 	step_length_factor = _step_length_factor(v, r);
 
 	_rt_list_.push_back(
-			get_rt( _current_host_ptr_, _current_satellite_ptr_, r,
+			_get_rt( _current_host_ptr_, _current_satellite_ptr_, r,
 					vr, vt, t_step, current_deltarho ) );
 	_rt_ratio_list_.push_back( _rt_list_.at( 0 ) / _rvir() );
 
@@ -4690,7 +4855,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 
 			// Calculate effects of tidal stripping and shocks
 			// Effects of stripping
-			mret = tidal_strip_retained( _current_host_ptr_,
+			mret = _tidal_strip_retained( _current_host_ptr_,
 					_current_satellite_ptr_, r, vr, vt,
 					t_step * step_length_factor,
 					_sum_delta_rho_list_.at( counter - 1 ) );
@@ -4717,7 +4882,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 			double t_recover = _current_satellite_ptr_->othmtot()/(2*pi);
 			double x;
 			double gabdt_scaling_factor;
-			x = max(0,t_shock / safe_d(t_recover) / ( 2 * pi ));
+			x = max(0.,t_shock / safe_d(t_recover) / ( 2 * pi ));
 
 			if(isbad(t_recover) or (t_recover<=0) or isbad(x) or (x<=0))
 			{
@@ -4727,7 +4892,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 			}
 			else
 			{
-				gabdt_scaling_factor = max(0,1
+				gabdt_scaling_factor = max(0.,1
 									- ( t_step * step_length_factor
 											/ safe_d( t_recover * _tidal_shocking_persistance_ ) ) );
 			}
@@ -4755,7 +4920,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 							_sum_delta_rho_list_.back() + current_deltarho);
 
 			_rt_list_.push_back(
-					get_rt( _current_host_ptr_,
+					_get_rt( _current_host_ptr_,
 							_current_satellite_ptr_, r, vr, vt,
 							t_step * step_length_factor,
 							_sum_delta_rho_list_.at( counter - 1 ) ) );
@@ -4772,7 +4937,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 			}
 
 		}
-		catch ( std::exception & e )
+		catch ( const std::exception & e )
 		{
 			_calculated_ = true; // We know there's an issue, so we won't calculate again unless something changes
 			_bad_result_ = true;
@@ -4786,8 +4951,7 @@ const int SALTSA::stripping_orbit_segment::calc( const bool silent ) const
 						t ) );
 	_calculated_ = true;
 
-	if(_bad_result_ || _likely_disrupted_) return UNSPECIFIED_ERROR;
-
+	if((_bad_result_) || (_likely_disrupted_)) return UNSPECIFIED_ERROR;
 	return 0;
 }
 
@@ -4909,7 +5073,7 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 		if ( int errcode = set_record_full_data( true ) )
 			return errcode + LOWER_LEVEL_ERROR;
 		if ( calc() )
-			return 1;
+			return UNSPECIFIED_ERROR;
 	}
 
 	num_rows = _phase_output_list_.size();
@@ -4953,12 +5117,13 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 						num_extra_satellite_columns++;
 				}
 			}
-			catch ( std::exception & )
+			catch ( const std::exception &e )
 			{
 				if ( !silent )
 					std::cerr
 							<< "WARNING: Error reading satellite_output_parameters.\n"
-							<< "No extra parameters will be output.\n";
+							<< "No extra parameters will be output.\n"
+							<< e.what();
 				num_extra_satellite_columns = 0;
 			}
 		}
@@ -4995,12 +5160,13 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 						num_extra_host_columns++;
 				}
 			}
-			catch ( std::exception & )
+			catch ( const std::exception &e )
 			{
 				if ( !silent )
 					std::cerr
 							<< "WARNING: Error reading host_output_parameters.\n"
-							<< "No extra parameters will be output.\n";
+							<< "No extra parameters will be output.\n"
+							<< e.what();
 				num_extra_host_columns = 0;
 			}
 		}
@@ -5049,7 +5215,7 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 					ss << "Satellite_" << parameter_names.at( i );
 					header[num_columns_base + extra_column_counter] = ss.str();
 				}
-				catch ( std::exception & )
+				catch ( const std::out_of_range & )
 				{
 					ss.str( "" );
 					ss << "Unknown_parameter_" << ( extra_column_counter + 1 );
@@ -5079,7 +5245,7 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 					header[num_columns_base + num_extra_satellite_columns
 							+ extra_column_counter] = ss.str();
 				}
-				catch ( std::exception & )
+				catch ( const std::out_of_range & )
 				{
 					ss.str( "" );
 					ss << "Unknown_parameter_"
@@ -5219,7 +5385,7 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 						data[num_columns_base + extra_column_counter][i] =
 								ss.str();
 					}
-					catch ( std::exception & )
+					catch ( const std::out_of_range & )
 					{
 						ss.str( "" );
 						ss << DBL_MIN;
@@ -5250,7 +5416,7 @@ const int SALTSA::stripping_orbit_segment::print_full_data(
 						data[num_columns_base + num_extra_satellite_columns
 								+ extra_column_counter][i] = ss.str();
 					}
-					catch ( std::exception & )
+					catch ( const std::out_of_range & )
 					{
 						ss.str( "" );
 						ss << DBL_MIN;
@@ -5303,7 +5469,7 @@ const double SALTSA::stripping_orbit_segment::_delta_rho(
 		}
 		throw std::runtime_error("ERROR: Could not calculate delta_rho in stripping_orbit_segment::_delta_rho.\n");
 	}
-	return max( result, 0 );
+	return max( result, 0. );
 }
 
 /**
@@ -5353,6 +5519,26 @@ const double SALTSA::stripping_orbit_segment::_step_length_factor( const double 
 	// Low-r -> small step factor (and the inverse), bounded by max and min
 	double step_length_factor_r = bound( _step_factor_min_,
 			std::pow( std::fabs(r / safe_d( r_0 )), _step_length_power_ ), _step_factor_max_);
+
+	if(isbad(step_length_factor_r))
+	{
+		std::cerr << "WARNING: Bad step_length_factor_r: " << step_length_factor_r
+				<< "r = " << r
+				<< "r_0 = " << r_0 << std::endl;
+		if(isgood(step_length_factor_v)) return step_length_factor_v;
+	}
+
+	if(isbad(step_length_factor_v))
+	{
+		std::cerr << "WARNING: Bad step_length_factor_v: " << step_length_factor_r
+				<< "v = " << r
+				<< "v_0 = " << r_0 << std::endl;
+		if(isgood(step_length_factor_r))
+			return step_length_factor_v;
+		else
+			return 1;
+	}
+
 	// Use the smaller of the two calculated factors
 	return min(step_length_factor_v,step_length_factor_r);
 }
@@ -5365,14 +5551,7 @@ const double SALTSA::stripping_orbit_segment::_step_length_factor( const double 
 const double SALTSA::stripping_orbit_segment::_rvir(
 		const int index ) const
 {
-	try
-	{
-		return _current_satellite_ptr_->rvir();
-	}
-	catch ( std::exception & )
-	{
-		return -1;
-	}
+	return _current_satellite_ptr_->rvir();
 }
 const int SALTSA::stripping_orbit_segment::_pass_interpolation_type() const
 {
@@ -5447,15 +5626,34 @@ const int SALTSA::stripping_orbit_segment::get_final_fmret( double & fmret,
 	fmret = _mret_list_.back() / safe_d(_mret_list_.front());
 	return 0;
 }
+const int SALTSA::stripping_orbit_segment::get_mret_points(
+		std::vector< std::pair<double,double> > & mret_points,
+		const bool silent ) const
+{
+	if ( (!_calculated_) || (!_record_full_data_) )
+	{
+		set_record_full_data(true);
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
 
-/**
- *
- * @param final_sum_deltarho
- * @param silent
- * @return
- */
+	mret_points.clear();
+	for(size_t i = 0; i<_phase_output_list_.size(); i++)
+	{
+		mret_points.push_back( std::make_pair(
+				_phase_output_list_[i].t,
+				_mret_list_.at(i)));
+	}
+
+	return 0;
+}
+
 const int SALTSA::stripping_orbit_segment::get_final_sum_deltarho(
-		long double & final_sum_deltarho, const bool silent ) const
+long double & final_sum_deltarho, const bool silent ) const
 {
 	if ( !_calculated_ )
 	{
@@ -5651,11 +5849,17 @@ const double SALTSA::stripping_orbit_segment::final_fmret() const
 	}
 	return result;
 }
+const std::vector< std::pair<double,double> > SALTSA::stripping_orbit_segment::mret_points() const
+{
+	std::vector< std::pair<double,double> > result;
+	if( get_mret_points(result) )
+	{
+		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::mret_points.\n");
+	}
 
-/**
- *
- * @return
- */
+	return result;
+}
+
 const SALTSA::gabdt SALTSA::stripping_orbit_segment::final_sum_gabdt() const
 {
 	gabdt result;
@@ -5677,7 +5881,7 @@ const bool & SALTSA::stripping_orbit_segment::likely_disrupted() const
 		{
 			calc();
 		}
-		catch(std::exception &e)
+		catch(const std::exception &e)
 		{
 			// Do nothing on exception here
 		}
@@ -6177,6 +6381,8 @@ const double SALTSA::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot
 		for ( int y_i = 0; y_i < 3; y_i++ )
 		{
 			result += dv().at(x_i).at(y_i)*other_gabdt.dv().at(x_i).at(y_i);
+			if(isbad(result)) std::cerr << "WARNING: Bad result in gabdt dot-product when multiplying "
+					<< dv().at(x_i).at(y_i) << " and " << other_gabdt.dv().at(x_i).at(y_i) << endl;
 		}
 	}
 	return result;
@@ -6232,6 +6438,11 @@ SALTSA::gabdt SALTSA::gabdt::operator+( const gabdt & other_gabdt ) const
  */
 SALTSA::gabdt & SALTSA::gabdt::operator*=( const double scale_fraction )
 {
+	if(isbad(scale_fraction))
+	{
+		std::cerr << "WARNING: Bad scale fraction passed to gabdt*=: " << scale_fraction << endl;
+		return *this;
+	}
 	if ( !_is_cached_ )
 		if ( calc_dv() )
 		{
@@ -6341,7 +6552,7 @@ const int SALTSA::gabdt_function::operator()(
  * @param sum_rho
  * @return
  */
-const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const density_profile *host_group,
+const double SALTSA::stripping_orbit_segment::_tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const double &r,
 		const double &vr, const double &vt,
 		const double &time_step, const long double &sum_rho ) const
@@ -6358,37 +6569,25 @@ const double SALTSA::stripping_orbit_segment::tidal_strip_retained( const densit
 		stripping_period = inst_orbital_period *
 			std::pow(hm_period/safe_d(inst_orbital_period), _tidal_stripping_deceleration_);
 
-	new_rt = get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
+	new_rt = _get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
 
-	if ( !( new_rt > 0 ) )
-		mass_frac_lost_total = 0;
+	if ( !( new_rt > 0. ) )
+		mass_frac_lost_total = 0.;
 	else
 	{
 		mass_frac_lost_total = max(
-				1 - satellite->enc_mass( new_rt ) / safe_d(satellite->mtot()), 0 );
+				1. - satellite->enc_mass( new_rt ) / safe_d(satellite->mtot()), 0. );
 	}
 	mass_frac_retained = max(
 			min(
-					1
+					1.
 							- mass_frac_lost_total * time_step / stripping_period
-									* _tidal_stripping_amplification_, 1 ), 0 );
+									* _tidal_stripping_amplification_, 1 ), 0. );
 
 	return mass_frac_retained;
 }
 
-/**
- *
- * @param host_group
- * @param satellite
- * @param r
- * @param vr
- * @param vt
- * @param time_step
- * @param sum_rho
- * @param silent
- * @return
- */
-const double SALTSA::stripping_orbit_segment::get_rt( const density_profile *host_group,
+const double SALTSA::stripping_orbit_segment::_get_rt( const density_profile *host_group,
 		const density_profile *satellite, const double &r,
 		const double &vr, const double &vt,
 		const double &time_step, const long double &sum_rho,
