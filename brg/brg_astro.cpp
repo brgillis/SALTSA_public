@@ -1128,7 +1128,7 @@ const int brgastro::tNFW_profile::truncate_to_fraction( const double f,
 	}
 	else
 	{
-		double new_tau_val = brgastro::taufm( f, _c_, _tau_, min(0.1*(1-f),0.00001) );
+		double new_tau_val = brgastro::taufm( f, _c_, _tau_, min(std::fabs(0.1*(1-f)),0.00001) );
 		if ( new_tau_val < 0 )
 		{
 			if ( !silent )

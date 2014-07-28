@@ -243,7 +243,7 @@
 #include <stdexcept>
 #include "brg_units.h"
 #include "brg_functions.h"
-#include "SALTSA_interpolator.h"
+#include "brg_interpolator.h"
 #include "brg_astro.h"
 
 namespace brgastro
@@ -293,14 +293,14 @@ class interpolator_function: public functor< BRG_UNITS >
 
 private:
 
-	SALTSA::interpolator *_interpolator_ptr_;
+	brgastro::interpolator *_interpolator_ptr_;
 	bool _interpolator_ptr_set_up_;
 
 public:
 
 	// Constructors
 	interpolator_function();
-	interpolator_function( SALTSA::interpolator *init_interpolator_ptr );
+	interpolator_function( brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructor
 	virtual ~interpolator_function()
@@ -308,7 +308,7 @@ public:
 	}
 
 	// Set functions
-	const int set_interpolator_ptr( SALTSA::interpolator *new_interpolator_ptr );
+	const int set_interpolator_ptr( brgastro::interpolator *new_interpolator_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
@@ -343,7 +343,7 @@ public:
 
 	// Constructors
 	interpolator_derivative_function();
-	interpolator_derivative_function( SALTSA::interpolator *init_interpolator_ptr );
+	interpolator_derivative_function( brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructor
 	virtual ~interpolator_derivative_function()
@@ -351,7 +351,7 @@ public:
 	}
 
 	// Set functions
-	const int set_spline_ptr( SALTSA::interpolator *new_interpolator_ptr );
+	const int set_spline_ptr( brgastro::interpolator *new_interpolator_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
@@ -439,8 +439,8 @@ class interpolator_derivative
 
 	 \************************************************************/
 private:
-	SALTSA::interpolator *_interpolator_ptr_;
-	mutable SALTSA::interpolator _known_interpolator_, _estimated_interpolator_;
+	brgastro::interpolator *_interpolator_ptr_;
+	mutable brgastro::interpolator _known_interpolator_, _estimated_interpolator_;
 	bool _interpolator_ptr_set_up_;
 	mutable bool _calculated_;
 
@@ -453,12 +453,12 @@ private:
 	double _sample_scale_, _sample_max_width_, _sample_precision_;
 	mutable double _t_min_, _t_max_;
 
-	SALTSA::interpolator::allowed_interpolation_type _interpolation_type_;
+	brgastro::interpolator::allowed_interpolation_type _interpolation_type_;
 
 public:
 	// Constructors
 	interpolator_derivative();
-	interpolator_derivative( SALTSA::interpolator *init_interpolator_ptr );
+	interpolator_derivative( brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructors
 	virtual ~interpolator_derivative()
@@ -466,7 +466,7 @@ public:
 	}
 
 	// Set functions
-	const int set_spline_ptr( SALTSA::interpolator *new_interpolator_ptr );
+	const int set_spline_ptr( brgastro::interpolator *new_interpolator_ptr );
 	const int clear_spline_ptr();
 	const int set_default_sample_scale( double new_default_sample_scale );
 	const int set_default_sample_max_width(
@@ -476,7 +476,7 @@ public:
 	const int reset_sample_scale(); // Sets it to default
 	const int reset_sample_max_width(); // Sets it to default
 	const int set_interpolation_type(
-			SALTSA::interpolator::allowed_interpolation_type new_interpolation_type);
+			brgastro::interpolator::allowed_interpolation_type new_interpolation_type);
 	const int reset_interpolation_type();
 
 	// Functions for adding/clearing points
@@ -712,8 +712,8 @@ private:
 	std::vector< std::pair< double, std::vector< BRG_UNITS > > > _host_parameter_points_;
 	std::vector< double > _discontinuity_times_;
 	mutable std::vector< double > _cleaned_discontinuity_times_;
-	mutable SALTSA::interpolator _m_ret_interpolator_;
-	mutable SALTSA::interpolator _test_mass_interpolator_, _test_mass_error_interpolator_;
+	mutable brgastro::interpolator _m_ret_interpolator_;
+	mutable brgastro::interpolator _test_mass_interpolator_, _test_mass_error_interpolator_;
 	mutable std::vector< double > _final_fmret_list_;
 	mutable std::vector< brgastro::stripping_orbit_segment > _orbit_segments_;
 #endif
@@ -788,25 +788,35 @@ public:
 	// Setting default tuning parameters
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
+	static const int set_default_tidal_stripping_amplification(
+			const double new_default_tidal_stripping_amplification);
 	const int set_default_tidal_stripping_amplification(
 			const double new_default_tidal_stripping_amplification,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_stripping_deceleration(
+			const double new_default_tidal_stripping_deceleration);
 	const int set_default_tidal_stripping_deceleration(
 			const double new_default_tidal_stripping_deceleration,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_shocking_amplification(
+			const double new_default_tidal_shocking_amplification);
 	const int set_default_tidal_shocking_amplification(
 			const double new_default_tidal_shocking_amplification,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_shocking_persistance(
+			const double new_default_tidal_shocking_persistance);
 	const int set_default_tidal_shocking_persistance(
 			const double new_default_tidal_shocking_persistance,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_shocking_power(
+			const double new_default_tidal_shocking_power);
 	const int set_default_tidal_shocking_power(
 			const double new_default_tidal_shocking_power,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 #endif
 
@@ -989,6 +999,20 @@ public:
 	const BRG_TIME & t_max_natural_value() const {return _t_max_natural_value_;};
 	const BRG_TIME & t_min_override_value() const {return _t_min_override_value_;};
 	const BRG_TIME & t_max_override_value() const {return _t_max_override_value_;};
+	const BRG_TIME & t_min() const
+	{
+		if(_override_t_min_)
+			return _t_min_override_value_;
+		else
+			return _t_min_natural_value_;
+	}
+	const BRG_TIME & t_max() const
+	{
+		if(_override_t_max_)
+			return _t_max_override_value_;
+		else
+			return _t_max_natural_value_;
+	}
 	const bool & override_t_min() const {return _override_t_min_;};
 	const bool & override_t_max() const {return _override_t_max_;};
 
@@ -1028,15 +1052,14 @@ public:
 	const std::vector<stripping_orbit_segment> & orbit_segments() const {return _orbit_segments_;};
 #endif
 
+	// Getting resultant data
+#if (1)
+
 	// Get final data (returns 1 on failure)
 	const int get_final_mret( BRG_MASS & mret ) const;
-	const int get_mret_at_t( const BRG_TIME & t, BRG_MASS & mret) const;
 	const int get_final_sum_deltarho( long double & final_sum_deltarho ) const;
 	const int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho ) const;
 	const int get_final_fmret( double & final_fmret ) const;
-	const int get_fmret_at_t( const BRG_TIME & t, double & fmret ) const;
-	const int get_comp_fmret_at_t( const BRG_TIME & t, double & mret) const;
-	const int get_comp_fmret_error_at_t( const BRG_TIME & t, double & mret) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt ) const;
 	const int get_last_infall_time( BRG_TIME & t ) const;
 	const int clone_final_satellite(
@@ -1045,17 +1068,32 @@ public:
 
 	// Get final data (throws exception on failure)
 	const BRG_MASS final_mret() const;
-	const BRG_MASS mret_at_t(const BRG_TIME & t) const;
 	const BRG_UNITS final_sum_deltarho() const;
 	const double final_fmret() const;
-	const double fmret_at_t(const BRG_TIME & t) const;
-	const double comp_fmret_at_t(const BRG_TIME & t) const;
-	const double comp_fmret_error_at_t(const BRG_TIME & t) const;
 	const gabdt final_sum_gabdt() const;
 	const BRG_TIME last_infall_time() const;
 	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates clone. Make sure to delete!
+
+	// Get data at arbitrary time (returns 1 on failure)
+	const int get_mret_at_t( const BRG_TIME & t, BRG_MASS & mret) const; // Requires _record_full_data_
+	const int get_fmret_at_t( const BRG_TIME & t, double & fmret ) const; // Requires _record_full_data_
+	const int get_comp_fmret_at_t( const BRG_TIME & t, double & mret) const;
+	const int get_comp_fmret_error_at_t( const BRG_TIME & t, double & mret) const;
+
+	// Get data at arbitrary time (throws exception on failure)
+	const BRG_MASS mret_at_t(const BRG_TIME & t) const; // Requires _record_full_data_
+	const double fmret_at_t(const BRG_TIME & t) const; // Requires _record_full_data_
+	const double comp_fmret_at_t(const BRG_TIME & t) const;
+	const double comp_fmret_error_at_t(const BRG_TIME & t) const;
+
+	// Quality of fit. Both versions require _record_full_data_
+	const int get_quality_of_fit( double & Q, const unsigned int samples=100);
+	const double quality_of_fit(const unsigned int samples=100);
+
+#endif // Getting resultant data
+
 #endif
 
 };
@@ -1125,10 +1163,10 @@ private:
 
 	// Splines for orbit data
 	// Must be mutable since the spline class used doesn't allow conceptual constness for calculating
-	mutable SALTSA::interpolator _x_spline_, _y_spline_, _z_spline_,
+	mutable brgastro::interpolator _x_spline_, _y_spline_, _z_spline_,
 			_test_mass_spline_;
 	mutable interpolator_derivative _vx_spline_, _vy_spline_, _vz_spline_;
-	mutable std::vector< SALTSA::interpolator > _host_parameter_splines_;
+	mutable std::vector< brgastro::interpolator > _host_parameter_splines_;
 
 	// Vectors for output data
 	mutable std::vector< BRG_UNITS > _delta_rho_list_,

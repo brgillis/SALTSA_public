@@ -20,7 +20,7 @@
 
 #include "brg_units.h"
 #include "brg_functions.h"
-#include "SALTSA_interpolator.h"
+#include "brg_interpolator.h"
 #include "brg_astro.h"
 #include "brg_orbit.h"
 #include "brg_solvers.hpp"
@@ -85,14 +85,14 @@ brgastro::interpolator_function::interpolator_function()
 	_interpolator_ptr_set_up_ = false;
 }
 brgastro::interpolator_function::interpolator_function(
-		SALTSA::interpolator *init_spline_ptr )
+		brgastro::interpolator *init_spline_ptr )
 {
 	set_interpolator_ptr( init_spline_ptr );
 }
 
 // Set functions
 const int brgastro::interpolator_function::set_interpolator_ptr(
-		SALTSA::interpolator *new_spline_ptr )
+		brgastro::interpolator *new_spline_ptr )
 {
 	_interpolator_ptr_ = new_spline_ptr;
 	_interpolator_ptr_set_up_ = true;
@@ -125,14 +125,14 @@ brgastro::interpolator_derivative_function::interpolator_derivative_function()
 	_interpolator_function_set_up_ = false;
 }
 brgastro::interpolator_derivative_function::interpolator_derivative_function(
-		SALTSA::interpolator *init_spline_ptr )
+		brgastro::interpolator *init_spline_ptr )
 {
 	set_spline_ptr( init_spline_ptr );
 }
 
 // Set functions
 const int brgastro::interpolator_derivative_function::set_spline_ptr(
-		SALTSA::interpolator *new_spline_ptr )
+		brgastro::interpolator *new_spline_ptr )
 {
 	_interpolator_function_.set_interpolator_ptr( new_spline_ptr );
 	_interpolator_function_set_up_ = true;
@@ -246,7 +246,7 @@ brgastro::interpolator_derivative::interpolator_derivative()
 	clear();
 }
 brgastro::interpolator_derivative::interpolator_derivative(
-		SALTSA::interpolator *init_spline_ptr )
+		brgastro::interpolator *init_spline_ptr )
 {
 	clear();
 	set_spline_ptr( init_spline_ptr );
@@ -254,7 +254,7 @@ brgastro::interpolator_derivative::interpolator_derivative(
 
 // Set functions
 const int brgastro::interpolator_derivative::set_spline_ptr(
-		SALTSA::interpolator *new_spline_ptr )
+		brgastro::interpolator *new_spline_ptr )
 {
 	if ( _interpolator_func_.set_interpolator_ptr( new_spline_ptr ) )
 		return 1;
@@ -316,7 +316,7 @@ const int brgastro::interpolator_derivative::reset_sample_max_width() // Sets it
 }
 
 const int brgastro::interpolator_derivative::set_interpolation_type(
-		SALTSA::interpolator::allowed_interpolation_type new_type)
+		brgastro::interpolator::allowed_interpolation_type new_type)
 {
 	_known_interpolator_.set_interpolation_type(new_type);
 	_interpolation_type_ = new_type;
@@ -917,7 +917,7 @@ const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 		const double test_mass, const double test_mass_error )
 {
 	// Check if there's already a point with this t value
-	for(size_t i=0; i++; i<_t_points_.size())
+	for(size_t i=0; i<_t_points_.size(); i++)
 	{
 		if(t==_t_points_[i])
 			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
@@ -964,7 +964,7 @@ const int brgastro::stripping_orbit::add_point( const BRG_DISTANCE &x,
 		const double test_mass, const double test_mass_error )
 {
 	// Check if there's already a point with this t value
-	for(size_t i=0; i++; i<_t_points_.size())
+	for(size_t i=0; i<_t_points_.size(); i++)
 	{
 		if(t==_t_points_[i])
 			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
@@ -1011,7 +1011,7 @@ const int brgastro::stripping_orbit::add_host_parameter_point(
 		const bool silent )
 {
 	// Check if there's already a point with this t value
-	for(size_t i=0; i++; i<_host_param_t_points_.size())
+	for(size_t i=0; i<_host_param_t_points_.size(); i++)
 	{
 		if(t==_host_param_t_points_[i])
 			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
@@ -1382,6 +1382,13 @@ const int brgastro::stripping_orbit::set_default_step_factor_min(
 #if(1)
 
 const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
+		const double new_default_tidal_stripping_amplification)
+{
+	_default_tidal_stripping_amplification_ = new_default_tidal_stripping_amplification;
+	return 0;
+}
+
+const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 		const double new_default_tidal_stripping_amplification,
 		const bool override_current,
 		const bool silent )
@@ -1403,6 +1410,12 @@ const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
+		const double new_default_tidal_stripping_deceleration)
+{
+	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
 		const double new_default_tidal_stripping_deceleration,
 		const bool override_current,
 		const bool silent )
@@ -1413,6 +1426,12 @@ const int brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
 	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
 
 	reset_tidal_stripping_deceleration();
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
+		const double new_default_tidal_shocking_amplification)
+{
+	_default_tidal_shocking_amplification_ = new_default_tidal_shocking_amplification;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
@@ -1438,6 +1457,12 @@ const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
+		const double new_default_tidal_shocking_persistance)
+{
+	_default_tidal_shocking_persistance_ = new_default_tidal_shocking_persistance;
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
 		const double new_default_tidal_shocking_persistance,
 		const bool override_current,
 		const bool silent )
@@ -1457,6 +1482,12 @@ const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
 
 	reset_tidal_shocking_persistance();
 
+	return 0;
+}
+const int brgastro::stripping_orbit::set_default_tidal_shocking_power(
+		const double new_default_tidal_shocking_power)
+{
+	_default_tidal_shocking_power_ = new_default_tidal_shocking_power;
 	return 0;
 }
 const int brgastro::stripping_orbit::set_default_tidal_shocking_power(
@@ -2738,6 +2769,43 @@ const brgastro::density_profile * brgastro::stripping_orbit::final_host() const
 		return _init_host_ptr_; // Sanest/safest option in this case
 	else
 		return _final_good_segment()->final_host();
+}
+
+const int brgastro::stripping_orbit::get_quality_of_fit( double & Q, const unsigned int samples)
+{
+	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
+	{
+		if ( int errcode = set_record_full_data( true ) )
+			return errcode + LOWER_LEVEL_ERROR;
+		if ( calc() )
+			return UNSPECIFIED_ERROR;
+	}
+	if( _bad_result_ )
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	double temp_Q = 0;
+	double t_step = (t_max()-t_min())/samples;
+
+	for(double t=t_min(), tm=t_max(); t<tm; t+=t_step)
+	{
+		temp_Q += std::pow((_m_ret_interpolator_(t) - _test_mass_interpolator_(t))
+				/safe_d( _test_mass_error_interpolator_(t) ) ,2);
+	}
+
+	Q = temp_Q/safe_d(samples);
+
+	return 0;
+}
+
+const double brgastro::stripping_orbit::quality_of_fit(const unsigned int samples)
+{
+	double Q=-1;
+	if(get_quality_of_fit(Q,samples))
+	{
+		throw std::runtime_error("Cannot determine quality of fit for stripping_orbit.");
+	}
+	return Q;
 }
 
 #endif // end brgastro::stripping_orbit_segment class function definitions
@@ -4804,22 +4872,22 @@ const BRG_DISTANCE brgastro::stripping_orbit_segment::_rvir(
 }
 const int brgastro::stripping_orbit_segment::_pass_interpolation_type() const
 {
-	SALTSA::interpolator::allowed_interpolation_type type_to_pass = SALTSA::interpolator::SPLINE;
+	brgastro::interpolator::allowed_interpolation_type type_to_pass = brgastro::interpolator::SPLINE;
 	if(_interpolation_type_ == brgastro::stripping_orbit::UNSET)
 	{
-		if(length() * std::sqrt(step_factor_min()) > _spline_resolution_) type_to_pass = SALTSA::interpolator::LINEAR;
-		if(length() * step_factor_min() > _spline_resolution_) type_to_pass = SALTSA::interpolator::LOWER;
+		if(length() * std::sqrt(step_factor_min()) > _spline_resolution_) type_to_pass = brgastro::interpolator::LINEAR;
+		if(length() * step_factor_min() > _spline_resolution_) type_to_pass = brgastro::interpolator::LOWER;
 	}
 	else
 	{
 		if(_interpolation_type_ == brgastro::stripping_orbit::LINEAR)
-			type_to_pass = SALTSA::interpolator::LINEAR;
+			type_to_pass = brgastro::interpolator::LINEAR;
 		if(_interpolation_type_ == brgastro::stripping_orbit::SPLINE)
-			type_to_pass = SALTSA::interpolator::SPLINE;
+			type_to_pass = brgastro::interpolator::SPLINE;
 		if(_interpolation_type_ == brgastro::stripping_orbit::UPPER)
-			type_to_pass = SALTSA::interpolator::UPPER;
+			type_to_pass = brgastro::interpolator::UPPER;
 		if(_interpolation_type_ == brgastro::stripping_orbit::LOWER)
-			type_to_pass = SALTSA::interpolator::LOWER;
+			type_to_pass = brgastro::interpolator::LOWER;
 	}
 
 	int err_code = 0;
