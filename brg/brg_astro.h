@@ -35,6 +35,7 @@ brg_astro.h
 #include "brg_units.h"
 #include "brg_functions.h"
 #include "brg_cache.hpp"
+#include "brg_cache_nd.hpp"
 
 /** Constant Definitions **/
 #if (1)
@@ -307,30 +308,42 @@ protected:
 public:
 
 };
-// class tfa_cache
+// class dfa_cache
 
-class add_cache
+class add_cache : public brg_cache_nd<add_cache>
 {
-	// "Angular Diameter Distance" cache
-	static bool loaded;
-	static std::string file_name;
-	static double z_min, z_max, z_step;
-	static int z_res;
-	static std::vector< std::vector< double > > dmod;
-	static std::string header_string;
-	static int sig_digits;
-	const int load( const bool silent = false );
-	const int unload();
-	const int calc( const bool silent = false );
-	const int output( const bool silent = false );
+	// Angular diameter distance
+private:
+
+	DECLARE_BRG_CACHE_ND_STATIC_VARS();
+
+	friend class brg_cache;
+
+protected:
+
+	const std::string _name_base() const throw()
+	{
+		return "add";
+	}
+
+#ifdef _BRG_USE_UNITS_
+
+	// Tells what units the result should have. Only the units matter in the return, not the value
+	const brgastro::unit_obj _units() const throw()
+	{
+		return brgastro::unit_obj(0,1,0,0,0,0,0); // Distance units
+	}
+	const brgastro::unit_obj _inverse_units() const throw()
+	{
+		return brgastro::unit_obj(0); // Unitless (redshift)
+	}
+
+#endif // _BRG_USE_UNITS_
+
+	// Long-form calculation function.
+	const int _calculate( const double in_params, double & out_params ) const;
+
 public:
-	const int set_file_name( const std::string new_name );
-	const int set_range( const double new_z_min, const double new_z_max,
-			const double new_z_step, const bool silent = false );
-	const int set_precision( const int new_precision,
-			const bool silent = false );
-	const BRG_UNITS get( const double z1, const double z2, const bool silent =
-			false );
 
 };
 // class add_cache

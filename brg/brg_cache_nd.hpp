@@ -7,8 +7,8 @@
 
 // !!! UNTESTED
 
-#ifndef __BRG_CACHE_HPP_INCLUDED__
-#define __BRG_CACHE_HPP_INCLUDED__
+#ifndef __BRG_CACHE_ND_HPP_INCLUDED__
+#define __BRG_CACHE_ND_HPP_INCLUDED__
 
 #include <cstdlib>
 #include <iostream>
@@ -30,7 +30,7 @@
 // SPP: "Static Polymorphic Pointer"
 #define SPP(name) static_cast<name*>(this)
 
-#define DECLARE_BRG_CACHE_STATIC_VARS(init_num_dim)		           \
+#define DECLARE_BRG_CACHE_ND_STATIC_VARS()		       \
 	static brgastro::vector<double> _mins_, _maxes_, _steps_;      \
 	static brgastro::vector<unsigned int> _resolutions_;           \
 	static brgastro::vector<double> _results_;                     \
@@ -45,31 +45,31 @@
 
 // Be careful when using this not to use the default constructor for init_steps, which would result in
 // divide-by-zero errors
-#define DEFINE_BRG_CACHE_STATIC_VARS(class_name,init_mins,init_maxes,init_steps,init_num_dim) \
-	brgastro::vector<double> brgastro::class_name::_mins_ = init_mins;	                      \
-	brgastro::vector<double> brgastro::class_name::_maxes_ = init_maxes;                      \
-	brgastro::vector<double> brgastro::class_name::_steps_ = init_steps;                      \
-	bool brgastro::class_name::_loaded_ = false;							                  \
-	bool brgastro::class_name::_initialised_ = false;					                      \
-	unsigned int brgastro::class_name::_sig_digits_ = 12;				     	              \
+#define DEFINE_BRG_CACHE_ND_STATIC_VARS(class_name,init_mins,init_maxes,init_steps,init_num_dim) \
+	brgastro::vector<double> brgastro::class_name::_mins_ = init_mins;	                         \
+	brgastro::vector<double> brgastro::class_name::_maxes_ = init_maxes;                         \
+	brgastro::vector<double> brgastro::class_name::_steps_ = init_steps;                         \
+	bool brgastro::class_name::_loaded_ = false;							                     \
+	bool brgastro::class_name::_initialised_ = false;					                         \
+	unsigned int brgastro::class_name::_sig_digits_ = 12;				     	                 \
 	brgastro::vector<double> brgastro::class_name::_resolutions_ = max( (((init_maxes-init_mins) / safe_d(init_steps))+1), 1);\
-	std::string brgastro::class_name::_file_name_ = "";					     	              \
-	std::string brgastro::class_name::_header_string_ = "";			     		              \
-	brgastro::vector<double> brgastro::class_name::_results_;                                 \
+	std::string brgastro::class_name::_file_name_ = "";					     	                 \
+	std::string brgastro::class_name::_header_string_ = "";			     		                 \
+	brgastro::vector<double> brgastro::class_name::_results_;                                    \
 	unsigned int brgastro::class_name::_num_dim_ = init_num_dim;
 
 namespace brgastro
 {
 
 template<typename name>
-class brg_cache
+class brg_cache_nd
 {
 private:
 
 	// Private variables
 #if (1)
 
-	DECLARE_BRG_CACHE_STATIC_VARS(1);
+	DECLARE_BRG_CACHE_ND_STATIC_VARS();
 
 #endif // Private variables
 
@@ -508,13 +508,13 @@ public:
 	}
 
 	// Constructor
-	brg_cache() throw()
+	brg_cache_nd() throw()
 	{
 		if(!SPCP(name)->_initialised_) SPP(name)->_init();
 	}
 
 	// Deconstructor
-	virtual ~brg_cache()
+	virtual ~brg_cache_nd()
 	{
 	}
 
@@ -567,4 +567,4 @@ std::string brgastro::brg_cache<name>::_header_string_ = "";
 #undef SPP
 #undef SPCP
 
-#endif // __BRG_CACHE_HPP_INCLUDED__
+#endif // __BRG_CACHE_ND_HPP_INCLUDED__

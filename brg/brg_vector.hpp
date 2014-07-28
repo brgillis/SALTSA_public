@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <iterator>
+#include <stdexcept>
 
 #include "brg_vector_functions.hpp"
 
@@ -21,7 +22,7 @@ template<typename T, typename A=T>
 class vector: private std::vector<T,A>
 {
 	typedef std::vector<T,A> v;
-	typedef std::vector<T,A>::size_type vsize_t;
+	typedef typename std::vector<T,A>::size_type vsize_t;
 	typedef unsigned short int dsize_t;
 	typedef unsigned int ssize_t;
 	typedef std::vector< unsigned int > shape_t;
@@ -92,7 +93,7 @@ public:
 		v::assign(first,last);
 		reshape(shape_t(_num_dim_,size()));
 	}
-	void assign (v::size_type n, const T & val)
+	void assign (typename v::size_type n, const T & val)
 	{
 		v::assign(n,val);
 		reshape(shape_t(_num_dim_,n));
@@ -100,7 +101,7 @@ public:
 	vector<T,A &> push_back (const T & val)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		_shape_[0] += 1;
 		try
 		{
@@ -113,10 +114,10 @@ public:
 		}
 		return *this;
 	}
-	iterator insert (iterator position, const T & val)
+	typename v::iterator insert (typename v::iterator position, const T & val)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		_shape_[0] += 1;
 		try
 		{
@@ -128,10 +129,11 @@ public:
 			throw;
 		}
 	}
-	void insert (iterator position, size_type n, const value_type& val)
+	void insert (typename v::iterator position, typename v::size_type n,
+			const typename v::value_type& val)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		try
 		{
 			v::insert(position,n,val);
@@ -143,13 +145,13 @@ public:
 		}
 	}
 	template <class InputIterator>
-	void insert (iterator position, InputIterator first, InputIterator last)
+	void insert (typename v::iterator position, InputIterator first, InputIterator last)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		try
 		{
-			v::insert(position,n,val);
+			v::insert(position,first,last);
 			_shape_[0] = size();
 		}
 		catch(const std::exception &e)
@@ -157,10 +159,10 @@ public:
 			throw;
 		}
 	}
-	iterator erase (iterator position)
+	typename v::iterator erase (typename v::iterator position)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		_shape_[0] -= 1;
 		try
 		{
@@ -172,13 +174,13 @@ public:
 			throw;
 		}
 	}
-	iterator erase (iterator first, iterator last)
+	typename v::iterator erase (typename v::iterator first, typename v::iterator last)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		try
 		{
-			iterator result = v::erase(position);
+			typename v::iterator result = v::erase(first,last);
 			_shape_[0] = size();
 			return result;
 		}
@@ -197,7 +199,7 @@ public:
 	{
 		T result = v::back();
 		v::pop_back();
-		return T;
+		return result;
 	}
 	void del_back()
 	{
@@ -214,7 +216,7 @@ public:
 	iterator emplace (const_iterator position, Args&&... args)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		_shape_[0] += 1;
 		try
 		{
@@ -230,7 +232,7 @@ public:
 	iterator emplace_back (Args&&... args)
 	{
 		if(_num_dim_ != 1)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		_shape_[0] += 1;
 		try
 		{
@@ -276,9 +278,9 @@ public:
 	vector<T, A> & operator+=( vector<T, A> other )
 	{
 		if(_shape_ != other._shape_)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		for(vsize_t i=0; i<size(); i++)
-			v[i] += other[i];
+			v::operator[](i) += other[i];
 		return *this;
 	}
 	template<typename T_o>
@@ -286,15 +288,15 @@ public:
 	{
 		// Special handling for scalars
 		for(vsize_t i=0; i<size(); i++)
-			v[i] += other;
+			v::operator[](i) += other;
 		return *this;
 	}
 	vector<T, A> & operator-=( vector<T, A> other )
 	{
 		if(_shape_ != other._shape_)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		for(vsize_t i=0; i<size(); i++)
-			v[i] -= other[i];
+			v::operator[](i) -= other[i];
 		return *this;
 	}
 	template<typename T_o>
@@ -302,15 +304,15 @@ public:
 	{
 		// Special handling for scalars
 		for(vsize_t i=0; i<size(); i++)
-			v[i] -= other;
+			v::operator[](i) -= other;
 		return *this;
 	}
 	vector<T, A> & operator*=( vector<T, A> other )
 	{
 		if(_shape_ != other._shape_)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		for(vsize_t i=0; i<size(); i++)
-			v[i] *= other[i];
+			v::operator[](i) *= other[i];
 		return *this;
 	}
 	template<typename T_o>
@@ -318,15 +320,15 @@ public:
 	{
 		// Special handling for scalars
 		for(vsize_t i=0; i<size(); i++)
-			v[i] *= other;
+			v::operator[](i) *= other;
 		return *this;
 	}
 	vector<T, A> & operator/=( vector<T, A> other )
 	{
 		if(_shape_ != other._shape_)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		for(vsize_t i=0; i<size(); i++)
-			v[i] += other[i];
+			v::operator[](i) += other[i];
 		return *this;
 	}
 	template<typename T_o>
@@ -334,21 +336,21 @@ public:
 	{
 		// Special handling for scalars
 		for(vsize_t i=0; i<size(); i++)
-			v[i] += other;
+			v::operator[](i) += other;
 		return *this;
 	}
 
 	vector<T, A> & operator++()
 	{
 		for(vsize_t i=0; i<size(); i++)
-			v[i] += 1;
+			v::operator[](i) += 1;
 		return *this;
 	}
 	const vector<T, A> & operator++(int)
 	{
 		vector<T,A> old(*this);
 		for(vsize_t i=0; i<size(); i++)
-			v[i] += 1;
+			v::operator[](i) += 1;
 		return old;
 	}
 
@@ -372,29 +374,29 @@ public:
 	// Unsafe element-access by position vector
 	T & operator() (shape_t position)
 	{
-		return v[_get_p(position)];
+		return v::operator[](_get_p(position));
 	}
 	const T & operator() (shape_t position) const
 	{
-		return v[_get_p(position)];
+		return v::operator[](_get_p(position));
 	}
 
 	// Safe element-access by position vector
 	T & at(shape_t position)
 	{
 		if(position.size() != _num_dim_)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		if(not_all_true(position<_shape_))
-			throw std::out_of_range;
+			throw std::out_of_range();
 
 		return (*this)(position);
 	}
 	const T & at(shape_t position) const
 	{
 		if(position.size() != _num_dim_)
-			throw std::out_of_range;
+			throw std::out_of_range();
 		if(not_all_true(position<_shape_))
-			throw std::out_of_range;
+			throw std::out_of_range();
 
 		return (*this)(position);
 	}
@@ -408,7 +410,7 @@ public:
 
 		_shape_ = new_shape;
 		if(_shape_.size() > std::numeric_limits<dsize_t>::max())
-			throw std::out_of_range;
+			throw std::out_of_range();
 		_num_dim_ = _shape_.size();
 
 		vsize_t new_size = 1;
@@ -416,7 +418,7 @@ public:
 			new_size *= *itr;
 
 		if(new_size >= std::vector<T,A>::max_size())
-			throw std::out_of_range; // There's a slim chance this will throw on a valid size, but unlikely
+			throw std::out_of_range(); // There's a slim chance this will throw on a valid size, but unlikely
 
 		v::resize(new_size,new_val);
 	}
@@ -426,7 +428,7 @@ public:
 	// Conversion to a std::vector
 	operator std::vector<T,A>() const
 	{
-		return v;
+		return v();
 	}
 
 	// Constructors and destructors
@@ -447,25 +449,25 @@ public:
 	vector(const vector<T_o, A_o> & other)
 	{
 		reshape(other._shape_);
-		for(vsize_t i=0; i<other_vector.size(); i++) v[i] = other[i];
+		for(vsize_t i=0; i<other.size(); i++) v::operator[](i) = other[i];
 	}
 	template<typename T_o, typename A_o>
 	vector(const std::vector<T_o, A_o> & other)
 	{
 		resize(other.size());
-		for(vsize_t i=0; i<other_vector.size(); i++) v[i] = other[i];
+		for(vsize_t i=0; i<other.size(); i++) v::operator[](i) = other[i];
 	}
-	template<typename T_o>
+	template<typename T_o, size_t N>
 	vector( const T (&array)[N] )
 	{
 		resize(N);
-		for(vsize_t i=0; i<N; i++) v[i] = array[i];
+		for(vsize_t i=0; i<N; i++) v::operator[](i) = array[i];
 	}
 	template<typename T_o, typename A_o>
 	vector(const T_o & other)
 	{
 		resize((vsize_t)1);
-		v[0] = other;
+		v::operator[](0) = other;
 	}
 	virtual ~vector()
 	{
@@ -510,76 +512,76 @@ void swap(vector<T, A> & v1, vector<T, A> & v2)
 #if (1)
 
 template<typename T1, typename A1, typename T2, typename A2>
-const vector<T1, A1> & operator+( vector<T1, A1> v1, const vector<T2, A2> & v2 ) const
+const vector<T1, A1> & operator+( vector<T1, A1> v1, const vector<T2, A2> & v2 )
 {
 	v1 += v2;
 	return v1;
 }
 template<typename T1, typename A1, typename T2>
-const vector<T1, A1> & operator+( vector<T1, A1> v1, T2 v2 ) const
+const vector<T1, A1> & operator+( vector<T1, A1> v1, T2 v2 )
 {
 	v1 += v2;
 	return v1;
 }
 template<typename T1, typename T2, typename A2>
-const vector<T2, A2> & operator+( T1 v1, vector<T2, A2> v2 ) const
+const vector<T2, A2> & operator+( T1 v1, vector<T2, A2> v2 )
 {
 	v2 += v1;
 	return v2;
 }
 template<typename T1, typename A1, typename T2, typename A2>
-const vector<T1, A1> & operator-( vector<T1, A1> v1, const vector<T2, A2> & v2 ) const
+const vector<T1, A1> & operator-( vector<T1, A1> v1, const vector<T2, A2> & v2 )
 {
 	v1 -= v2;
 	return v1;
 }
 template<typename T1, typename A1, typename T2>
-const vector<T1, A1> & operator-( vector<T1, A1> v1, T2 v2 ) const
+const vector<T1, A1> & operator-( vector<T1, A1> v1, T2 v2 )
 {
 	v1 -= v2;
 	return v1;
 }
 template<typename T1, typename T2, typename A2>
-const vector<T2, A2> & operator-( T1 v1, vector<T2, A2> v2 ) const
+const vector<T2, A2> & operator-( T1 v1, vector<T2, A2> v2 )
 {
-	for(vector<T2, A2>::vsize_t i=0; i<v2.size(); i++)
+	for(typename vector<T2, A2>::vsize_t i=0; i<v2.size(); i++)
 		v2[i] = v1-v2[i];
 	return v2;
 }
 template<typename T1, typename A1, typename T2, typename A2>
-const vector<T1, A1> & operator*( vector<T1, A1> v1, const vector<T2, A2> & v2 ) const
+const vector<T1, A1> & operator*( vector<T1, A1> v1, const vector<T2, A2> & v2 )
 {
 	v1 *= v2;
 	return v1;
 }
 template<typename T1, typename A1, typename T2>
-const vector<T1, A1> & operator*( vector<T1, A1> v1, T2 v2 ) const
+const vector<T1, A1> & operator*( vector<T1, A1> v1, T2 v2 )
 {
 	v1 *= v2;
 	return v1;
 }
 template<typename T1, typename T2, typename A2>
-const vector<T2, A2> & operator*( T1 v1, vector<T2, A2> v2 ) const
+const vector<T2, A2> & operator*( T1 v1, vector<T2, A2> v2 )
 {
 	v2 *= v1;
 	return v2;
 }
 template<typename T1, typename A1, typename T2, typename A2>
-const vector<T1, A1> & operator/( vector<T1, A1> v1, const vector<T2, A2> & v2 ) const
+const vector<T1, A1> & operator/( vector<T1, A1> v1, const vector<T2, A2> & v2 )
 {
 	v1 /= v2;
 	return v1;
 }
 template<typename T1, typename A1, typename T2>
-const vector<T1, A1> & operator/( vector<T1, A1> v1, T2 v2 ) const
+const vector<T1, A1> & operator/( vector<T1, A1> v1, T2 v2 )
 {
 	v1 /= v2;
 	return v1;
 }
 template<typename T1, typename T2, typename A2>
-const vector<T2, A2> & operator/( T1 v1, vector<T2, A2> v2 ) const
+const vector<T2, A2> & operator/( T1 v1, vector<T2, A2> v2 )
 {
-	for(vector<T2, A2>::vsize_t i=0; i<v2.size(); i++)
+	for(typename vector<T2, A2>::vsize_t i=0; i<v2.size(); i++)
 		v2[i] = v1/v2[i];
 	return v2;
 }
@@ -591,14 +593,14 @@ const vector<T2, A2> & operator/( T1 v1, vector<T2, A2> v2 ) const
 
 // Element-wise equal
 template<typename T1, typename A1, typename T2, typename A2>
-const std::vector<bool> & operator==( const vector<T1, A1> & v1, const vector<T2, A2> & v2 ) const
+const std::vector<bool> & operator==( const vector<T1, A1> & v1, const vector<T2, A2> & v2 )
 {
 	if(v1.size()==1)
 	{
 		std::vector<bool> result(v2.size());
 		// Special handling for scalars
 		T1 val = v1[0];
-		for(brgastro::vector::vsize_t i=0; i<v2.size(); i++)
+		for(typename brgastro::vector<T2,A2>::vsize_t i=0; i<v2.size(); i++)
 			result[i] = (val == v2[i]);
 		return result;
 	}
@@ -607,16 +609,16 @@ const std::vector<bool> & operator==( const vector<T1, A1> & v1, const vector<T2
 		std::vector<bool> result(v1.size());
 		// Special handling for scalars
 		T1 val = v2[0];
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+		for(typename brgastro::vector<T1,A1>::vsize_t i=0; i<v1.size(); i++)
 			result[i] = (v1[i] == val);
 		return result;
 	}
 	else
 	{
 		if(v1.shape()!= v2.shape())
-			throw std::out_of_range;
+			throw std::out_of_range();
 		std::vector<bool> result(v1.size());
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+		for(typename brgastro::vector<T1,A1>::vsize_t i=0; i<v1.size(); i++)
 			result[i] = (v1[i] == v2[i]);
 		return result;
 	}
@@ -624,21 +626,21 @@ const std::vector<bool> & operator==( const vector<T1, A1> & v1, const vector<T2
 
 // Element-wise not equal
 template<typename T1, typename A1, typename T2, typename A2>
-const std::vector<bool> & operator!=( const vector<T1, A1> & v1, const vector<T2, A2> & v2 ) const
+const std::vector<bool> & operator!=( const vector<T1, A1> & v1, const vector<T2, A2> & v2 )
 {
 	return !operator==(v1,v2);
 }
 
 // Element-wise less-than
 template<typename T1, typename A1, typename T2, typename A2>
-const std::vector<bool> & operator<( const vector<T1, A1> & v1, const vector<T2, A2> & v2 ) const
+const std::vector<bool> & operator<( const vector<T1, A1> & v1, const vector<T2, A2> & v2 )
 {
 	if(v1.size()==1)
 	{
 		std::vector<bool> result(v2.size());
 		// Special handling for scalars
 		T1 val = v1[0];
-		for(brgastro::vector::vsize_t i=0; i<v2.size(); i++)
+		for(typename brgastro::vector<T2,A2>::vsize_t i=0; i<v2.size(); i++)
 			result[i] = (val < v2[i]);
 		return result;
 	}
@@ -647,16 +649,16 @@ const std::vector<bool> & operator<( const vector<T1, A1> & v1, const vector<T2,
 		std::vector<bool> result(v1.size());
 		// Special handling for scalars
 		T1 val = v2[0];
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+		for(typename brgastro::vector<T1,A1>::vsize_t i=0; i<v1.size(); i++)
 			result[i] = (v1[i] < val);
 		return result;
 	}
 	else
 	{
 		if(v1.shape()!= v2.shape())
-			throw std::out_of_range;
+			throw std::out_of_range();
 		std::vector<bool> result(v1.size());
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+		for(typename brgastro::vector<T1,A1>::vsize_t i=0; i<v1.size(); i++)
 			result[i] = (v1[i] < v2[i]);
 		return result;
 	}
@@ -664,21 +666,21 @@ const std::vector<bool> & operator<( const vector<T1, A1> & v1, const vector<T2,
 
 // Element-wise greater-than
 template<typename T1, typename A1, typename T2, typename A2>
-const std::vector<bool> & operator>( const vector<T1, A1> & v1, const vector<T2, A2> & v2 ) const
+const std::vector<bool> & operator>( const vector<T1, A1> & v1, const vector<T2, A2> & v2 )
 {
 	return operator<(v2,v1);
 }
 
 // Element-wise less-than or equal to
 template<typename T1, typename A1, typename T2, typename A2>
-const std::vector<bool> & operator<=( const vector<T1, A1> & v1, const vector<T2, A2> & v2 ) const
+const std::vector<bool> & operator<=( const vector<T1, A1> & v1, const vector<T2, A2> & v2 )
 {
 	return !operator>(v1,v2);
 }
 
 // Element-wise greater-than or equal to
 template<typename T1, typename A1, typename T2, typename A2>
-const std::vector<bool> & operator>=( const vector<T1, A1> & v1, const vector<T2, A2> & v2 ) const
+const std::vector<bool> & operator>=( const vector<T1, A1> & v1, const vector<T2, A2> & v2 )
 {
 	return !operator<(v1,v2);
 }
@@ -697,7 +699,7 @@ const vector<T,A> & min( vector<T,A> v1, const vector<T_o,A_o> & v2 )
 	{
 		// Special handling for scalars
 		T val = v2[0];
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+		for(typename brgastro::vector<T,A>::vsize_t i=0; i<v1.size(); i++)
 			v1[i] = min(v1[i],val);
 		return v1;
 	}
@@ -706,15 +708,15 @@ const vector<T,A> & min( vector<T,A> v1, const vector<T_o,A_o> & v2 )
 		// Special handling for scalars
 		const vector<T,A> result(v2);
 		T val = v1[0];
-		for(brgastro::vector::vsize_t i=0; i<v2.size(); i++)
+		for(typename brgastro::vector<T_o,A_o>::vsize_t i=0; i<v2.size(); i++)
 			result[i] = min(val,result[i]);
 		return result;
 	}
 	else
 	{
 		if(v1.shape()!= v2.shape())
-			throw std::out_of_range;
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+			throw std::out_of_range();
+		for(typename brgastro::vector<T,A>::vsize_t i=0; i<v1.size(); i++)
 			v1[i] = min(v1[i],v2[i]);
 		return v1;
 	}
@@ -727,7 +729,7 @@ const vector<T,A> & max( vector<T,A> v1, const vector<T_o,A_o> & v2 )
 	{
 		// Special handling for scalars
 		T val = v2[0];
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+		for(typename brgastro::vector<T,A>::vsize_t i=0; i<v1.size(); i++)
 			v1[i] = max(v1[i],val);
 		return v1;
 	}
@@ -736,15 +738,15 @@ const vector<T,A> & max( vector<T,A> v1, const vector<T_o,A_o> & v2 )
 		// Special handling for scalars
 		const vector<T,A> result(v2);
 		T val = v1[0];
-		for(brgastro::vector::vsize_t i=0; i<v2.size(); i++)
+		for(typename brgastro::vector<T_o,A_o>::vsize_t i=0; i<v2.size(); i++)
 			result[i] = max(val,result[i]);
 		return result;
 	}
 	else
 	{
 		if(v1.shape()!= v2.shape())
-			throw std::out_of_range;
-		for(brgastro::vector::vsize_t i=0; i<v1.size(); i++)
+			throw std::out_of_range();
+		for(typename brgastro::vector<T,A>::vsize_t i=0; i<v1.size(); i++)
 			v1[i] = max(v1[i],v2[i]);
 		return v1;
 	}
@@ -768,7 +770,7 @@ template< typename T1, typename T2 >
 const vector<T1> pow( vector<T1> v1, const vector<T2> &v2 )
 {
 	if(v1.shape()!= v2.shape())
-		throw std::out_of_range;
+		throw std::out_of_range();
 	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		v1[i] = std::pow(v1[i], v2[i]);
@@ -808,7 +810,7 @@ template< typename T1, typename T2 >
 const vector<T1> safe_pow( vector<T1> v1, const vector<T2> &v2 )
 {
 	if(v1.shape()!= v2.shape())
-		throw std::out_of_range;
+		throw std::out_of_range();
 	for(unsigned int i = 0; i < v1.size(); i++)
 	{
 		v1[i] = safe_pow(v1[i], v2[i]);
