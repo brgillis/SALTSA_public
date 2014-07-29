@@ -341,7 +341,7 @@ protected:
 #endif // _BRG_USE_UNITS_
 
 	// Long-form calculation function.
-	const int _calculate( const double in_params, double & out_params ) const;
+	const int _calculate( const brgastro::vector<double> in_params, double & out_params ) const;
 
 public:
 

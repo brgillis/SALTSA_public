@@ -84,12 +84,12 @@ inline const bool isgood( T val )
 template< class T1, class T2 >
 inline const T1 min( const T1 a, const T2 b )
 {
-	return ( a < b ? a : (T1)b );
+	return ( a < (T1)b ? a : (T1)b );
 }
 template< class T1, class T2 >
 inline const T1 max( const T1 a, const T2 b )
 {
-	return ( a < b ? (T1)b : a );
+	return ( a < (T1)b ? (T1)b : a );
 }
 template<  class T1, class T2, class T3 >
 inline const T2 bound( const T1 lower_bound, const T2 a, const T3 upper_bound)

@@ -94,7 +94,6 @@ private:
 		std::ifstream in_file;
 		std::string file_data;
 		bool need_to_calc = false;
-		unsigned int i;
 		int loop_counter = 0;
 
 		if ( SPCP(name)->_loaded_ )
@@ -238,7 +237,7 @@ private:
 		// Set up data
 		SPCP(name)->_resolutions_.resize(_num_dim_);
 		SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
-		SPCP(name)->_results_.reshape(SPCP(name)->_resolutions_ );
+		SPCP(name)->_results_.reshape(SPCP(name)->_resolutions_.v() );
 
 		brgastro::vector<unsigned int> position(_num_dim_,0);
 		brgastro::vector<double> x(_num_dim_,0);

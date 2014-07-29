@@ -13,6 +13,7 @@
 #include "brg_solvers.hpp"
 #include "brg_cache.hpp"
 #include "brg_cache_nd.hpp"
+#include "brg_vector.hpp"
 
 using namespace std;
 
@@ -1359,9 +1360,18 @@ const int brgastro::dfa_cache::_calculate( const double in_params, double & out_
 #endif // end brgastro::dfa_cache functions
 
 // brgastro::add_cache class methods
-const int brgastro::add_cache::_calculate( const double in_params, double & out_params ) const
+const int brgastro::add_cache::_calculate( const brgastro::vector<double> in_params,
+		double  & out_params ) const
 {
-
+	try
+	{
+		out_params = brgastro::integrate_add(in_params.at(0),in_params.at(1));
+	}
+	catch(const std::out_of_range &e)
+	{
+		return INVALID_ARGUMENTS_ERROR;
+	}
+	return 0;
 }
 
 const int brgastro::tfa_cache::_calculate( const double in_params, double & out_params ) const
@@ -3335,7 +3345,10 @@ const BRG_DISTANCE brgastro::ad_distance( double z1, double z2 )
 {
 	if ( z2 < z1 )
 		std::swap( z1, z2 );
-	return brgastro::add_cache().get( z1, z2 );
+	brgastro::vector<double> in_params(0,0);
+	in_params.push_back(z1);
+	in_params.push_back(z2);
+	return brgastro::add_cache().get( in_params );
 }
 
 const BRG_UNITS brgastro::sigma_crit( const double z_lens,
