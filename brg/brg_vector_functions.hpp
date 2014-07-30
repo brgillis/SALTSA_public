@@ -991,7 +991,7 @@ const bool greater_than_or_equal( const T1 & v1, const T2 & v2 )
 #if (1)
 
 template< typename T >
-const T sum(const std::vector<T> v)
+const T sum(const std::vector<T> &v)
 {
 	T result = 0;
 	for(unsigned int i = 0; i < v.size(); i++)
@@ -1013,7 +1013,7 @@ const T sum(const T v)
 #if (1)
 
 template< typename T >
-const T product(const std::vector<T> v)
+const T product(const std::vector<T> &v)
 {
 	T result = 1;
 	for(unsigned int i = 0; i < v.size(); i++)
@@ -1035,7 +1035,7 @@ const T product(const T v)
 #if (1)
 
 template< typename T >
-const T mean(const std::vector<T> v)
+const T mean(const std::vector<T> &v)
 {
 	if(v.size()==0) return 0;
 	return sum(v)/v.size();
@@ -1053,7 +1053,7 @@ const T mean(const T v)
 #if (1)
 
 template< typename T >
-const T std(const std::vector<T> v)
+const T std(const std::vector<T> &v)
 {
 	if(v.size()<=1) return 0;
 
@@ -1061,7 +1061,19 @@ const T std(const std::vector<T> v)
 }
 
 template< typename T >
+const T stddev(const std::vector<T> &v)
+{
+	return std(v);
+}
+
+template< typename T >
 const T std(const T v)
+{
+	return 0;
+}
+
+template< typename T >
+const T stddev(const T v)
 {
 	return 0;
 }

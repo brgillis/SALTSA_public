@@ -40,8 +40,8 @@ DEFINE_BRG_CACHE_STATIC_VARS( dfa_cache, 0, 5, 0.01 );
 
 // Initialisation for brgastro::add_cache
 double temp_mins[] = {0,0};
-double temp_maxes[] = {0,0};
-double temp_steps[] = {0,0};
+double temp_maxes[] = {5,5};
+double temp_steps[] = {0.01,0.01};
 DEFINE_BRG_CACHE_ND_STATIC_VARS( add_cache, temp_mins, temp_maxes, temp_steps, 2 );
 
 // Initialisation for brgastro::tfa_cache
@@ -3150,7 +3150,7 @@ const double brgastro::aft( const BRG_TIME &t )
 #if (1)
 const double brgastro::integrate_add( const double z1, const double z2 )
 {
-	return brgastro::integrate_distance( z1, z2, 0 );
+	return brgastro::integrate_distance( z1, z2, 0, 100000 );
 }
 const double brgastro::integrate_cmd( const double z1, const double z2 )
 {
@@ -3196,6 +3196,8 @@ const double brgastro::integrate_distance( const double z1_init,
 	//double age, size;
 	int i;
 	short int sign = 1;
+
+	if(z1==z2) return 0;
 
 	OK0 = 1 - OM0 - OL0 - OR0;
 

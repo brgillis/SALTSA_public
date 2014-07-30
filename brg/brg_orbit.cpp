@@ -5244,12 +5244,12 @@ brgastro::solve_rt_grid_function::solve_rt_grid_function()
 }
 brgastro::solve_rt_grid_function::solve_rt_grid_function(
 		const BRG_UNITS init_omega, const density_profile *init_satellite,
-		const BRG_UNITS init_Daccel, const long double init_sum_rho )
+		const BRG_UNITS init_Daccel, const long double init_sum_delta_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
 	Daccel = init_Daccel;
-	sum_delta_rho = init_sum_rho;
+	sum_delta_rho = init_sum_delta_rho;
 	return;
 }
 
@@ -5288,12 +5288,12 @@ brgastro::solve_rt_it_function::solve_rt_it_function()
 }
 brgastro::solve_rt_it_function::solve_rt_it_function(
 		const BRG_UNITS init_omega, const density_profile *init_satellite,
-		const BRG_UNITS init_Daccel, const long double init_sum_rho )
+		const BRG_UNITS init_Daccel, const long double init_sum_delta_rho )
 {
 	omega = init_omega;
 	satellite_ptr = init_satellite;
 	Daccel = init_Daccel;
-	sum_delta_rho = init_sum_rho;
+	sum_delta_rho = init_sum_delta_rho;
 	return;
 }
 
@@ -5652,7 +5652,7 @@ const int brgastro::gabdt_function::operator()(
 const double brgastro::stripping_orbit_segment::_tidal_strip_retained( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,
 		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const long double &sum_rho ) const
+		const BRG_TIME &time_step, const long double &sum_delta_rho ) const
 {
 	BRG_DISTANCE new_rt;
 	BRG_TIME inst_orbital_period, hm_period, stripping_period;
@@ -5666,7 +5666,7 @@ const double brgastro::stripping_orbit_segment::_tidal_strip_retained( const den
 		stripping_period = inst_orbital_period *
 			std::pow(hm_period/safe_d(inst_orbital_period), _tidal_stripping_deceleration_);
 
-	new_rt = _get_rt( host_group, satellite, r, vr, vt, time_step, sum_rho );
+	new_rt = _get_rt( host_group, satellite, r, vr, vt, time_step, sum_delta_rho );
 
 	if ( !( new_rt > 0 ) )
 		mass_frac_lost_total = 0;
@@ -5687,7 +5687,7 @@ const double brgastro::stripping_orbit_segment::_tidal_strip_retained( const den
 const BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_profile *host_group,
 		const density_profile *satellite, const BRG_DISTANCE &r,
 		const BRG_VELOCITY &vr, const BRG_VELOCITY &vt,
-		const BRG_TIME &time_step, const long double &sum_rho,
+		const BRG_TIME &time_step, const long double &sum_delta_rho,
 		const bool silent ) const
 {
 	BRG_UNITS omega;
@@ -5703,9 +5703,9 @@ const BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_pro
 	}
 
 	solve_rt_grid_function rt_grid_solver( omega, satellite,
-			host_group->Daccel( r ), sum_rho );
+			host_group->Daccel( r ), sum_delta_rho );
 	solve_rt_it_function rt_it_solver( omega, satellite,
-			host_group->Daccel( r ), sum_rho );
+			host_group->Daccel( r ), sum_delta_rho );
 
 	if ( satellite->mtot() <= 0 )
 		return 0;

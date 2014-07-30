@@ -282,6 +282,9 @@ private:
 		// Output header
 		out_file << SPCP(name)->_header_string_ << "\n#\n";
 
+		// Set number of significant digits
+		out_file.precision(_sig_digits_);
+
 		// Output range
 		out_file << SPCP(name)->_mins_ << "\t" << SPCP(name)->_maxes_ << "\t" << SPCP(name)->_steps_ << "\n";
 

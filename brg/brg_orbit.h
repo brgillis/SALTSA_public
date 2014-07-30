@@ -1420,7 +1420,7 @@ public:
 	BRG_UNITS & out_param, const bool silent = false ) const;
 	solve_rt_it_function( const BRG_UNITS init_omega,
 			const density_profile *init_satellite, const BRG_UNITS init_Daccel,
-			const long double init_sum_rho = 0 );
+			const long double init_sum_delta_rho = 0 );
 
 	solve_rt_it_function();
 };

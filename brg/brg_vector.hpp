@@ -291,9 +291,10 @@ public:
 		return vec::at(0);
 	}
 
-	vector<T, A> & operator+=( vector<T, A> other )
+	template<typename T_o, typename A_o>
+	vector<T, A> & operator+=( const vector<T_o, A_o> & other )
 	{
-		if(_shape_ != other._shape_)
+		if(_shape_ != other.shape())
 			throw std::out_of_range("Cannot add vectors of different shapes.");
 		for(vsize_t i=0; i<size(); i++)
 			vec::operator[](i) += other[i];
@@ -307,9 +308,10 @@ public:
 			vec::operator[](i) += other;
 		return *this;
 	}
-	vector<T, A> & operator-=( vector<T, A> other )
+	template<typename T_o, typename A_o>
+	vector<T, A> & operator-=( const vector<T_o, A_o> & other )
 	{
-		if(_shape_ != other._shape_)
+		if(_shape_ != other.shape())
 			throw std::out_of_range("Cannot subtract vectors of different shapes.");
 		for(vsize_t i=0; i<size(); i++)
 			vec::operator[](i) -= other[i];
@@ -323,9 +325,10 @@ public:
 			vec::operator[](i) -= other;
 		return *this;
 	}
-	vector<T, A> & operator*=( vector<T, A> other )
+	template<typename T_o, typename A_o>
+	vector<T, A> & operator*=( const vector<T_o, A_o> & other )
 	{
-		if(_shape_ != other._shape_)
+		if(_shape_ != other.shape())
 			throw std::out_of_range("Cannot multiply vectors of different shapes.");
 		for(vsize_t i=0; i<size(); i++)
 			vec::operator[](i) *= other[i];
@@ -339,12 +342,13 @@ public:
 			vec::operator[](i) *= other;
 		return *this;
 	}
-	vector<T, A> & operator/=( vector<T, A> other )
+	template<typename T_o, typename A_o>
+	vector<T, A> & operator/=( const vector<T_o, A_o> & other )
 	{
-		if(_shape_ != other._shape_)
+		if(_shape_ != other.shape())
 			throw std::out_of_range("Cannot divide vectors of different shapes.");
 		for(vsize_t i=0; i<size(); i++)
-			vec::operator[](i) += other[i];
+			vec::operator[](i) /= other[i];
 		return *this;
 	}
 	template<typename T_o>
@@ -352,7 +356,7 @@ public:
 	{
 		// Special handling for scalars
 		for(vsize_t i=0; i<size(); i++)
-			vec::operator[](i) += other;
+			vec::operator[](i) /= other;
 		return *this;
 	}
 
@@ -378,7 +382,7 @@ public:
 	// Accessors
 #if (1)
 
-	std::vector<T,A> v()
+	std::vector<T,A> v() const
 	{
 		std::vector<T,A> v;
 		for(vsize_t i=0;i<size();++i) v.push_back(vec::operator[](i));
@@ -396,25 +400,25 @@ public:
 	}
 
 	// Unsafe element-access by position vector
-	T & operator() (shape_t position)
+	T & operator() (const shape_t & position)
 	{
 		return vec::operator[](_get_p(position));
 	}
-	const T & operator() (shape_t position) const
+	const T & operator() (const shape_t & position) const
 	{
 		return vec::operator[](_get_p(position));
 	}
-	T & operator() (vector<unsigned int> position)
+	T & operator() (const vector<unsigned int> & position)
 	{
 		return vec::operator[](_get_p(position));
 	}
-	const T & operator() (vector<unsigned int> position) const
+	const T & operator() (const vector<unsigned int> & position) const
 	{
 		return vec::operator[](_get_p(position));
 	}
 
 	// Safe element-access by position vector
-	T & at(shape_t position)
+	T & at(const shape_t & position)
 	{
 		if(position.size() != _num_dim_)
 			throw std::out_of_range("Attempt to access vector with invalid position vector size.");
@@ -423,7 +427,7 @@ public:
 
 		return (*this)(position);
 	}
-	const T & at(shape_t position) const
+	const T & at(const shape_t & position) const
 	{
 		if(position.size() != _num_dim_)
 			throw std::out_of_range("Attempt to access vector with invalid position vector size.");
@@ -432,20 +436,20 @@ public:
 
 		return (*this)(position);
 	}
-	T & at(vector<unsigned int> position)
+	T & at(const vector<unsigned int> & position)
 	{
 		if(position.size() != _num_dim_)
 			throw std::out_of_range("Attempt to access vector with invalid position vector size.");
-		if(not_all_true(position<_shape_))
+		if(not_all_true(position.v()<_shape_))
 			throw std::out_of_range("Attempt to access vector with position outside bounds.");
 
 		return (*this)(position);
 	}
-	const T & at(vector<unsigned int> position) const
+	const T & at(const vector<unsigned int> &position) const
 	{
 		if(position.size() != _num_dim_)
 			throw std::out_of_range("Attempt to access vector with invalid position vector size.");
-		if(not_all_true(position<_shape_))
+		if(not_all_true(position.v()<_shape_))
 			throw std::out_of_range("Attempt to access vector with position outside bounds.");
 
 		return (*this)(position);
@@ -489,6 +493,11 @@ public:
 	vector( shape_t init_shape, T init_val )
 	{
 		reshape(init_shape,init_val);
+	}
+	vector(const vector<T, A> & other)
+	{
+		reshape(other.shape());
+		for(vsize_t i=0; i<other.size(); i++) vec::operator[](i) = other[i];
 	}
 	template<typename T_o, typename A_o>
 	vector(const vector<T_o, A_o> & other)
@@ -972,6 +981,73 @@ const vector<T> safe_d( vector<T> v )
 #endif // Element-wise safe_d
 
 #endif // Math and safe functions
+
+// Summary functions
+#if (1)
+
+// Sum
+#if (1)
+
+template< typename T, typename A >
+const T sum(const brgastro::vector<T,A> &v)
+{
+	T result = 0;
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		result += v[i];
+	}
+	return result;
+}
+
+#endif // Sum
+
+// Product
+#if (1)
+
+template< typename T, typename A >
+const T product(const brgastro::vector<T,A> &v)
+{
+	T result = 1;
+	for(unsigned int i = 0; i < v.size(); i++)
+	{
+		result *= v[i];
+	}
+	return result;
+}
+
+#endif // Product
+
+// Mean
+#if (1)
+
+template< typename T, typename A >
+const T mean(const brgastro::vector<T,A> &v)
+{
+	if(v.size()==0) return 0;
+	return sum(v)/v.size();
+}
+
+#endif // Mean
+
+// Standard Deviation
+#if (1)
+
+template< typename T, typename A >
+const T std(const brgastro::vector<T,A> &v)
+{
+	if(v.size()<=1) return 0;
+
+	return sqrt( ((sum( pow(v,2) ) - pow(sum(v),2) ) / v.size() ) );
+}
+template< typename T, typename A >
+const T stddev(const brgastro::vector<T,A> &v)
+{
+	return std(v);
+}
+
+#endif // Standard Deviation
+
+#endif // Summary Functions
 
 } // namespace brgastro
 

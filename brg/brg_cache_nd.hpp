@@ -54,7 +54,7 @@
 	unsigned int brgastro::class_name::_sig_digits_ = 12;				     	                 \
 	brgastro::vector<unsigned int> brgastro::class_name::_resolutions_ =                         \
 		max( (((brgastro::class_name::_maxes_-brgastro::class_name::_mins_) /                    \
-				safe_d(brgastro::class_name::_steps_))+1), 1);\
+				safe_d(brgastro::class_name::_steps_))+1), 1);                                   \
 	std::string brgastro::class_name::_file_name_ = "";					     	                 \
 	std::string brgastro::class_name::_header_string_ = "";			     		                 \
 	brgastro::vector<double> brgastro::class_name::_results_;                                    \
@@ -148,10 +148,10 @@ private:
 			}
 
 			// Load range parameters;
-			SPCP(name)->_mins_.resize(_num_dim_);
-			SPCP(name)->_maxes_.resize(_num_dim_);
-			SPCP(name)->_steps_.resize(_num_dim_);
-			for(unsigned int i = 0; i < _num_dim_; i++)
+			SPCP(name)->_mins_.resize(SPCP(name)->_num_dim_,0);
+			SPCP(name)->_maxes_.resize(SPCP(name)->_num_dim_,0);
+			SPCP(name)->_steps_.resize(SPCP(name)->_num_dim_,0);
+			for(unsigned int i = 0; i < SPCP(name)->_num_dim_; i++)
 			{
 				in_file >> SPCP(name)->_mins_[i];
 				in_file >> SPCP(name)->_maxes_[i];
@@ -168,18 +168,18 @@ private:
 			}
 
 			// Set up data
-			SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
-			SPCP(name)->_results_.resize(SPCP(name)->_resolutions_);
+			SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1.), 1.);
+			SPCP(name)->_results_.reshape(SPCP(name)->_resolutions_.v(),0);
 
 			// Read in data
 			unsigned int i = 0;
-			brgastro::vector<unsigned int> position(_num_dim_,0);
+			brgastro::vector<unsigned int> position(SPCP(name)->_num_dim_,0);
 			while ( ( !in_file.eof() ) && ( i < product(SPCP(name)->_resolutions_) ) )
 			{
 				in_file >> SPCP(name)->_results_(position);
 				i++;
 
-				for(unsigned int d=0; d<_num_dim_; d++)
+				for(unsigned int d=0; d<SPCP(name)->_num_dim_; d++)
 				{
 					position[d]++;
 					if(position[d] != SPCP(name)->_resolutions_)
@@ -195,6 +195,7 @@ private:
 				need_to_calc = true;
 				if ( SPCP(name)->_calc( silent ) )
 					return UNSPECIFIED_ERROR;
+				SPCP(name)->_output();
 				SPCP(name)->_unload();
 				continue;
 			}
@@ -216,7 +217,7 @@ private:
 	const int _calc( const bool silent = false ) const
 	{
 		// Test that range is sane
-		for(unsigned int i = 0; i < _num_dim_; i++)
+		for(unsigned int i = 0; i < SPCP(name)->_num_dim_; i++)
 		{
 			try {
 				if ( ( SPCP(name)->_maxes_.at(i) <= SPCP(name)->_mins_.at(i) ) || ( SPCP(name)->_steps_.at(i) <= 0 ) )
@@ -235,24 +236,23 @@ private:
 		}
 
 		// Set up data
-		SPCP(name)->_resolutions_.resize(_num_dim_);
-		SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
+		SPCP(name)->_resolutions_.resize(SPCP(name)->_num_dim_);
+		SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1.), 1.);
 		SPCP(name)->_results_.reshape(SPCP(name)->_resolutions_.v() );
 
-		brgastro::vector<unsigned int> position(_num_dim_,0);
-		brgastro::vector<double> x(_num_dim_,0);
+		brgastro::vector<unsigned int> position(SPCP(name)->_num_dim_,0);
+		brgastro::vector<double> x(SPCP(name)->_num_dim_,0);
 		for ( unsigned int i = 0; i < SPCP(name)->_results_.size(); i++ )
 		{
-			x = SPCP(name)->_mins_ + position*SPCP(name)->_steps_;
+			x = SPCP(name)->_mins_ + SPCP(name)->_steps_*position;
 			double result = 0;
 			if(SPCP(name)->_calculate(x, result))
 			{
 				return UNSPECIFIED_ERROR;
 			}
 			SPCP(name)->_results_(position) = result;
-			i++;
 
-			for(unsigned int d=0; d<_num_dim_; d++)
+			for(unsigned int d=0; d<SPCP(name)->_num_dim_; d++)
 			{
 				position[d]++;
 				if(position[d] != SPCP(name)->_resolutions_)
@@ -284,8 +284,11 @@ private:
 		// Output header
 		out_file << SPCP(name)->_header_string_ << "\n#\n";
 
+		// Set number of significant digits
+		out_file.precision(_sig_digits_);
+
 		// Output range parameters
-		for(unsigned int i = 0; i < _num_dim_; i++)
+		for(unsigned int i = 0; i < SPCP(name)->_num_dim_; i++)
 		{
 			out_file << SPCP(name)->_mins_[i] << "\t";
 			out_file << SPCP(name)->_maxes_[i] << "\t";
@@ -295,13 +298,13 @@ private:
 
 		// Output data			// Read in data
 		unsigned int i = 0;
-		brgastro::vector<unsigned int> position(_num_dim_,0);
+		brgastro::vector<unsigned int> position(SPCP(name)->_num_dim_,0);
 		while ( i < product(SPCP(name)->_resolutions_) )
 		{
 			out_file << SPCP(name)->_results_(position) << "\t";
 			i++;
 
-			for(unsigned int d=0; d<_num_dim_; d++)
+			for(unsigned int d=0; d<SPCP(name)->_num_dim_; d++)
 			{
 				position[d]++;
 				if(position[d] != SPCP(name)->_resolutions_)
@@ -368,14 +371,14 @@ public:
 			SPCP(name)->_load( true );
 
 		// Check sizes of passed vectors
-		if( (new_mins.size() != _num_dim_) || (new_maxes.size() != _num_dim_) ||
-				(new_steps.size() != _num_dim_) )
+		if( (new_mins.size() != SPCP(name)->_num_dim_) || (new_maxes.size() != SPCP(name)->_num_dim_) ||
+				(new_steps.size() != SPCP(name)->_num_dim_) )
 		{
 			throw std::runtime_error("ERROR: Incorrect sizes of vectors passed to set_range.\n");
 		}
 
 		// Go through variables, check if any are actually changed. If so, recalculate cache
-		for(unsigned int i = 0; i < _num_dim_; i++)
+		for(unsigned int i = 0; i < SPCP(name)->_num_dim_; i++)
 		{
 			if ( ( SPCP(name)->_mins_.at(i) != new_mins.at(i) ) || ( SPCP(name)->_maxes_.at(i) != new_maxes.at(i) )
 					|| ( SPCP(name)->_steps_.at(i) != new_steps.at(i) ) )
@@ -412,7 +415,7 @@ public:
 		}
 	} // const int set_precision()
 
-	const BRG_UNITS get( const brgastro::vector<double> x, const bool silent = false ) const
+	const BRG_UNITS get( const brgastro::vector<double> & x, const bool silent = false ) const
 	{
 
 		brgastro::vector<double> xlo, xhi;
@@ -453,27 +456,26 @@ public:
 		xlo = SPCP(name)->_mins_ + SPCP(name)->_steps_ * x_i;
 		xhi = SPCP(name)->_mins_ + SPCP(name)->_steps_ * ( x_i + 1 );
 
-		const unsigned int num_surrounding_points = std::pow(2,_num_dim_);
-		std::vector< std::vector<bool> > use_high(_num_dim_);
-		std::vector<unsigned int> power_to_use(_num_dim_,1);
-		for(unsigned int i=0; i < _num_dim_; i++)
+		const unsigned int num_surrounding_points = std::pow(2,SPCP(name)->_num_dim_);
+		std::vector< std::vector<bool> > use_high(SPCP(name)->_num_dim_);
+		for(unsigned int i=0; i < SPCP(name)->_num_dim_; i++)
 		{
-			power_to_use[i] = std::pow(2,i+1);
+			int divisor = std::pow(2,i);
 			use_high[i].resize(num_surrounding_points);
 			for(unsigned int j=0; j<num_surrounding_points; j++)
 			{
-				use_high[i][j] = divisible(j,power_to_use[i]);
+				use_high[i][j] = divisible(j/divisor,2);
 			}
 		}
 
 		result = 0;
 		double total_weight = 0;
-		brgastro::vector<unsigned int> position(_num_dim_);
+		brgastro::vector<unsigned int> position(SPCP(name)->_num_dim_,0);
 
 		for(unsigned int j=0; j < num_surrounding_points; j++)
 		{
 			double weight = 1;
-			for(unsigned int i=0; i < _num_dim_; i++)
+			for(unsigned int i=0; i < SPCP(name)->_num_dim_; i++)
 			{
 				if(use_high[i][j])
 				{
@@ -486,7 +488,7 @@ public:
 					weight *= xhi[i]-x[i];
 				}
 			}
-			result += _results_(position)*weight;
+			result += SPCP(name)->_results_.at(position) * weight;
 			total_weight += weight;
 		}
 
