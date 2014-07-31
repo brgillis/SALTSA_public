@@ -8,7 +8,6 @@
  \*************************************/
 
 #include "brg_units.h"
-#include "brg_functions.h"
 #include <cstdlib>
 #include <cmath>
 #include <iostream>

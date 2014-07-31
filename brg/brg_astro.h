@@ -32,10 +32,10 @@ brg_astro.h
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "brg_units.h"
-#include "brg_functions.h"
+#include "brg_functor.hpp"
 #include "brg_cache.hpp"
 #include "brg_cache_nd.hpp"
+#include "brg_units.h"
 
 /** Constant Definitions **/
 #if (1)
@@ -323,7 +323,8 @@ protected:
 
 	const std::string _name_base() const throw()
 	{
-		return "add";
+		char name_base[BRG_CACHE_ND_NAME_SIZE] = "angdi_d";
+		return name_base;
 	}
 
 #ifdef _BRG_USE_UNITS_

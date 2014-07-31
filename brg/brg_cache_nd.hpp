@@ -10,6 +10,8 @@
 #ifndef __BRG_CACHE_ND_HPP_INCLUDED__
 #define __BRG_CACHE_ND_HPP_INCLUDED__
 
+#define BRG_CACHE_ND_NAME_SIZE 8
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -19,7 +21,6 @@
 #include "brg_vector_functions.hpp"
 #include "brg_global.h"
 #include "brg_units.h"
-#include "brg_functions.h"
 
 // Macro definitions
 
@@ -36,12 +37,11 @@
 	static brgastro::vector<double> _results_;                     \
 											                       \
 	static std::string _file_name_;                                \
-	static std::string _header_string_;                            \
+	static unsigned int _version_number_;                          \
 										                           \
 	static bool _loaded_, _initialised_;                           \
 											                       \
-	static unsigned int _sig_digits_;                              \
-	static unsigned int _num_dim_;
+	static unsigned short int _num_dim_;
 
 // Be careful when using this not to use the default constructor for init_steps, which would result in
 // divide-by-zero errors
@@ -51,14 +51,13 @@
 	brgastro::vector<double> brgastro::class_name::_steps_ = init_steps;                         \
 	bool brgastro::class_name::_loaded_ = false;							                     \
 	bool brgastro::class_name::_initialised_ = false;					                         \
-	unsigned int brgastro::class_name::_sig_digits_ = 12;				     	                 \
 	brgastro::vector<unsigned int> brgastro::class_name::_resolutions_ =                         \
 		max( (((brgastro::class_name::_maxes_-brgastro::class_name::_mins_) /                    \
 				safe_d(brgastro::class_name::_steps_))+1), 1);                                   \
 	std::string brgastro::class_name::_file_name_ = "";					     	                 \
-	std::string brgastro::class_name::_header_string_ = "";			     		                 \
+	unsigned int brgastro::class_name::_version_number_ = 0;		     		                 \
 	brgastro::vector<double> brgastro::class_name::_results_;                                    \
-	unsigned int brgastro::class_name::_num_dim_ = init_num_dim;
+	unsigned short int brgastro::class_name::_num_dim_ = init_num_dim;
 
 namespace brgastro
 {
@@ -82,8 +81,8 @@ private:
 		if(SPCP(name)->_initialised_) return 0;
 
 		SPCP(name)->_resolutions_ = max( (((SPCP(name)->_maxes_-SPCP(name)->_mins_) / safe_d(SPCP(name)->_steps_))+1), 1);
-		SPCP(name)->_file_name_ = SPCP(name)->_name_base() + "_cache.dat";
-		SPCP(name)->_header_string_ = "# " + SPCP(name)->_name_base() + "_cache v1.0";
+		SPCP(name)->_file_name_ = SPCP(name)->_name_base() + "_cache.bin";
+		SPCP(name)->_version_number_ = 0; // This should be changed when there are changes to this code
 
 		SPCP(name)->_initialised_ = true;
 
@@ -114,7 +113,7 @@ private:
 			}
 			need_to_calc = false;
 
-			if ( open_file( in_file, SPCP(name)->_file_name_, true ) )
+			if ( open_bin_file( in_file, SPCP(name)->_file_name_, true ) )
 			{
 				need_to_calc = true;
 				if ( SPCP(name)->_calc( silent ) )
@@ -124,20 +123,16 @@ private:
 				continue;
 			}
 
-			// Check that it has the right header
-			getline( in_file, file_data );
-			if ( file_data.compare( SPCP(name)->_header_string_ ) )
-			{
-				need_to_calc = true;
-				if ( SPCP(name)->_calc( silent ) )
-					return UNSPECIFIED_ERROR;
-				SPCP(name)->_output();
-				SPCP(name)->_unload();
-				continue;
-			}
+			// Check that it has the right name and version
 
-			// Trim out any other commented lines
-			if ( trim_comments_all_at_top( in_file ) )
+			char file_name[BRG_CACHE_ND_NAME_SIZE];
+			unsigned int file_version = std::numeric_limits<unsigned short int>::max();
+
+			in_file.read(file_name,BRG_CACHE_ND_NAME_SIZE);
+			in_file.read((char *)&file_version,sizeof(file_version));
+
+			if( (!in_file) || (((std::string)file_name) != SPCP(name)->_name_base()) ||
+					(file_version != SPCP(name)->_version_number_) )
 			{
 				need_to_calc = true;
 				if ( SPCP(name)->_calc( silent ) )
@@ -153,9 +148,9 @@ private:
 			SPCP(name)->_steps_.resize(SPCP(name)->_num_dim_,0);
 			for(unsigned int i = 0; i < SPCP(name)->_num_dim_; i++)
 			{
-				in_file >> SPCP(name)->_mins_[i];
-				in_file >> SPCP(name)->_maxes_[i];
-				in_file >> SPCP(name)->_steps_[i];
+				in_file.read((char *)&(SPCP(name)->_mins_[i]),sizeof(SPCP(name)->_mins_[i]));
+				in_file.read((char *)&(SPCP(name)->_maxes_[i]),sizeof(SPCP(name)->_maxes_[i]));
+				in_file.read((char *)&(SPCP(name)->_steps_[i]),sizeof(SPCP(name)->_steps_[i]));
 			}
 			if ( !(in_file) )
 			{
@@ -172,11 +167,15 @@ private:
 			SPCP(name)->_results_.reshape(SPCP(name)->_resolutions_.v(),0);
 
 			// Read in data
+
+			// Initialize
 			unsigned int i = 0;
+			const std::streamsize size = sizeof(SPCP(name)->_results_[0]); // Store the size for speed
 			brgastro::vector<unsigned int> position(SPCP(name)->_num_dim_,0);
-			while ( ( !in_file.eof() ) && ( i < product(SPCP(name)->_resolutions_) ) )
+
+			while ( ( !in_file.eof() ) && ( i < product(SPCP(name)->_resolutions_) ) && (in_file) )
 			{
-				in_file >> SPCP(name)->_results_(position);
+				in_file.read((char *)&(SPCP(name)->_results_(position)),size);
 				i++;
 
 				for(unsigned int d=0; d<SPCP(name)->_num_dim_; d++)
@@ -190,7 +189,7 @@ private:
 			}
 
 			// Check that it was all read properly
-			if ( i < product(SPCP(name)->_resolutions_) )
+			if ( (i != product(SPCP(name)->_resolutions_)) || (!in_file) )
 			{
 				need_to_calc = true;
 				if ( SPCP(name)->_calc( silent ) )
@@ -278,30 +277,35 @@ private:
 				return LOWER_LEVEL_ERROR;
 		}
 
-		if ( open_file( out_file, SPCP(name)->_file_name_, true ) )
+		if ( open_bin_file( out_file, SPCP(name)->_file_name_, true ) )
 			return LOWER_LEVEL_ERROR;
 
-		// Output header
-		out_file << SPCP(name)->_header_string_ << "\n#\n";
+		// Output name and version
 
-		// Set number of significant digits
-		out_file.precision(_sig_digits_);
+		std::string file_name = SPCP(name)->_name_base();
+		unsigned int file_version = SPCP(name)->_version_number_;
+
+		out_file.write(file_name.c_str(),BRG_CACHE_ND_NAME_SIZE);
+		out_file.write((char *)&file_version,sizeof(file_version));
 
 		// Output range parameters
 		for(unsigned int i = 0; i < SPCP(name)->_num_dim_; i++)
 		{
-			out_file << SPCP(name)->_mins_[i] << "\t";
-			out_file << SPCP(name)->_maxes_[i] << "\t";
-			out_file << SPCP(name)->_steps_[i] << "\t";
+			out_file.write((char *)&(SPCP(name)->_mins_[i]),sizeof(SPCP(name)->_mins_[i]));
+			out_file.write((char *)&(SPCP(name)->_maxes_[i]),sizeof(SPCP(name)->_maxes_[i]));
+			out_file.write((char *)&(SPCP(name)->_steps_[i]),sizeof(SPCP(name)->_steps_[i]));
 		}
-		out_file << "\n";
 
-		// Output data			// Read in data
+		// Output data
+
+		// Initialize
 		unsigned int i = 0;
+		const std::streamsize size = sizeof(SPCP(name)->_results_[0]);
 		brgastro::vector<unsigned int> position(SPCP(name)->_num_dim_,0);
+
 		while ( i < product(SPCP(name)->_resolutions_) )
 		{
-			out_file << SPCP(name)->_results_(position) << "\t";
+			out_file.write((char *)&(SPCP(name)->_results_(position)),size);
 			i++;
 
 			for(unsigned int d=0; d<SPCP(name)->_num_dim_; d++)
@@ -310,7 +314,6 @@ private:
 				if(position[d] != SPCP(name)->_resolutions_)
 					break;
 				position[d] = 0;
-				out_file << "\n";
 				// If we get here, we'll go on to increase the next index by 1
 			}
 		}
@@ -341,6 +344,12 @@ protected:
 	}
 
 #endif // _BRG_USE_UNITS_
+
+	const std::string _name_base() const throw()
+	{
+		char name_base[BRG_CACHE_ND_NAME_SIZE] = "";
+		return name_base;
+	}
 
 #endif // Protected methods
 
@@ -553,16 +562,13 @@ template<typename name>
 bool brgastro::brg_cache_nd<name>::_initialised_ = false;
 
 template<typename name>
-unsigned int brgastro::brg_cache_nd<name>::_sig_digits_ = 12;
-
-template<typename name>
 brgastro::vector<unsigned int> brgastro::brg_cache_nd<name>::_resolutions_ = {0};
 
 template<typename name>
 std::string brgastro::brg_cache_nd<name>::_file_name_ = "";
 
 template<typename name>
-std::string brgastro::brg_cache_nd<name>::_header_string_ = "";
+unsigned int brgastro::brg_cache_nd<name>::_version_number_ = 0;
 
 #endif
 

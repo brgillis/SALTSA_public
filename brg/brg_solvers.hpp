@@ -13,9 +13,10 @@
 
 #include <cstdlib>
 #include <cmath>
-#include "brg_units.h"
-#include "brg_functions.h"
 #include "brg_vector_functions.hpp"
+#ifdef _BRG_USE_UNITS_
+#include "brg_units.h"
+#endif
 
 namespace brgastro
 {

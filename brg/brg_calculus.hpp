@@ -8,12 +8,15 @@
 #ifndef __BRG_CALCULUS_HPP_INCLUDED__
 #define __BRG_CALCULUS_HPP_INCLUDED__
 
-#include "brg_global.h"
-
 #include <cstdlib>
 #include <cmath>
+
+#include "brg_global.h"
+
+#include "brg_phase.hpp"
+#ifdef _BRG_USE_UNITS
 #include "brg_units.h"
-#include "brg_functions.h"
+#endif
 
 namespace brgastro
 {
@@ -641,7 +644,7 @@ inline const int integrate_weighted( const f1 * func, const f2 * func_weight,
 		const unsigned int num_passed_in_params = 0,
 		const T & passed_in_params = T( 0 ), const bool silent = false )
 {
-	function_product_function< f1, f2, T > fprod( func, func_weight );
+	functor_product< f1, f2, T > fprod( func, func_weight );
 	unsigned int num_prod_out_params = 0, num_weight_out_params = 0;
 	T prod_out_params( 0 ), weight_out_params( 0 );
 
@@ -672,7 +675,7 @@ inline const int integrate_weighted( const f1 * func, const f2 * func_weight,
 		const std::vector< T > & passed_in_params = std::vector< T >( 0 ),
 		const bool silent = false )
 {
-	function_product_function< f1, f2, T > fprod( func, func_weight );
+	functor_product< f1, f2, T > fprod( func, func_weight );
 	unsigned int num_prod_out_params = 0, num_weight_out_params = 0;
 	std::vector< T > prod_out_params( 0 ), weight_out_params( 0 );
 
@@ -704,7 +707,7 @@ inline const int integrate_weighted( const f1 * func, const f2 * func_weight,
 		const unsigned int num_passed_in_params = 0,
 		const T & passed_in_params = T( 0 ), const bool silent = false )
 {
-	function_product_function< f1, f2, T > fprod( func, func_weight );
+	functor_product< f1, f2, T > fprod( func, func_weight );
 	unsigned int num_prod_out_params = 0, num_weight_out_params = 0;
 	T prod_out_params( 0 ), weight_out_params( 0 );
 
@@ -735,7 +738,7 @@ inline const int integrate_weighted( const f1 * func, const f2 * func_weight,
 		const std::vector< T > & passed_in_params = std::vector< T >( 0 ),
 		const bool silent = false )
 {
-	function_product_function< f1, f2, T > fprod( func, func_weight );
+	functor_product< f1, f2, T > fprod( func, func_weight );
 	unsigned int num_prod_out_params = 0, num_weight_out_params = 0;
 	std::vector< T > prod_out_params( 0 ), weight_out_params( 0 );
 
@@ -1171,7 +1174,7 @@ inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
 		const unsigned int num_passed_in_params = 0,
 		const T & passed_in_params = T( 0 ), const bool silent = false )
 {
-	function_product_function< f_in_1, f_in_2, T > fprod( func, func_weight );
+	functor_product< f_in_1, f_in_2, T > fprod( func, func_weight );
 	unsigned int num_prod_out_params = 0, num_weight_out_params = 0;
 	T prod_out_params( 0 ), weight_out_params( 0 );
 
@@ -1204,7 +1207,7 @@ inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
 		const std::vector< T > & passed_in_params = std::vector< T >( 0 ),
 		const bool silent = false )
 {
-	function_product_function< f_in_1, f_in_2, T > fprod( func, func_weight );
+	functor_product< f_in_1, f_in_2, T > fprod( func, func_weight );
 	unsigned int num_prod_out_params = 0, num_weight_out_params = 0;
 	std::vector< T > prod_out_params( 0 ), weight_out_params( 0 );
 

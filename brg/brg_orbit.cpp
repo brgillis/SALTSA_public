@@ -19,9 +19,9 @@
 #include "brg_global.h"
 
 #include "brg_units.h"
-#include "brg_functions.h"
 #include "brg_interpolator.h"
 #include "brg_astro.h"
+#include "brg_phase.hpp"
 #include "brg_orbit.h"
 #include "brg_solvers.hpp"
 #include "brg_calculus.hpp"

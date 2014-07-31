@@ -7,7 +7,6 @@
 #include <new>
 #include <fstream>
 #include "brg_units.h"
-#include "brg_functions.h"
 #include "brg_astro.h"
 #include "brg_calculus.hpp"
 #include "brg_solvers.hpp"
@@ -3154,11 +3153,11 @@ const double brgastro::integrate_add( const double z1, const double z2 )
 }
 const double brgastro::integrate_cmd( const double z1, const double z2 )
 {
-	return brgastro::integrate_distance( z1, z2, 1 );
+	return brgastro::integrate_distance( z1, z2, 1, 10000000 );
 }
 const double brgastro::integrate_Ld( const double z1, const double z2 )
 {
-	return brgastro::integrate_distance( z1, z2, 2 );
+	return brgastro::integrate_distance( z1, z2, 2, 10000000 );
 }
 const double brgastro::integrate_ltd( const double z1, const double z2 )
 {
@@ -3166,19 +3165,19 @@ const double brgastro::integrate_ltd( const double z1, const double z2 )
 }
 const double brgastro::integrate_add( const double z )
 {
-	return brgastro::integrate_distance( 0, z, 0 );
+	return brgastro::integrate_distance( 0, z, 0, 100000 );
 }
 const double brgastro::integrate_cmd( const double z )
 {
-	return brgastro::integrate_distance( 0, z, 1 );
+	return brgastro::integrate_distance( 0, z, 1, 10000000 );
 }
 const double brgastro::integrate_Ld( const double z )
 {
-	return brgastro::integrate_distance( 0, z, 2 );
+	return brgastro::integrate_distance( 0, z, 2, 10000000 );
 }
 const double brgastro::integrate_ltd( const double z )
 {
-	return brgastro::integrate_distance( 0, z, 3 );
+	return brgastro::integrate_distance( 0, z, 3, 10000000 );
 }
 const double brgastro::integrate_distance( const double z1_init,
 		const double z2_init, const int mode, const int n )

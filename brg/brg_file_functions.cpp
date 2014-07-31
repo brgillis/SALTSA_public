@@ -1,53 +1,11 @@
-#include <cstdlib>
-#include <cmath>
 #include <iostream>
 #include <iomanip>
-#include <new>
 #include <fstream>
-#include <boost/math/special_functions/erf.hpp>
 #include <string>
-#include "brg_functions.h"
-#include "brg_calculus.hpp"
+#include "brg_file_functions.h"
+#include "brg_misc_functions.hpp"
 
 using namespace std;
-
-/** Class method definitions **/
-#if (1)
-// brgastro::phase function implementations
-#if (1)
-brgastro::phase::phase( BRG_DISTANCE init_x, BRG_DISTANCE init_y,
-BRG_DISTANCE init_z,
-BRG_VELOCITY init_vx, BRG_VELOCITY init_vy, BRG_VELOCITY init_vz,
-BRG_TIME init_t )
-{
-	x = init_x;
-	y = init_y;
-	z = init_z;
-	vx = init_vx;
-	vy = init_vy;
-	vz = init_vz;
-	t = init_t;
-}
-
-const int brgastro::phase::set_phase( BRG_DISTANCE init_x, BRG_DISTANCE init_y,
-BRG_DISTANCE init_z,
-BRG_VELOCITY init_vx, BRG_VELOCITY init_vy, BRG_VELOCITY init_vz,
-BRG_TIME init_t )
-{
-	x = init_x;
-	y = init_y;
-	z = init_z;
-	vx = init_vx;
-	vy = init_vy;
-	vz = init_vz;
-	t = init_t;
-
-	return 0;
-}
-
-#endif // end brgastro::phase function implementations
-
-#endif // end class function definitions
 
 /** Global function implementations **/
 #if (1)
@@ -402,6 +360,48 @@ const int brgastro::open_file( std::fstream & stream, const std::string name,
 	}
 	return 0;
 }
+const int brgastro::open_bin_file( std::ofstream & stream, const std::string name,
+		const bool silent )
+{
+	stream.close();
+	stream.clear();
+	stream.open( name.c_str(), ios::out | ios::binary );
+	if ( !stream )
+	{
+		if ( !silent )
+			cerr << "ERROR: Could not open file " << name << "!\n";
+		return FILE_ACCESS_ERROR;
+	}
+	return 0;
+}
+const int brgastro::open_bin_file( std::ifstream & stream, const std::string name,
+		const bool silent )
+{
+	stream.close();
+	stream.clear();
+	stream.open( name.c_str(), ios::in | ios::binary );
+	if ( !stream )
+	{
+		if ( !silent )
+			cerr << "ERROR: Could not open file " << name << "!\n";
+		return FILE_ACCESS_ERROR;
+	}
+	return 0;
+}
+const int brgastro::open_bin_file( std::fstream & stream, const std::string name,
+		const bool silent )
+{
+	stream.close();
+	stream.clear();
+	stream.open( name.c_str(), ios::out | ios::in | ios::binary  );
+	if ( !stream )
+	{
+		if ( !silent )
+			cerr << "ERROR: Could not open file " << name << "!\n";
+		return FILE_ACCESS_ERROR;
+	}
+	return 0;
+}
 
 const int brgastro::trim_comments_one_line( std::ifstream & stream,
 		const bool silent )
@@ -470,61 +470,5 @@ const int brgastro::trim_comments_all_at_top( std::fstream & stream,
 	}
 	return UNSPECIFIED_ERROR; // We reached the end before we ran out of comments
 }
-
-const double brgastro::Gaus_rand( double mean, double stddev )
-{
-	double x1, x2, w;
-
-	if ( stddev <= 0 )
-		return mean;
-
-	do
-	{
-		x1 = 2.0 * ( ( (double)rand() ) / RAND_MAX ) - 1.0;
-		x2 = 2.0 * ( ( (double)rand() ) / RAND_MAX ) - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while ( w >= 1.0 );
-
-	w = sqrt( ( -2.0 * log( w ) ) / w );
-	return ( mean + x1 * w * stddev );
-
-} // double Gaus_rand(double mean, double stddev)
-
-const double brgastro::log10Gaus_rand( double mean, double stddev )
-{
-	double x1, x2, w, fact;
-
-	if ( stddev <= 0 )
-		return mean;
-
-	stddev *= log( 10 ); // Converts dex to natural log
-	fact = exp( -std::pow( stddev, 2 ) / 2 );
-
-	do
-	{
-		x1 = 2.0 * ( ( (double)rand() ) / RAND_MAX ) - 1.0;
-		x2 = 2.0 * ( ( (double)rand() ) / RAND_MAX ) - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while ( w >= 1.0 );
-
-	w = sqrt( ( -2.0 * log( w ) ) / w );
-	return ( mean * fact * exp( x1 * w * stddev ) );
-} // double lnGaus_rand(double mean, double stddev)
-
-const int brgastro::Pois_rand( double lambda )
-{
-	double L, p;
-	int k;
-	L = exp( -lambda );
-	k = 0;
-	p = 1;
-	do
-	{
-		k++;
-		p *= drand( 0, 1 );
-	} while ( p > L );
-
-	return ( k - 1 );
-} // int Pois_rand(double lambda)
 
 #endif // end global function implementations
