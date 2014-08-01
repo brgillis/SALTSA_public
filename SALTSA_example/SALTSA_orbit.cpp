@@ -60,9 +60,9 @@ SALTSA::stripping_orbit::allowed_interpolation_type SALTSA::stripping_orbit::_de
 // Alternatively, set step_length_power to 1 for even steps in position
 double SALTSA::stripping_orbit::_default_v_0_ = 400 * unitconv::kmpstomps; // 400 km/s
 double SALTSA::stripping_orbit::_default_r_0_ = 400 * unitconv::kpctom; // 400 kpc
-double SALTSA::stripping_orbit::_default_step_length_power_ = 1.5;
+double SALTSA::stripping_orbit::_default_step_length_power_ = 2;
 double SALTSA::stripping_orbit::_default_step_factor_max_ = 10; // Maximum allowed value of (v_0/v)^(step_length_power)
-double SALTSA::stripping_orbit::_default_step_factor_min_ = 0.01; // Minimum allowed value of (v_0/v)^(step_length_power)
+double SALTSA::stripping_orbit::_default_step_factor_min_ = 0.001; // Minimum allowed value of (v_0/v)^(step_length_power)
 #endif
 
 // Default tuning values

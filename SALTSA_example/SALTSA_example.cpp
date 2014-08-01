@@ -32,8 +32,8 @@ int main( const int argc, const char *argv[] )
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
 	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 2000; // Base number of steps to take to integrate stripping
-	const int spline_points = 500; // Number of points in the orbit we tell the stripping integrator
+	const int stripping_resolution = 1000; // Base number of steps to take to integrate stripping
+	const int spline_points = 1000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
@@ -286,9 +286,9 @@ int main( const int argc, const char *argv[] )
 #if (1)
 	// Get the name of the file we'll use
 
-	// We'll use the orbit with circularity .2, which is where we see resolution effects
-	// beginning to play a big role.
-	unsigned int comparison_index = 10;
+	// We'll use the orbit with circularity .8 for comparison
+	unsigned int comparison_index = 4;
+
 	ss.str("");
 	ss << output_file_name_base << comparison_index << output_file_name_tail;
 	std::string comparison_file_name = ss.str();
@@ -360,33 +360,41 @@ int main( const int argc, const char *argv[] )
 	test_orbit.clear();
 	test_orbit = SALTSA::stripping_orbit(host_group, init_satellite);
 
+	// We'll simulate the original data through skipping some points (since the data we read
+	// reflects the adaptive step size)
+	double t_skip_interval = total_time/spline_points/2; // /2 correction
+	double t_next = 0;
+
 	for(unsigned int i=0; i<t_data.size(); i++)
 	{
-		// Add the points, making sure to convert units here
-		// Note that we also add the value for retained mass on at the end here
-		test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
-				y_data.at(i)*unitconv::kpctom,
-				z_data.at(i)*unitconv::kpctom,
-				vx_data.at(i)*unitconv::kmpstomps,
-				vy_data.at(i)*unitconv::kmpstomps,
-				vz_data.at(i)*unitconv::kmpstomps,
-				t_data.at(i)*unitconv::Gyrtos,
-				comparison_mret_data.at(i));
+		// Load the first point after each t interval (to simulate the way we initially
+		// assigned points)
+		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
+		{
+			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+					y_data.at(i)*unitconv::kpctom,
+					z_data.at(i)*unitconv::kpctom,
+					vx_data.at(i)*unitconv::kmpstomps,
+					vy_data.at(i)*unitconv::kmpstomps,
+					vz_data.at(i)*unitconv::kmpstomps,
+					t_data.at(i)*unitconv::Gyrtos,
+					comparison_mret_data.at(i));
+			host_parameters.clear();
+			host_parameters.push_back(host_mvir0_data.at(i)*unitconv::ttMsuntokg);
+			host_parameters.push_back(host_z_data.at(i));
+			host_parameters.push_back(host_c_data.at(i));
+			host_parameters.push_back(host_tau_data.at(i));
 
-		host_parameters.clear();
-		host_parameters.push_back(host_mvir0_data.at(i)*unitconv::ttMsuntokg);
-		host_parameters.push_back(host_z_data.at(i));
-		host_parameters.push_back(host_c_data.at(i));
-		host_parameters.push_back(host_tau_data.at(i));
+			test_orbit.add_host_parameter_point(host_parameters,
+					t_data.at(i)*unitconv::Gyrtos);
 
-		test_orbit.add_host_parameter_point(host_parameters,
-				t_data.at(i)*unitconv::Gyrtos);
+			t_next =  t_data.at(i)*unitconv::Gyrtos+t_skip_interval;
+		}
 	}
 
 #endif // Loading the data
 
-
-	// Various test cases
+	// Base comparison to see how far off this dataset is just through numeric errors
 #if (1)
 
 	// General set-up for the orbit
@@ -394,6 +402,27 @@ int main( const int argc, const char *argv[] )
 	test_orbit.set_host_output_parameters(num_host_parameters, host_output_parameters);
 	test_orbit.set_host_parameter_unitconvs(num_host_parameters, host_output_parameter_unitconvs);
 	test_orbit.set_resolution(stripping_resolution);
+
+	test_orbit.set_resolution(stripping_resolution);
+
+	test_orbit.set_record_full_data(true);
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_base_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out );
+	double diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done!\n";
+	std::cout << "Base difference is " << diff << ". Differences of this scale should be considered negligible.\n";
+
+#endif // Base comparison
+
+	// Testing changes to integration and set-up parameters
+#if (1)
 
 	// Let's try changing the resolution
 #if (1)
@@ -409,7 +438,7 @@ int main( const int argc, const char *argv[] )
 
 	std::cout << "Working on " << output_file_name << "... " << std::flush;
 	test_orbit.print_full_data( &out ); // It will automatically calculate here
-	double diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
 	std::cout << "Done! Difference measure: " << diff << "\n";
 
 	out.close();
@@ -536,7 +565,7 @@ int main( const int argc, const char *argv[] )
 	// how this can be done
 
 	// Let's only give velocity for every other point
-	unsigned int v_skip_interval = 2;
+	bool record_velocity_for_this_point = true;
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << "_skipsomev_comp" << output_file_name_tail;
@@ -545,26 +574,34 @@ int main( const int argc, const char *argv[] )
 	test_orbit.clear_points(); // This clears all position, velocity, and mass comparison points,
 	                           // but not host parameter points
 
+	t_next = 0;
+
 	for(unsigned int i=0; i<t_data.size(); i++)
 	{
-		if(SALTSA::divisible(i,v_skip_interval))
+		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
-			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
-					y_data.at(i)*unitconv::kpctom,
-					z_data.at(i)*unitconv::kpctom,
-					vx_data.at(i)*unitconv::kmpstomps,
-					vy_data.at(i)*unitconv::kmpstomps,
-					vz_data.at(i)*unitconv::kmpstomps,
-					t_data.at(i)*unitconv::Gyrtos,
-					comparison_mret_data.at(i));
-		}
-		else
-		{
-			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
-					y_data.at(i)*unitconv::kpctom,
-					z_data.at(i)*unitconv::kpctom,
-					t_data.at(i)*unitconv::Gyrtos,
-					comparison_mret_data.at(i));
+			if(record_velocity_for_this_point)
+			{
+				test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+						y_data.at(i)*unitconv::kpctom,
+						z_data.at(i)*unitconv::kpctom,
+						vx_data.at(i)*unitconv::kmpstomps,
+						vy_data.at(i)*unitconv::kmpstomps,
+						vz_data.at(i)*unitconv::kmpstomps,
+						t_data.at(i)*unitconv::Gyrtos,
+						comparison_mret_data.at(i));
+				record_velocity_for_this_point = false;
+			}
+			else
+			{
+				test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+						y_data.at(i)*unitconv::kpctom,
+						z_data.at(i)*unitconv::kpctom,
+						t_data.at(i)*unitconv::Gyrtos,
+						comparison_mret_data.at(i));
+				record_velocity_for_this_point = true;
+			}
+			t_next = t_data.at(i)*unitconv::Gyrtos + t_skip_interval;
 		}
 	}
 
@@ -586,13 +623,19 @@ int main( const int argc, const char *argv[] )
 	test_orbit.clear_points(); // This clears all position, velocity, and mass comparison points,
 	                           // but not host parameter points
 
+	t_next = 0;
+
 	for(unsigned int i=0; i<t_data.size(); i++)
 	{
-		test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
-				y_data.at(i)*unitconv::kpctom,
-				z_data.at(i)*unitconv::kpctom,
-				t_data.at(i)*unitconv::Gyrtos,
-				comparison_mret_data.at(i));
+		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
+		{
+			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+					y_data.at(i)*unitconv::kpctom,
+					z_data.at(i)*unitconv::kpctom,
+					t_data.at(i)*unitconv::Gyrtos,
+					comparison_mret_data.at(i));
+			t_next = t_data.at(i)*unitconv::Gyrtos + t_skip_interval;
+		}
 	}
 
 	out.open(output_file_name.c_str());
@@ -604,6 +647,9 @@ int main( const int argc, const char *argv[] )
 
 	out.close();
 	out.clear();
+
+	// Not so bad with a pretty circular orbit, like we're using here, but try this also with a
+	// more eccentric orbit (like number 9), and see how much worse it is in that case.
 
 	// Lesson here: For particularly eccentric orbits, the differentiation performed by SALTSA
 	// to estimate velocity tends to systematically underestimate the spikes near pericentre,
@@ -620,8 +666,8 @@ int main( const int argc, const char *argv[] )
 	// Once more, we'll have to reload the orbit
 
 	// Let's only load one tenth as many points
-	double t_skip_interval = 10*total_time/spline_points;
-	double t_next = 0;
+	t_skip_interval *= 10;
+	t_next = 0;
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << "_fewerorbitpoints_comp" << output_file_name_tail;
@@ -629,6 +675,7 @@ int main( const int argc, const char *argv[] )
 
 	test_orbit.clear_points(); // This clears all position, velocity, and mass comparison points,
 	                           // but not host parameter points
+	t_next = 0;
 
 	for(unsigned int i=0; i<t_data.size(); i++)
 	{
@@ -645,9 +692,11 @@ int main( const int argc, const char *argv[] )
 					vz_data.at(i)*unitconv::kmpstomps,
 					t_data.at(i)*unitconv::Gyrtos,
 					comparison_mret_data.at(i));
-			t_next += t_skip_interval;
+			t_next = t_data.at(i)*unitconv::Gyrtos + t_skip_interval;
 		}
 	}
+
+	t_skip_interval /= 4;
 
 	out.open(output_file_name.c_str());
 
@@ -696,7 +745,200 @@ int main( const int argc, const char *argv[] )
 
 #endif // Telling SALTSA about fewer points on the orbit
 
-#endif // Various test cases
+#endif // Testing changes to integration and set-up parameters
+
+	// Testing changes to tuning parameters
+#if (1)
+
+	// Let's first reset the orbit and load it up as before
+
+	test_orbit.clear_points();
+	t_next = 0;
+
+	for(unsigned int i=0; i<t_data.size(); i++)
+	{
+		// Load the first point after each t interval (to simulate initially using
+		// only one-tenth the points. If we just only input every tenth, we'll also
+		// mimic the adaptive step size used, which we don't want to do here.)
+		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
+		{
+			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+					y_data.at(i)*unitconv::kpctom,
+					z_data.at(i)*unitconv::kpctom,
+					vx_data.at(i)*unitconv::kmpstomps,
+					vy_data.at(i)*unitconv::kmpstomps,
+					vz_data.at(i)*unitconv::kmpstomps,
+					t_data.at(i)*unitconv::Gyrtos,
+					comparison_mret_data.at(i));
+			t_next = t_data.at(i)*unitconv::Gyrtos + t_skip_interval;
+		}
+	}
+
+	// We'll look at each tuning parameter in turn
+
+	// Tuning stripping amplification (A_s in the paper)
+#if (1)
+
+	// Increase the amplification by 0.2
+	test_orbit.set_tidal_stripping_amplification(0.2 +
+			test_orbit.default_tidal_stripping_amplification());
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_histripamp_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
+
+	out.close();
+	out.clear();
+
+	// Change stripping amplification back to how it was before
+	test_orbit.reset_tidal_stripping_amplification();
+
+#endif // Tuning stripping amplification
+
+	// Tuning stripping deceleration (alpha_s in the paper)
+#if (1)
+
+	// Increase the deceleration by 0.2
+	test_orbit.set_tidal_stripping_deceleration(0.2 +
+			test_orbit.default_tidal_stripping_deceleration());
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_histripdecel_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
+
+	out.close();
+	out.clear();
+
+	// Change stripping deceleration back to how it was before
+	test_orbit.reset_tidal_stripping_deceleration();
+
+#endif // Tuning stripping deceleration
+
+	// Tuning shocking amplification (A_h in the paper)
+#if (1)
+
+	// Increase the amplification by 0.5
+	test_orbit.set_tidal_shocking_amplification(0.5 +
+			test_orbit.default_tidal_shocking_amplification());
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_hishockamp_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
+
+	out.close();
+	out.clear();
+
+	// Change shocking amplification back to how it was before
+	test_orbit.reset_tidal_shocking_amplification();
+
+#endif // Tuning shocking amplification (A_h in the paper)
+
+	// Tuning shocking power (alpha_h in the paper)
+#if (1)
+
+	// Increase the power by 1
+	test_orbit.set_tidal_shocking_power(1 +
+			test_orbit.default_tidal_shocking_power());
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_hishockpow_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
+
+	out.close();
+	out.clear();
+
+	// Change shocking power back to how it was before
+	test_orbit.reset_tidal_shocking_power();
+
+#endif // Tuning shocking power
+
+	// Tuning shocking persistance
+#if (1)
+
+	// Increase the persistance by 1
+	test_orbit.set_tidal_shocking_persistance(1 +
+			test_orbit.default_tidal_shocking_persistance());
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_hishockpersist_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
+
+	out.close();
+	out.clear();
+
+	// This looks very similar to changing amplification. Can they cancel each other out?
+
+	// Decrease the amplification by 0.5
+	test_orbit.set_tidal_shocking_amplification(-0.5 +
+			test_orbit.default_tidal_shocking_amplification());
+
+	ss.str("");
+	ss << output_file_name_base << comparison_index << "_hishockpersistloshockamp_comp" << output_file_name_tail;
+	output_file_name = ss.str();
+
+	out.open(output_file_name.c_str());
+
+	std::cout << "Working on " << output_file_name << "... " << std::flush;
+	test_orbit.print_full_data( &out ); // It will recalculate now, with lower resolution
+	diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
+	std::cout << "Done! Difference measure: " << diff << "\n";
+
+	out.close();
+	out.clear();
+
+	// Lesson here: Shocking persistance and amplification are pretty degenerate, so it's only
+	// worth tuning one of them. They also require much larger changes in their tuning values to
+	// have significant effects on the orbits than the stripping tuning values do. It's likely
+	// worth implementing a prior on them in any fitting to avoid them being fit to extreme
+	// values.
+	//
+	// We can do a similar comparison to show that shocking power is also degenerate with these.
+	// I recommend only tuning shocking amplification.
+
+	// Change shocking persistance and amplification back to how they were before
+	test_orbit.reset_tidal_shocking_persistance();
+	test_orbit.reset_tidal_shocking_amplification();
+
+
+
+#endif // Tuning shocking power
+
+#endif // Testing changes to tuning parameters
 
 #endif // File reading and stripping calculation
 

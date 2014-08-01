@@ -163,7 +163,7 @@ const double SALTSA::interpolator::operator()(const double x) const
 			yhi = it->second;
 		}
 
-		return ylo + (yhi-ylo)/(xhi-xlo);
+		return ylo + (x-xlo)*(yhi-ylo)/(xhi-xlo);
 	}
 	else if(_interpolation_type_==LOWER)
 	{
