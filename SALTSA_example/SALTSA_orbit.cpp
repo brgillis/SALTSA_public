@@ -669,13 +669,13 @@ const double SALTSA::interpolator_derivative::operator()( double xval ) const
 
 const int SALTSA::stripping_orbit::_pass_parameters_to_segment(
 		SALTSA::stripping_orbit_segment & segment,
-		SALTSA::density_profile *temp_satellite,
-		SALTSA::density_profile *temp_host,
+		SALTSA::density_profile *segment_init_satellite,
+		SALTSA::density_profile *segment_init_host,
 		unsigned int resolution) const
 {
 	int err_code = 0;
 
-	if(temp_satellite==NULL)
+	if(segment_init_satellite==NULL)
 	{
 		err_code += ( segment.set_init_satellite(
 				_init_satellite_ptr_ ) );
@@ -683,21 +683,21 @@ const int SALTSA::stripping_orbit::_pass_parameters_to_segment(
 	else
 	{
 		err_code += ( segment.set_init_satellite(
-				temp_satellite ) );
+				segment_init_satellite ) );
 	}
 
-	if(temp_host==NULL)
+	if(segment_init_host==NULL)
 	{
 		err_code += ( segment.set_init_host( _init_host_ptr_ ) );
 	}
 	else
 	{
-		err_code += ( segment.set_init_host( temp_host ) );
+		err_code += ( segment.set_init_host( segment_init_host ) );
 	}
 
 	if(resolution==0)
 	{
-		err_code += ( segment.set_resolution( _spline_resolution_) );
+		err_code += ( segment.set_resolution( _base_resolution_) );
 	}
 	else
 	{
@@ -740,7 +740,7 @@ void SALTSA::stripping_orbit::swap(stripping_orbit &other)
 
 	// Integration parameters
 #if(1)
-	swap(_spline_resolution_, other._spline_resolution_);
+	swap(_base_resolution_, other._base_resolution_);
 	swap(_interpolation_type_, other._interpolation_type_);
 	swap(_v_0_, other._v_0_);
 	swap(_r_0_, other._r_0_);
@@ -868,7 +868,7 @@ SALTSA::stripping_orbit::stripping_orbit(
 {
 	// Integration parameters
 #if(1)
-	_spline_resolution_ = other._spline_resolution_;
+	_base_resolution_ = other._base_resolution_;
 	_interpolation_type_ = other._interpolation_type_;
 	_v_0_ = other._v_0_;
 	_r_0_ = other._r_0_;
@@ -1004,7 +1004,7 @@ SALTSA::stripping_orbit::stripping_orbit( const density_profile *init_init_host,
 	clear();
 	_init_host_ptr_ = init_init_host;
 	_init_satellite_ptr_ = init_init_satellite;
-	_spline_resolution_ = init_resolution;
+	_base_resolution_ = init_resolution;
 	_host_loaded_ = true;
 	_satellite_loaded_ = true;
 
@@ -1037,7 +1037,7 @@ const int SALTSA::stripping_orbit::clear()
 
 	// Integration parameters
 #if(1)
-	_spline_resolution_ = _default_spline_resolution_;
+	_base_resolution_ = _default_spline_resolution_;
 	_interpolation_type_ = _default_interpolation_type_;
 	_v_0_ = _default_v_0_;
 	_r_0_ = _default_r_0_;
@@ -1301,7 +1301,6 @@ const int SALTSA::stripping_orbit::clear_points()
 	_test_mass_error_interpolator_.clear();
 
 	_t_points_.clear();
-	_host_param_t_points_.clear();
 
 	_t_min_natural_value_ = DBL_MAX;
 	_t_max_natural_value_ = ( -DBL_MAX );
@@ -1326,6 +1325,7 @@ const int SALTSA::stripping_orbit::clear_discontinuity_times()
 const int SALTSA::stripping_orbit::clear_host_parameter_points()
 {
 	_host_parameter_points_.clear();
+	_host_param_t_points_.clear();
 	_calculated_ = false;
 	return 0;
 }
@@ -1781,7 +1781,7 @@ const int SALTSA::stripping_orbit::set_resolution( const int new_resolution,
 		const bool silent )
 {
 	// Check if anything is actually changing here
-	if ( new_resolution == _spline_resolution_ )
+	if ( new_resolution == _base_resolution_ )
 		return 0;
 
 	if ( new_resolution < 2 )
@@ -1792,7 +1792,7 @@ const int SALTSA::stripping_orbit::set_resolution( const int new_resolution,
 		return INVALID_ARGUMENTS_ERROR;
 	}
 	clear_calcs();
-	_spline_resolution_ = new_resolution;
+	_base_resolution_ = new_resolution;
 	return 0;
 }
 const int SALTSA::stripping_orbit::set_interpolation_type(
@@ -2042,11 +2042,11 @@ const int SALTSA::stripping_orbit::set_tidal_shocking_power(
 const int SALTSA::stripping_orbit::reset_resolution()
 {
 	// Check if anything is actually changing here
-	if ( _spline_resolution_ == _default_spline_resolution_ )
+	if ( _base_resolution_ == _default_spline_resolution_ )
 		return 0;
 
 	clear_calcs();
-	_spline_resolution_ = _default_spline_resolution_;
+	_base_resolution_ = _default_spline_resolution_;
 	return 0;
 }
 const int SALTSA::stripping_orbit::reset_interpolation_type()
@@ -2495,7 +2495,7 @@ const int SALTSA::stripping_orbit::calc( const bool silent ) const
 		_orbit_segments_.at( i ).set_t_max( new_t_max );
 
 		// Adjust resolution for each segment
-		int segment_resolution = (int)( _spline_resolution_
+		int segment_resolution = (int)( _base_resolution_
 				* std::fabs( new_t_max - new_t_min )
 				/ std::fabs( t_max_to_use - t_min_to_use ) ) + 1;
 		segment_resolutions.at( i ) = segment_resolution;
@@ -3184,7 +3184,7 @@ const double SALTSA::stripping_orbit::last_infall_time() const
 	return result;
 }
 
-const bool & SALTSA::stripping_orbit::likely_disrupted() const
+const bool SALTSA::stripping_orbit::likely_disrupted() const
 {
 	if(!_calculated_)
 	{
