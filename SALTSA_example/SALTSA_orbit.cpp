@@ -88,8 +88,17 @@ double SALTSA::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affect
 // Swap functions
 void SALTSA::interpolator_functor::swap(interpolator_functor & other)
 {
-	std::swap(_interpolator_ptr_,other._interpolator_ptr_);
-	std::swap(_interpolator_ptr_set_up_,other._interpolator_ptr_set_up_);
+	using std::swap;
+	swap(_interpolator_ptr_,other._interpolator_ptr_);
+	swap(_interpolator_ptr_set_up_,other._interpolator_ptr_set_up_);
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::interpolator_functor &same, SALTSA::interpolator_functor &other)
+	{
+		same.swap(other);
+	}
 }
 
 // Constructors
@@ -155,6 +164,15 @@ void SALTSA::interpolator_derivative_functor::swap(
     using std::swap;
 	swap(_interpolator_functor_set_up_,other._interpolator_functor_set_up_);
 	_interpolator_functor_.swap(other._interpolator_functor_);
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::interpolator_derivative_functor &same,
+			SALTSA::interpolator_derivative_functor &other)
+	{
+		same.swap(other);
+	}
 }
 
 // Constructors
@@ -230,6 +248,15 @@ void SALTSA::interpolator_derivative_weight_functor::swap(
 	swap(_t_min_,other._t_min_);
 	swap(_centre_point_,other._centre_point_);
 
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::interpolator_derivative_weight_functor &same,
+			SALTSA::interpolator_derivative_weight_functor &other)
+	{
+		same.swap(other);
+	}
 }
 
 
@@ -344,6 +371,15 @@ void SALTSA::interpolator_derivative::swap(interpolator_derivative &other)
 	swap(_sample_scale_,other._sample_scale_);
 	swap(_sample_max_width_,other._sample_max_width_);
 	swap(_sample_precision_,other._sample_precision_);
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::interpolator_derivative &same,
+			SALTSA::interpolator_derivative &other)
+	{
+		same.swap(other);
+	}
 }
 
 // Constructors
@@ -810,6 +846,15 @@ void SALTSA::stripping_orbit::swap(stripping_orbit &other)
 	if ( other._using_private_init_satellite_ )
 	{
 		other._init_satellite_ptr_ = &(other._private_tNFW_init_satellite_);
+	}
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::stripping_orbit &same,
+			SALTSA::stripping_orbit &other)
+	{
+		same.swap(other);
 	}
 }
 
@@ -3368,6 +3413,15 @@ void SALTSA::stripping_orbit_segment::swap(stripping_orbit_segment &other)
 	if ( other._using_private_init_satellite_ )
 	{
 		other._init_satellite_ptr_ = &other._private_tNFW_init_satellite_;
+	}
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::stripping_orbit_segment &same,
+			SALTSA::stripping_orbit_segment &other)
+	{
+		same.swap(other);
 	}
 }
 
@@ -6139,6 +6193,15 @@ void SALTSA::gabdt::swap(gabdt &other)
 
 	swap(_dv_, other._dv_);
 }
+namespace std
+{
+	template <>
+	void swap(SALTSA::gabdt &same,
+			SALTSA::gabdt &other)
+	{
+		same.swap(other);
+	}
+}
 
 SALTSA::gabdt::gabdt( void )
 {
@@ -6535,6 +6598,15 @@ void SALTSA::gabdt_functor::swap(gabdt_functor &other)
 {
 	using std::swap;
 	swap(host_ptr,other.host_ptr);
+}
+namespace std
+{
+	template <>
+	void swap(SALTSA::gabdt_functor &same,
+			SALTSA::gabdt_functor &other)
+	{
+		same.swap(other);
+	}
 }
 
 // Constructors
