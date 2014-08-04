@@ -20,7 +20,7 @@ namespace SALTSA {
 bool p1first_lt_p2first(std::pair<double,double> pair1, std::pair<double,double> pair2);
 bool p1first_lt_v2(std::pair<double,double> pair1, double v2);
 
-	class interpolator {
+class interpolator {
 public:
 
 	enum allowed_interpolation_type {
@@ -30,63 +30,78 @@ public:
 		SPLINE
 	}; // end enum allowed_interpolation_type
 
-	private:
+private:
 #if (1)
 
-		std::vector< std::pair<double,double> > _data_;
+	std::vector< std::pair<double,double> > _data_;
 
-		mutable std::vector< std::pair<double,double> > _sorted_data_;
-		mutable bool _sorted_data_cached_;
+	mutable std::vector< std::pair<double,double> > _sorted_data_;
+	mutable bool _sorted_data_cached_;
 
-		mutable tk::spline _spline_;
-		mutable bool _spline_cached_;
+	mutable tk::spline _spline_;
+	mutable bool _spline_cached_;
 
-		static allowed_interpolation_type _default_interpolation_type_;
-		allowed_interpolation_type _interpolation_type_;
+	static allowed_interpolation_type _default_interpolation_type_;
+	allowed_interpolation_type _interpolation_type_;
 
-		void _set_spline_points() const;
+	void _set_spline_points() const;
 
 #endif // end private members and methods
-	public:
+public:
 #if (1)
 
-		interpolator();
+	// Swap functions
+	void swap(interpolator &other);
+	friend void swap(interpolator &same, interpolator &other) {same.swap(other);}
 
-		void clear();
-		void clear_points();
+	// Constructors
+	interpolator();
+	interpolator(const interpolator &other);
 
-		// Accessors to current and default interpolation types
-		static const allowed_interpolation_type default_interpolation_type()
-			{return _default_interpolation_type_;}
-		const allowed_interpolation_type interpolation_type() const
-			{return _interpolation_type_;}
+	// Destructor
+	virtual ~interpolator()
+	{
+	}
 
-		// Set functions for the current and default interpolation types
-		static void set_default_interpolation_type(const allowed_interpolation_type new_default_type);
-		void set_default_interpolation_type(const allowed_interpolation_type new_default_type,
-				const bool override_current);
-		void set_interpolation_type(const allowed_interpolation_type new_type);
+	// Operator=
+	interpolator & operator=(interpolator other);
 
-		// This version doesn't check for duplicate x values, but if one does exist, an exception will
-		// eventually be thrown
-		void add_point(const double x, const double y);
+	// Clearing functions
+	void clear();
+	void clear_points();
 
-		// This version checks if there's a point with a duplicate x value. If so, it throws an
-		// exception
-		void try_add_point(const double x, const double y);
+	// Accessors to current and default interpolation types
+	static const allowed_interpolation_type default_interpolation_type()
+	{return _default_interpolation_type_;}
+	const allowed_interpolation_type interpolation_type() const
+	{return _interpolation_type_;}
 
-		unsigned int size() const
-		{
-			return sorted_data().size();
-		}
+	// Set functions for the current and default interpolation types
+	static void set_default_interpolation_type(const allowed_interpolation_type new_default_type);
+	void set_default_interpolation_type(const allowed_interpolation_type new_default_type,
+			const bool override_current);
+	void set_interpolation_type(const allowed_interpolation_type new_type);
 
-		std::vector< std::pair<double,double> > & sorted_data() const;
+	// This version doesn't check for duplicate x values, but if one does exist, an exception will
+	// eventually be thrown
+	void add_point(const double x, const double y);
 
-		const double operator()(const double x) const;
+	// This version checks if there's a point with a duplicate x value. If so, it throws an
+	// exception
+	void try_add_point(const double x, const double y);
+
+	unsigned int size() const
+	{
+		return sorted_data().size();
+	}
+
+	std::vector< std::pair<double,double> > & sorted_data() const;
+
+	const double operator()(const double x) const;
 
 #endif // public
 
-	}; // end class interpolator
+}; // end class interpolator
 
 } // end namespace SALTSA
 

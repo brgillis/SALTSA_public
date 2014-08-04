@@ -28,6 +28,44 @@ SALTSA::interpolator::allowed_interpolation_type SALTSA::interpolator::_default_
 
 // Implement interpolator methods
 
+// Swap functions
+void SALTSA::interpolator::swap(interpolator &other)
+{
+	using std::swap;
+	swap(_data_, other._data_);
+	swap(_sorted_data_, other._sorted_data_);
+	swap(_spline_, other._spline_);
+
+	swap(_interpolation_type_, other._interpolation_type_);
+	swap(_spline_cached_, other._spline_cached_);
+	swap(_sorted_data_cached_, other._sorted_data_cached_);
+}
+
+// Constructors
+SALTSA::interpolator::interpolator()
+{
+	_interpolation_type_ = _default_interpolation_type_;
+	_spline_cached_ = false;
+	_sorted_data_cached_ = false;
+}
+SALTSA::interpolator::interpolator(const interpolator &other)
+{
+	_data_ = other._data_;
+	_sorted_data_ = other._sorted_data_;
+	_spline_ = other._spline_;
+
+	_interpolation_type_ = other._interpolation_type_;
+	_spline_cached_ = other._spline_cached_;
+	_sorted_data_cached_ = other._sorted_data_cached_;
+}
+
+// Operator=
+SALTSA::interpolator & SALTSA::interpolator::operator=(interpolator other)
+{
+	swap(other);
+	return *this;
+}
+
 // Set functions for the current and default interpolation types
 void SALTSA::interpolator::set_default_interpolation_type(
 		const allowed_interpolation_type new_default_type)
@@ -59,13 +97,6 @@ void SALTSA::interpolator::_set_spline_points() const
 
 	_spline_.set_points(x_points,y_points);
 	_spline_cached_ = true;
-}
-
-SALTSA::interpolator::interpolator()
-{
-	_interpolation_type_ = _default_interpolation_type_;
-	_spline_cached_ = false;
-	_sorted_data_cached_ = false;
 }
 
 void SALTSA::interpolator::clear()

@@ -6,29 +6,28 @@
  stripping along orbits.
 
  For the casual user, only the stripping_orbit class needs to be
- understood (and perhaps some fiddling with the Global Parameters in this
- file for tuning purposes). This class stores a number of points
- representing a satellite's position and velocity relative to its host
- halo at various times.
+ understood. This class stores a number of points representing a
+ satellite's position and velocity relative to its host halo at various
+ times.
 
  In order to successfully calculate stripping, the class must be
  assigned a host density profile, an initial satellite density profile,
  and at least two points along the orbit. The density profiles should be
  derived classes of SALTSA::density_profile, and pointers to them
- should be passed to this class using one of the method described below.
+ should be passed to this class using one of the methods described below.
 
  When the calc() function is called (either by the user or by another
  function), the class performs the following operations:
 
- -Calculates splines representing the satellite's position and velocity
- over time, allowing these values to be estimated at points intermediate
- the known values.
+ -Calculates splines (or possibly another interpolation type)
+  representing the satellite's position and velocity over time, allowing
+  these values to be estimated at points intermediate the known values.
  -Integrates along the path of the orbit. At each step, it:
  --Estimates the tidal radius and the mass loss
  --Determines how the satellite's density profile will change from this
  mass loss
  --Estimates the amount of energy injected due to tidal shocking, and
- converts this into an estimate of the effect decrease of the
+ converts this into an estimate of the effective decrease of the
  satellite's density.
 
  After this, output functions can be called without needing to
@@ -52,7 +51,9 @@
 
  Creates as a copy. Pointers for host and initial satellite are copied
  if they point to external profiles, cloned if they point to private
- profiles.
+ profiles. (They'll be deleted properly when the class goes out of
+ scope, so don't worry about this unless you manually call one of
+ the clone functions.)
 
  An assignment operator (=) is also defined, which performs largely the
  same function, and also handles cleanup of data being overwritten.
@@ -394,7 +395,6 @@ private:
 	const std::vector< SALTSA::stripping_orbit_segment >::iterator _final_good_segment() const;
 
 	// Private methods
-	const int _init();
 	const int _pass_parameters_to_segment(
 			SALTSA::stripping_orbit_segment & segment,
 			SALTSA::density_profile *temp_satellite=NULL,
@@ -403,12 +403,17 @@ private:
 #endif
 public:
 #if (1)
+
+	// Swap functions
+	void swap(stripping_orbit &other);
+	friend void swap(stripping_orbit &same, stripping_orbit &other) {same.swap(other);}
+
 	// Constructors, destructor, and related functions
 	stripping_orbit(); // Basic constructor
 	stripping_orbit( const density_profile *host, const density_profile *satellite,
 			const int init_resolution = 200 ); // Constructor with initial params
 	stripping_orbit( const stripping_orbit &other_orbit_spline ); // Copy constructor
-	stripping_orbit & operator=( const stripping_orbit &other_orbit_spline ); // Assignment operator
+	stripping_orbit & operator=( stripping_orbit other ); // Assignment operator
 	stripping_orbit *stripping_orbit_clone(); // Clone function
 	virtual ~stripping_orbit(); // Virtual destructor
 
