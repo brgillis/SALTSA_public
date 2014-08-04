@@ -54,9 +54,9 @@ brgastro::stripping_orbit::allowed_interpolation_type brgastro::stripping_orbit:
 // Alternatively, set step_length_power to 1 for even steps in position
 double brgastro::stripping_orbit::_default_v_0_ = 400 * unitconv::kmpstomps; // 400 km/s
 double brgastro::stripping_orbit::_default_r_0_ = 400 * unitconv::kpctom; // 400 kpc
-double brgastro::stripping_orbit::_default_step_length_power_ = 1.5;
+double brgastro::stripping_orbit::_default_step_length_power_ = 3.0;
 double brgastro::stripping_orbit::_default_step_factor_max_ = 10; // Maximum allowed value of (v_0/v)^(step_length_power)
-double brgastro::stripping_orbit::_default_step_factor_min_ = 0.01; // Minimum allowed value of (v_0/v)^(step_length_power)
+double brgastro::stripping_orbit::_default_step_factor_min_ = 0.001; // Minimum allowed value of (v_0/v)^(step_length_power)
 #endif
 
 // Default tuning values
@@ -76,23 +76,46 @@ double brgastro::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affe
 
 /** Class method implementations **/
 #if (1)
-// brgastro::spline_function class method implementations
+// brgastro::interpolator_functor class method implementations
 #if (1)
+
+// Swap functions
+void brgastro::interpolator_functor::swap(interpolator_functor & other)
+{
+	std::swap(_interpolator_ptr_,other._interpolator_ptr_);
+	std::swap(_interpolator_ptr_set_up_,other._interpolator_ptr_set_up_);
+}
+
 // Constructors
-brgastro::interpolator_function::interpolator_function()
+brgastro::interpolator_functor::interpolator_functor()
 {
 	_interpolator_ptr_ = NULL;
 	_interpolator_ptr_set_up_ = false;
 }
-brgastro::interpolator_function::interpolator_function(
-		brgastro::interpolator *init_spline_ptr )
+brgastro::interpolator_functor::interpolator_functor(
+		const interpolator_functor& other)
 {
-	set_interpolator_ptr( init_spline_ptr );
+	_interpolator_ptr_ = other._interpolator_ptr_;
+	_interpolator_ptr_set_up_ = other._interpolator_ptr_set_up_;
+}
+brgastro::interpolator_functor::interpolator_functor(
+		const brgastro::interpolator *init_interpolator_ptr )
+{
+	set_interpolator_ptr( init_interpolator_ptr );
+}
+
+// Operator=
+brgastro::interpolator_functor & brgastro::interpolator_functor::operator=(
+		brgastro::interpolator_functor other)
+{
+    swap(other);
+
+    return *this;
 }
 
 // Set functions
-const int brgastro::interpolator_function::set_interpolator_ptr(
-		brgastro::interpolator *new_spline_ptr )
+const int brgastro::interpolator_functor::set_interpolator_ptr(
+		const brgastro::interpolator *new_spline_ptr )
 {
 	_interpolator_ptr_ = new_spline_ptr;
 	_interpolator_ptr_set_up_ = true;
@@ -100,14 +123,14 @@ const int brgastro::interpolator_function::set_interpolator_ptr(
 }
 
 // Function method
-const int brgastro::interpolator_function::operator()( const BRG_UNITS & in_param,
+const int brgastro::interpolator_functor::operator()( const BRG_UNITS & in_param,
 BRG_UNITS & out_param, const bool silent ) const
 {
 	if ( !_interpolator_ptr_set_up_ )
 	{
 		if ( !silent )
 			std::cerr
-					<< "ERROR: Spline pointer must be defined in spline_function.\n";
+					<< "ERROR: Spline pointer must be defined in spline_functor.\n";
 		return NOT_SET_UP_ERROR;
 	}
 
@@ -116,46 +139,69 @@ BRG_UNITS & out_param, const bool silent ) const
 }
 #endif
 
-// brgastro::spline_derivative_function class method implementations
+// brgastro::interpolator_derivative_functor class method implementations
 #if (1)
 
-// Constructors
-brgastro::interpolator_derivative_function::interpolator_derivative_function()
+// Swap functions
+void brgastro::interpolator_derivative_functor::swap(
+		interpolator_derivative_functor& other)
 {
-	_interpolator_function_set_up_ = false;
+    using std::swap;
+	swap(_interpolator_functor_set_up_,other._interpolator_functor_set_up_);
+	_interpolator_functor_.swap(other._interpolator_functor_);
 }
-brgastro::interpolator_derivative_function::interpolator_derivative_function(
+
+// Constructors
+brgastro::interpolator_derivative_functor::interpolator_derivative_functor()
+{
+	_interpolator_functor_set_up_ = false;
+}
+brgastro::interpolator_derivative_functor::interpolator_derivative_functor(
+		const interpolator_derivative_functor& other)
+{
+	_interpolator_functor_set_up_ = other._interpolator_functor_set_up_;
+	_interpolator_functor_ = other._interpolator_functor_;
+}
+brgastro::interpolator_derivative_functor::interpolator_derivative_functor(
 		brgastro::interpolator *init_spline_ptr )
 {
-	set_spline_ptr( init_spline_ptr );
+	set_interpolator_ptr( init_spline_ptr );
+}
+
+// Operator=
+brgastro::interpolator_derivative_functor& brgastro::interpolator_derivative_functor::operator=(
+		brgastro::interpolator_derivative_functor other)
+{
+	swap(other);
+	return *this;
 }
 
 // Set functions
-const int brgastro::interpolator_derivative_function::set_spline_ptr(
-		brgastro::interpolator *new_spline_ptr )
+const int brgastro::interpolator_derivative_functor::set_interpolator_ptr(
+		const brgastro::interpolator *new_interpolator_ptr )
 {
-	_interpolator_function_.set_interpolator_ptr( new_spline_ptr );
-	_interpolator_function_set_up_ = true;
+	_interpolator_functor_.set_interpolator_ptr( new_interpolator_ptr );
+	_interpolator_functor_set_up_ = true;
 	return 0;
 }
 
 // Function method
-const int brgastro::interpolator_derivative_function::operator()(
+const int brgastro::interpolator_derivative_functor::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
-	if ( !_interpolator_function_set_up_ )
+	if ( !_interpolator_functor_set_up_ )
 	{
 		if ( !silent )
 			std::cerr
-					<< "ERROR: Spline function must be set up in spline_derivative_function.\n";
+					<< "ERROR: Spline function must be set up in spline_derivative_functor.\n";
 		return NOT_SET_UP_ERROR;
 	}
 	BRG_UNITS temp_out_params;
 	BRG_UNITS Jacobian;
 	unsigned int temp_num_out_params;
 
-	if ( differentiate( &_interpolator_function_, 1, in_param, temp_num_out_params,
+	if ( differentiate( &_interpolator_functor_, 1, in_param, temp_num_out_params,
 			temp_out_params, Jacobian ) )
 		return 1;
 
@@ -165,10 +211,24 @@ const int brgastro::interpolator_derivative_function::operator()(
 
 #endif
 
-// brgastro::spline_derivative_weight_function class method implementations
+// brgastro::interpolator_derivative_weight_functor class method implementations
 #if (1)
+// Swap functions
+void brgastro::interpolator_derivative_weight_functor::swap(
+		interpolator_derivative_weight_functor &other)
+{
+	using std::swap;
+	swap(_sample_scale_,other._sample_scale_);
+	swap(_sample_max_width_,other._sample_max_width_);
+	swap(_t_max_,other._t_max_);
+	swap(_t_min_,other._t_min_);
+	swap(_centre_point_,other._centre_point_);
+
+}
+
+
 // Constructors
-brgastro::interpolator_derivative_weight_function::interpolator_derivative_weight_function()
+brgastro::interpolator_derivative_weight_functor::interpolator_derivative_weight_functor()
 {
 	_sample_scale_ = 0;
 	_sample_max_width_ = 0;
@@ -176,37 +236,55 @@ brgastro::interpolator_derivative_weight_function::interpolator_derivative_weigh
 	_t_min_ = DBL_MAX;
 	_centre_point_ = 0;
 }
+brgastro::interpolator_derivative_weight_functor::interpolator_derivative_weight_functor(
+		const interpolator_derivative_weight_functor &other)
+{
+	_sample_scale_ = other._sample_scale_;
+	_sample_max_width_ = other._sample_max_width_;
+	_t_max_ = other._t_max_;
+	_t_min_ = other._t_min_;
+	_centre_point_ = other._centre_point_;
+}
+
+// Operator=
+brgastro::interpolator_derivative_weight_functor &
+	brgastro::interpolator_derivative_weight_functor::operator=(
+			brgastro::interpolator_derivative_weight_functor other)
+{
+	swap(other);
+	return *this;
+}
 
 // Set functions
-const int brgastro::interpolator_derivative_weight_function::set_sample_scale(
+const int brgastro::interpolator_derivative_weight_functor::set_sample_scale(
 		double new_sample_scale )
 {
 	_sample_scale_ = new_sample_scale;
 	return 0;
 }
 
-const int brgastro::interpolator_derivative_weight_function::set_sample_max_width(
+const int brgastro::interpolator_derivative_weight_functor::set_sample_max_width(
 		double new_sample_max_width )
 {
 	_sample_max_width_ = new_sample_max_width;
 	return 0;
 }
 
-const int brgastro::interpolator_derivative_weight_function::set_center_point(
+const int brgastro::interpolator_derivative_weight_functor::set_center_point(
 		double new_center_point )
 {
 	_centre_point_ = new_center_point;
 	return 0;
 }
 
-const int brgastro::interpolator_derivative_weight_function::set_t_min(
+const int brgastro::interpolator_derivative_weight_functor::set_t_min(
 		double new_t_min )
 {
 	_t_min_ = new_t_min;
 	return 0;
 }
 
-const int brgastro::interpolator_derivative_weight_function::set_t_max(
+const int brgastro::interpolator_derivative_weight_functor::set_t_max(
 		double new_t_max )
 {
 	_t_max_ = new_t_max;
@@ -214,7 +292,7 @@ const int brgastro::interpolator_derivative_weight_function::set_t_max(
 }
 
 // Function method
-const int brgastro::interpolator_derivative_weight_function::operator()(
+const int brgastro::interpolator_derivative_weight_functor::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
@@ -238,18 +316,66 @@ const int brgastro::interpolator_derivative_weight_function::operator()(
 }
 #endif
 
-// brgastro::spline_derivative class method implementations
+// brgastro::interpolator_derivative class method implementations
 #if (1)
+
+// Swap functions
+void brgastro::interpolator_derivative::swap(interpolator_derivative &other)
+{
+	using std::swap;
+	swap(_interpolation_type_,other._interpolation_type_);
+	swap(_interpolator_ptr_,other._interpolator_ptr_);
+	swap(_interpolator_ptr_set_up_,other._interpolator_ptr_set_up_);
+
+	_known_interpolator_.swap(other._known_interpolator_);
+	swap(_unknown_t_list_,other._unknown_t_list_);
+
+	swap(_t_max_,other._t_max_);
+	swap(_t_min_,other._t_min_);
+
+	swap(_calculated_,other._calculated_);
+
+	swap(_sample_scale_,other._sample_scale_);
+	swap(_sample_max_width_,other._sample_max_width_);
+	swap(_sample_precision_,other._sample_precision_);
+}
+
 // Constructors
 brgastro::interpolator_derivative::interpolator_derivative()
 {
 	clear();
+}
+brgastro::interpolator_derivative::interpolator_derivative( const interpolator_derivative &other )
+{
+	_interpolation_type_ = other._interpolation_type_;
+	_interpolator_ptr_ = other._interpolator_ptr_;
+	_interpolator_ptr_set_up_ = other._interpolator_ptr_set_up_;
+
+	_known_interpolator_ = other._known_interpolator_;
+	_unknown_t_list_ = other._unknown_t_list_;
+
+	_t_max_ = other._t_max_;
+	_t_min_ = other._t_min_;
+
+	_calculated_ = other._calculated_;
+
+	_sample_scale_ = other._sample_scale_;
+	_sample_max_width_ = other._sample_max_width_;
+	_sample_precision_ = other._sample_precision_;
 }
 brgastro::interpolator_derivative::interpolator_derivative(
 		brgastro::interpolator *init_spline_ptr )
 {
 	clear();
 	set_spline_ptr( init_spline_ptr );
+}
+
+// Operator=
+brgastro::interpolator_derivative & brgastro::interpolator_derivative::operator=(
+		interpolator_derivative other)
+{
+	swap(other);
+	return *this;
 }
 
 // Set functions
@@ -335,6 +461,11 @@ const int brgastro::interpolator_derivative::reset_interpolation_type()
 const int brgastro::interpolator_derivative::clear_known_points()
 {
 	_known_interpolator_.clear();
+	if(_unknown_t_list_.size()==0)
+	{
+		_t_max_ = ( -DBL_MAX );
+		_t_min_ = DBL_MAX;
+	}
 	_calculated_ = false;
 	return 0;
 }
@@ -342,6 +473,11 @@ const int brgastro::interpolator_derivative::clear_known_points()
 const int brgastro::interpolator_derivative::clear_unknown_points()
 {
 	_unknown_t_list_.clear();
+	if(_known_interpolator_.size()==0)
+	{
+		_t_max_ = ( -DBL_MAX );
+		_t_min_ = DBL_MAX;
+	}
 	_calculated_ = false;
 	return 0;
 }
@@ -356,16 +492,16 @@ const int brgastro::interpolator_derivative::clear_points()
 
 const int brgastro::interpolator_derivative::clear()
 {
+	_interpolation_type_ = _known_interpolator_.default_interpolation_type();
 	_interpolator_ptr_ = 0;
 	_interpolator_ptr_set_up_ = false;
-	_known_interpolator_.clear();
-	_unknown_t_list_.clear();
-	_t_max_ = ( -DBL_MAX );
-	_t_min_ = DBL_MAX;
-	_calculated_ = false;
+
+	clear_points();
+
 	_sample_scale_ = _default_sample_scale_;
 	_sample_max_width_ = _default_sample_max_width_;
 	_sample_precision_ = _default_sample_precision_;
+
 	return 0;
 }
 
@@ -430,23 +566,23 @@ const double brgastro::interpolator_derivative::operator()( double xval ) const
 		_estimated_interpolator_ = _known_interpolator_;
 		_estimated_interpolator_.set_interpolation_type(_interpolation_type_);
 		unsigned int num_points_to_calculate = _unknown_t_list_.size();
-		interpolator_derivative_function spline_derivative_function_val(
+		interpolator_derivative_functor spline_derivative_functor_val(
 				_interpolator_ptr_ );
-		interpolator_derivative_weight_function spline_derivative_weight_function_val;
+		interpolator_derivative_weight_functor spline_derivative_weight_functor_val;
 
-		spline_derivative_weight_function_val.set_sample_scale(
+		spline_derivative_weight_functor_val.set_sample_scale(
 				_sample_scale_ );
-		spline_derivative_weight_function_val.set_sample_max_width(
+		spline_derivative_weight_functor_val.set_sample_max_width(
 				_sample_max_width_ );
-		spline_derivative_weight_function_val.set_t_min( _t_min_ );
-		spline_derivative_weight_function_val.set_t_max( _t_max_ );
+		spline_derivative_weight_functor_val.set_t_min( _t_min_ );
+		spline_derivative_weight_functor_val.set_t_max( _t_max_ );
 
 		double delta_t = fabs( _t_max_ - _t_min_ ) * _sample_max_width_;
 
 		for ( unsigned int i = 0; i < num_points_to_calculate; i++ ) // For each point we need to calculate
 		{
 			double t = _unknown_t_list_[i];
-			spline_derivative_weight_function_val.set_center_point( t );
+			spline_derivative_weight_functor_val.set_center_point( t );
 			unsigned int num_in_params = 1, num_out_params = 1;
 			BRG_UNITS min_in_params( t - delta_t );
 			BRG_UNITS max_in_params( t + delta_t );
@@ -455,7 +591,7 @@ const double brgastro::interpolator_derivative::operator()( double xval ) const
 
 			if ( delta_t <= 0 )
 			{
-				if ( differentiate( &spline_derivative_function_val,
+				if ( differentiate( &spline_derivative_functor_val,
 						num_in_params, min_in_params, num_out_params,
 						out_params, Jacobian ) )
 					return 1;
@@ -466,8 +602,8 @@ const double brgastro::interpolator_derivative::operator()( double xval ) const
 			{
 
 				if ( integrate_weighted_Rhomberg(
-						&spline_derivative_function_val,
-						&spline_derivative_weight_function_val, num_in_params,
+						&spline_derivative_functor_val,
+						&spline_derivative_weight_functor_val, num_in_params,
 						min_in_params, max_in_params, num_out_params,
 						out_params, _sample_precision_ ) )
 					return 1;
@@ -488,11 +624,6 @@ const double brgastro::interpolator_derivative::operator()( double xval ) const
 
 // brgastro::stripping_orbit class method implementations
 #if (1)
-
-brgastro::stripping_orbit::stripping_orbit()
-{
-	_init();
-}
 
 const int brgastro::stripping_orbit::_pass_parameters_to_segment(
 		brgastro::stripping_orbit_segment & segment,
@@ -550,11 +681,6 @@ const int brgastro::stripping_orbit::_pass_parameters_to_segment(
 		return 0;
 }
 
-const int brgastro::stripping_orbit::_init()
-{
-	return clear();
-}
-
 const std::vector< brgastro::stripping_orbit_segment >::iterator brgastro::stripping_orbit::_final_good_segment() const
 {
 	if(!_calculated_)
@@ -565,110 +691,231 @@ const std::vector< brgastro::stripping_orbit_segment >::iterator brgastro::strip
 	return _final_good_segment_;
 }
 
-brgastro::stripping_orbit::stripping_orbit(
-		const stripping_orbit &other_stripping_orbit )
+// Swap functions
+void brgastro::stripping_orbit::swap(stripping_orbit &other)
 {
+	using std::swap;
+
 	// Integration parameters
 #if(1)
-	_spline_resolution_ = other_stripping_orbit._spline_resolution_;
-	_interpolation_type_ = other_stripping_orbit._interpolation_type_;
-	_v_0_ = other_stripping_orbit._v_0_;
-	_r_0_ = other_stripping_orbit._r_0_;
-	_step_length_power_ = other_stripping_orbit._step_length_power_;
-	_step_factor_max_ = other_stripping_orbit._step_factor_max_;
-	_step_factor_min_ = other_stripping_orbit._step_factor_min_;
+	swap(_spline_resolution_, other._spline_resolution_);
+	swap(_interpolation_type_, other._interpolation_type_);
+	swap(_v_0_, other._v_0_);
+	swap(_r_0_, other._r_0_);
+	swap(_step_length_power_, other._step_length_power_);
+	swap(_step_factor_max_, other._step_factor_max_);
+	swap(_step_factor_min_, other._step_factor_min_);
 #endif
 
 	// Tuning values
 #if(1)
-	_tidal_stripping_amplification_ = other_stripping_orbit._tidal_stripping_amplification_;
-	_tidal_stripping_deceleration_ = other_stripping_orbit._tidal_stripping_deceleration_;
-	_tidal_shocking_amplification_ = other_stripping_orbit._tidal_shocking_amplification_;
-	_tidal_shocking_persistance_ = other_stripping_orbit._tidal_shocking_persistance_;
-	_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
+	swap(_tidal_stripping_amplification_, other._tidal_stripping_amplification_);
+	swap(_tidal_stripping_deceleration_, other._tidal_stripping_deceleration_);
+	swap(_tidal_shocking_amplification_, other._tidal_shocking_amplification_);
+	swap(_tidal_shocking_persistance_, other._tidal_shocking_persistance_);
+	swap(_tidal_shocking_power_, other._tidal_shocking_power_);
+#endif
+
+	swap(_satellite_parameter_unitconvs_,
+			other._satellite_parameter_unitconvs_);
+	swap(_satellite_output_parameters_,
+			other._satellite_output_parameters_);
+	swap(_host_parameter_unitconvs_,
+			other._host_parameter_unitconvs_);
+	swap(_host_output_parameters_, other._host_output_parameters_);
+	swap(_record_full_data_, other._record_full_data_);
+	swap(_num_segments_, other._num_segments_);
+
+	swap(_t_min_natural_value_, other._t_min_natural_value_);
+	swap(_t_max_natural_value_, other._t_max_natural_value_);
+	swap(_t_min_override_value_, other._t_min_override_value_);
+	swap(_t_max_override_value_, other._t_max_override_value_);
+	swap(_override_t_min_, other._override_t_min_);
+	swap(_override_t_max_, other._override_t_max_);
+
+	swap(_final_fmret_list_, other._final_fmret_list_);
+
+	swap(_x_points_, other._x_points_);
+	swap(_y_points_, other._y_points_);
+	swap(_z_points_, other._z_points_);
+	swap(_test_mass_points_,
+			other._test_mass_points_);
+	_test_mass_error_interpolator_.swap(
+			other._test_mass_error_interpolator_);
+	_test_mass_interpolator_.swap(
+			other._test_mass_interpolator_);
+	swap(_vx_points_, other._vx_points_);
+	swap(_vy_points_, other._vy_points_);
+	swap(_vz_points_, other._vz_points_);
+	swap(_vx_unknown_points_,
+			other._vx_unknown_points_);
+	swap(_vy_unknown_points_,
+			other._vy_unknown_points_);
+	swap(_vz_unknown_points_,
+			other._vz_unknown_points_);
+	swap(_host_parameter_points_,
+			other._host_parameter_points_);
+	_m_ret_interpolator_.swap(
+			other._m_ret_interpolator_);
+
+	swap(_t_points_, other._t_points_);
+	swap(_host_param_t_points_, other._host_param_t_points_);
+
+	swap(_discontinuity_times_, other._discontinuity_times_);
+	swap(_cleaned_discontinuity_times_,
+			other._cleaned_discontinuity_times_);
+
+	swap(_init_host_ptr_, other._init_host_ptr_);
+	swap(_init_satellite_ptr_, other._init_satellite_ptr_);
+
+	swap(_host_is_evolving_, other._host_is_evolving_);
+	swap(_calculated_, other._calculated_);
+	swap(_bad_result_, other._bad_result_);
+	swap(_host_loaded_, other._host_loaded_);
+	swap(_satellite_loaded_, other._satellite_loaded_);
+	swap(_using_private_init_host_,
+			other._using_private_init_host_);
+	swap(_using_private_init_satellite_,
+			other._using_private_init_satellite_);
+	swap(_private_tNFW_init_host_, other._private_tNFW_init_host_);
+	swap(_private_tNFW_init_satellite_,
+			other._private_tNFW_init_satellite_);
+
+	swap(_orbit_segments_, other._orbit_segments_);
+	swap(_final_good_segment_,other._final_good_segment_);
+
+	swap(_likely_disrupted_, other._likely_disrupted_);
+
+	// It's possible the addresses of _private_tNFW_init_host_ and _private_tNFW_init_satellite_
+	// changed, so correct the pointers to them if they're in use
+
+	if ( _using_private_init_host_ )
+	{
+		_init_host_ptr_ = &_private_tNFW_init_host_;
+	}
+	if ( other._using_private_init_host_ )
+	{
+		other._init_host_ptr_ = &(other._private_tNFW_init_host_);
+	}
+	if ( _using_private_init_satellite_ )
+	{
+		_init_satellite_ptr_ = &_private_tNFW_init_satellite_;
+	}
+	if ( other._using_private_init_satellite_ )
+	{
+		other._init_satellite_ptr_ = &(other._private_tNFW_init_satellite_);
+	}
+}
+
+brgastro::stripping_orbit::stripping_orbit()
+{
+	clear();
+}
+
+brgastro::stripping_orbit::stripping_orbit(
+		const stripping_orbit &other )
+{
+	// Integration parameters
+#if(1)
+	_spline_resolution_ = other._spline_resolution_;
+	_interpolation_type_ = other._interpolation_type_;
+	_v_0_ = other._v_0_;
+	_r_0_ = other._r_0_;
+	_step_length_power_ = other._step_length_power_;
+	_step_factor_max_ = other._step_factor_max_;
+	_step_factor_min_ = other._step_factor_min_;
+#endif
+
+	// Tuning values
+#if(1)
+	_tidal_stripping_amplification_ = other._tidal_stripping_amplification_;
+	_tidal_stripping_deceleration_ = other._tidal_stripping_deceleration_;
+	_tidal_shocking_amplification_ = other._tidal_shocking_amplification_;
+	_tidal_shocking_persistance_ = other._tidal_shocking_persistance_;
+	_tidal_shocking_power_ = other._tidal_shocking_power_;
 #endif
 
 	_satellite_parameter_unitconvs_ =
-			other_stripping_orbit._satellite_parameter_unitconvs_;
+			other._satellite_parameter_unitconvs_;
 	_satellite_output_parameters_ =
-			other_stripping_orbit._satellite_output_parameters_;
+			other._satellite_output_parameters_;
 	_host_parameter_unitconvs_ =
-			other_stripping_orbit._host_parameter_unitconvs_;
-	_host_output_parameters_ = other_stripping_orbit._host_output_parameters_;
-	_record_full_data_ = other_stripping_orbit._record_full_data_;
-	_num_segments_ = other_stripping_orbit._num_segments_;
+			other._host_parameter_unitconvs_;
+	_host_output_parameters_ = other._host_output_parameters_;
+	_record_full_data_ = other._record_full_data_;
+	_num_segments_ = other._num_segments_;
 
-	_t_min_natural_value_ = other_stripping_orbit._t_min_natural_value_;
-	_t_max_natural_value_ = other_stripping_orbit._t_max_natural_value_;
-	_t_min_override_value_ = other_stripping_orbit._t_min_override_value_;
-	_t_max_override_value_ = other_stripping_orbit._t_max_override_value_;
-	_override_t_min_ = other_stripping_orbit._override_t_min_;
-	_override_t_max_ = other_stripping_orbit._override_t_max_;
+	_t_min_natural_value_ = other._t_min_natural_value_;
+	_t_max_natural_value_ = other._t_max_natural_value_;
+	_t_min_override_value_ = other._t_min_override_value_;
+	_t_max_override_value_ = other._t_max_override_value_;
+	_override_t_min_ = other._override_t_min_;
+	_override_t_max_ = other._override_t_max_;
 
-	_final_fmret_list_ = other_stripping_orbit._final_fmret_list_;
+	_final_fmret_list_ = other._final_fmret_list_;
 
-	_x_points_ = other_stripping_orbit._x_points_;
-	_y_points_ = other_stripping_orbit._y_points_;
-	_z_points_ = other_stripping_orbit._z_points_;
+	_x_points_ = other._x_points_;
+	_y_points_ = other._y_points_;
+	_z_points_ = other._z_points_;
 	_test_mass_points_ =
-			other_stripping_orbit._test_mass_points_;
+			other._test_mass_points_;
 	_test_mass_error_interpolator_ =
-			other_stripping_orbit._test_mass_error_interpolator_;
+			other._test_mass_error_interpolator_;
 	_test_mass_interpolator_ =
-			other_stripping_orbit._test_mass_interpolator_;
-	_vx_points_ = other_stripping_orbit._vx_points_;
-	_vy_points_ = other_stripping_orbit._vy_points_;
-	_vz_points_ = other_stripping_orbit._vz_points_;
+			other._test_mass_interpolator_;
+	_vx_points_ = other._vx_points_;
+	_vy_points_ = other._vy_points_;
+	_vz_points_ = other._vz_points_;
 	_vx_unknown_points_ =
-			other_stripping_orbit._vx_unknown_points_;
+			other._vx_unknown_points_;
 	_vy_unknown_points_ =
-			other_stripping_orbit._vy_unknown_points_;
+			other._vy_unknown_points_;
 	_vz_unknown_points_ =
-			other_stripping_orbit._vz_unknown_points_;
+			other._vz_unknown_points_;
 	_host_parameter_points_ =
-			other_stripping_orbit._host_parameter_points_;
+			other._host_parameter_points_;
 	_m_ret_interpolator_ =
-			other_stripping_orbit._m_ret_interpolator_;
+			other._m_ret_interpolator_;
 
-	_t_points_ = other_stripping_orbit._t_points_;
-	_host_param_t_points_ = other_stripping_orbit._host_param_t_points_;
+	_t_points_ = other._t_points_;
+	_host_param_t_points_ = other._host_param_t_points_;
 
-	_discontinuity_times_ = other_stripping_orbit._discontinuity_times_;
+	_discontinuity_times_ = other._discontinuity_times_;
 	_cleaned_discontinuity_times_ =
-			other_stripping_orbit._cleaned_discontinuity_times_;
+			other._cleaned_discontinuity_times_;
 
-	_init_host_ptr_ = other_stripping_orbit._init_host_ptr_;
-	_init_satellite_ptr_ = other_stripping_orbit._init_satellite_ptr_;
-	_host_is_evolving_ = other_stripping_orbit._host_is_evolving_;
-	_calculated_ = other_stripping_orbit._calculated_;
-	_bad_result_ = other_stripping_orbit._bad_result_;
-	_host_loaded_ = other_stripping_orbit._host_loaded_;
-	_satellite_loaded_ = other_stripping_orbit._satellite_loaded_;
+	_init_host_ptr_ = other._init_host_ptr_;
+	_init_satellite_ptr_ = other._init_satellite_ptr_;
+	_host_is_evolving_ = other._host_is_evolving_;
+	_calculated_ = other._calculated_;
+	_bad_result_ = other._bad_result_;
+	_host_loaded_ = other._host_loaded_;
+	_satellite_loaded_ = other._satellite_loaded_;
 	_using_private_init_host_ =
-			other_stripping_orbit._using_private_init_host_;
+			other._using_private_init_host_;
 	_using_private_init_satellite_ =
-			other_stripping_orbit._using_private_init_satellite_;
-	_private_tNFW_init_host_ = other_stripping_orbit._private_tNFW_init_host_;
+			other._using_private_init_satellite_;
+	_private_tNFW_init_host_ = other._private_tNFW_init_host_;
 	_private_tNFW_init_satellite_ =
-			other_stripping_orbit._private_tNFW_init_satellite_;
+			other._private_tNFW_init_satellite_;
 
-	_orbit_segments_ = other_stripping_orbit._orbit_segments_;
+	_orbit_segments_ = other._orbit_segments_;
 
-	_likely_disrupted_ = other_stripping_orbit._likely_disrupted_;
+	_likely_disrupted_ = other._likely_disrupted_;
 
-	if( (other_stripping_orbit._final_good_segment_ == other_stripping_orbit._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
+	if( (other._final_good_segment_ == other._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
 	{
 		_final_good_segment_ = _orbit_segments_.end();
 	}
 	else
 	{
 		// We'll have to find the segment
-		std::vector< brgastro::stripping_orbit_segment >::iterator test_iterator_old = other_stripping_orbit._orbit_segments_.begin();
+		std::vector< brgastro::stripping_orbit_segment >::iterator test_iterator_old = other._orbit_segments_.begin();
 		std::vector< brgastro::stripping_orbit_segment >::iterator test_iterator_new = _orbit_segments_.begin();
 		bool found = false;
-		while(test_iterator_old != other_stripping_orbit._orbit_segments_.end())
+		while(test_iterator_old != other._orbit_segments_.end())
 		{
-			if(test_iterator_old == other_stripping_orbit._final_good_segment_)
+			if(test_iterator_old == other._final_good_segment_)
 			{
 				found = true;
 				_final_good_segment_ = test_iterator_new;
@@ -694,138 +941,9 @@ brgastro::stripping_orbit::stripping_orbit(
 }
 
 brgastro::stripping_orbit & brgastro::stripping_orbit::operator=(
-		const stripping_orbit &other_stripping_orbit )
+		stripping_orbit other )
 {
-	if ( this != &other_stripping_orbit )
-	{
-		clear();
-
-		// Integration parameters
-#if(1)
-		_spline_resolution_ = other_stripping_orbit._spline_resolution_;
-		_interpolation_type_ = other_stripping_orbit._interpolation_type_;
-		_v_0_ = other_stripping_orbit._v_0_;
-		_r_0_ = other_stripping_orbit._r_0_;
-		_step_length_power_ = other_stripping_orbit._step_length_power_;
-		_step_factor_max_ = other_stripping_orbit._step_factor_max_;
-		_step_factor_min_ = other_stripping_orbit._step_factor_min_;
-#endif
-
-		// Tuning values
-#if(1)
-		_tidal_stripping_amplification_ = other_stripping_orbit._tidal_stripping_amplification_;
-		_tidal_stripping_deceleration_ = other_stripping_orbit._tidal_stripping_deceleration_;
-		_tidal_shocking_amplification_ = other_stripping_orbit._tidal_shocking_amplification_;
-		_tidal_shocking_persistance_ = other_stripping_orbit._tidal_shocking_persistance_;
-		_tidal_shocking_power_ = other_stripping_orbit._tidal_shocking_power_;
-#endif
-
-		_satellite_parameter_unitconvs_ =
-				other_stripping_orbit._satellite_parameter_unitconvs_;
-		_satellite_output_parameters_ =
-				other_stripping_orbit._satellite_output_parameters_;
-		_host_parameter_unitconvs_ =
-				other_stripping_orbit._host_parameter_unitconvs_;
-		_host_output_parameters_ =
-				other_stripping_orbit._host_output_parameters_;
-		_record_full_data_ = other_stripping_orbit._record_full_data_;
-		_num_segments_ = other_stripping_orbit._num_segments_;
-
-		_t_min_natural_value_ = other_stripping_orbit._t_min_natural_value_;
-		_t_max_natural_value_ = other_stripping_orbit._t_max_natural_value_;
-		_t_min_override_value_ = other_stripping_orbit._t_min_override_value_;
-		_t_max_override_value_ = other_stripping_orbit._t_max_override_value_;
-		_override_t_min_ = other_stripping_orbit._override_t_min_;
-		_override_t_max_ = other_stripping_orbit._override_t_max_;
-
-		_final_fmret_list_ = other_stripping_orbit._final_fmret_list_;
-
-		_x_points_ = other_stripping_orbit._x_points_;
-		_y_points_ = other_stripping_orbit._y_points_;
-		_z_points_ = other_stripping_orbit._z_points_;
-		_test_mass_points_ =
-				other_stripping_orbit._test_mass_points_;
-		_test_mass_interpolator_ =
-				other_stripping_orbit._test_mass_interpolator_;
-		_test_mass_error_interpolator_ =
-				other_stripping_orbit._test_mass_error_interpolator_;
-		_vx_points_ = other_stripping_orbit._vx_points_;
-		_vy_points_ = other_stripping_orbit._vy_points_;
-		_vz_points_ = other_stripping_orbit._vz_points_;
-		_vx_unknown_points_ =
-				other_stripping_orbit._vx_unknown_points_;
-		_vy_unknown_points_ =
-				other_stripping_orbit._vy_unknown_points_;
-		_vz_unknown_points_ =
-				other_stripping_orbit._vz_unknown_points_;
-		_host_parameter_points_ =
-				other_stripping_orbit._host_parameter_points_;
-		_m_ret_interpolator_ =
-				other_stripping_orbit._m_ret_interpolator_;
-
-		_t_points_ = other_stripping_orbit._t_points_;
-		_host_param_t_points_ = other_stripping_orbit._host_param_t_points_;
-
-		_discontinuity_times_ = other_stripping_orbit._discontinuity_times_;
-		_cleaned_discontinuity_times_ =
-				other_stripping_orbit._cleaned_discontinuity_times_;
-
-		_init_host_ptr_ = other_stripping_orbit._init_host_ptr_;
-		_init_satellite_ptr_ = other_stripping_orbit._init_satellite_ptr_;
-		_host_is_evolving_ = other_stripping_orbit._host_is_evolving_;
-		_calculated_ = other_stripping_orbit._calculated_;
-		_bad_result_ = other_stripping_orbit._bad_result_;
-		_host_loaded_ = other_stripping_orbit._host_loaded_;
-		_satellite_loaded_ = other_stripping_orbit._satellite_loaded_;
-		_using_private_init_host_ =
-				other_stripping_orbit._using_private_init_host_;
-		_using_private_init_satellite_ =
-				other_stripping_orbit._using_private_init_satellite_;
-		_private_tNFW_init_host_ =
-				other_stripping_orbit._private_tNFW_init_host_;
-		_private_tNFW_init_satellite_ =
-				other_stripping_orbit._private_tNFW_init_satellite_;
-
-		_orbit_segments_ = other_stripping_orbit._orbit_segments_;
-
-		_likely_disrupted_ = other_stripping_orbit._likely_disrupted_;
-
-		if( (other_stripping_orbit._final_good_segment_ == other_stripping_orbit._orbit_segments_.end()) || ( _orbit_segments_.empty() ) )
-		{
-			_final_good_segment_ = _orbit_segments_.end();
-		}
-		else
-		{
-			// We'll have to find the segment
-			std::vector< brgastro::stripping_orbit_segment >::iterator test_iterator_old = other_stripping_orbit._orbit_segments_.begin();
-			std::vector< brgastro::stripping_orbit_segment >::iterator test_iterator_new = _orbit_segments_.begin();
-			bool found = false;
-			while(test_iterator_old != other_stripping_orbit._orbit_segments_.end())
-			{
-				if(test_iterator_old == other_stripping_orbit._final_good_segment_)
-				{
-					found = true;
-					_final_good_segment_ = test_iterator_new;
-					break;
-				}
-				else
-				{
-					test_iterator_old++;
-					test_iterator_new++;
-				}
-			}
-			if(!found) _final_good_segment_ = _orbit_segments_.end();
-		}
-
-		if ( _using_private_init_host_ )
-		{
-			_init_host_ptr_ = &_private_tNFW_init_host_;
-		}
-		if ( _using_private_init_satellite_ )
-		{
-			_init_satellite_ptr_ = &_private_tNFW_init_satellite_;
-		}
-	}
+	swap(other);
 	return *this;
 }
 
@@ -2819,92 +2937,195 @@ const int brgastro::stripping_orbit_segment::_init()
 	return clear();
 }
 
-brgastro::stripping_orbit_segment::stripping_orbit_segment(
-		const stripping_orbit_segment &other_orbit_spline )
+// Swap functions
+void brgastro::stripping_orbit_segment::swap(stripping_orbit_segment &other)
 {
+	using std::swap;
 
 	// Integration parameters
 #if(1)
-	_spline_resolution_ = other_orbit_spline._spline_resolution_;
-	_interpolation_type_ = other_orbit_spline._interpolation_type_;
-	_v_0_ = other_orbit_spline._v_0_;
-	_r_0_ = other_orbit_spline._r_0_;
-	_step_length_power_ = other_orbit_spline._step_length_power_;
-	_step_factor_max_ = other_orbit_spline._step_factor_max_;
-	_step_factor_min_ = other_orbit_spline._step_factor_min_;
+	swap(_spline_resolution_, other._spline_resolution_);
+	swap(_interpolation_type_, other._interpolation_type_);
+	swap(_v_0_, other._v_0_);
+	swap(_r_0_, other._r_0_);
+	swap(_step_length_power_, other._step_length_power_);
+	swap(_step_factor_max_, other._step_factor_max_);
+	swap(_step_factor_min_, other._step_factor_min_);
 #endif
 
 	// Tuning values
 #if(1)
-	_tidal_stripping_amplification_ = other_orbit_spline._tidal_stripping_amplification_;
-	_tidal_stripping_deceleration_ = other_orbit_spline._tidal_stripping_deceleration_;
-	_tidal_shocking_amplification_ = other_orbit_spline._tidal_shocking_amplification_;
-	_tidal_shocking_persistance_ = other_orbit_spline._tidal_shocking_persistance_;
-	_tidal_shocking_power_ = other_orbit_spline._tidal_shocking_power_;
+	swap(_tidal_stripping_amplification_, other._tidal_stripping_amplification_);
+	swap(_tidal_stripping_deceleration_, other._tidal_stripping_deceleration_);
+	swap(_tidal_shocking_amplification_, other._tidal_shocking_amplification_);
+	swap(_tidal_shocking_persistance_, other._tidal_shocking_persistance_);
+	swap(_tidal_shocking_power_, other._tidal_shocking_power_);
 #endif
 
-	_rt_list_ = other_orbit_spline._rt_list_;
-	_rt_ratio_list_ = other_orbit_spline._rt_ratio_list_;
-	_delta_rho_list_ = other_orbit_spline._delta_rho_list_;
-	_sum_delta_rho_list_ = other_orbit_spline._sum_delta_rho_list_;
-	_x_data_ = other_orbit_spline._x_data_;
-	_y_data_ = other_orbit_spline._y_data_;
-	_z_data_ = other_orbit_spline._z_data_;
-	_vx_data_ = other_orbit_spline._vx_data_;
-	_vy_data_ = other_orbit_spline._vy_data_;
-	_vz_data_ = other_orbit_spline._vz_data_;
-	_t_min_natural_value_ = other_orbit_spline._t_min_natural_value_;
-	_t_max_natural_value_ = other_orbit_spline._t_max_natural_value_;
-	_satellite_parameter_data_ = other_orbit_spline._satellite_parameter_data_;
-	_host_parameter_data_ = other_orbit_spline._host_parameter_data_;
-	_num_parameters_ = other_orbit_spline._num_parameters_;
-	_mret_list_ = other_orbit_spline._mret_list_;
+	swap(_rt_list_, other._rt_list_);
+	swap(_rt_ratio_list_, other._rt_ratio_list_);
+	swap(_delta_rho_list_, other._delta_rho_list_);
+	swap(_sum_delta_rho_list_, other._sum_delta_rho_list_);
+	swap(_x_data_, other._x_data_);
+	swap(_y_data_, other._y_data_);
+	swap(_z_data_, other._z_data_);
+	swap(_vx_data_, other._vx_data_);
+	swap(_vy_data_, other._vy_data_);
+	swap(_vz_data_, other._vz_data_);
+	swap(_t_min_natural_value_, other._t_min_natural_value_);
+	swap(_t_max_natural_value_, other._t_max_natural_value_);
+	swap(_satellite_parameter_data_, other._satellite_parameter_data_);
+	swap(_host_parameter_data_, other._host_parameter_data_);
+	swap(_num_parameters_, other._num_parameters_);
+	swap(_mret_list_, other._mret_list_);
+	swap(_satellite_parameter_unitconvs_,
+			other._satellite_parameter_unitconvs_);
+	swap(_satellite_output_parameters_,
+			other._satellite_output_parameters_);
+	swap(_host_parameter_unitconvs_, other._host_parameter_unitconvs_);
+	swap(_host_output_parameters_, other._host_output_parameters_);
+	swap(_gabdt_list_, other._gabdt_list_);
+	swap(_sum_gabdt_list_, other._sum_gabdt_list_);
+	swap(_phase_list_, other._phase_list_);
+	swap(_phase_output_list_, other._phase_output_list_);
+	swap(_record_full_data_, other._record_full_data_);
+	swap(_x_spline_, other._x_spline_);
+	swap(_y_spline_, other._y_spline_);
+	swap(_z_spline_, other._z_spline_);
+	swap(_vx_spline_, other._vx_spline_);
+	swap(_vy_spline_, other._vy_spline_);
+	swap(_vz_spline_, other._vz_spline_);
+	swap(_test_mass_spline_, other._test_mass_spline_);
+	swap(_host_parameter_splines_, other._host_parameter_splines_);
+	swap(_init_host_ptr_, other._init_host_ptr_);
+	swap(_init_satellite_ptr_, other._init_satellite_ptr_);
+	swap(_init_sum_delta_rho_, other._init_sum_delta_rho_);
+	swap(_init_sum_gabdt_, other._init_sum_gabdt_);
+	swap(_calculated_, other._calculated_);
+	swap(_bad_result_, other._bad_result_);
+	swap(_current_satellite_in_use_, other._current_satellite_in_use_);
+	swap(_current_satellite_ptr_, other._current_satellite_ptr_);
+	swap(_current_host_in_use_, other._current_host_in_use_);
+	swap(_current_host_ptr_, other._current_host_ptr_);
+	swap(_host_loaded_, other._host_loaded_);
+	swap(_satellite_loaded_, other._satellite_loaded_);
+	swap(_using_private_init_host_, other._using_private_init_host_);
+	swap(_using_private_init_satellite_,
+			other._using_private_init_satellite_);
+	swap(_private_tNFW_init_host_, other._private_tNFW_init_host_);
+	swap(_private_tNFW_init_satellite_,
+			other._private_tNFW_init_satellite_);
+	swap(_evolving_host_, other._evolving_host_);
+	swap(_override_t_max_, other._override_t_max_);
+	swap(_override_t_min_, other._override_t_min_);
+	swap(_t_max_override_val_, other._t_max_override_val_);
+	swap(_t_min_override_val_, other._t_min_override_val_);
+	swap(_likely_disrupted_, other._likely_disrupted_);
+
+	if ( _using_private_init_host_ )
+	{
+		_init_host_ptr_ = &_private_tNFW_init_host_;
+	}
+	if ( other._using_private_init_host_ )
+	{
+		other._init_host_ptr_ = &other._private_tNFW_init_host_;
+	}
+	if ( _using_private_init_satellite_ )
+	{
+		_init_satellite_ptr_ = &_private_tNFW_init_satellite_;
+	}
+	if ( other._using_private_init_satellite_ )
+	{
+		other._init_satellite_ptr_ = &other._private_tNFW_init_satellite_;
+	}
+}
+
+brgastro::stripping_orbit_segment::stripping_orbit_segment(
+		const stripping_orbit_segment &other )
+{
+
+	// Integration parameters
+#if(1)
+	_spline_resolution_ = other._spline_resolution_;
+	_interpolation_type_ = other._interpolation_type_;
+	_v_0_ = other._v_0_;
+	_r_0_ = other._r_0_;
+	_step_length_power_ = other._step_length_power_;
+	_step_factor_max_ = other._step_factor_max_;
+	_step_factor_min_ = other._step_factor_min_;
+#endif
+
+	// Tuning values
+#if(1)
+	_tidal_stripping_amplification_ = other._tidal_stripping_amplification_;
+	_tidal_stripping_deceleration_ = other._tidal_stripping_deceleration_;
+	_tidal_shocking_amplification_ = other._tidal_shocking_amplification_;
+	_tidal_shocking_persistance_ = other._tidal_shocking_persistance_;
+	_tidal_shocking_power_ = other._tidal_shocking_power_;
+#endif
+
+	_rt_list_ = other._rt_list_;
+	_rt_ratio_list_ = other._rt_ratio_list_;
+	_delta_rho_list_ = other._delta_rho_list_;
+	_sum_delta_rho_list_ = other._sum_delta_rho_list_;
+	_x_data_ = other._x_data_;
+	_y_data_ = other._y_data_;
+	_z_data_ = other._z_data_;
+	_vx_data_ = other._vx_data_;
+	_vy_data_ = other._vy_data_;
+	_vz_data_ = other._vz_data_;
+	_t_min_natural_value_ = other._t_min_natural_value_;
+	_t_max_natural_value_ = other._t_max_natural_value_;
+	_satellite_parameter_data_ = other._satellite_parameter_data_;
+	_host_parameter_data_ = other._host_parameter_data_;
+	_num_parameters_ = other._num_parameters_;
+	_mret_list_ = other._mret_list_;
 	_satellite_parameter_unitconvs_ =
-			other_orbit_spline._satellite_parameter_unitconvs_;
+			other._satellite_parameter_unitconvs_;
 	_satellite_output_parameters_ =
-			other_orbit_spline._satellite_output_parameters_;
-	_host_parameter_unitconvs_ = other_orbit_spline._host_parameter_unitconvs_;
-	_host_output_parameters_ = other_orbit_spline._host_output_parameters_;
-	_gabdt_list_ = other_orbit_spline._gabdt_list_;
-	_sum_gabdt_list_ = other_orbit_spline._sum_gabdt_list_;
-	_phase_list_ = other_orbit_spline._phase_list_;
-	_phase_output_list_ = other_orbit_spline._phase_output_list_;
-	_record_full_data_ = other_orbit_spline._record_full_data_;
-	_x_spline_ = other_orbit_spline._x_spline_;
-	_y_spline_ = other_orbit_spline._y_spline_;
-	_z_spline_ = other_orbit_spline._z_spline_;
-	_vx_spline_ = other_orbit_spline._vx_spline_;
-	_vy_spline_ = other_orbit_spline._vy_spline_;
-	_vz_spline_ = other_orbit_spline._vz_spline_;
-	_test_mass_spline_ = other_orbit_spline._test_mass_spline_;
-	_host_parameter_splines_ = other_orbit_spline._host_parameter_splines_;
-	_init_host_ptr_ = other_orbit_spline._init_host_ptr_;
-	_init_satellite_ptr_ = other_orbit_spline._init_satellite_ptr_;
-	_init_sum_delta_rho_ = other_orbit_spline._init_sum_delta_rho_;
-	_init_sum_gabdt_ = other_orbit_spline._init_sum_gabdt_;
-	_calculated_ = other_orbit_spline._calculated_;
-	_bad_result_ = other_orbit_spline._bad_result_;
-	_current_satellite_in_use_ = other_orbit_spline._current_satellite_in_use_;
-	_current_host_in_use_ = other_orbit_spline._current_host_in_use_;
-	_host_loaded_ = other_orbit_spline._host_loaded_;
-	_satellite_loaded_ = other_orbit_spline._satellite_loaded_;
-	_using_private_init_host_ = other_orbit_spline._using_private_init_host_;
+			other._satellite_output_parameters_;
+	_host_parameter_unitconvs_ = other._host_parameter_unitconvs_;
+	_host_output_parameters_ = other._host_output_parameters_;
+	_gabdt_list_ = other._gabdt_list_;
+	_sum_gabdt_list_ = other._sum_gabdt_list_;
+	_phase_list_ = other._phase_list_;
+	_phase_output_list_ = other._phase_output_list_;
+	_record_full_data_ = other._record_full_data_;
+	_x_spline_ = other._x_spline_;
+	_y_spline_ = other._y_spline_;
+	_z_spline_ = other._z_spline_;
+	_vx_spline_ = other._vx_spline_;
+	_vy_spline_ = other._vy_spline_;
+	_vz_spline_ = other._vz_spline_;
+	_test_mass_spline_ = other._test_mass_spline_;
+	_host_parameter_splines_ = other._host_parameter_splines_;
+	_init_host_ptr_ = other._init_host_ptr_;
+	_init_satellite_ptr_ = other._init_satellite_ptr_;
+	_init_sum_delta_rho_ = other._init_sum_delta_rho_;
+	_init_sum_gabdt_ = other._init_sum_gabdt_;
+	_calculated_ = other._calculated_;
+	_bad_result_ = other._bad_result_;
+	_current_satellite_in_use_ = other._current_satellite_in_use_;
+	_current_host_in_use_ = other._current_host_in_use_;
+	_host_loaded_ = other._host_loaded_;
+	_satellite_loaded_ = other._satellite_loaded_;
+	_using_private_init_host_ = other._using_private_init_host_;
 	_using_private_init_satellite_ =
-			other_orbit_spline._using_private_init_satellite_;
-	_private_tNFW_init_host_ = other_orbit_spline._private_tNFW_init_host_;
+			other._using_private_init_satellite_;
+	_private_tNFW_init_host_ = other._private_tNFW_init_host_;
 	_private_tNFW_init_satellite_ =
-			other_orbit_spline._private_tNFW_init_satellite_;
-	_evolving_host_ = other_orbit_spline._evolving_host_;
-	_override_t_max_ = other_orbit_spline._override_t_max_;
-	_override_t_min_ = other_orbit_spline._override_t_min_;
-	_t_max_override_val_ = other_orbit_spline._t_max_override_val_;
-	_t_min_override_val_ = other_orbit_spline._t_min_override_val_;
-	_likely_disrupted_ = other_orbit_spline._likely_disrupted_;
+			other._private_tNFW_init_satellite_;
+	_evolving_host_ = other._evolving_host_;
+	_override_t_max_ = other._override_t_max_;
+	_override_t_min_ = other._override_t_min_;
+	_t_max_override_val_ = other._t_max_override_val_;
+	_t_min_override_val_ = other._t_min_override_val_;
+	_likely_disrupted_ = other._likely_disrupted_;
 
 	if ( _current_satellite_in_use_ )
 	{
 		_current_satellite_ptr_ =
-				other_orbit_spline._current_satellite_ptr_->density_profile_clone();
+				other._current_satellite_ptr_->density_profile_clone();
 	}
 	else
 	{
@@ -2913,7 +3134,7 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 	if ( _current_host_in_use_ )
 	{
 		_current_host_ptr_ =
-				other_orbit_spline._current_host_ptr_->density_profile_clone();
+				other._current_host_ptr_->density_profile_clone();
 	}
 	else
 	{
@@ -2930,121 +3151,9 @@ brgastro::stripping_orbit_segment::stripping_orbit_segment(
 }
 
 brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=(
-		const stripping_orbit_segment &other_orbit_spline )
+		stripping_orbit_segment other )
 {
-	if ( this != &other_orbit_spline )
-	{
-		clear();
-
-		// Integration parameters
-#if(1)
-		_spline_resolution_ = other_orbit_spline._spline_resolution_;
-		_interpolation_type_ = other_orbit_spline._interpolation_type_;
-		_v_0_ = other_orbit_spline._v_0_;
-		_r_0_ = other_orbit_spline._r_0_;
-		_step_length_power_ = other_orbit_spline._step_length_power_;
-		_step_factor_max_ = other_orbit_spline._step_factor_max_;
-		_step_factor_min_ = other_orbit_spline._step_factor_min_;
-#endif
-
-	// Tuning parameters
-#if(1)
-		_tidal_stripping_amplification_ = other_orbit_spline._tidal_stripping_amplification_;
-		_tidal_stripping_deceleration_ = other_orbit_spline._tidal_stripping_deceleration_;
-		_tidal_shocking_amplification_ = other_orbit_spline._tidal_shocking_amplification_;
-		_tidal_shocking_persistance_ = other_orbit_spline._tidal_shocking_persistance_;
-		_tidal_shocking_power_ = other_orbit_spline._tidal_shocking_power_;
-#endif
-
-		_rt_list_ = other_orbit_spline._rt_list_;
-		_rt_ratio_list_ = other_orbit_spline._rt_ratio_list_;
-		_delta_rho_list_ = other_orbit_spline._delta_rho_list_;
-		_sum_delta_rho_list_ = other_orbit_spline._sum_delta_rho_list_;
-		_x_data_ = other_orbit_spline._x_data_;
-		_y_data_ = other_orbit_spline._y_data_;
-		_z_data_ = other_orbit_spline._z_data_;
-		_vx_data_ = other_orbit_spline._vx_data_;
-		_vy_data_ = other_orbit_spline._vy_data_;
-		_vz_data_ = other_orbit_spline._vz_data_;
-		_t_min_natural_value_ = other_orbit_spline._t_min_natural_value_;
-		_t_max_natural_value_ = other_orbit_spline._t_max_natural_value_;
-		_satellite_parameter_data_ =
-				other_orbit_spline._satellite_parameter_data_;
-		_host_parameter_data_ = other_orbit_spline._host_parameter_data_;
-		_num_parameters_ = other_orbit_spline._num_parameters_;
-		_mret_list_ = other_orbit_spline._mret_list_;
-		_satellite_parameter_unitconvs_ =
-				other_orbit_spline._satellite_parameter_unitconvs_;
-		_satellite_output_parameters_ =
-				other_orbit_spline._satellite_output_parameters_;
-		_host_parameter_unitconvs_ =
-				other_orbit_spline._host_parameter_unitconvs_;
-		_host_output_parameters_ = other_orbit_spline._host_output_parameters_;
-		_gabdt_list_ = other_orbit_spline._gabdt_list_;
-		_sum_gabdt_list_ = other_orbit_spline._sum_gabdt_list_;
-		_phase_list_ = other_orbit_spline._phase_list_;
-		_phase_output_list_ = other_orbit_spline._phase_output_list_;
-		_record_full_data_ = other_orbit_spline._record_full_data_;
-		_x_spline_ = other_orbit_spline._x_spline_;
-		_y_spline_ = other_orbit_spline._y_spline_;
-		_z_spline_ = other_orbit_spline._z_spline_;
-		_vx_spline_ = other_orbit_spline._vx_spline_;
-		_vy_spline_ = other_orbit_spline._vy_spline_;
-		_vz_spline_ = other_orbit_spline._vz_spline_;
-		_test_mass_spline_ = other_orbit_spline._test_mass_spline_;
-		_host_parameter_splines_ = other_orbit_spline._host_parameter_splines_;
-		_init_host_ptr_ = other_orbit_spline._init_host_ptr_;
-		_init_satellite_ptr_ = other_orbit_spline._init_satellite_ptr_;
-		_init_sum_delta_rho_ = other_orbit_spline._init_sum_delta_rho_;
-		_init_sum_gabdt_ = other_orbit_spline._init_sum_gabdt_;
-		_calculated_ = other_orbit_spline._calculated_;
-		_bad_result_ = other_orbit_spline._bad_result_;
-		_current_satellite_in_use_ =
-				other_orbit_spline._current_satellite_in_use_;
-		_current_host_in_use_ = other_orbit_spline._current_host_in_use_;
-		_host_loaded_ = other_orbit_spline._host_loaded_;
-		_satellite_loaded_ = other_orbit_spline._satellite_loaded_;
-		_using_private_init_host_ =
-				other_orbit_spline._using_private_init_host_;
-		_using_private_init_satellite_ =
-				other_orbit_spline._using_private_init_satellite_;
-		_private_tNFW_init_host_ = other_orbit_spline._private_tNFW_init_host_;
-		_private_tNFW_init_satellite_ =
-				other_orbit_spline._private_tNFW_init_satellite_;
-		_evolving_host_ = other_orbit_spline._evolving_host_;
-		_override_t_max_ = other_orbit_spline._override_t_max_;
-		_override_t_min_ = other_orbit_spline._override_t_min_;
-		_t_max_override_val_ = other_orbit_spline._t_max_override_val_;
-		_t_min_override_val_ = other_orbit_spline._t_min_override_val_;
-		_likely_disrupted_ = other_orbit_spline._likely_disrupted_;
-
-		if ( _current_satellite_in_use_ )
-		{
-			_current_satellite_ptr_ =
-					other_orbit_spline._current_satellite_ptr_->density_profile_clone();
-		}
-		else
-		{
-			_current_satellite_ptr_ = NULL;
-		}
-		if ( _current_host_in_use_ )
-		{
-			_current_host_ptr_ =
-					other_orbit_spline._current_host_ptr_->density_profile_clone();
-		}
-		else
-		{
-			_current_host_ptr_ = NULL;
-		}
-		if ( _using_private_init_host_ )
-		{
-			_init_host_ptr_ = &_private_tNFW_init_host_;
-		}
-		if ( _using_private_init_satellite_ )
-		{
-			_init_satellite_ptr_ = &_private_tNFW_init_satellite_;
-		}
-	}
+	swap(other);
 	return *this;
 }
 
@@ -5206,10 +5315,10 @@ const brgastro::density_profile * brgastro::stripping_orbit_segment::final_host(
 
 #endif // end brgastro::stripping_orbit_segment class function definitions
 
-// brgastro::solve_rt_sd_function class method implementations
+// brgastro::solve_rt_sd_functor class method implementations
 #if (1)
 
-const int brgastro::solve_rt_grid_function::operator()(
+const int brgastro::solve_rt_grid_functor::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
@@ -5234,7 +5343,7 @@ const int brgastro::solve_rt_grid_function::operator()(
 	return 0;
 }
 
-brgastro::solve_rt_grid_function::solve_rt_grid_function()
+brgastro::solve_rt_grid_functor::solve_rt_grid_functor()
 {
 	omega = 0;
 	Daccel = 0;
@@ -5242,7 +5351,7 @@ brgastro::solve_rt_grid_function::solve_rt_grid_function()
 	satellite_ptr = NULL;
 	return;
 }
-brgastro::solve_rt_grid_function::solve_rt_grid_function(
+brgastro::solve_rt_grid_functor::solve_rt_grid_functor(
 		const BRG_UNITS init_omega, const density_profile *init_satellite,
 		const BRG_UNITS init_Daccel, const long double init_sum_delta_rho )
 {
@@ -5253,7 +5362,7 @@ brgastro::solve_rt_grid_function::solve_rt_grid_function(
 	return;
 }
 
-const int brgastro::solve_rt_it_function::operator()(
+const int brgastro::solve_rt_it_functor::operator()(
 		const BRG_UNITS & in_param,
 		BRG_UNITS & out_param, const bool silent ) const
 {
@@ -5278,7 +5387,7 @@ const int brgastro::solve_rt_it_function::operator()(
 	return 0;
 }
 
-brgastro::solve_rt_it_function::solve_rt_it_function()
+brgastro::solve_rt_it_functor::solve_rt_it_functor()
 {
 	omega = 0;
 	satellite_ptr = NULL;
@@ -5286,7 +5395,7 @@ brgastro::solve_rt_it_function::solve_rt_it_function()
 	sum_delta_rho = 0;
 	return;
 }
-brgastro::solve_rt_it_function::solve_rt_it_function(
+brgastro::solve_rt_it_functor::solve_rt_it_functor(
 		const BRG_UNITS init_omega, const density_profile *init_satellite,
 		const BRG_UNITS init_Daccel, const long double init_sum_delta_rho )
 {
@@ -5297,28 +5406,44 @@ brgastro::solve_rt_it_function::solve_rt_it_function(
 	return;
 }
 
-#endif // end brgastro::solve_rt_sd_function class function definitions
+#endif // end brgastro::solve_rt_sd_functor class function definitions
 
 // brgastro::gabdt class method implementations
 #if (1)
+
+// Swap functions
+void brgastro::gabdt::swap(gabdt &other)
+{
+	using std::swap;
+	swap(_is_cached_, other._is_cached_);
+	swap(_host_ptr_, other._host_ptr_);
+
+	swap(_x_, other._x_);
+	swap(_y_, other._y_);
+	swap(_z_, other._z_);
+	swap(_r_, other._r_);
+	swap(_dt_, other._dt_);
+
+	swap(_dv_, other._dv_);
+}
 
 brgastro::gabdt::gabdt( void )
 {
 	clear();
 }
 
-brgastro::gabdt::gabdt( const gabdt & other_gabdt )
+brgastro::gabdt::gabdt( const gabdt & other )
 {
-	_is_cached_ = other_gabdt._is_cached_;
-	_host_ptr_ = other_gabdt._host_ptr_;
+	_is_cached_ = other._is_cached_;
+	_host_ptr_ = other._host_ptr_;
 
-	_x_ = other_gabdt._x_;
-	_y_ = other_gabdt._y_;
-	_z_ = other_gabdt._z_;
-	_r_ = other_gabdt._r_;
-	_dt_ = other_gabdt._dt_;
+	_x_ = other._x_;
+	_y_ = other._y_;
+	_z_ = other._z_;
+	_r_ = other._r_;
+	_dt_ = other._dt_;
 
-	_dv_ = other_gabdt._dv_;
+	_dv_ = other._dv_;
 }
 
 brgastro::gabdt::gabdt( const density_profile *new_host,
@@ -5387,7 +5512,7 @@ const int brgastro::gabdt::set_dt( const BRG_TIME &new_dt )
 }
 const int brgastro::gabdt::calc_dv( const bool silent ) const
 {
-	gabdt_function gabdtf;
+	gabdt_functor gabdtf;
 	gabdtf.host_ptr = _host_ptr_;
 	unsigned int num_in_params = 3, num_out_params = 3;
 	std::vector< BRG_UNITS > in_params( num_in_params, 0 ), out_params(
@@ -5487,23 +5612,9 @@ const long double brgastro::gabdt::dv( const int x_i, const int y_i ) const
 	return dv().at(x_i).at(y_i);
 }
 
-brgastro::gabdt & brgastro::gabdt::operator=( const gabdt &other_gabdt )
+brgastro::gabdt & brgastro::gabdt::operator=( gabdt other )
 {
-	if ( &other_gabdt != this )
-	{
-
-		_is_cached_ = other_gabdt._is_cached_;
-		_host_ptr_ = other_gabdt._host_ptr_;
-
-		_x_ = other_gabdt._x_;
-		_y_ = other_gabdt._y_;
-		_z_ = other_gabdt._z_;
-		_r_ = other_gabdt._r_;
-		_dt_ = other_gabdt._dt_;
-
-		_dv_ = other_gabdt._dv_;
-
-	}
+	swap(other);
 	return *this;
 }
 
@@ -5598,15 +5709,35 @@ brgastro::gabdt brgastro::gabdt::operator*( const double scale_fraction ) const
 
 #endif // end brgastro::gabdt class function definitions
 
-// brgastro::gabdt_function class method implementations
+// brgastro::gabdt_functor class method implementations
 #if (1)
 
-brgastro::gabdt_function::gabdt_function()
+// Swap functions
+void brgastro::gabdt_functor::swap(gabdt_functor &other)
+{
+	using std::swap;
+	swap(host_ptr,other.host_ptr);
+}
+
+// Constructors
+brgastro::gabdt_functor::gabdt_functor()
 {
 	host_ptr = NULL;
 }
+brgastro::gabdt_functor::gabdt_functor(const gabdt_functor &other)
+{
+	host_ptr = other.host_ptr;
+}
 
-const int brgastro::gabdt_function::operator()(
+// Operator=
+brgastro::gabdt_functor & brgastro::gabdt_functor::operator=(gabdt_functor other)
+{
+	swap(other);
+	return *this;
+}
+
+// Operator()
+const int brgastro::gabdt_functor::operator()(
 		const std::vector< BRG_UNITS > & in_params,
 		std::vector< BRG_UNITS > & out_params, const bool silent ) const
 {
@@ -5614,7 +5745,7 @@ const int brgastro::gabdt_function::operator()(
 	{
 		if ( !silent )
 			std::cerr
-					<< "ERROR: in_params.size() and num_in_params must == 3 in gabdt_function.\n";
+					<< "ERROR: in_params.size() and num_in_params must == 3 in gabdt_functor.\n";
 		return INVALID_ARGUMENTS_ERROR;
 	}
 	double R = dist3d( in_params[0], in_params[1], in_params[2] );
@@ -5643,7 +5774,7 @@ const int brgastro::gabdt_function::operator()(
 	return 0;
 }
 
-#endif // end brgastro::gabdt_function class function definitions
+#endif // end brgastro::gabdt_functor class function definitions
 
 #endif // end class function definitions
 
@@ -5702,9 +5833,9 @@ const BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_pro
 		return 0;
 	}
 
-	solve_rt_grid_function rt_grid_solver( omega, satellite,
+	solve_rt_grid_functor rt_grid_solver( omega, satellite,
 			host_group->Daccel( r ), sum_delta_rho );
-	solve_rt_it_function rt_it_solver( omega, satellite,
+	solve_rt_it_functor rt_it_solver( omega, satellite,
 			host_group->Daccel( r ), sum_delta_rho );
 
 	if ( satellite->mtot() <= 0 )

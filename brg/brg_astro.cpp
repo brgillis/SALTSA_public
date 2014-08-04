@@ -383,32 +383,6 @@ brgastro::group::group( int init_num_members )
 	}
 }
 
-// Copy constructor
-brgastro::group::group( const group &other_group ) :
-		sky_obj( other_group )
-{
-
-	z_phot = other_group.z_phot;
-	z_phot_err = other_group.z_phot_err;
-
-	odds = other_group.odds;
-
-	BCG_index = other_group.BCG_index;
-
-	num_members = other_group.num_members;
-	if ( num_members > 0 )
-	{
-		member_indices.reserve( num_members );
-		members.reserve( num_members );
-	}
-	for ( int i = 0; i < num_members; i++ )
-	{
-		member_indices[i] = other_group.member_indices[i];
-		members[i] = other_group.members[i];
-	}
-
-}
-
 // Destructor
 brgastro::group::~group()
 {

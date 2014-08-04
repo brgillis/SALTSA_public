@@ -28,6 +28,44 @@ brgastro::interpolator::allowed_interpolation_type brgastro::interpolator::_defa
 
 // Implement interpolator methods
 
+// Swap functions
+void brgastro::interpolator::swap(interpolator &other)
+{
+	using std::swap;
+	swap(_data_, other._data_);
+	swap(_sorted_data_, other._sorted_data_);
+	swap(_spline_, other._spline_);
+
+	swap(_interpolation_type_, other._interpolation_type_);
+	swap(_spline_cached_, other._spline_cached_);
+	swap(_sorted_data_cached_, other._sorted_data_cached_);
+}
+
+// Constructors
+brgastro::interpolator::interpolator()
+{
+	_interpolation_type_ = _default_interpolation_type_;
+	_spline_cached_ = false;
+	_sorted_data_cached_ = false;
+}
+brgastro::interpolator::interpolator(const interpolator &other)
+{
+	_data_ = other._data_;
+	_sorted_data_ = other._sorted_data_;
+	_spline_ = other._spline_;
+
+	_interpolation_type_ = other._interpolation_type_;
+	_spline_cached_ = other._spline_cached_;
+	_sorted_data_cached_ = other._sorted_data_cached_;
+}
+
+// Operator=
+brgastro::interpolator & brgastro::interpolator::operator=(interpolator other)
+{
+	swap(other);
+	return *this;
+}
+
 // Set functions for the current and default interpolation types
 void brgastro::interpolator::set_default_interpolation_type(
 		const allowed_interpolation_type new_default_type)
@@ -59,13 +97,6 @@ void brgastro::interpolator::_set_spline_points() const
 
 	_spline_.set_points(x_points,y_points);
 	_spline_cached_ = true;
-}
-
-brgastro::interpolator::interpolator()
-{
-	_interpolation_type_ = _default_interpolation_type_;
-	_spline_cached_ = false;
-	_sorted_data_cached_ = false;
 }
 
 void brgastro::interpolator::clear()

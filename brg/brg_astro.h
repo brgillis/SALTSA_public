@@ -59,6 +59,10 @@ brg_astro.h
 const double pi = 3.14159265358979323846;
 #endif
 
+
+namespace brgastro
+{
+
 #ifndef __PHYS_VARS_DEFINED__
 #define __PHYS_VARS_DEFINED__
 
@@ -108,9 +112,6 @@ const double default_tau_factor = 2;
 #endif
 
 #endif // End Constant Definitions
-
-namespace brgastro
-{
 
 /** Class Forward Declarations **/
 #if (1)
@@ -605,7 +606,7 @@ class redshift_obj
 	 redshift_obj class
 	 ------------------
 
-	 A base class for anything with a redshift
+	 A base class for anything with a redshift.
 
 	 Derived classes:
 
@@ -623,6 +624,7 @@ private:
 	mutable bool _z_grid_cached_;
 	mutable int _local_z_grid_change_num_;
 public:
+
 	// Constructor
 	redshift_obj( const double init_z = 0, const double init_z_err = 0 )
 	{
@@ -702,7 +704,7 @@ private:
 	mutable bool _ra_grid_cached_, _dec_grid_cached_;
 	mutable int _local_ra_grid_change_num_, _local_dec_grid_change_num_;
 
-	BRG_ANGLE _ra_, _ra_err_;BRG_ANGLE _dec_, _dec_err_;
+	BRG_ANGLE _ra_, _ra_err_, _dec_, _dec_err_;
 #endif
 public:
 #if (1)
@@ -713,7 +715,7 @@ public:
 	BRG_ANGLE init_ra_err = 0, BRG_ANGLE init_dec_err = 0, double init_z_err =
 			0 ); // Normal constructor
 
-	//sky_obj(sky_obj other_sky_obj); // Copy constructor (Default is fine for us)
+	//sky_obj(const sky_obj & other_sky_obj); // Copy constructor (Default is fine for us)
 
 	virtual ~sky_obj()
 	{
@@ -828,13 +830,12 @@ public:
 	galaxy();
 
 	// Copy constructor
-	//galaxy(const galaxy other_galaxy); // Implicit is fine for us, though watch in case we need to make it virtual
+	//galaxy(const galaxy other_galaxy); // Implicit is fine for us
 
 	// Virtual destructor
 	virtual ~galaxy()
 	{
 	}
-	;
 
 	// Clear function
 	virtual const int clear();
@@ -893,7 +894,7 @@ public:
 			double init_tau = -1 );
 
 	// Copy constructor
-	group( const group &unitless_group );
+	//group( const group &other ); // Implicit is fine
 
 	// Destructor
 	virtual ~group();

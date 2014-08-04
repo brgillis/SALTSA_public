@@ -262,26 +262,27 @@ class stripping_orbit_segment;
 class interpolator_derivative;
 class gabdt;
 
-class interpolator_function;
-class interpolator_derivative_function;
-class interpolator_derivative_weight_function;
-class solve_rt_it_function;
-class solve_rt_grid_function;
-class gabdt_function;
+class interpolator_functor;
+class interpolator_derivative_functor;
+class interpolator_derivative_weight_functor;
+class solve_rt_it_functor;
+class solve_rt_grid_functor;
+class gabdt_functor;
 
 #endif // end Class forward declarations
 
 /** Class Definitions **/
 #if (1)
-class interpolator_function: public functor< BRG_UNITS >
+
+class interpolator_functor: public functor< BRG_UNITS >
 {
 	/************************************************************
-	 spline_function
+	 interpolator_functor
 	 ---------------
 
-	 Child of function_class
+	 Child of functor
 
-	 This class is used to provide a function_class * for getting
+	 This class is used to provide a functor * for getting
 	 points along a spline (which is used here to differentiate the
 	 spline).
 
@@ -293,39 +294,47 @@ class interpolator_function: public functor< BRG_UNITS >
 
 private:
 
-	brgastro::interpolator *_interpolator_ptr_;
+	const brgastro::interpolator *_interpolator_ptr_;
 	bool _interpolator_ptr_set_up_;
 
 public:
 
+	// Swap functions
+	void swap(interpolator_functor & other);
+	friend void swap(interpolator_functor & same, interpolator_functor & other) {same.swap(other);}
+
 	// Constructors
-	interpolator_function();
-	interpolator_function( brgastro::interpolator *init_interpolator_ptr );
+	interpolator_functor();
+	interpolator_functor(const interpolator_functor& other);
+	interpolator_functor(const brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructor
-	virtual ~interpolator_function()
+	virtual ~interpolator_functor()
 	{
 	}
 
+	// Operator=
+	interpolator_functor& operator=(interpolator_functor other);
+
 	// Set functions
-	const int set_interpolator_ptr( brgastro::interpolator *new_interpolator_ptr );
+	const int set_interpolator_ptr( const brgastro::interpolator *new_interpolator_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
 			BRG_UNITS & out_param, const bool silent = false ) const;
 
 };
-// class interpolator_function
+// class interpolator_functor
 
-class interpolator_derivative_function: public functor< BRG_UNITS >
+class interpolator_derivative_functor: public functor< BRG_UNITS >
 {
 	/************************************************************
-	 interpolator_derivative_function
+	 interpolator_derivative_functor
 	 --------------------------
 
-	 Child of function_class
+	 Child of functor
 
-	 This class is used to provide a function_class * for getting
+	 This class is used to provide a functor * for getting
 	 the derivative of an interpolator at a given point.
 
 	 Use of this class is handled by the interpolator_derivative class.
@@ -336,39 +345,48 @@ class interpolator_derivative_function: public functor< BRG_UNITS >
 
 private:
 
-	interpolator_function _interpolator_function_;
-	bool _interpolator_function_set_up_;
+	interpolator_functor _interpolator_functor_;
+	bool _interpolator_functor_set_up_;
 
 public:
 
+	// Swap functions
+	void swap(interpolator_derivative_functor& other);
+	friend void swap(interpolator_derivative_functor& same, interpolator_derivative_functor& other)
+		{same.swap(other);}
+
 	// Constructors
-	interpolator_derivative_function();
-	interpolator_derivative_function( brgastro::interpolator *init_interpolator_ptr );
+	interpolator_derivative_functor();
+	interpolator_derivative_functor(const interpolator_derivative_functor& other);
+	interpolator_derivative_functor( brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructor
-	virtual ~interpolator_derivative_function()
+	virtual ~interpolator_derivative_functor()
 	{
 	}
 
+	// Operator=
+	interpolator_derivative_functor& operator=(interpolator_derivative_functor other);
+
 	// Set functions
-	const int set_spline_ptr( brgastro::interpolator *new_interpolator_ptr );
+	const int set_interpolator_ptr( const brgastro::interpolator *new_interpolator_ptr );
 
 	// Function method
 	const int operator()( const BRG_UNITS & in_param,
 			BRG_UNITS & out_param, const bool silent = false ) const;
 
 };
-// class interpolator_derivative_function
+// class interpolator_derivative_functor
 
-class interpolator_derivative_weight_function: public functor< BRG_UNITS >
+class interpolator_derivative_weight_functor: public functor< BRG_UNITS >
 {
 	/************************************************************
-	 interpolator_derivative_weight_function
+	 interpolator_derivative_weight_functor
 	 ---------------------------------
 
-	 Child of function_class
+	 Child of functor
 
-	 This class is used to provide a function_class * for getting
+	 This class is used to provide a functor * for getting
 	 the weight of various points in the smoothing kernel for
 	 calculating the derivative of an interpolator.
 
@@ -385,13 +403,23 @@ private:
 
 public:
 
+	// Swap functions
+	void swap(interpolator_derivative_weight_functor &other);
+	friend void swap(interpolator_derivative_weight_functor &same,
+			interpolator_derivative_weight_functor &other)
+				{same.swap(other);}
+
 	// Constructors
-	interpolator_derivative_weight_function();
+	interpolator_derivative_weight_functor();
+	interpolator_derivative_weight_functor(const interpolator_derivative_weight_functor &other);
 
 	// Destructor
-	virtual ~interpolator_derivative_weight_function()
+	virtual ~interpolator_derivative_weight_functor()
 	{
 	}
+
+	// Operator=
+	interpolator_derivative_weight_functor & operator=(interpolator_derivative_weight_functor other);
 
 	// Set functions
 	const int set_sample_scale( double new_sample_scale );
@@ -408,7 +436,7 @@ public:
 	const int operator()( const BRG_UNITS & in_param,
 			BRG_UNITS & out_param, const bool silent = false ) const;
 };
-// class interpolator_derivative_sample_function
+// class interpolator_derivative_sample_functor
 
 class interpolator_derivative
 {
@@ -444,7 +472,7 @@ private:
 	bool _interpolator_ptr_set_up_;
 	mutable bool _calculated_;
 
-	interpolator_function _interpolator_func_;
+	interpolator_functor _interpolator_func_;
 
 	std::vector< double > _unknown_t_list_;
 
@@ -456,14 +484,23 @@ private:
 	brgastro::interpolator::allowed_interpolation_type _interpolation_type_;
 
 public:
+
+	// Swap functions
+	void swap(interpolator_derivative &other);
+	friend void swap(interpolator_derivative &same, interpolator_derivative &other) {same.swap(other);}
+
 	// Constructors
 	interpolator_derivative();
+	interpolator_derivative( const interpolator_derivative &other);
 	interpolator_derivative( brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructors
 	virtual ~interpolator_derivative()
 	{
 	}
+
+	// Operator=
+	interpolator_derivative & operator=(interpolator_derivative other);
 
 	// Set functions
 	const int set_spline_ptr( brgastro::interpolator *new_interpolator_ptr );
@@ -513,10 +550,15 @@ private:
 	mutable bool _is_cached_;
 	const density_profile *_host_ptr_;
 
-	BRG_DISTANCE _x_, _y_, _z_, _r_;BRG_TIME _dt_;
+	BRG_DISTANCE _x_, _y_, _z_, _r_;
+	BRG_TIME _dt_;
 	mutable std::vector< std::vector< long double > > _dv_;
 
 public:
+
+	// Swap functions
+	void swap(gabdt &other);
+	friend void swap(gabdt &same, gabdt &other) {same.swap(other);}
 
 	// Constructors
 	gabdt();
@@ -556,7 +598,7 @@ public:
 	// Operator overloading
 	const BRG_UNITS operator*( const gabdt & other_gabdt ) const; // Dot-product(ish) operator
 
-	gabdt & operator=( const gabdt & other_gabdt ); // Assignment
+	gabdt & operator=( gabdt other_gabdt ); // Assignment
 
 	gabdt & operator+=( const gabdt & other_gabdt ); // Addition
 	gabdt operator+( const gabdt & other_gabdt ) const;
@@ -566,27 +608,35 @@ public:
 
 };
 
-class gabdt_function: public functor< std::vector< BRG_UNITS > >
+class gabdt_functor: public functor< std::vector< BRG_UNITS > >
 {
 	/************************************************************
-	 gabdt_function
+	 gabdt_functor
 	 --------------
 
-	 Child of function_class
+	 Child of functor
 
-	 This class provides a function_class * for getting the 3-D
+	 This class provides a functor * for getting the 3-D
 	 acceleration within a halo.
 
 	 \************************************************************/
 public:
 
-	// Constructor
-	gabdt_function();
+	// Swap functions
+	void swap(gabdt_functor &other);
+	friend void swap(gabdt_functor &same, gabdt_functor &other) {same.swap(other);}
+
+	// Constructors
+	gabdt_functor();
+	gabdt_functor(const gabdt_functor &other);
 
 	// Destructor
-	virtual ~gabdt_function()
+	virtual ~gabdt_functor()
 	{
 	}
+
+	// Operator=
+	gabdt_functor & operator=(gabdt_functor other);
 
 	// Host accessor
 	const density_profile *host_ptr;
@@ -733,7 +783,6 @@ private:
 	const std::vector< brgastro::stripping_orbit_segment >::iterator _final_good_segment() const;
 
 	// Private methods
-	const int _init();
 	const int _pass_parameters_to_segment(
 			brgastro::stripping_orbit_segment & segment,
 			brgastro::density_profile *temp_satellite=NULL,
@@ -742,12 +791,17 @@ private:
 #endif
 public:
 #if (1)
+
+	// Swap functions
+	void swap(stripping_orbit &other);
+	friend void swap(stripping_orbit &same, stripping_orbit &other) {same.swap(other);}
+
 	// Constructors, destructor, and related functions
 	stripping_orbit(); // Basic constructor
 	stripping_orbit( const density_profile *host, const density_profile *satellite,
 			const int init_resolution = 200 ); // Constructor with initial params
 	stripping_orbit( const stripping_orbit &other_orbit_spline ); // Copy constructor
-	stripping_orbit & operator=( const stripping_orbit &other_orbit_spline ); // Assignment operator
+	stripping_orbit & operator=( stripping_orbit other ); // Assignment operator
 	stripping_orbit *stripping_orbit_clone(); // Clone function
 	virtual ~stripping_orbit(); // Virtual destructor
 
@@ -1211,12 +1265,16 @@ private:
 
 public:
 
+	// Swap functions
+	void swap(stripping_orbit_segment &other);
+	friend void swap(stripping_orbit_segment &same, stripping_orbit_segment &other) {same.swap(other);}
+
 	// Constructors, destructors, and related operations
 	stripping_orbit_segment();
 	stripping_orbit_segment(
-			const stripping_orbit_segment &other_orbit_spline );
+			const stripping_orbit_segment &other );
 	stripping_orbit_segment & operator=(
-			const stripping_orbit_segment &other_orbit_spline );
+			stripping_orbit_segment other );
 	stripping_orbit_segment( const density_profile *host,
 			const density_profile *satellite,
 			const int init_resolution = 200 );
@@ -1400,15 +1458,15 @@ public:
 };
 // class stripping_orbit_segment
 
-class solve_rt_it_function: public functor< BRG_UNITS > // Always uses one param, returns new value for that parameter for iteration.
+class solve_rt_it_functor: public functor< BRG_UNITS > // Always uses one param, returns new value for that parameter for iteration.
 {
 	/************************************************************
-	 solve_rt_it_function
+	 solve_rt_it_functor
 	 --------------------
 
-	 Child of function_class
+	 Child of functor
 
-	 Provides a function_class * to be used to iteratively solve
+	 Provides a functor * to be used to iteratively solve
 	 for tidal radius.
 
 	 \************************************************************/
@@ -1418,22 +1476,22 @@ public:
 	long double sum_delta_rho, Daccel, omega;
 	const int operator()( const BRG_UNITS & in_param,
 	BRG_UNITS & out_param, const bool silent = false ) const;
-	solve_rt_it_function( const BRG_UNITS init_omega,
+	solve_rt_it_functor( const BRG_UNITS init_omega,
 			const density_profile *init_satellite, const BRG_UNITS init_Daccel,
 			const long double init_sum_delta_rho = 0 );
 
-	solve_rt_it_function();
+	solve_rt_it_functor();
 };
 
-class solve_rt_grid_function: public functor< BRG_UNITS >
+class solve_rt_grid_functor: public functor< BRG_UNITS >
 {
 	/************************************************************
-	 solve_rt_grid_function
+	 solve_rt_grid_functor
 	 ----------------------
 
-	 Child of function_class
+	 Child of functor
 
-	 Provides a function_class * to be used with the grid solver.
+	 Provides a functor * to be used with the grid solver.
 
 	 \************************************************************/
 public:
@@ -1442,11 +1500,11 @@ public:
 	long double sum_delta_rho, Daccel, omega;
 	const int operator()( const BRG_UNITS & in_param,
 	BRG_UNITS & out_param, const bool silent = false ) const;
-	solve_rt_grid_function( const BRG_UNITS init_omega,
+	solve_rt_grid_functor( const BRG_UNITS init_omega,
 			const density_profile *init_satellite, const BRG_UNITS init_Daccel,
 			const long double init_sum_delta_rho = 0 );
 
-	solve_rt_grid_function();
+	solve_rt_grid_functor();
 };
 
 #endif // end class definitions
