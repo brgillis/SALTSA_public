@@ -1,6 +1,7 @@
 #! /bin/bash
 echo "Attempting to compile SALTSA_example..."
 make
+make clean
 echo "Attempting to run SALTSA_example..."
 ./SALTSA_example
 echo "Attempting to generate orbit plot (requires perl and stilts)..."

@@ -42,7 +42,7 @@ int main( const int argc, const char *argv[] )
 	// Toggle this flag to use a different mass profile, which is defined in header
 	// SALTSA_tSIS_profile.hpp. This gives an example of how to use a user-defined profile with
 	// SALTSA.
-	const bool use_tSIS_profile=false;
+	const bool use_tSIS_profile = false;
 
 	// Some information about the host and satellite haloes. Here we set this up to match the
 	// set-up of Taylor and Babul 2004.
