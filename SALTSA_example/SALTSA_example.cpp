@@ -19,6 +19,7 @@
 #include "SALTSA.h"
 #include "SALTSA_calculus.hpp" // This is just used to generate an orbit in this file.
 #include "SALTSA_file_functions.h" // This is just used for file loading done here
+#include "SALTSA_tSIS_profile.hpp" // In case we want to use this "user-defined" profile instead
 
 /**
  *
@@ -38,6 +39,11 @@ int main( const int argc, const char *argv[] )
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
 
+	// Toggle this flag to use a different mass profile, which is defined in header
+	// SALTSA_tSIS_profile.hpp. This gives an example of how to use a user-defined profile with
+	// SALTSA.
+	const bool use_tSIS_profile=false;
+
 	// Some information about the host and satellite haloes. Here we set this up to match the
 	// set-up of Taylor and Babul 2004.
 
@@ -54,8 +60,21 @@ int main( const int argc, const char *argv[] )
 
 	// Get a truncated NFW profile for the host, and a pointer to it (which we need to use to
 	// exploit polymorphism).
-	const SALTSA::tNFW_profile host_group_val( host_mass, host_z, host_c),
-			*host_group = &host_group_val;
+	SALTSA::tNFW_profile host_group_tNFW(host_mass,host_z,host_c);
+
+	// Or instead use a truncated SIS profile for the host
+	SALTSA::tSIS_profile host_group_tSIS;
+
+	host_group_tSIS.set_mvir(host_mass);
+	host_group_tSIS.set_z(host_z);
+
+	const SALTSA::density_profile *host_group;
+
+	if(use_tSIS_profile)
+		host_group = &host_group_tSIS;
+	else
+		host_group = &host_group_tNFW;
+
 	const int num_host_parameters=host_group->num_parameters(); // How many parameters are used to define
 	                                                            // the host halo.
 
@@ -66,9 +85,23 @@ int main( const int argc, const char *argv[] )
 	const SALTSA::density_profile *host_group_orbit = &host_group_pm_val; // And a pointer to it as well, again
 	                                                                      // needed for polymorphism.
 
-	// And a density profile and pointer to it representing the initial satellite.
-	const SALTSA::tNFW_profile init_satellite_val( satellite_mass, satellite_z, satellite_c),
-			*init_satellite = &init_satellite_val;
+	// Get a truncated NFW profile for the satellite, and a pointer to it (which we need to use to
+	// exploit polymorphism).
+	SALTSA::tNFW_profile init_satellite_tNFW(satellite_mass,satellite_z,satellite_c);
+
+	// Or instead use a truncated SIS profile for the satellite
+	SALTSA::tSIS_profile init_satellite_tSIS;
+
+	init_satellite_tSIS.set_mvir(host_mass);
+	init_satellite_tSIS.set_z(host_z);
+
+	const SALTSA::density_profile *init_satellite;
+
+	if(use_tSIS_profile)
+		init_satellite = &init_satellite_tSIS;
+	else
+		init_satellite = &init_satellite_tNFW;
+
 	const int num_satellite_parameters=init_satellite->num_parameters(); // How many parameters are used to define
 	                                                                     // the initial satellite.
 
@@ -132,18 +165,36 @@ int main( const int argc, const char *argv[] )
 	test_orbit.set_default_tidal_stripping_amplification(0.625,true);
 	test_orbit.set_default_tidal_stripping_deceleration(0.15,true);
 
-	// We only want to have tau of the satellite be output here, so we set its value in the
-	// output parameters array to true, and leave the rest as false
-	satellite_output_parameters.at(3) = true; // Will output tau (and nothing else for the satellite)
+	if(use_tSIS_profile)
+	{
+		// We only want to have sigma_v of the satellite be output here, so we set its value in the
+		// output parameters array to true, and leave the rest as false
+		satellite_output_parameters.at(0) = true; // Will output sigma_v
 
-	// For the host, let's output all of its parameters
-	host_output_parameters.at(0) = true; // Will output mvir0
-	host_output_parameters.at(1) = true; // Will output z
-	host_output_parameters.at(2) = true; // Will output c
-	host_output_parameters.at(3) = true; // Will output tau
+		// For the host, let's output all of its parameters
+		host_output_parameters.at(0) = true; // Will output sigma_v
+		host_output_parameters.at(1) = true; // Will output z
 
-	// If we left it alone, we'd get the host mass in kg. But let's change that to 10^10 Msun
-	host_output_parameter_unitconvs.at(0) = unitconv::ttMsuntokg; // Will output mvir0 in 10^10 Msun
+		// If we left it alone, we'd get the host sigma_v in m/s. But let's change that to km/s
+		host_output_parameter_unitconvs.at(0) = unitconv::kmpstomps;
+	}
+	else
+	{
+		// We only want to have tau of the satellite be output here, so we set its value in the
+		// output parameters array to true, and leave the rest as false
+		satellite_output_parameters.at(3) = true; // Will output tau (and nothing else for the satellite)
+
+		// For the host, let's output all of its parameters
+		host_output_parameters.at(0) = true; // Will output mvir0
+		host_output_parameters.at(1) = true; // Will output z
+		host_output_parameters.at(2) = true; // Will output c
+		host_output_parameters.at(3) = true; // Will output tau
+
+		// If we left it alone, we'd get the host mass in kg. But let's change that to 10^10 Msun
+		host_output_parameter_unitconvs.at(0) = unitconv::ttMsuntokg;
+	}
+
+
 
 	// Get the initial parameters array of the host. I'll use this here to demonstrate how you
 	// would tell SALTSA about changes to the host over time.
@@ -305,6 +356,7 @@ int main( const int argc, const char *argv[] )
 	std::vector<double> vz_data;
 
 	std::vector<double> host_mvir0_data;
+	std::vector<double> host_sigma_v_data;
 	std::vector<double> host_z_data;
 	std::vector<double> host_c_data;
 	std::vector<double> host_tau_data;
@@ -343,12 +395,22 @@ int main( const int argc, const char *argv[] )
 	header_keys.push_back( std::make_pair("vy",&vy_data) );
 	header_keys.push_back( std::make_pair("vz",&vz_data) );
 
-	header_keys.push_back( std::make_pair("Host_mvir0",&host_mvir0_data) );
-	header_keys.push_back( std::make_pair("Host_z",&host_z_data) );
-	header_keys.push_back( std::make_pair("Host_c",&host_c_data) );
-	header_keys.push_back( std::make_pair("Host_tau",&host_tau_data) );
+	if(use_tSIS_profile)
+	{
+		header_keys.push_back( std::make_pair("Host_sigma_v",&host_sigma_v_data) );
+		header_keys.push_back( std::make_pair("Host_z",&host_z_data) );
 
-	header_keys.push_back( std::make_pair("m_ret",&comparison_mret_data) );
+		header_keys.push_back( std::make_pair("m_ret",&comparison_mret_data) );
+	}
+	else
+	{
+		header_keys.push_back( std::make_pair("Host_mvir0",&host_mvir0_data) );
+		header_keys.push_back( std::make_pair("Host_z",&host_z_data) );
+		header_keys.push_back( std::make_pair("Host_c",&host_c_data) );
+		header_keys.push_back( std::make_pair("Host_tau",&host_tau_data) );
+
+		header_keys.push_back( std::make_pair("m_ret",&comparison_mret_data) );
+	}
 
 	// And now actually load it
 	// An exception will be thrown here if a column we want isn't found in the file, or if it's
@@ -380,10 +442,18 @@ int main( const int argc, const char *argv[] )
 					t_data.at(i)*unitconv::Gyrtos,
 					comparison_mret_data.at(i));
 			host_parameters.clear();
-			host_parameters.push_back(host_mvir0_data.at(i)*unitconv::ttMsuntokg);
-			host_parameters.push_back(host_z_data.at(i));
-			host_parameters.push_back(host_c_data.at(i));
-			host_parameters.push_back(host_tau_data.at(i));
+			if(use_tSIS_profile)
+			{
+				host_parameters.push_back(host_sigma_v_data.at(i)*unitconv::kmpstomps);
+				host_parameters.push_back(host_z_data.at(i));
+			}
+			else
+			{
+				host_parameters.push_back(host_mvir0_data.at(i)*unitconv::ttMsuntokg);
+				host_parameters.push_back(host_z_data.at(i));
+				host_parameters.push_back(host_c_data.at(i));
+				host_parameters.push_back(host_tau_data.at(i));
+			}
 
 			test_orbit.add_host_parameter_point(host_parameters,
 					t_data.at(i)*unitconv::Gyrtos);

@@ -461,7 +461,7 @@ public:
 	{
 		if ( !silent )
 			std::cerr
-					<< "ERROR: density_profile::get_parameters(...) must be overridden to be used.\n";
+					<< "ERROR: density_profile::rt(...) must be overridden to be used.\n";
 		return 0;
 	}
 
@@ -488,6 +488,15 @@ public:
 		if ( !silent )
 			std::cerr
 					<< "ERROR: density_profile::get_parameter_names(...) must be overridden to be used.\n";
+		return MUST_OVERRIDE_ERROR;
+	}
+
+	virtual const int truncate_to_fraction( const double fraction,
+			bool silent = false ) // Adjusts parameters of this class to decrease the mass to fraction of its previous mass. Must be defined for each child
+	{
+		if ( !silent )
+			std::cerr
+					<< "ERROR: density_profile::truncate_to_fraction(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
 
@@ -595,15 +604,6 @@ public:
 #endif // end Virtual functions which shouldn't be overwritten in most cases and non-virtual functions
 
 #if (1) // Other operations
-
-	virtual const int truncate_to_fraction( const double fraction,
-			bool silent = false ) // Adjusts parameters of this class to decrease the mass to fraction of its previous mass. Must be defined for each child
-	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: density_profile::truncate_to_fraction(...) must be overridden to be used.\n";
-		return MUST_OVERRIDE_ERROR;
-	}
 
 #endif
 
