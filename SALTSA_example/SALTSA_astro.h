@@ -22,6 +22,8 @@
 
  \**********************************************************************/
 
+// body file: SALTSA_astro.cpp
+
 #ifndef __SALTSA_ASTRO_H_INCLUDED__
 #define __SALTSA_ASTRO_H_INCLUDED__
 

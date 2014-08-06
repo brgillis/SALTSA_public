@@ -7,6 +7,8 @@
  *      Author: brg
  */
 
+// body file: SALTSA_interpolator.cpp
+
 #ifndef __SALTSA_INTERPOLATOR_H_INCLUDED__
 #define __SALTSA_INTERPOLATOR_H_INCLUDED__
 
