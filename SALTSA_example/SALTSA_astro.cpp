@@ -24,27 +24,38 @@ DEFINE_BRG_CACHE_STATIC_VARS( tfa_cache, 0.001, 1.02, 0.001 );
 // SALTSA::redshift_obj class methods
 #if (1)
 
-/**
- *
- * @param init_test_z
- * @return
- */
-const double SALTSA::redshift_obj::H( const double init_test_z ) const
+const double SALTSA::redshift_obj::H() const
 {
-	double test_z = init_test_z;
-	if ( test_z == -1 ) // This means we're taking the default argument here, so use redshift of the object
+	// If not cached, calculate and cache it
+	if(!_H_cached_)
 	{
-		test_z = z();
+		if(_z_==0)
+		{
+			_H_cache_ = H_0;
+		}
+		else
+		{
+			double zp1 = 1.+_z_;
+			// Friedmann equation, assuming omega = -1
+			_H_cache_ = H_0
+				* std::sqrt( Omega_r * square(square(zp1))
+						+ Omega_m * (zp1)*square(zp1)
+						+ Omega_k * square(zp1) + Omega_l );
+		}
+		_H_cached_ = true;
 	}
+	return _H_cache_;
+}
+
+const double SALTSA::redshift_obj::H( const double test_z ) const
+{
 	// Friedmann equation, assuming omega = -1
 	if(test_z==0) return H_0;
 	return H_0
-			* sqrt(
-					Omega_r * std::pow( 1 + test_z, 4 )
+			* sqrt( Omega_r * std::pow( 1 + test_z, 4 )
 							+ Omega_m * std::pow( 1 + test_z, 3 )
 							+ Omega_k * pow( 1 + test_z, 2 ) + Omega_l );
 }
-
 #endif
 
 // SALTSA::density_profile class methods
@@ -439,12 +450,12 @@ const double SALTSA::tNFW_profile::dens( const double r ) const
 	else
 		tau_use = _tau_;
 	d_c = delta_c( _c_ );
-	rho_c = 3 * H() * H() / ( 8 * pi * Gc );
+	rho_c = 3 * square(H()) / ( 8 * pi * Gc );
 	x = r / rs();
 
-	result = ( d_c * rho_c ) / ( x * std::pow( 1 + x, 2 ) )
-			* std::pow( tau_use, 2 )
-			/ ( std::pow( tau_use, 2 ) + std::pow( x, 2 ) );
+	result = ( d_c * rho_c ) / ( x * square( 1 + x ) )
+			* square( tau_use )
+			/ ( square( tau_use ) + square( x ) );
 
 	return result;
 }
@@ -459,9 +470,12 @@ const double SALTSA::tNFW_profile::dens( const double r ) const
 const double SALTSA::tNFW_profile::enc_mass( const double r,
 		const bool silent ) const
 {
-	double result, rho_c;
-	double m0;
-	// Result here integrated with Wolfram Alpha
+	using SALTSA::square;
+	using SALTSA::cube;
+	using std::log;
+	using std::atan;
+
+	double m0, mx, rho_c;
 	double d_c, x, tau_use;
 	if ( _tau_ < 0 )
 		tau_use = default_tau_factor * _c_;
@@ -470,28 +484,20 @@ const double SALTSA::tNFW_profile::enc_mass( const double r,
 	else
 		tau_use = _tau_;
 
+	double tau_sq = square(tau_use);
+
 	d_c = delta_c( _c_ );
-	rho_c = 3 * H() * H() / ( 8 * pi * Gc );
+	rho_c = 3 * square(H()) / ( 8 * pi * Gc );
 	x = r / rs();
 
-	m0 = ( std::pow( rs(), 3 ) * d_c * rho_c )
-			* ( 2 * pi * std::pow( tau_use, 2 )
-					* ( 2 * ( 1 + std::pow( tau_use, 2 ) )
-							- ( -1 + std::pow( tau_use, 2 ) ) * 2
-									* log( tau_use ) ) )
-			/ std::pow( 1 + std::pow( tau_use, 2 ), 2 );
-	result = ( std::pow( rs(), 3 ) * d_c * rho_c )
-			* ( 2 * pi * std::pow( tau_use, 2 )
-					* ( ( 2 * ( 1 + std::pow( tau_use, 2 ) ) ) / ( 1 + x )
-							+ 4 * tau_use * atan( x / tau_use )
-							+ 2 * ( -1 + std::pow( tau_use, 2 ) )
-									* log( 1 + x )
-							- ( -1 + std::pow( tau_use, 2 ) )
-									* log(
-											std::pow( tau_use, 2 )
-													+ std::pow( x, 2 ) ) ) )
-			/ std::pow( 1 + std::pow( tau_use, 2 ), 2 ) - m0;
-	return result;
+	// Result here integrated with Wolfram Alpha
+	m0 = (2 * (1 + tau_sq) - (-1 + tau_sq) * 2 * log(tau_use));
+	mx = ((2 * (1 + tau_sq)) / (1 + x)
+							+ 4 * tau_use * atan(x / tau_use)
+							+ 2 * (-1 + tau_sq) * log(1 + x)
+							- (-1 + tau_sq) * log(tau_sq + square(x))) - m0;
+	return cube(rs()) * d_c * rho_c * 2 * pi * tau_sq * mx
+			/ square(1 + tau_sq);
 }
 
 

@@ -140,6 +140,27 @@ const int round_int( const T value, const double epsilon=DBL_EPSILON )
 	return (int)floor( value + 0.5 );
 }
 
+// Inline square
+template< typename T >
+const T square(T v1)
+{
+	return v1*v1;
+}
+
+// Inline cube
+template< typename T >
+const T cube(T v1)
+{
+	return v1*v1*v1;
+}
+
+// Inline quart
+template< typename T >
+const T quart(T v1)
+{
+	return square(v1)*square(v1);
+}
+
 // "Safe" functions - perform the operation specified, but will
 // take necessary actions to ensure it won't crash the program
 // if the argument is invalid (eg. taking square-root of a negative

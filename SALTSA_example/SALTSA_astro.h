@@ -200,17 +200,18 @@ inline const double mftau( const double tau, const double conc ) // Mtot/Mvir fr
 {
 	if(tau<=0) return 0;
 	double M0oM200 = 1 / ( log( 1 + conc ) - conc / ( 1 + conc ) );
+	double tau_sq = square(tau);
 	double result =
-			M0oM200 * tau * tau / std::pow( tau * tau + 1, 2 )
-					* ( ( tau * tau - 1 ) * log( tau ) + tau * pi
-							- ( tau * tau + 1 ) );
+			M0oM200 * tau_sq / square( tau_sq + 1 )
+					* ( ( tau_sq - 1 ) * log( tau ) + tau * pi
+							- ( tau_sq + 1 ) );
 	return result;
 }
 const double taufm( const double mratio, double c, double tau_init = 0, double precision = 0.00001,
 		const bool silent = false ); // tau from Mtot/Mvir
 inline const double delta_c( const double conc ) // Simple function of concentration used as a step in calculating NFW densities
 {
-	return ( 200. / 3. ) * std::pow( conc, 3 )
+	return ( 200. / 3. ) * cube(conc)
 			/ ( log( 1 + conc ) - conc / ( 1 + conc ) );
 }
 
@@ -243,12 +244,16 @@ class redshift_obj
 	 **********************************/
 private:
 	double _z_, _z_err_;
+	mutable double _H_cache_;
+	mutable bool _H_cached_;
 public:
 	// Constructor
 	redshift_obj( const double init_z = 0, const double init_z_err = 0 )
 	{
 		_z_ = init_z;
 		_z_err_ = init_z_err;
+		_H_cache_ = 0;
+		_H_cached_ = false;
 	}
 
 	// Copy constructor
@@ -264,6 +269,7 @@ public:
 	virtual const int set_z( const double new_z ) // Sets z
 	{
 		_z_ = new_z;
+		_H_cached_ = false;
 		return 0;
 	}
 	virtual const int set_z_err( const double new_z_err ) // Sets z error
@@ -275,21 +281,20 @@ public:
 
 	// Get functions
 #if (1)
-	virtual const double z() const
+	const double z() const
 	{
 		return _z_;
 	}
-	virtual const double z_err() const
+	const double z_err() const
 	{
 		return _z_err_;
 	}
 #endif
 
-	// H(z) at either the redshift of the object or a specified redshift, given in units of m/s^2
-	virtual const double H( double ztest = -1 ) const;
-
-	// Clone function - Not needed in current implementation
-	// virtual redshift_obj *redshift_obj_clone()=0;
+	// H(z) at the redshift of the object, given in units of m/s^2
+	const double H() const;
+	// H(z) at a specified redshift, given in units of m/s^2
+	const double H( double ztest ) const;
 };
 
 class density_profile: public virtual redshift_obj
@@ -594,7 +599,7 @@ public:
 	const double accel( const double r,
 			const bool silent = false ) const // Gravitational acceleration at radius r
 	{
-		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / std::pow( r, 2 );
+		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / square(r);
 	}
 	virtual const double Daccel( const double r, const bool silent =
 			false ) const; // Derivative of acceleration at radius r
