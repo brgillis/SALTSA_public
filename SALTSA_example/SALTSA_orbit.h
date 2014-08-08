@@ -338,9 +338,9 @@ public:
 	// Constructors
 	gabdt();
 	gabdt( const gabdt & other_gabdt );
-	gabdt( const density_profile *init_host, const double &init_x,
-			const double &init_y, const double &init_z,
-			const double &init_dt );
+	gabdt( const density_profile *init_host, const double init_x,
+			const double init_y, const double init_z,
+			const double init_dt );
 
 	// Destructor
 	virtual ~gabdt();
@@ -350,11 +350,11 @@ public:
 
 	// Set functions
 	const int set( const SALTSA::density_profile *new_host_ptr,
-			const double &new_x, const double &new_y,
-			const double &new_z, const double &new_dt );
-	const int set_pos( const double &new_x, const double &new_y,
-			const double &new_z );
-	const int set_dt( const double &dt );
+			const double new_x, const double new_y,
+			const double new_z, const double new_dt );
+	const int set_pos( const double new_x, const double new_y,
+			const double new_z );
+	const int set_dt( const double dt );
 	const int set_host_ptr( const density_profile *new_host_ptr );
 	const int override_zero();
 
@@ -517,20 +517,20 @@ private:
 	const int _init();
 	const int _reserve( int n, const bool silent = false ) const;
 	const double _delta_rho( const int index, const double x,
-			const double &t_step, const bool silent = false ) const;
-	const double _step_length_factor( const double & v, const double & r ) const;
+			const double t_step, const bool silent = false ) const;
+	const double _step_length_factor( const double  v, const double  r ) const;
 	const double _rvir( const int index = 0 ) const;
 	const int _pass_interpolation_type() const;
 
 	// Calculation assistance functions
 	const double _tidal_strip_retained( const density_profile *host,
-			const density_profile *satellite, const double &r,
-			const double &vr, const double &vt,
-			const double &time_step, const long double &sum_delta_rho = 0 ) const;
+			const density_profile *satellite, const double r,
+			const double vr, const double vt,
+			const double time_step, const long double &sum_delta_rho = 0 ) const;
 	const double _get_rt( const density_profile *host,
-			const density_profile *satellite, const double &r,
-			const double &vr, const double &vt,
-			const double &time_step, const long double &sum_delta_rho,
+			const density_profile *satellite, const double r,
+			const double vr, const double vt,
+			const double time_step, const long double &sum_delta_rho,
 			const bool silent = false ) const;
 #endif
 
@@ -553,25 +553,25 @@ public:
 	stripping_orbit_segment *stripping_orbit_spline_clone() const;
 
 	// Functions to add points to the splines
-	const int add_point( const double &x, const double &y,
-			const double &z, const double &t,
+	const int add_point( const double x, const double y,
+			const double z, const double t,
 			double new_test_mass = 1 );
-	const int add_point( const double &x, const double &y,
-			const double &z, const double &vx,
-			const double &vy, const double &vz, const double &t,
+	const int add_point( const double x, const double y,
+			const double z, const double vx,
+			const double vy, const double vz, const double t,
 			double new_test_mass = 1 );
-	const int add_x_point( const double &x, const double &t );
-	const int add_y_point( const double &y, const double &t );
-	const int add_z_point( const double &z, const double &t );
-	const int add_vx_point( const double &vx, const double &t );
-	const int add_vy_point( const double &vy, const double &t );
-	const int add_vz_point( const double &vz, const double &t );
-	const int add_unknown_vx_point( const double &t );
-	const int add_unknown_vy_point( const double &t );
-	const int add_unknown_vz_point( const double &t );
-	const int add_test_mass_point( const double test_mass, const double &t );
+	const int add_x_point( const double x, const double t );
+	const int add_y_point( const double y, const double t );
+	const int add_z_point( const double z, const double t );
+	const int add_vx_point( const double vx, const double t );
+	const int add_vy_point( const double vy, const double t );
+	const int add_vz_point( const double vz, const double t );
+	const int add_unknown_vx_point( const double t );
+	const int add_unknown_vy_point( const double t );
+	const int add_unknown_vz_point( const double t );
+	const int add_test_mass_point( const double test_mass, const double t );
 	const int add_host_parameter_point( const unsigned int num_parameters,
-			const std::vector< double > &parameters, const double &t,
+			const std::vector< double > &parameters, const double t,
 			const bool silent = false );
 
 
@@ -610,13 +610,13 @@ public:
 
 
 	// Set initial/global parameters
-	const int set_tNFW_init_satellite( const double &new_init_mvir0,
+	const int set_tNFW_init_satellite( const double new_init_mvir0,
 			const double z = 0, const double new_init_c = -1,
 			const double new_init_tau = -1 );
-	const int set_tNFW_host( const double &new_mvir0, const double z = 0,
+	const int set_tNFW_host( const double new_mvir0, const double z = 0,
 			const double new_c = -1, const double new_tau = -1 );
-	const int set_t_min( const double &new_t_min );
-	const int set_t_max( const double &new_t_max );
+	const int set_t_min( const double new_t_min );
+	const int set_t_max( const double new_t_max );
 	const int reset_t_min();
 	const int reset_t_max();
 	const int set_init_sum_deltarho( const long double &new_init_sum_deltarho );
@@ -674,28 +674,28 @@ public:
 	const int & spline_resolution() const {return _spline_resolution_;}
 	const stripping_orbit::allowed_interpolation_type & interpolation_type()
 		{return _interpolation_type_;}
-	const double & v_0() const {return _v_0_;}
-	const double & r_0() const {return _r_0_;}
-	const double & step_length_power() const {return _step_length_power_;}
-	const double & step_factor_max() const {return _step_factor_max_;}
-	const double & step_factor_min() const {return _step_factor_min_;}
+	const double  v_0() const {return _v_0_;}
+	const double  r_0() const {return _r_0_;}
+	const double  step_length_power() const {return _step_length_power_;}
+	const double  step_factor_max() const {return _step_factor_max_;}
+	const double  step_factor_min() const {return _step_factor_min_;}
 #endif
 
 	// Tuning parameters
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
-	const double & tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
-	const double & tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
-	const double & tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
-	const double & tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
-	const double & tidal_shocking_power() const {return _tidal_shocking_power_;}
+	const double  tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
+	const double  tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
+	const double  tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
+	const double  tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
+	const double  tidal_shocking_power() const {return _tidal_shocking_power_;}
 #endif
 
 	const bool & calculated() const {return _calculated_;};
 	const bool & bad_result() const {return _bad_result_;};
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
 	const density_profile * init_host_ptr() const {return _init_host_ptr_;};
-	const double & t_min_natural_value() const {return _t_min_natural_value_;};
+	const double  t_min_natural_value() const {return _t_min_natural_value_;};
 #endif
 
 	// Get final data (returns 1 on error)
@@ -770,7 +770,7 @@ public:
 
 	long double sum_delta_rho, Daccel, omega;
 	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
+			double & out_param, const bool silent = false ) const;
 	solve_rt_grid_functor( const double init_omega,
 			const density_profile *init_satellite, const double init_Daccel,
 			const long double init_sum_delta_rho = 0 );

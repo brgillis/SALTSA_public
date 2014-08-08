@@ -148,7 +148,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 		const T & init_init_in_params_step, const T & target_out_params,
 		T & result_in_params, const double init_init_precision = 0.00001,
 		const int search_precision = 0.1,
-		const double & init_out_params_weight = 0, const bool silent = false )
+		const double  init_out_params_weight = 0, const bool silent = false )
 {
 
 	double d = 0, d_best = DBL_MAX;
@@ -638,7 +638,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 		const T & init_min_in_params, const T & init_max_in_params,
 		const int num_search_steps, const T & target_out_params,
 		T & result_in_params, const double init_init_precision = 0.00001,
-		const int search_precision = 0.1, const double & out_params_weight = 0,
+		const int search_precision = 0.1, const double  out_params_weight = 0,
 		const bool silent = false )
 {
 	T in_params_step( 0 );

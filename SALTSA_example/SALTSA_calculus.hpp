@@ -1132,12 +1132,12 @@ inline const int integrate_weighted_Rhomberg( const f_in_1 * func,
  * @return
  */
 template< typename f >
-inline const int leapfrog_step( const double &x, const double &y,
-		const double &z, const double &vx, const double &vy,
-		const double &vz,
+inline const int leapfrog_step( const double x, const double y,
+		const double z, const double vx, const double vy,
+		const double vz,
 		double & new_x, double & new_y, double & new_z,
 		double & new_vx, double & new_vy, double & new_vz,
-		const double &t_step, const f *accel_func,
+		const double t_step, const f *accel_func,
 		const bool silent = false )
 {
 	double d;
@@ -1180,7 +1180,7 @@ template< typename f >
 inline const int leapfrog_step( double & x, double & y,
 		double & z,
 		double & vx, double & vy, double & vz,
-		const double & t_step, const f *accel_func,
+		const double  t_step, const f *accel_func,
 		const bool silent = false )
 {
 	double new_x, new_y, new_z;

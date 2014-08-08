@@ -135,7 +135,7 @@ public:
 	 * @param r The radiuse we want to get the density at.
 	 * @return The density at this radius, in kg/m^3
 	 */
-	const double dens( const double &r ) const // Local density at radius r
+	const double dens( const double r ) const // Local density at radius r
 	{
 		if(r>rvir())
 			return 0;
@@ -178,7 +178,7 @@ public:
 	 * @param silent Whether or not to silence errors.
 	 * @return
 	 */
-	const int set_mvir( const double &new_mvir,
+	const int set_mvir( const double new_mvir,
 			const bool silent=false )
 	{
 		if((new_mvir<0) || (SALTSA::isbad(new_mvir)))
@@ -201,7 +201,7 @@ public:
 	 * @param silent
 	 * @return
 	 */
-	const int set_vvir( const double &new_vvir,
+	const int set_vvir( const double new_vvir,
 			const bool silent=false )
 	{
 		return set_sigma_v(new_vvir);
@@ -299,7 +299,7 @@ public:
 	 * @param silent
 	 * @return
 	 */
-	const double enc_mass( const double &r, const bool silent =
+	const double enc_mass( const double r, const bool silent =
 			true ) const // Mass enclosed with sphere of radius r
 	{
 		if(r>rvir())

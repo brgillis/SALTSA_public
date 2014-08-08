@@ -41,8 +41,8 @@ class functor
  -------
 
  An abstract class representing an arbitrary function,
- which takes num_in_params input parameters
- and returns num_out_params output parameters, with
+ which takes input parameters
+ and returns output parameters, with
  an optional bool to silence error messages.
 
  This class allows polymorphism to be used by

@@ -216,8 +216,8 @@ inline const double delta_c( const double conc ) // Simple function of concentra
 
 // Function to estimate orbital period from current position and velocity in a density profile
 // Note that this is merely an estimate from analogy to calculations in a Keplerian potential
-const double period( const density_profile *host, const double &r,
-		const double &vr, const double &vt = 0 );
+const double period( const density_profile *host, const double r,
+		const double vr, const double vt = 0 );
 
 #endif // end function declarations
 
@@ -364,7 +364,7 @@ public:
 #if (1) // Pure virtual functions (must be implemented by any derived classes)
 
 	virtual const double mvir() const =0; // Virial mass (exact definition can be chosen per profile)
-	virtual const double dens( const double &r ) const =0; // Local density at radius r
+	virtual const double dens( const double r ) const =0; // Local density at radius r
 
 	virtual density_profile *density_profile_clone() const =0; // Creates a clone of this
 #endif
@@ -373,14 +373,14 @@ public:
 
 #if (1) // Set functions - will return 1 if profile doesn't support this method of setting
 	// All take values in default unit set (m, s, kg, K, rad, C)
-	virtual const int set_mvir( const double &new_mvir, bool silent = false )
+	virtual const int set_mvir( const double new_mvir, bool silent = false )
 	{
 		if ( !silent )
 			std::cerr
 					<< "ERROR: density_profile::set_mvir(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_vvir( const double &new_vvir, bool silent =
+	virtual const int set_vvir( const double new_vvir, bool silent =
 			false )
 	{
 		if ( !silent )
@@ -388,7 +388,7 @@ public:
 					<< "ERROR: density_profile::set_vvir(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_rvir( const double &new_rvir, bool silent =
+	virtual const int set_rvir( const double new_rvir, bool silent =
 			false )
 	{
 		if ( !silent )
@@ -396,14 +396,14 @@ public:
 					<< "ERROR: density_profile::set_rvir(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_rs( const double &new_rs, bool silent = false ) // Scale radius
+	virtual const int set_rs( const double new_rs, bool silent = false ) // Scale radius
 	{
 		if ( !silent )
 			std::cerr
 					<< "ERROR: density_profile::set_rs(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	virtual const int set_rt( const double &new_rt, bool silent = false ) // Tidal/truncation radius
+	virtual const int set_rt( const double new_rt, bool silent = false ) // Tidal/truncation radius
 	{
 		if ( !silent )
 			std::cerr
@@ -432,14 +432,14 @@ public:
 					<< "ERROR: density_profile::set_c(...) must be overridden to be used.\n";
 		return MUST_OVERRIDE_ERROR;
 	}
-	const int override_rhmvir( const double &new_rhmvir, bool silent =
+	const int override_rhmvir( const double new_rhmvir, bool silent =
 			false )
 	{
 		_rhmvir_cache_ = new_rhmvir;
 		hmvir_cached = true;
 		return 0;
 	}
-	const int override_rhmtot( const double &new_rhmtot, bool silent =
+	const int override_rhmtot( const double new_rhmtot, bool silent =
 			false )
 	{
 		_rhmtot_cache_ = new_rhmtot;
@@ -503,7 +503,7 @@ public:
 #endif // end Virtual functions which must be overwritten if they're going to be used
 
 #if (1) // Virtual functions which should be overwritten if at all possible and if they'll be used
-	virtual const double enc_mass( const double &r, const bool silent =
+	virtual const double enc_mass( const double r, const bool silent =
 			true ) const; // Mass enclosed with sphere of radius r
 #endif
 
@@ -529,7 +529,7 @@ public:
 	{
 		return ( _hm_type_ == 0 ? hmvir() : hmtot() );
 	}
-	virtual const double enc_dens( const double &r,
+	virtual const double enc_dens( const double r,
 			const bool silent = false ) const // Mean density enclosed with sphere of radius r
 	{
 		double r_to_use = max( std::fabs( r ), SMALL_FACTOR );
@@ -591,12 +591,12 @@ public:
 
 #if (1) // advanced get functions
 
-	const double accel( const double &r,
+	const double accel( const double r,
 			const bool silent = false ) const // Gravitational acceleration at radius r
 	{
 		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / std::pow( r, 2 );
 	}
-	virtual const double Daccel( const double &r, const bool silent =
+	virtual const double Daccel( const double r, const bool silent =
 			false ) const; // Derivative of acceleration at radius r
 
 #endif // end advanced get functions
@@ -643,7 +643,7 @@ public:
 #if (1) // Constructors
 	tNFW_profile();
 
-	tNFW_profile( const double &init_mvir0, const double init_z,
+	tNFW_profile( const double init_mvir0, const double init_z,
 			const double init_c = -1, const double init_tau = -1 );
 
 #endif // End constructors
@@ -653,7 +653,7 @@ public:
 
 #if (1) // Set functions
 
-	const int set_mvir( const double &new_halo_mass, const bool silent =
+	const int set_mvir( const double new_halo_mass, const bool silent =
 			false );
 	const int set_parameters( const unsigned int num_parameters,
 			const std::vector< double > & new_parameters,
@@ -685,8 +685,8 @@ public:
 
 #if (1) // advanced get functions
 
-	const double dens( const double &r ) const;
-	const double enc_mass( const double &r,
+	const double dens( const double r ) const;
+	const double enc_mass( const double r,
 			const bool silent = false ) const;
 	const unsigned int num_parameters() const
 	{
@@ -756,7 +756,7 @@ public:
 	~point_mass_profile();
 
 #if (1) // Set functions
-	virtual const int set_mvir( const double &new_halo_mass, bool silent =
+	virtual const int set_mvir( const double new_halo_mass, bool silent =
 			false );
 	virtual const int set_parameters( const unsigned int num_parameters,
 			const std::vector< double > &new_parameters,
@@ -779,10 +779,10 @@ public:
 #endif // end basic get functions
 
 #if (1) // advanced get functions
-	const double dens( const double &r ) const;
-	const double enc_dens( const double &r,
+	const double dens( const double r ) const;
+	const double enc_dens( const double r,
 			const bool silent = false ) const;
-	const double enc_mass( const double &r, const bool silent =
+	const double enc_mass( const double r, const bool silent =
 				true ) const; // Mass enclosed with sphere of radius r
 	const unsigned int num_parameters() const
 	{
@@ -868,8 +868,8 @@ public:
 	{
 		return _host_ptr_;
 	}
-	const int set_target_mass( const double &new_target_mass );
-	const double & target_mass()
+	const int set_target_mass( const double new_target_mass );
+	const double  target_mass()
 	{
 		return _target_mass_;
 	}
@@ -879,7 +879,7 @@ public:
 
 	solve_rhm_function();
 	solve_rhm_function( const density_profile *init_host,
-			const double &init_target_mass );
+			const double init_target_mass );
 
 };
 // end class unitless_solve_rhm_function

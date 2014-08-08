@@ -55,7 +55,7 @@ const double SALTSA::redshift_obj::H( const double init_test_z ) const
  * @param silent
  * @return
  */
-const double SALTSA::density_profile::Daccel( const double &r,
+const double SALTSA::density_profile::Daccel( const double r,
 		const bool silent ) const
 {
 	double dr;
@@ -156,7 +156,7 @@ const double SALTSA::density_profile::rhmvir( const bool silent ) const
  * @param silent
  * @return
  */
-const double SALTSA::density_profile::enc_mass( const double &r,
+const double SALTSA::density_profile::enc_mass( const double r,
 		const bool silent ) const
 {
 	if ( r == 0 )
@@ -199,7 +199,7 @@ SALTSA::tNFW_profile::tNFW_profile()
  * @param init_c
  * @param init_tau
  */
-SALTSA::tNFW_profile::tNFW_profile( const double &init_mvir0,
+SALTSA::tNFW_profile::tNFW_profile( const double init_mvir0,
 		const double init_z, const double init_c, const double init_tau ) :
 		SALTSA::redshift_obj( init_z )
 {
@@ -240,7 +240,7 @@ SALTSA::tNFW_profile::~tNFW_profile()
  * @param silent
  * @return
  */
-const int SALTSA::tNFW_profile::set_mvir( const double &new_halo_mass,
+const int SALTSA::tNFW_profile::set_mvir( const double new_halo_mass,
 		const bool silent )
 {
 	_mvir0_ = new_halo_mass;
@@ -429,7 +429,7 @@ const double SALTSA::tNFW_profile::hmvir() const
  * @param r
  * @return
  */
-const double SALTSA::tNFW_profile::dens( const double &r ) const
+const double SALTSA::tNFW_profile::dens( const double r ) const
 {
 	double result, rho_c;
 
@@ -456,7 +456,7 @@ const double SALTSA::tNFW_profile::dens( const double &r ) const
  * @param silent
  * @return
  */
-const double SALTSA::tNFW_profile::enc_mass( const double &r,
+const double SALTSA::tNFW_profile::enc_mass( const double r,
 		const bool silent ) const
 {
 	double result, rho_c;
@@ -633,7 +633,7 @@ SALTSA::point_mass_profile::~point_mass_profile()
  * @return
  */
 const int SALTSA::point_mass_profile::set_mvir(
-		const double &new_halo_mass, bool silent )
+		const double new_halo_mass, bool silent )
 {
 	_mass_ = new_halo_mass;
 	return 0;
@@ -744,7 +744,7 @@ const double SALTSA::point_mass_profile::hmvir() const
  * @return
  */
 const double SALTSA::point_mass_profile::dens(
-		const double &r ) const
+		const double r ) const
 {
 	double result = 0;
 
@@ -759,7 +759,7 @@ const double SALTSA::point_mass_profile::dens(
  * @return
  */
 const double SALTSA::point_mass_profile::enc_dens(
-		const double &r,
+		const double r,
 		const bool silent ) const
 {
 	return enc_mass( r ) / ( 4. / 3. * pi * std::pow( r, 3 ) );
@@ -771,7 +771,7 @@ const double SALTSA::point_mass_profile::enc_dens(
  * @return
  */
 const double SALTSA::point_mass_profile::enc_mass(
-		const double &r,
+		const double r,
 		const bool silent ) const
 {
 	return _mass_;
@@ -1004,7 +1004,7 @@ const int SALTSA::solve_rhm_function::set_host_ptr(
  * @return
  */
 const int SALTSA::solve_rhm_function::set_target_mass(
-		const double &new_target_mass )
+		const double new_target_mass )
 {
 	_target_mass_ = new_target_mass;
 	return 0;
@@ -1048,7 +1048,7 @@ SALTSA::solve_rhm_function::solve_rhm_function()
  * @param new_target_mass
  */
 SALTSA::solve_rhm_function::solve_rhm_function(
-		const density_profile *init_host, const double &new_target_mass )
+		const density_profile *init_host, const double new_target_mass )
 {
 	set_host_ptr( init_host );
 	set_target_mass( new_target_mass );
@@ -1313,7 +1313,7 @@ const double SALTSA::taufm( const double m_ratio, double conc,
  * @return
  */
 const double SALTSA::period( const SALTSA::density_profile *host,
-		const double &r, const double &vr, const double &vt )
+		const double r, const double vr, const double vt )
 {
 	double mu = host->enc_mass( r ) * Gc;
 	double v = quad_add( vr, vt );

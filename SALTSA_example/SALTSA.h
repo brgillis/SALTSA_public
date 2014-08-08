@@ -650,9 +650,9 @@ public:
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int add_point( const double &x, const double &y,
-			const double &z, const double &vx,
-			const double &vy, const double &vz, const double &t,
+	const int add_point( const double x, const double y,
+			const double z, const double vx,
+			const double vy, const double vz, const double t,
 			const double test_mass = 1, const double test_mass_error = 1 );
 	/**
 	 * Tell the orbit about a point along the satellite's path relative to the host, where
@@ -677,9 +677,9 @@ public:
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int force_add_point( const double &x, const double &y,
-			const double &z, const double &vx,
-			const double &vy, const double &vz, const double &t,
+	const int force_add_point( const double x, const double y,
+			const double z, const double vx,
+			const double vy, const double vz, const double t,
 			const double test_mass = 1, const double test_mass_error = 1 );
 	/**
 	 * Tell the orbit about a point along the satellite's path relative to the host, where
@@ -704,8 +704,8 @@ public:
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int add_point( const double &x, const double &y,
-			const double &z, const double &t,
+	const int add_point( const double x, const double y,
+			const double z, const double t,
 			const double test_mass = 1, const double test_mass_error = 1 );
 	/**
 	 * Tell the orbit about a point along the satellite's path relative to the host, where
@@ -729,8 +729,8 @@ public:
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int force_add_point( const double &x, const double &y,
-			const double &z, const double &t,
+	const int force_add_point( const double x, const double y,
+			const double z, const double t,
 			const double test_mass = 1, const double test_mass_error = 1 );
 	/**
 	 * Tell the orbit about the time of a discontinuity. For instance, this could be where the
@@ -740,7 +740,7 @@ public:
 	 *          Use the function SALTSA::zft(z) if only redshift is known.
 	 * @return
 	 */
-	const int add_discontinuity_time( const double &t );
+	const int add_discontinuity_time( const double t );
 	/**
 	 * Tell the orbit about the state of the host halo at a given time. This version checks
 	 * to ensure that no duplicate times are added (only among host parameter point times).
@@ -757,7 +757,7 @@ public:
 	 * @param silent Whether or not to suppress error messages.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int add_host_parameter_point( const std::vector< double > &parameters, const double &t,
+	const int add_host_parameter_point( const std::vector< double > &parameters, const double t,
 			const bool silent = false );
 	/**
 	 * Tell the orbit about the state of the host halo at a given time. This version does
@@ -774,7 +774,7 @@ public:
 	 * @param silent Whether or not to suppress error messages.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int force_add_host_parameter_point( const std::vector< double > &parameters, const double &t,
+	const int force_add_host_parameter_point( const std::vector< double > &parameters, const double t,
 			const bool silent = false );
 	/**
 	 * Clears all phase-space points that the orbit has been told about.
@@ -823,7 +823,7 @@ public:
 	 * @param new_init_tau Truncation parameter tau of the profile. Will be 2*c if left to default
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tNFW_init_satellite( const double &new_init_mvir0,
+	const int set_tNFW_init_satellite( const double new_init_mvir0,
 			const double z = 0, const double new_init_c = -1,
 			const double new_init_tau = -1 );
 	/**
@@ -836,7 +836,7 @@ public:
 	 * @param new_init_tau Truncation parameter tau of the profile. Will be 2*c if left to default
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tNFW_init_host( const double &new_mvir0, const double z = 0,
+	const int set_tNFW_init_host( const double new_mvir0, const double z = 0,
 			const double new_c = -1, const double new_tau = -1 );
 	/**
 	 * Clears initial satellite profile. Not actually necessary to do at any point, as setting to
@@ -865,7 +865,7 @@ public:
 	 * @param new_t_min The new minimum time.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_t_min( const double &new_t_min );
+	const int set_t_min( const double new_t_min );
 	/**
 	 * Override the default maximum time for stripping calculation. For instance, use this if
 	 * you only want to calculate stripping for a subsection of the orbit.
@@ -873,7 +873,7 @@ public:
 	 * @param new_t_min The new maximum time.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_t_max( const double &new_t_max );
+	const int set_t_max( const double new_t_max );
 	/**
 	 * Reset the minimum time to the default value (which will be the lowest time point passed
 	 * to the orbit).
@@ -1036,11 +1036,11 @@ public:
 	static const int & default_spline_resolution() {return _default_spline_resolution_;}
 	static const allowed_interpolation_type & default_interpolation_type()
 		{return _default_interpolation_type_;}
-	static const double & default_v_0() {return _default_v_0_;}
-	static const double & default_r_0() {return _default_r_0_;}
-	static const double & default_step_length_power() {return _default_step_length_power_;}
-	static const double & default_step_factor_max() {return _default_step_factor_max_;}
-	static const double & default_step_factor_min() {return _default_step_factor_min_;}
+	static const double  default_v_0() {return _default_v_0_;}
+	static const double  default_r_0() {return _default_r_0_;}
+	static const double  default_step_length_power() {return _default_step_length_power_;}
+	static const double  default_step_factor_max() {return _default_step_factor_max_;}
+	static const double  default_step_factor_min() {return _default_step_factor_min_;}
 	//@}
 #endif
 
@@ -1048,11 +1048,11 @@ public:
 #if(1)
 	//@{
 	/// Accessors to default tuning parameters.
-	static const double & default_tidal_stripping_amplification() {return _default_tidal_stripping_amplification_;}
-	static const double & default_tidal_stripping_deceleration() {return _default_tidal_stripping_deceleration_;}
-	static const double & default_tidal_shocking_amplification() {return _default_tidal_shocking_amplification_;}
-	static const double & default_tidal_shocking_persistance() {return _default_tidal_shocking_persistance_;}
-	static const double & default_tidal_shocking_power() {return _default_tidal_shocking_power_;}
+	static const double  default_tidal_stripping_amplification() {return _default_tidal_stripping_amplification_;}
+	static const double  default_tidal_stripping_deceleration() {return _default_tidal_stripping_deceleration_;}
+	static const double  default_tidal_shocking_amplification() {return _default_tidal_shocking_amplification_;}
+	static const double  default_tidal_shocking_persistance() {return _default_tidal_shocking_persistance_;}
+	static const double  default_tidal_shocking_power() {return _default_tidal_shocking_power_;}
 	//@}
 #endif
 
@@ -1064,11 +1064,11 @@ public:
 	const int & spline_resolution() const {return _base_resolution_;}
 	const allowed_interpolation_type & interpolation_type()
 		{return _interpolation_type_;}
-	const double & v_0() const {return _v_0_;}
-	const double & r_0() const {return _r_0_;}
-	const double & step_length_power() const {return _step_length_power_;}
-	const double & step_factor_max() const {return _step_factor_max_;}
-	const double & step_factor_min() const {return _step_factor_min_;}
+	const double  v_0() const {return _v_0_;}
+	const double  r_0() const {return _r_0_;}
+	const double  step_length_power() const {return _step_length_power_;}
+	const double  step_factor_max() const {return _step_factor_max_;}
+	const double  step_factor_min() const {return _step_factor_min_;}
 	//@}
 #endif
 
@@ -1076,11 +1076,11 @@ public:
 #if(1)
 	//@{
 	/// Accessors to tuning parameters for this orbit.
-	const double & tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
-	const double & tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
-	const double & tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
-	const double & tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
-	const double & tidal_shocking_power() const {return _tidal_shocking_power_;}
+	const double  tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
+	const double  tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
+	const double  tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
+	const double  tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
+	const double  tidal_shocking_power() const {return _tidal_shocking_power_;}
 	//@}
 #endif
 
@@ -1088,15 +1088,15 @@ public:
 	const int & num_segments() const {return _num_segments_;}
 
 	/// Accessor to what t_min would be if not overridden.
-	const double & t_min_natural_value() const {return _t_min_natural_value_;}
+	const double  t_min_natural_value() const {return _t_min_natural_value_;}
 	/// Accessor to what t_max would be if not overridden.
-	const double & t_max_natural_value() const {return _t_max_natural_value_;}
+	const double  t_max_natural_value() const {return _t_max_natural_value_;}
 	/// Accessor to the override value of t_min
-	const double & t_min_override_value() const {return _t_min_override_value_;}
+	const double  t_min_override_value() const {return _t_min_override_value_;}
 	/// Accessor to the override value of t_max
-	const double & t_max_override_value() const {return _t_max_override_value_;}
+	const double  t_max_override_value() const {return _t_max_override_value_;}
 	/// Accessor to the current value of t_min
-	const double & t_min() const
+	const double  t_min() const
 	{
 		if(_override_t_min_)
 			return _t_min_override_value_;
@@ -1104,7 +1104,7 @@ public:
 			return _t_min_natural_value_;
 	}
 	/// Accessor to the current value of t_max
-	const double & t_max() const
+	const double  t_max() const
 	{
 		if(_override_t_max_)
 			return _t_max_override_value_;
@@ -1292,7 +1292,7 @@ public:
 	 * @param mret Variable to be loaded with the retained mass estimate.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_mret_at_t( const double & t, double & mret) const;
+	const int get_mret_at_t( const double  t, double & mret) const;
 	/**
 	 * Get an estimate of the retained mass fraction at an arbitrary time. _record_full_data_ must be set to
 	 * True to get this; the orbit will be calculated again with it set if necessary.
@@ -1301,7 +1301,7 @@ public:
 	 * @param fmret Variable to be loaded with the retained mass fraction estimate.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_fmret_at_t( const double & t, double & fmret ) const;
+	const int get_fmret_at_t( const double  t, double & fmret ) const;
 	/**
 	 * Get an estimate of the retained mass fraction of the comparison orbit at an arbitrary time.
 	 *
@@ -1309,7 +1309,7 @@ public:
 	 * @param fmret Variable to be loaded with the retained mass estimate.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_comp_fmret_at_t( const double & t, double & fmret) const;
+	const int get_comp_fmret_at_t( const double  t, double & fmret) const;
 	/**
 	 * Get an estimate of the retained mass fraction error of the comparison orbit at an arbitrary time.
 	 *
@@ -1317,7 +1317,7 @@ public:
 	 * @param fmret_err Variable to be loaded with the retained mass estimate fraction error.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_comp_fmret_error_at_t( const double & t, double & fmret_err) const;
+	const int get_comp_fmret_error_at_t( const double  t, double & fmret_err) const;
 
 	// Get data at arbitrary time (throws exception on failure)
 	/**
@@ -1328,7 +1328,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass.
 	 * @return Retained mass estimate.
 	 */
-	const double mret_at_t(const double & t) const;
+	const double mret_at_t(const double  t) const;
 	/**
 	 * Get the retained mass fraction at an arbitrary time, throwing an exception on failure.
 	 * _record_full_data_ must be set to True to get this; the orbit will be calculated again
@@ -1337,7 +1337,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass.
 	 * @return Retained mass fraction estimate.
 	 */
-	const double fmret_at_t(const double & t) const;
+	const double fmret_at_t(const double  t) const;
 	/**
 	 * Get the retained mass fraction of the comparison orbit at an arbitrary time, throwing an exception
 	 * on failure.
@@ -1345,7 +1345,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass fraction.
 	 * @return Retained mass fraction estimate.
 	 */
-	const double comp_fmret_at_t(const double & t) const;
+	const double comp_fmret_at_t(const double  t) const;
 	/**
 	 * Get the retained mass fraction error of the comparison orbit at an arbitrary time, throwing an
 	 * exception on failure.
@@ -1353,7 +1353,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass fraction error.
 	 * @return Retained mass fraction error estimate.
 	 */
-	const double comp_fmret_error_at_t(const double & t) const;
+	const double comp_fmret_error_at_t(const double  t) const;
 
 	// Quality of fit.
 	/**
