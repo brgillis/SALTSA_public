@@ -152,9 +152,12 @@ private:
 	static double _default_tidal_stripping_amplification_; ///< Amplifies tidal stripping by this factor
 	static double _default_tidal_stripping_deceleration_; /**< If positive, increase tidal stripping near pericentre,
 														        if negative, decrease near pericentre */
-	static double _default_tidal_shocking_amplification_; /// Amplifies tidal heating by this factor
-	static double _default_tidal_shocking_persistance_; /// How long shocking is active for
-	static double _default_tidal_shocking_power_; /// Affects interplay of stripping and satellite halo profile
+	static double _default_tidal_stripping_radialness_; /**< How much tidal stripping depends on full velocity
+	                                                         versus tangential velocity. Larger value of this
+	                                                         increases stripping of more radial orbits preferentially */
+	static double _default_tidal_shocking_amplification_; ///< Amplifies tidal heating by this factor
+	static double _default_tidal_shocking_persistance_; ///< How long shocking is active for
+	static double _default_tidal_shocking_power_; ///< Affects interplay of stripping and satellite halo profile
 	//@}
 #endif
 
@@ -165,6 +168,9 @@ private:
 	double _tidal_stripping_amplification_; /// Amplifies tidal stripping by this factor
 	double _tidal_stripping_deceleration_; /** If positive, increase tidal stripping near pericentre,
 	  	  	  	  	  	  	  	  	  	       if negative, decrease near pericentre */
+	double _tidal_stripping_radialness_; /** How much tidal stripping depends on full velocity
+	                                         versus tangential velocity. Larger value of this
+	                                         increases stripping of more radial orbits preferentially */
 	double _tidal_shocking_amplification_; /// Amplifies tidal heating by this factor
 	double _tidal_shocking_persistance_; /// How long shocking is active for
 	double _tidal_shocking_power_; /// Affects interplay of stripping and satellite halo profile
@@ -444,6 +450,12 @@ public:
 			const double new_default_tidal_stripping_deceleration,
 			const bool override_current,
 			const bool silent=false );
+	static const int set_default_tidal_stripping_radialness(
+			const double new_default_tidal_stripping_radialness);
+	const int set_default_tidal_stripping_radialness(
+			const double new_default_tidal_stripping_radialness,
+			const bool override_current,
+			const bool silent=false );
 	static const int set_default_tidal_shocking_amplification(
 			const double new_default_tidal_shocking_amplification);
 	const int set_default_tidal_shocking_amplification(
@@ -568,6 +580,8 @@ public:
 	 */
 	const int set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
 			const bool silent=false );
+	const int set_tidal_stripping_radialness( const double new_tidal_stripping_radialness,
+			const bool silent=false );
 	/**
 	 * Set the new value for tidal shocking amplification (A_h in the paper).
 	 *
@@ -617,6 +631,7 @@ public:
 	/// Reset tuning parameters to their default values
 	const int reset_tidal_stripping_amplification();
 	const int reset_tidal_stripping_deceleration();
+	const int reset_tidal_stripping_radialness();
 	const int reset_tidal_shocking_amplification();
 	const int reset_tidal_shocking_persistance();
 	const int reset_tidal_shocking_power();
@@ -1050,6 +1065,7 @@ public:
 	/// Accessors to default tuning parameters.
 	static const double  default_tidal_stripping_amplification() {return _default_tidal_stripping_amplification_;}
 	static const double  default_tidal_stripping_deceleration() {return _default_tidal_stripping_deceleration_;}
+	static const double  default_tidal_stripping_radialness() {return _default_tidal_stripping_radialness_;}
 	static const double  default_tidal_shocking_amplification() {return _default_tidal_shocking_amplification_;}
 	static const double  default_tidal_shocking_persistance() {return _default_tidal_shocking_persistance_;}
 	static const double  default_tidal_shocking_power() {return _default_tidal_shocking_power_;}
@@ -1078,6 +1094,7 @@ public:
 	/// Accessors to tuning parameters for this orbit.
 	const double  tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
 	const double  tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
+	const double  tidal_stripping_radialness() const {return _tidal_stripping_radialness_;}
 	const double  tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
 	const double  tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
 	const double  tidal_shocking_power() const {return _tidal_shocking_power_;}

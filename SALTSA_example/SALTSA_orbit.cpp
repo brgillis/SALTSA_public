@@ -69,8 +69,9 @@ double SALTSA::stripping_orbit::_default_step_factor_min_ = 0.001; // Minimum al
 
 #if(1)
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-double SALTSA::stripping_orbit::_default_tidal_stripping_amplification_ = 0.625; // Tuned
-double SALTSA::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.15; // Tuned
+double SALTSA::stripping_orbit::_default_tidal_stripping_amplification_ = 0.6; // Tuned
+double SALTSA::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.175; // Tuned
+double SALTSA::stripping_orbit::_default_tidal_stripping_radialness_ = 0; // Tuned
 double SALTSA::stripping_orbit::_default_tidal_shocking_amplification_ = 3.0; // Tuned
 double SALTSA::stripping_orbit::_default_tidal_shocking_persistance_ = 1.0; // How long shocking is active for
 double SALTSA::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affects interplay of stripping and satellite halo profile
@@ -88,17 +89,8 @@ double SALTSA::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affect
 // Swap functions
 void SALTSA::interpolator_functor::swap(interpolator_functor & other)
 {
-	using std::swap;
-	swap(_interpolator_ptr_,other._interpolator_ptr_);
-	swap(_interpolator_ptr_set_up_,other._interpolator_ptr_set_up_);
-}
-namespace std
-{
-	template <>
-	void swap(SALTSA::interpolator_functor &same, SALTSA::interpolator_functor &other)
-	{
-		same.swap(other);
-	}
+	std::swap(_interpolator_ptr_,other._interpolator_ptr_);
+	std::swap(_interpolator_ptr_set_up_,other._interpolator_ptr_set_up_);
 }
 
 // Constructors
@@ -712,6 +704,7 @@ const int SALTSA::stripping_orbit::_pass_parameters_to_segment(
 	err_code += ( segment.set_step_factor_max(_step_factor_max_ ) );
 	err_code += ( segment.set_tidal_stripping_amplification(_tidal_stripping_amplification_ ) );
 	err_code += ( segment.set_tidal_stripping_deceleration(_tidal_stripping_deceleration_ ) );
+	err_code += ( segment.set_tidal_stripping_radialness(_tidal_stripping_radialness_ ) );
 	err_code += ( segment.set_tidal_shocking_amplification(_tidal_shocking_amplification_ ) );
 	err_code += ( segment.set_tidal_shocking_persistance(_tidal_shocking_persistance_ ) );
 	err_code += ( segment.set_tidal_shocking_power(_tidal_shocking_power_ ) );
@@ -753,6 +746,7 @@ void SALTSA::stripping_orbit::swap(stripping_orbit &other)
 #if(1)
 	swap(_tidal_stripping_amplification_, other._tidal_stripping_amplification_);
 	swap(_tidal_stripping_deceleration_, other._tidal_stripping_deceleration_);
+	swap(_tidal_stripping_radialness_, other._tidal_stripping_radialness_);
 	swap(_tidal_shocking_amplification_, other._tidal_shocking_amplification_);
 	swap(_tidal_shocking_persistance_, other._tidal_shocking_persistance_);
 	swap(_tidal_shocking_power_, other._tidal_shocking_power_);
@@ -881,6 +875,7 @@ SALTSA::stripping_orbit::stripping_orbit(
 #if(1)
 	_tidal_stripping_amplification_ = other._tidal_stripping_amplification_;
 	_tidal_stripping_deceleration_ = other._tidal_stripping_deceleration_;
+	_tidal_stripping_radialness_ = other._tidal_stripping_radialness_;
 	_tidal_shocking_amplification_ = other._tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = other._tidal_shocking_persistance_;
 	_tidal_shocking_power_ = other._tidal_shocking_power_;
@@ -1050,6 +1045,7 @@ const int SALTSA::stripping_orbit::clear()
 #if(1)
 	_tidal_stripping_amplification_ = _default_tidal_stripping_amplification_;
 	_tidal_stripping_deceleration_ = _default_tidal_stripping_deceleration_;
+	_tidal_stripping_radialness_ = _default_tidal_stripping_radialness_;
 	_tidal_shocking_amplification_ = _default_tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = _default_tidal_shocking_persistance_;
 	_tidal_shocking_power_ = _default_tidal_shocking_power_;
@@ -1301,6 +1297,7 @@ const int SALTSA::stripping_orbit::clear_points()
 	_test_mass_error_interpolator_.clear();
 
 	_t_points_.clear();
+	_host_param_t_points_.clear();
 
 	_t_min_natural_value_ = DBL_MAX;
 	_t_max_natural_value_ = ( -DBL_MAX );
@@ -1669,7 +1666,8 @@ const int SALTSA::stripping_orbit::set_default_tidal_stripping_amplification(
 	}
 	_default_tidal_stripping_amplification_ = new_default_tidal_stripping_amplification;
 
-	reset_tidal_stripping_amplification();
+	if(override_current)
+		reset_tidal_stripping_amplification();
 	return 0;
 }
 const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
@@ -1688,7 +1686,28 @@ const int SALTSA::stripping_orbit::set_default_tidal_stripping_deceleration(
 		return 0;
 	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
 
-	reset_tidal_stripping_deceleration();
+	if(override_current)
+			reset_tidal_stripping_deceleration();
+	return 0;
+}
+const int SALTSA::stripping_orbit::set_default_tidal_stripping_radialness(
+		const double new_default_tidal_stripping_radialness)
+{
+	_default_tidal_stripping_radialness_ = new_default_tidal_stripping_radialness;
+	return 0;
+}
+const int SALTSA::stripping_orbit::set_default_tidal_stripping_radialness(
+		const double new_default_tidal_stripping_radialness,
+		const bool override_current,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_default_tidal_stripping_radialness == _default_tidal_stripping_radialness_ )
+		return 0;
+	_default_tidal_stripping_radialness_ = new_default_tidal_stripping_radialness;
+
+	if(override_current)
+			reset_tidal_stripping_radialness();
 	return 0;
 }
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
@@ -1715,8 +1734,8 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_amplification(
 	}
 	_default_tidal_shocking_amplification_ = new_default_tidal_shocking_amplification;
 
-	reset_tidal_shocking_amplification();
-
+	if(override_current)
+			reset_tidal_shocking_amplification();
 	return 0;
 }
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
@@ -1743,8 +1762,8 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_persistance(
 	}
 	_default_tidal_shocking_persistance_ = new_default_tidal_shocking_persistance;
 
-	reset_tidal_shocking_persistance();
-
+	if(override_current)
+			reset_tidal_shocking_persistance();
 	return 0;
 }
 const int SALTSA::stripping_orbit::set_default_tidal_shocking_power(
@@ -1763,8 +1782,8 @@ const int SALTSA::stripping_orbit::set_default_tidal_shocking_power(
 		return 0;
 	_default_tidal_shocking_power_ = new_default_tidal_shocking_power;
 
-	reset_tidal_shocking_power();
-
+	if(override_current)
+			reset_tidal_shocking_power();
 	return 0;
 }
 #endif
@@ -1962,6 +1981,18 @@ const int SALTSA::stripping_orbit::set_tidal_stripping_deceleration(
 	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
 	return 0;
 }
+const int SALTSA::stripping_orbit::set_tidal_stripping_radialness(
+		const double new_tidal_stripping_radialness,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_stripping_radialness == _tidal_stripping_radialness_ )
+		return 0;
+
+	clear_calcs();
+	_tidal_stripping_radialness_ = new_tidal_stripping_radialness;
+	return 0;
+}
 /**
  *
  * @param new_tidal_shocking_amplification
@@ -2156,6 +2187,16 @@ const int SALTSA::stripping_orbit::reset_tidal_stripping_deceleration()
 
 	clear_calcs();
 	_tidal_stripping_deceleration_ = _default_tidal_stripping_deceleration_;
+	return 0;
+}
+const int SALTSA::stripping_orbit::reset_tidal_stripping_radialness()
+{
+	// Check if anything is actually changing here
+	if ( _default_tidal_stripping_radialness_ == _tidal_stripping_radialness_ )
+		return 0;
+
+	clear_calcs();
+	_tidal_stripping_radialness_ = _default_tidal_stripping_radialness_;
 	return 0;
 }
 /**
@@ -3333,6 +3374,7 @@ void SALTSA::stripping_orbit_segment::swap(stripping_orbit_segment &other)
 #if(1)
 	swap(_tidal_stripping_amplification_, other._tidal_stripping_amplification_);
 	swap(_tidal_stripping_deceleration_, other._tidal_stripping_deceleration_);
+	swap(_tidal_stripping_radialness_, other._tidal_stripping_radialness_);
 	swap(_tidal_shocking_amplification_, other._tidal_shocking_amplification_);
 	swap(_tidal_shocking_persistance_, other._tidal_shocking_persistance_);
 	swap(_tidal_shocking_power_, other._tidal_shocking_power_);
@@ -3444,6 +3486,7 @@ SALTSA::stripping_orbit_segment::stripping_orbit_segment(
 #if(1)
 	_tidal_stripping_amplification_ = other._tidal_stripping_amplification_;
 	_tidal_stripping_deceleration_ = other._tidal_stripping_deceleration_;
+	_tidal_stripping_radialness_ = other._tidal_stripping_radialness_;
 	_tidal_shocking_amplification_ = other._tidal_shocking_amplification_;
 	_tidal_shocking_persistance_ = other._tidal_shocking_persistance_;
 	_tidal_shocking_power_ = other._tidal_shocking_power_;
@@ -3617,6 +3660,7 @@ const int SALTSA::stripping_orbit_segment::clear()
 #if(1)
 	_tidal_stripping_amplification_ = SALTSA::stripping_orbit::default_tidal_stripping_amplification();
 	_tidal_stripping_deceleration_ = SALTSA::stripping_orbit::default_tidal_stripping_deceleration();
+	_tidal_stripping_radialness_ = SALTSA::stripping_orbit::default_tidal_stripping_radialness();
 	_tidal_shocking_amplification_ = SALTSA::stripping_orbit::default_tidal_shocking_amplification();
 	_tidal_shocking_persistance_ = SALTSA::stripping_orbit::default_tidal_shocking_persistance();
 	_tidal_shocking_power_ = SALTSA::stripping_orbit::default_tidal_shocking_power();
@@ -3893,6 +3937,18 @@ const int SALTSA::stripping_orbit_segment::set_tidal_stripping_deceleration(
 
 	clear_calcs();
 	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
+	return 0;
+}
+const int SALTSA::stripping_orbit_segment::set_tidal_stripping_radialness(
+		const double new_tidal_stripping_radialness,
+		const bool silent )
+{
+	// Check if anything is actually changing here
+	if ( new_tidal_stripping_radialness == _tidal_stripping_radialness_ )
+		return 0;
+
+	clear_calcs();
+	_tidal_stripping_radialness_ = new_tidal_stripping_radialness;
 	return 0;
 }
 /**
@@ -6687,9 +6743,16 @@ const double SALTSA::stripping_orbit_segment::_tidal_strip_retained( const densi
 		const double time_step, const long double &sum_delta_rho ) const
 {
 	double new_rt;
-	double inst_orbital_period, hm_period, stripping_period;
+	double inst_tangential_orbital_period, inst_full_orbital_period,
+		inst_orbital_period, hm_period, stripping_period;
 	double mass_frac_retained, mass_frac_lost_total;
-	inst_orbital_period = 2 * pi * r / safe_d(vt);
+	inst_tangential_orbital_period = 2 * pi * r / safe_d(vt);
+	inst_full_orbital_period = 2 * pi * r / safe_d(quad_add(vt,vr));
+
+	inst_orbital_period = inst_tangential_orbital_period *
+			std::pow(inst_full_orbital_period/safe_d(inst_tangential_orbital_period),
+				_tidal_stripping_radialness_);
+
 	hm_period = satellite->othm();
 
 	if(isbad(hm_period) or (hm_period<=0))

@@ -464,6 +464,9 @@ private:
 	double _tidal_stripping_amplification_; // Amplifies tidal stripping by this factor
 	double _tidal_stripping_deceleration_; // If positive, increase tidal stripping near pericentre,
 	  	  	  	  	  	  	  	  	  	   // if negative, decrease near pericentre
+	double _tidal_stripping_radialness_; // How much tidal stripping depends on full velocity
+	                                     // versus tangential velocity. Larger value of this
+	                                     // increases stripping of more radial orbits preferentially
 	double _tidal_shocking_amplification_; // Amplifies tidal heating by this factor
 	double _tidal_shocking_persistance_; // How long shocking is active for
 	double _tidal_shocking_power_; // Affects interplay of stripping and satellite halo profile
@@ -600,6 +603,8 @@ public:
 			const bool silent=false );
 	const int set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
 			const bool silent=false );
+	const int set_tidal_stripping_radialness( const double new_tidal_stripping_radialness,
+			const bool silent=false );
 	const int set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
 			const bool silent=false );
 	const int set_tidal_shocking_persistance( const double new_tidal_shocking_persistance,
@@ -686,6 +691,7 @@ public:
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
 	const double  tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
 	const double  tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
+	const double  tidal_stripping_radialness() const {return _tidal_stripping_radialness_;}
 	const double  tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
 	const double  tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
 	const double  tidal_shocking_power() const {return _tidal_shocking_power_;}
@@ -746,7 +752,7 @@ public:
 
 	long double sum_delta_rho, Daccel, omega;
 	const int operator()( const double & in_param,
-	double & out_param, const bool silent = false ) const;
+			double & out_param, const bool silent = false ) const;
 	solve_rt_it_functor( const double init_omega,
 			const density_profile *init_satellite, const double init_Daccel,
 			const long double init_sum_delta_rho = 0 );
