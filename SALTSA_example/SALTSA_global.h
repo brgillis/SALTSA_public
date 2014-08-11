@@ -9,9 +9,11 @@
 // so just undef this for release builds if you're satisfied
 // there's no actual problem.
 
-#undef _BRG_USE_CPP_11_STD_ // Use C++11 standard. This enables the use of unique_ptrs primarily
-                            // If you don't want to link boost, make sure to enable this and use the
-                            // compiler flag --std=c++11
+#if(__cplusplus==201103L)
+#define _BRG_USE_CPP_11_STD_
+#else
+#undef _BRG_USE_CPP_11_STD_
+#endif
 
 // Set up global parameters
 
