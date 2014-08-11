@@ -553,7 +553,7 @@ template< typename T >
 const std::vector<T> abs( std::vector<T> v )
 {
 	using std::abs;
-	using brgastro::abs;
+	using SALTSA::abs;
 
 	for(unsigned int i = 0; i < v.size(); i++)
 	{
@@ -572,7 +572,7 @@ template< typename T >
 const std::vector<T> sqrt( std::vector<T> v )
 {
 	using std::sqrt;
-	using brgastro::sqrt;
+	using SALTSA::sqrt;
 
 	for(unsigned int i = 0; i < v.size(); i++)
 	{
@@ -609,7 +609,7 @@ template< typename T >
 const std::vector<T> exp( std::vector<T> v )
 {
 	using std::exp;
-	using brgastro::exp;
+	using SALTSA::exp;
 
 	for(unsigned int i = 0; i < v.size(); i++)
 		v[i] = exp(v[i]);
