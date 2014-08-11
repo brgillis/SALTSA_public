@@ -3309,8 +3309,8 @@ const int SALTSA::stripping_orbit::get_quality_of_fit( double & Q, const unsigne
 
 	for(double t=t_min(), tm=t_max(); t<tm; t+=t_step)
 	{
-		temp_Q += std::pow((_m_ret_interpolator_(t) - _test_mass_interpolator_(t))
-				/safe_d( _test_mass_error_interpolator_(t) ) ,2);
+		temp_Q += square((_m_ret_interpolator_(t) - _test_mass_interpolator_(t))
+				/safe_d( _test_mass_error_interpolator_(t) ));
 	}
 
 	Q = temp_Q/safe_d(samples);

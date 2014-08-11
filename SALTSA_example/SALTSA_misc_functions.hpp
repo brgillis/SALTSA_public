@@ -161,6 +161,61 @@ const T quart(T v1)
 	return square(v1)*square(v1);
 }
 
+// Inline inverse
+template< typename T >
+const double inverse(T v1)
+{
+	return 1./v1;
+}
+inline const long double inverse(long double v1)
+{
+	return 1./v1;
+}
+
+// Inline square
+template< typename T >
+const double inv_square(T v1)
+{
+	return inverse(square(v1));
+}
+inline const long double inv_square(long double v1)
+{
+	return inverse(square(v1));
+}
+
+// Inline cube
+template< typename T >
+const double inv_cube(T v1)
+{
+	return inverse(cube(v1));
+}
+inline const long double inv_cube(long double v1)
+{
+	return inverse(cube(v1));
+}
+
+// Inline quart
+template< typename T >
+const double inv_quart(T v1)
+{
+	return inverse(quart(v1));
+}
+inline const long double inv_quart(long double v1)
+{
+	return inverse(quart(v1));
+}
+
+// Integer power - use only when you know it'll be an integer, but not the specific value,
+// and when it isn't likely to be too high
+template< typename T >
+const T ipow( T v, unsigned int p )
+{
+	if(p>=2) return v*ipow(v,p-1);
+	if(p==1) return v;
+	if(p<0) return 1/ipow(v,-p);
+	return 1;
+}
+
 // "Safe" functions - perform the operation specified, but will
 // take necessary actions to ensure it won't crash the program
 // if the argument is invalid (eg. taking square-root of a negative
@@ -255,17 +310,15 @@ const T safe_d( const T a )
 	if ( isnan( a ) )
 		return min_d;
 	if ( isinf( a ) )
-		return pow( min_d, -1 );
+		return inverse( min_d );
 
-	if ( a >= 0 )
-		result = max( a, min_d );
-	else
-		result = a;
+	if (std::fabs(a)>min_d)
+		return a;
 
-	if ( result == 0 )
-		result = 1; // In case we're dealing with integers here.
+	if(min_d == 0) return 1; // In case of integers
 
-	return result;
+	return min_d;
+
 }
 
 // Gaussian PDF
@@ -283,7 +336,7 @@ template< typename Tx, typename Tmean, typename Tstddev >
 inline const double Gaus_pdf( const Tx x, const Tmean mean = 0,
 		const Tstddev std_dev = 1 )
 {
-	return exp( -pow( x - mean, 2 ) / ( 2 * std_dev * std_dev ) )
+	return exp( -square( x - mean ) / ( 2 * std_dev * std_dev ) )
 			/ ( std_dev * sqrt( 2 * pi ) );
 }
 
@@ -349,7 +402,7 @@ inline const Ta weighted_dist( std::vector< Ta > a,
 	}
 	for ( unsigned int i = 0; i < a.size(); i++ )
 	{
-		result += std::pow( ( b[i] - a[i] ) , 2 );
+		result += square( b[i] - a[i] );
 	}
 	result = safe_sqrt( result );
 	return result;
@@ -365,7 +418,7 @@ inline const Ta weighted_dist( std::vector< Ta > a,
 	}
 	for ( size_t i = 0; i < a.size(); i++ )
 	{
-		result += std::pow( ( b[i] - a[i] ) * c[i], 2 );
+		result += square ( ( b[i] - a[i] ) * c[i] );
 	}
 	result = safe_sqrt( result );
 	return result;

@@ -309,7 +309,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 
 	// Narrowing search
 	step_dist = 1;
-	num_test_points = round_int( std::pow( 3, num_in_params ) );
+	num_test_points = ipow( 3, num_in_params );
 	in_params_step = init_in_params_step;
 	precision = init_precision;
 
@@ -566,7 +566,7 @@ const int solve_grid( const f * func, const unsigned int num_in_params,
 
 	// Narrowing search
 	step_dist = 1;
-	num_test_points = round_int( std::pow( 3, num_in_params ) );
+	num_test_points = ipow( 3, num_in_params );
 	in_params_step = init_in_params_step;
 	precision = init_precision;
 

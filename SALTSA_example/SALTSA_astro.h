@@ -200,18 +200,18 @@ inline const double mftau( const double tau, const double conc ) // Mtot/Mvir fr
 {
 	if(tau<=0) return 0;
 	double M0oM200 = 1 / ( log( 1 + conc ) - conc / ( 1 + conc ) );
-	double tau_sq = square(tau);
+	double tautau = tau*tau;
 	double result =
-			M0oM200 * tau_sq / square( tau_sq + 1 )
-					* ( ( tau_sq - 1 ) * log( tau ) + tau * pi
-							- ( tau_sq + 1 ) );
+			M0oM200 * tautau / square( tautau + 1 )
+					* ( ( tautau - 1 ) * log( tau ) + tau * pi
+							- ( tautau + 1 ) );
 	return result;
 }
 const double taufm( const double mratio, double c, double tau_init = 0, double precision = 0.00001,
 		const bool silent = false ); // tau from Mtot/Mvir
 inline const double delta_c( const double conc ) // Simple function of concentration used as a step in calculating NFW densities
 {
-	return ( 200. / 3. ) * cube(conc)
+	return ( 200. / 3. ) * cube( conc )
 			/ ( log( 1 + conc ) - conc / ( 1 + conc ) );
 }
 
@@ -519,7 +519,7 @@ public:
 		double virial_density_factor = 200;
 
 		return safe_pow(
-				2 * mvir() * Gc / ( pow( H(), 2 ) * virial_density_factor ),
+				2 * mvir() * Gc / ( square( H() ) * virial_density_factor ),
 				1. / 3. );
 	}
 	const double hmvir() const // Half virial mass
@@ -539,7 +539,7 @@ public:
 	{
 		double r_to_use = max( std::fabs( r ), SMALL_FACTOR );
 		return enc_mass( r_to_use, silent )
-				/ ( 4. / 3. * pi * std::pow( std::fabs( r_to_use ), 3 ) );
+				/ ( 4. / 3. * pi * cube( std::fabs( r_to_use ) ) );
 	}
 	virtual const double rhmvir( const bool silent = false ) const; // Half-virial-mass radius
 	virtual const double rhmtot( const bool silent = false ) const; // Half-total-mass radius
@@ -599,7 +599,7 @@ public:
 	const double accel( const double r,
 			const bool silent = false ) const // Gravitational acceleration at radius r
 	{
-		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / square(r);
+		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / square( r );
 	}
 	virtual const double Daccel( const double r, const bool silent =
 			false ) const; // Derivative of acceleration at radius r

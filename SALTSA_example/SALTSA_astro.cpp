@@ -38,9 +38,9 @@ const double SALTSA::redshift_obj::H() const
 			double zp1 = 1.+_z_;
 			// Friedmann equation, assuming omega = -1
 			_H_cache_ = H_0
-				* std::sqrt( Omega_r * square(square(zp1))
-						+ Omega_m * (zp1)*square(zp1)
-						+ Omega_k * square(zp1) + Omega_l );
+				* std::sqrt( Omega_r * quart( zp1 )
+						+ Omega_m * cube( zp1 )
+						+ Omega_k * square( zp1 ) + Omega_l );
 		}
 		_H_cached_ = true;
 	}
@@ -51,10 +51,11 @@ const double SALTSA::redshift_obj::H( const double test_z ) const
 {
 	// Friedmann equation, assuming omega = -1
 	if(test_z==0) return H_0;
+	double zp1 = 1.+test;
 	return H_0
-			* sqrt( Omega_r * std::pow( 1 + test_z, 4 )
-							+ Omega_m * std::pow( 1 + test_z, 3 )
-							+ Omega_k * pow( 1 + test_z, 2 ) + Omega_l );
+			* std::sqrt( Omega_r * quart( zp1 )
+							+ Omega_m * cube( zp1 )
+							+ Omega_k * square( zp1 ) + Omega_l );
 }
 #endif
 
@@ -475,7 +476,8 @@ const double SALTSA::tNFW_profile::enc_mass( const double r,
 	using std::log;
 	using std::atan;
 
-	double m0, mx, rho_c;
+	double rho_c;
+	double m0, mx;
 	double d_c, x, tau_use;
 	if ( _tau_ < 0 )
 		tau_use = default_tau_factor * _c_;
@@ -966,7 +968,7 @@ const int SALTSA::spherical_density_function::operator()(
 					<< "ERROR: Host must be assigned to spherical_density_function before function can be called.\n";
 		return NOT_SET_UP_ERROR;
 	}
-	out_param = 4 * pi * std::pow( in_param, 2 )
+	out_param = 4 * pi * square( in_param )
 			* _host_ptr_->dens( in_param );
 	return 0;
 }
@@ -1192,12 +1194,11 @@ const double SALTSA::integrate_distance( const double z1_init,
 		a2 = 1 / ( 1 + z2 );
 		z = ( a1 / a2 ) - 1;
 		h1 = H_0
-				* sqrt(
-						OR0 * std::pow( a1, -4 ) + OM0 * std::pow( a1, -3 )
-								+ OK0 * std::pow( a1, -2 ) + OL0 );
-		OM = OM0 * std::pow( H_0 / h1, 2 ) * std::pow( a1, -3 );
-		OR = OR0 * std::pow( H_0 / h1, 2 ) * std::pow( a1, -4 );
-		OL = OL0 * std::pow( H_0 / h1, 2 );
+				* std::sqrt( OR0 * inv_quart( a1 ) + OM0 * inv_cube( a1 )
+								+ OK0 * inv_square( a1 ) + OL0 );
+		OM = OM0 * square( H_0 / h1 ) * inv_cube( a1 );
+		OR = OR0 * square( H_0 / h1 ) * inv_quart( a1 );
+		OL = OL0 * square( H_0 / h1 );
 		OK = 1 - OM - OR - OL;
 	}
 
@@ -1207,10 +1208,8 @@ const double SALTSA::integrate_distance( const double z1_init,
 	{
 		a = ( i - 0.5 ) / n;              // Steadily decrease the scale factor
 		// Comoving formula (See section 4 of Hogg, but I've added a radiation term too):
-		adot = a
-				* sqrt(
-						OM * std::pow( 1 / a, 3 ) + OK * std::pow( 1 / a, 2 )
-								+ OL + OR * std::pow( 1 / a, 4 ) ); // Note that "a" is equivalent to 1/(1+z)
+		adot = a * std::sqrt( OM * inv_cube(a) + OK * inv_square(a)
+								+ OL + OR * inv_quart(a) ); // Note that "a" is equivalent to 1/(1+z)
 		 // Collect DC and DT until the correct scale is reached
 		DCC = DCC + 1 / ( a * adot ) / n; // Running total of the comoving distance
 		DTT = DTT + 1 / adot / n; // Running total of the light travel time (see section 10 of Hogg)
@@ -1225,9 +1224,9 @@ const double SALTSA::integrate_distance( const double z1_init,
 
 	// Transverse comoving distance DM from section 5 of Hogg:
 	if ( OK > 0.0001 )
-		DM = ( 1 / sqrt( OK ) ) * sinh( sqrt( OK ) * DC );
+		DM = ( 1 / std::sqrt( OK ) ) * sinh( std::sqrt( OK ) * DC );
 	else if ( OK < -0.0001 )
-		DM = ( 1 / sqrt( fabs( OK ) ) ) * sin( sqrt( fabs( OK ) ) * DC );
+		DM = ( 1 / std::sqrt( fabs( OK ) ) ) * sin( std::sqrt( fabs( OK ) ) * DC );
 	else
 		DM = DC;
 
