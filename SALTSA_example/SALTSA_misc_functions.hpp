@@ -303,7 +303,6 @@ const T safe_d( const T a )
 		std::cerr << "WARNING: safe_d() prevented error from zero input or bad input.\n";
 	}
 #endif
-	T result = a;
 	T min_d = a; // So it'll have the right units if we're using units here.
 	min_d = MIN_DIVISOR;
 

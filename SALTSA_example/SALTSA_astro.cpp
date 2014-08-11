@@ -51,7 +51,7 @@ const double SALTSA::redshift_obj::H( const double test_z ) const
 {
 	// Friedmann equation, assuming omega = -1
 	if(test_z==0) return H_0;
-	double zp1 = 1.+test;
+	double zp1 = 1.+test_z;
 	return H_0
 			* std::sqrt( Omega_r * quart( zp1 )
 							+ Omega_m * cube( zp1 )
@@ -1324,7 +1324,7 @@ const double SALTSA::period( const SALTSA::density_profile *host,
 	double v = quad_add( vr, vt );
 	double a = -mu / 2 / safe_d( v * v / 2 - mu / safe_d( r ) );
 	double result = (
-			a > 0 ? 2 * pi * sqrt( std::pow( a, 3 ) / mu ) : double( 0 ) );
+			a > 0 ? 2 * pi * std::sqrt( std::pow( a, 3 ) / mu ) : double( 0 ) );
 	return result;
 }
 

@@ -324,8 +324,6 @@ int main( const int argc, const char *argv[] )
 
 		// And that's it for this orbit. We'll go through all of them and calculate stripping for
 		// various circularities, storing the results in ASCII text files.
-
-		return 0; // Debug line
 	}
 #endif
 
