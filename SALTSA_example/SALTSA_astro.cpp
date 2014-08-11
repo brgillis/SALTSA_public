@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -35,28 +36,13 @@ const double SALTSA::redshift_obj::H() const
 		}
 		else
 		{
-			double zp1 = 1.+_z_;
-			// Friedmann equation, assuming omega = -1
-			_H_cache_ = H_0
-				* std::sqrt( Omega_r * quart( zp1 )
-						+ Omega_m * cube( zp1 )
-						+ Omega_k * square( zp1 ) + Omega_l );
+			_H_cache_ = SALTSA::H(_z_);
 		}
 		_H_cached_ = true;
 	}
 	return _H_cache_;
 }
 
-const double SALTSA::redshift_obj::H( const double test_z ) const
-{
-	// Friedmann equation, assuming omega = -1
-	if(test_z==0) return H_0;
-	double zp1 = 1.+test_z;
-	return H_0
-			* std::sqrt( Omega_r * quart( zp1 )
-							+ Omega_m * cube( zp1 )
-							+ Omega_k * square( zp1 ) + Omega_l );
-}
 #endif
 
 // SALTSA::density_profile class methods
@@ -192,6 +178,40 @@ const double SALTSA::density_profile::enc_mass( const double r,
 // SALTSA::tNFW_profile class methods
 #if (1)
 
+const double SALTSA::tNFW_profile::_taufm( const double m_ratio,
+		double precision, const bool silent ) const
+{
+	double m_target = m_ratio * _mftau();
+	double taustepsize = _tau_ / 2;
+	double tautest[3];
+	double mtest, mbest;
+	int i, ibest;
+
+	tautest[0] = _tau_ / 2;
+	mbest = 1e99;
+
+	while ( taustepsize > precision * _c_ )
+	{
+		taustepsize /= 2;
+		tautest[1] = tautest[0] - taustepsize;
+		tautest[2] = tautest[0] + taustepsize;
+		ibest = 0;
+		for ( i = 0; i < 3; i++ )
+		{
+			mtest = _mftau( tautest[i] );
+			if ( fabs( mtest - m_target ) <= fabs( mbest - m_target ) )
+			{
+				ibest = i;
+				mbest = mtest;
+			}
+		}
+		tautest[0] = tautest[ibest];
+	}
+
+	return tautest[0];
+
+}
+
 #if (1) // Constructors
 
 /**
@@ -213,12 +233,12 @@ SALTSA::tNFW_profile::tNFW_profile()
  */
 SALTSA::tNFW_profile::tNFW_profile( const double init_mvir0,
 		const double init_z, const double init_c, const double init_tau ) :
-		SALTSA::redshift_obj( init_z )
+		redshift_obj( init_z )
 {
 	_mvir0_ = init_mvir0;
 	if ( init_c <= 0 )
 	{
-		_c_ = cfm( init_mvir0, init_z );
+		_c_ = _cfm();
 	}
 	else
 	{
@@ -326,7 +346,7 @@ const int SALTSA::tNFW_profile::set_parameters(
 		return errorNOS( silent );
 	if ( parameters.at( 2 ) <= 0 )
 	{
-		if ( set_c( cfm( parameters.at( 0 ), parameters.at( 1 ) ) ) )
+		if ( set_c( _cfm( parameters.at( 0 ), parameters.at( 1 ) ) ) )
 			return errorNOS( silent );
 	}
 	else
@@ -355,7 +375,7 @@ const int SALTSA::tNFW_profile::set_parameters(
  */
 const double SALTSA::tNFW_profile::mvir() const
 {
-	return enc_mass( rvir() ); // Not technically correct, but close enough for our purposes
+	return enc_mass(rvir()); // Not technically correct, but close enough for our purposes
 }
 /**
  *
@@ -389,7 +409,7 @@ const double SALTSA::tNFW_profile::c() const
  */
 const double SALTSA::tNFW_profile::mtot() const
 {
-	return _mvir0_ * SALTSA::mftau( _tau_, _c_ );
+	return _mvir0_ * _mftau();
 }
 
 /**
@@ -450,7 +470,7 @@ const double SALTSA::tNFW_profile::dens( const double r ) const
 		tau_use = default_tau_factor * _c_;
 	else
 		tau_use = _tau_;
-	d_c = delta_c( _c_ );
+	d_c = _delta_c();
 	rho_c = 3 * square(H()) / ( 8 * pi * Gc );
 	x = r / rs();
 
@@ -488,7 +508,7 @@ const double SALTSA::tNFW_profile::enc_mass( const double r,
 
 	double tau_sq = square(tau_use);
 
-	d_c = delta_c( _c_ );
+	d_c = _delta_c();
 	rho_c = 3 * square(H()) / ( 8 * pi * Gc );
 	x = r / rs();
 
@@ -521,7 +541,7 @@ const int SALTSA::tNFW_profile::get_parameters( std::vector< double > & paramete
 		parameters.at( 2 ) = _c_;
 		parameters.at( 3 ) = _tau_;
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS( silent );
 	}
@@ -547,7 +567,7 @@ const int SALTSA::tNFW_profile::get_parameter_names(std::vector< std::string > &
 		parameter_names.at( 2 ) = "c";
 		parameter_names.at( 3 ) = "tau";
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS( silent );
 	}
@@ -576,7 +596,7 @@ const int SALTSA::tNFW_profile::truncate_to_fraction( const double f,
 	}
 	else
 	{
-		double new_tau_val = SALTSA::taufm( f, _c_, _tau_, bound(SMALL_FACTOR,std::fabs(0.1*(1-f)),0.00001) );
+		double new_tau_val = _taufm( f, bound(SMALL_FACTOR,std::fabs(0.1*(1-f)),0.00001) );
 		if ( new_tau_val < 0 )
 		{
 			if ( !silent )
@@ -770,7 +790,7 @@ const double SALTSA::point_mass_profile::enc_dens(
 		const double r,
 		const bool silent ) const
 {
-	return enc_mass( r ) / ( 4. / 3. * pi * std::pow( r, 3 ) );
+	return enc_mass( r ) / ( 4. / 3. * pi * cube( r ) );
 }
 /**
  *
@@ -824,7 +844,7 @@ const int SALTSA::point_mass_profile::get_parameter_names( std::vector< std::str
 		parameter_names.at( 0 ) = "mass";
 		parameter_names.at( 1 ) = "z";
 	}
-	catch ( std::exception & )
+	catch ( const std::exception & )
 	{
 		return errorNOS();
 	}
@@ -871,7 +891,7 @@ const int SALTSA::tfa_cache::_calculate( const double in_params, double & out_pa
 	{
 		out_params = -SALTSA::integrate_ltd( 0, SALTSA::zfa( in_params ) ) / c;
 	}
-	catch(std::exception &e)
+	catch(const std::exception &e)
 	{
 		std::cerr << "ERROR: Could not calculate cache for " << _name_base() << "\n"
 				<< "Exception: " << e.what() << "\n";
@@ -906,7 +926,7 @@ const int SALTSA::accel_function::set_host_ptr(
 const int SALTSA::accel_function::operator()( const double & in_param,
 double & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -922,7 +942,7 @@ double & out_param, const bool silent ) const
  */
 SALTSA::accel_function::accel_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 }
 /**
  *
@@ -961,7 +981,7 @@ const int SALTSA::spherical_density_function::operator()(
 		const double & in_param,
 		double & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -978,7 +998,7 @@ const int SALTSA::spherical_density_function::operator()(
  */
 SALTSA::spherical_density_function::spherical_density_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 }
 /**
  *
@@ -1028,7 +1048,7 @@ const int SALTSA::solve_rhm_function::set_target_mass(
 const int SALTSA::solve_rhm_function::operator()( const double & in_param,
 double & out_param, const bool silent ) const
 {
-	if ( _host_ptr_ == 0 )
+	if ( _host_ptr_ == NULL )
 	{
 		if ( !silent )
 			std::cerr
@@ -1046,7 +1066,7 @@ double & out_param, const bool silent ) const
  */
 SALTSA::solve_rhm_function::solve_rhm_function()
 {
-	_host_ptr_ = 0;
+	_host_ptr_ = NULL;
 	_target_mass_ = 0;
 }
 
@@ -1067,6 +1087,22 @@ SALTSA::solve_rhm_function::solve_rhm_function(
 
 /** Global Function Definitions **/
 #if (1)
+
+/**
+ *
+ * @param test_z
+ * @return
+ */
+const double SALTSA::H( const double test_z )
+{
+	// Friedmann equation, assuming omega = -1
+	if(test_z==0) return H_0;
+	double zp1 = 1.+test_z;
+	return H_0
+			* std::sqrt( Omega_r * quart( zp1 )
+							+ Omega_m * cube( zp1 )
+							+ Omega_k * square( zp1 ) + Omega_l );
+}
 
 /**
  *
@@ -1144,7 +1180,7 @@ const double SALTSA::integrate_ltd( const double z1, const double z2 )
  */
 const double SALTSA::integrate_ltd( const double z )
 {
-	return SALTSA::integrate_distance( 0, z, 3 );
+	return SALTSA::integrate_distance( 0, z, 3, 10000000 );
 }
 /**
  *
@@ -1170,6 +1206,8 @@ const double SALTSA::integrate_distance( const double z1_init,
 	//double age, size;
 	int i;
 	short int sign = 1;
+
+	if(z1==z2) return 0;
 
 	OK0 = 1 - OM0 - OL0 - OR0;
 
@@ -1258,59 +1296,6 @@ const double SALTSA::integrate_distance( const double z1_init,
 
 /**
  *
- * @param m_ratio
- * @param conc
- * @param tau_init
- * @param silent
- * @return
- */
-const double SALTSA::taufm( const double m_ratio, double conc,
-		double tau_init, double precision, const bool silent )
-{
-
-	//Gives tau for a given Mtot/Mvir.
-	if ( conc <= 0 )
-	{
-		conc = default_c;
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Invalid c value passed to taufm function.\n";
-	}
-	if ( tau_init <= 0 )
-		tau_init = default_tau_factor * conc;
-	double m_target = m_ratio * mftau( tau_init, conc );
-	double taustepsize = tau_init / 2;
-	double tautest[3];
-	double mtest, mbest;
-	int i, ibest;
-
-	tautest[0] = tau_init / 2;
-	mbest = 1e99;
-
-	while ( taustepsize > precision * conc )
-	{
-		taustepsize /= 2;
-		tautest[1] = tautest[0] - taustepsize;
-		tautest[2] = tautest[0] + taustepsize;
-		ibest = 0;
-		for ( i = 0; i < 3; i++ )
-		{
-			mtest = mftau( tautest[i], conc );
-			if ( fabs( mtest - m_target ) <= fabs( mbest - m_target ) )
-			{
-				ibest = i;
-				mbest = mtest;
-			}
-		}
-		tautest[0] = tautest[ibest];
-	}
-
-	return tautest[0];
-
-}
-
-/**
- *
  * @param host
  * @param r
  * @param vr
@@ -1324,7 +1309,7 @@ const double SALTSA::period( const SALTSA::density_profile *host,
 	double v = quad_add( vr, vt );
 	double a = -mu / 2 / safe_d( v * v / 2 - mu / safe_d( r ) );
 	double result = (
-			a > 0 ? 2 * pi * std::sqrt( std::pow( a, 3 ) / mu ) : double( 0 ) );
+			a > 0 ? 2 * pi * std::sqrt( cube(a) / mu ) : double( 0 ) );
 	return result;
 }
 
