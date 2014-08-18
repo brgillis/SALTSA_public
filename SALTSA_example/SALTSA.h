@@ -238,6 +238,9 @@ private:
 	/// Interpolator for calculated retained mass fraction, so we can estimate it at any time.
 	mutable SALTSA::interpolator _m_ret_interpolator_;
 
+	/// Interpolator for calculated retained virial_mass fraction, so we can estimate it at any time.
+	mutable SALTSA::interpolator _m_vir_ret_interpolator_;
+
 	/// Interpolator for loaded comparison retained mass fraction, so we can estimate it at any time.
 	SALTSA::interpolator _test_mass_interpolator_;
 
@@ -245,7 +248,10 @@ private:
 	SALTSA::interpolator _test_mass_error_interpolator_;
 
 	/// List of the final retained mass fractions for each orbit segment.
-	mutable std::vector< double > _final_fmret_list_;
+	mutable std::vector< double > _final_frac_m_ret_list_;
+
+	/// List of the final retained virial mass fractions for each orbit segment.
+	mutable std::vector< double > _final_frac_m_vir_ret_list_;
 
 	/// The set of orbit segments that are calculated in turn.
 	mutable std::vector< SALTSA::stripping_orbit_segment > _orbit_segments_;
@@ -397,33 +403,33 @@ public:
 
 	static const int set_default_resolution( const int new_default_spline_resolution);
 	const int set_default_resolution( const int new_default_spline_resolution,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	static const int set_default_interpolation_type(
 			const allowed_interpolation_type new_default_interpolation_type);
 	const int set_default_interpolation_type(
 			const allowed_interpolation_type new_default_interpolation_type,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	static const int set_default_v_0( const double new_default_v_0);
 	const int set_default_v_0( const double new_default_v_0,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	static const int set_default_r_0( const double new_default_r_0);
 	const int set_default_r_0( const double new_default_r_0,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	static const int set_default_step_length_power( const double new_default_step_length_power);
 	const int set_default_step_length_power( const double new_default_step_length_power,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	static const int set_default_step_factor_max( const double new_default_step_factor_max);
 	const int set_default_step_factor_max( const double new_default_step_factor_max,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	static const int set_default_step_factor_min( const double new_default_step_factor_min);
 	const int set_default_step_factor_min( const double new_default_step_factor_min,
-			const bool override_current=false,
+			const bool override_current,
 			const bool silent=false );
 	//@}
 #endif
@@ -1204,14 +1210,28 @@ public:
 	 * @param mret Variable to be loaded with final retained mass.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_final_mret( double & mret ) const;
+	const int get_final_m_ret( double & mret ) const;
 	/**
 	 * Get final retained mass fraction, calculating if necessary.
 	 *
 	 * @param fmret Variable to be loaded with final retained mass fraction.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_final_fmret( double & final_fmret ) const;
+	const int get_final_frac_m_ret( double & final_fmret ) const;
+	/**
+	 * Get final retained virial mass, calculating if necessary.
+	 *
+	 * @param mret Variable to be loaded with final retained mass.
+	 * @return Int flag - zero for success, otherwise for error.
+	 */
+	const int get_final_m_vir_ret( double & mret ) const;
+	/**
+	 * Get final retained virial mass fraction, calculating if necessary.
+	 *
+	 * @param fmret Variable to be loaded with final retained mass fraction.
+	 * @return Int flag - zero for success, otherwise for error.
+	 */
+	const int get_final_frac_m_vir_ret( double & final_fmret ) const;
 	/**
 	 * Get the final sum_deltarho value, in a long double variable.
 	 * @param final_sum_deltarho Variable to be loaded with final sum_delta_rho.
@@ -1258,13 +1278,25 @@ public:
 	 *
 	 * @return Final retained mass.
 	 */
-	const double final_mret() const;
+	const double final_m_ret() const;
 	/**
 	 * Get the final retained mass fraction, throwing an exception on failure.
 	 *
 	 * @return Final retained mass fraction.
 	 */
-	const double final_fmret() const;
+	const double final_frac_m_ret() const;
+	/**
+	 * Get the final retained virial mass, throwing an exception on failure.
+	 *
+	 * @return Final retained mass.
+	 */
+	const double final_m_vir_ret() const;
+	/**
+	 * Get the final retained virial mass fraction, throwing an exception on failure.
+	 *
+	 * @return Final retained mass fraction.
+	 */
+	const double final_frac_m_vir_ret() const;
 	/**
 	 * Get the final sum_deltarho, throwing exception on failure.
 	 * @return The final sum_deltarho.
@@ -1309,7 +1341,7 @@ public:
 	 * @param mret Variable to be loaded with the retained mass estimate.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_mret_at_t( const double  t, double & mret) const;
+	const int get_m_ret_at_t( const double  t, double & mret) const;
 	/**
 	 * Get an estimate of the retained mass fraction at an arbitrary time. _record_full_data_ must be set to
 	 * True to get this; the orbit will be calculated again with it set if necessary.
@@ -1318,7 +1350,25 @@ public:
 	 * @param fmret Variable to be loaded with the retained mass fraction estimate.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_fmret_at_t( const double  t, double & fmret ) const;
+	const int get_frac_m_ret_at_t( const double  t, double & fmret ) const;
+	/**
+	 * Get an estimate of the retained virial mass at an arbitrary time. _record_full_data_ must be set to
+	 * True to get this; the orbit will be calculated again with it set if necessary.
+	 *
+	 * @param t Time for which to get an estimate of the retained mass.
+	 * @param mret Variable to be loaded with the retained mass estimate.
+	 * @return Int flag - zero for success, otherwise for error.
+	 */
+	const int get_m_vir_ret_at_t( const double  t, double & mret) const;
+	/**
+	 * Get an estimate of the retained virial mass fraction at an arbitrary time. _record_full_data_ must be set to
+	 * True to get this; the orbit will be calculated again with it set if necessary.
+	 *
+	 * @param t Time for which to get an estimate of the retained mass fraction.
+	 * @param fmret Variable to be loaded with the retained mass fraction estimate.
+	 * @return Int flag - zero for success, otherwise for error.
+	 */
+	const int get_frac_m_vir_ret_at_t( const double  t, double & fmret ) const;
 	/**
 	 * Get an estimate of the retained mass fraction of the comparison orbit at an arbitrary time.
 	 *
@@ -1326,7 +1376,7 @@ public:
 	 * @param fmret Variable to be loaded with the retained mass estimate.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_comp_fmret_at_t( const double  t, double & fmret) const;
+	const int get_comp_frac_m_ret_at_t( const double  t, double & fmret) const;
 	/**
 	 * Get an estimate of the retained mass fraction error of the comparison orbit at an arbitrary time.
 	 *
@@ -1334,7 +1384,7 @@ public:
 	 * @param fmret_err Variable to be loaded with the retained mass estimate fraction error.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_comp_fmret_error_at_t( const double  t, double & fmret_err) const;
+	const int get_comp_frac_m_ret_error_at_t( const double  t, double & fmret_err) const;
 
 	// Get data at arbitrary time (throws exception on failure)
 	/**
@@ -1345,7 +1395,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass.
 	 * @return Retained mass estimate.
 	 */
-	const double mret_at_t(const double  t) const;
+	const double m_ret_at_t(const double  t) const;
 	/**
 	 * Get the retained mass fraction at an arbitrary time, throwing an exception on failure.
 	 * _record_full_data_ must be set to True to get this; the orbit will be calculated again
@@ -1354,7 +1404,25 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass.
 	 * @return Retained mass fraction estimate.
 	 */
-	const double fmret_at_t(const double  t) const;
+	const double frac_m_ret_at_t(const double  t) const;
+	/**
+	 * Get the retained virial mass at an arbitrary time, throwing an exception on failure.
+	 * _record_full_data_ must be set to True to get this; the orbit will be calculated again
+	 * with it set if necessary.
+	 *
+	 * @param t Time for which to get an estimate of the retained mass.
+	 * @return Retained mass estimate.
+	 */
+	const double m_vir_ret_at_t(const double  t) const;
+	/**
+	 * Get the retained virial mass fraction at an arbitrary time, throwing an exception on failure.
+	 * _record_full_data_ must be set to True to get this; the orbit will be calculated again
+	 * with it set if necessary.
+	 *
+	 * @param t Time for which to get an estimate of the retained mass.
+	 * @return Retained mass fraction estimate.
+	 */
+	const double frac_m_vir_ret_at_t(const double  t) const;
 	/**
 	 * Get the retained mass fraction of the comparison orbit at an arbitrary time, throwing an exception
 	 * on failure.
@@ -1362,7 +1430,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass fraction.
 	 * @return Retained mass fraction estimate.
 	 */
-	const double comp_fmret_at_t(const double  t) const;
+	const double comp_frac_m_ret_at_t(const double  t) const;
 	/**
 	 * Get the retained mass fraction error of the comparison orbit at an arbitrary time, throwing an
 	 * exception on failure.
@@ -1370,7 +1438,7 @@ public:
 	 * @param t Time for which to get an estimate of the retained mass fraction error.
 	 * @return Retained mass fraction error estimate.
 	 */
-	const double comp_fmret_error_at_t(const double  t) const;
+	const double comp_frac_m_ret_error_at_t(const double  t) const;
 
 	// Quality of fit.
 	/**
@@ -1382,7 +1450,7 @@ public:
 	 * @param samples Number of sample points along the orbit to compare fmret values at.
 	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int get_quality_of_fit( double & Q, const unsigned int samples=100);
+	const int get_quality_of_fit( double & Q, const bool use_virial=false, const unsigned int samples=100);
 	/**
 	 * Get a quality-of-fit estimate, comparing the calculated fmret to the comparison values and errors.
 	 * The value is taken at a number of sample points and normalized. An exception will be thrown on
@@ -1392,7 +1460,7 @@ public:
 	 * @param samples Number of sample points along the orbit to compare fmret values at.
 	 * @return The quality-of-fit estimate.
 	 */
-	const double quality_of_fit(const unsigned int samples=100);
+	const double quality_of_fit(const bool use_virial=false, const unsigned int samples=100);
 
 #endif // Getting resultant data
 

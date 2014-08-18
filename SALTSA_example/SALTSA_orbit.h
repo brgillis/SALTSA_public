@@ -19,6 +19,7 @@
 #include <vector>
 #include <iostream>
 
+#include "SALTSA_functor.hpp"
 #include "SALTSA_phase.hpp"
 #include "SALTSA.h"
 
@@ -500,7 +501,8 @@ private:
 	mutable std::vector< double > _delta_rho_list_,
 			_x_data_, _y_data_, _z_data_, _vx_data_, _vy_data_, _vz_data_,
 			_rt_list_, _rt_ratio_list_;
-	mutable std::vector< long double > _sum_delta_rho_list_, _mret_list_;
+	mutable std::vector< long double > _sum_delta_rho_list_, _m_ret_list_;
+	mutable std::vector< double > _m_vir_ret_list_;
 	mutable std::vector< std::vector< double > > _satellite_parameter_data_; // Keeps track of satellite's parameters (ie. mass, tau)
 	mutable std::vector< std::vector< double > > _host_parameter_data_;
 
@@ -665,7 +667,7 @@ public:
 
 	// Print output function
 	const int print_full_data( std::ostream *out, const bool include_header =
-			true, const double mret_multiplier = 1,
+			true, const double m_ret_multiplier = 1, const double m_vir_ret_multiplier = 1,
 			const bool silent = false ) const;
 
 	// Get current state of object
@@ -705,15 +707,21 @@ public:
 #endif
 
 	// Get final data (returns 1 on error)
-	const int get_final_mret( double & mret,
+	const int get_final_m_ret( double & m_ret,
+			const bool silent = false ) const;
+	const int get_final_frac_m_ret( double & final_frac_m_ret,
+			const bool silent = false ) const;
+	const int get_final_m_vir_ret( double & m_vir_ret,
+			const bool silent = false ) const;
+	const int get_final_frac_m_vir_ret( double & final_frac_m_vir_ret,
 			const bool silent = false ) const;
 	const int get_final_sum_deltarho( long double & final_sum_deltarho,
 			const bool silent = false ) const;
 	const int get_final_sum_deltarho( double & final_sum_deltarho,
 			const bool silent = false ) const;
-	const int get_final_fmret( double & final_fmret,
+	const int get_m_ret_points( std::vector< std::pair<double,double> > & m_ret_points,
 			const bool silent = false ) const;
-	const int get_mret_points( std::vector< std::pair<double,double> > & mret_points,
+	const int get_m_vir_ret_points( std::vector< std::pair<double,double> > & m_vir_ret_points,
 			const bool silent = false ) const;
 	const int get_final_sum_gabdt( gabdt & final_sum_gabdt, const bool silent =
 			false ) const;
@@ -723,10 +731,13 @@ public:
 			const bool silent = false ) const; // Creates a clone. Make sure to delete!
 
 	// Get final data (throws exception on error)
-	const double final_mret() const;
+	const double final_m_ret() const;
+	const double final_frac_m_ret() const;
+	const double final_m_vir_ret() const;
+	const double final_frac_m_vir_ret() const;
 	const long double final_sum_deltarho() const;
-	const double final_fmret() const;
-	const std::vector< std::pair<double,double> > mret_points() const;
+	const std::vector< std::pair<double,double> > m_ret_points() const;
+	const std::vector< std::pair<double,double> > m_vir_ret_points() const;
 	const gabdt final_sum_gabdt() const;
 	const bool & likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!
