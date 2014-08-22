@@ -32,10 +32,15 @@ int main( const int argc, const char *argv[] )
 
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
-	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
+	const int orbit_resolution = 10000000; // How many steps we take to integrate each orbit's path
 	const int stripping_resolution = 1000; // Base number of steps to take to integrate stripping
-	const int spline_points = 1000; // Number of points in the orbit we tell the stripping integrator
+	const int spline_points = 10000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
+									// Note that this is a factor of 10 lower than what was used for the
+	                                // plots presented in the paper to speed up this script. If increased,
+	                                // the resultant plot should match the left panel of Figure 2. The
+									// increased number of spline points helps better calculate stripping
+									// of extremely eccentric orbits.
 	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
 
@@ -162,8 +167,8 @@ int main( const int argc, const char *argv[] )
 	// Set up tuning parameters for SALTSA. Since we'll be doing a lot of orbits here, we override the
 	// default tuning parameters. The "true" here causes these functions to also override the current
 	// value of the tuning parameters when changing the default.
-	test_orbit.set_default_tidal_stripping_amplification(0.625,true);
-	test_orbit.set_default_tidal_stripping_deceleration(0.15,true);
+	test_orbit.set_default_tidal_stripping_amplification(0.825,true);
+	test_orbit.set_default_tidal_stripping_deceleration(0.025,true);
 
 	if(use_tSIS_profile)
 	{
@@ -270,10 +275,16 @@ int main( const int argc, const char *argv[] )
 			{
 				// Tell SALTSA about this point. We won't always get these values from orbit integration -
 				// they could also be extracted from a file, for instance.
-				test_orbit.add_point(x, y, z, vx, vy, vz, t);
+				test_orbit.force_add_point(x, y, z, vx, vy, vz, t);
+
+				// Note that we use "force_add_point" here, since we're sure that no t values will be
+				// duplicated (which would of course result in an error if it were to happen). If you
+				// aren't sure that t values won't be repeated, use "add_point" instead. It takes longer,
+				// as it has to check when each point is added, but it will throw an exception immediately
+				// on error, rather than at some indeterminate time in the future.
 
 				// What if we didn't know v? In that case, we could do:
-				// test_orbit.add_point(x, y, z, t);
+				// test_orbit.force_add_point(x, y, z, t);
 				// SALTSA would then differentiate the position over time and apply a smoothing
 				// kernel to estimate v. It's not perfect though - we have to smooth to keep from
 				// amplifying noise, but this tends to decrease the overall velocity variation. This
@@ -284,7 +295,7 @@ int main( const int argc, const char *argv[] )
 				// Here, we aren't actually varying it, but you would do the same thing if it were
 				// varying.
 
-				test_orbit.add_host_parameter_point(host_parameters, t);
+				test_orbit.force_add_host_parameter_point(host_parameters, t);
 			}
 
 			// Integrate to next point with leapfrog-ish method (Not strictly leapfrog since we don't
@@ -433,7 +444,7 @@ int main( const int argc, const char *argv[] )
 		// assigned points)
 		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
-			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+			test_orbit.force_add_point(x_data.at(i)*unitconv::kpctom,
 					y_data.at(i)*unitconv::kpctom,
 					z_data.at(i)*unitconv::kpctom,
 					vx_data.at(i)*unitconv::kmpstomps,
@@ -487,7 +498,7 @@ int main( const int argc, const char *argv[] )
 	test_orbit.print_full_data( &out );
 	double diff = test_orbit.quality_of_fit(); // Get a measurement for how different the two curves are
 	std::cout << "Done!\n";
-	std::cout << "Base difference is " << diff << ". Differences of this scale should be considered negligible.\n";
+	std::cout << "Base difference is " << diff << ". Differences near this value should be considered negligible.\n";
 
 #endif // Base comparison
 
@@ -599,8 +610,8 @@ int main( const int argc, const char *argv[] )
 	out.clear();
 
 	// Strongly adaptive step size
-	test_orbit.set_step_length_power(3.);
-	test_orbit.set_step_factor_min(0.001);
+	test_orbit.set_step_length_power(4.);
+	test_orbit.set_step_factor_min(0.0001);
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << "_strongadaptstep_comp" << output_file_name_tail;
@@ -652,7 +663,7 @@ int main( const int argc, const char *argv[] )
 		{
 			if(record_velocity_for_this_point)
 			{
-				test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+				test_orbit.force_add_point(x_data.at(i)*unitconv::kpctom,
 						y_data.at(i)*unitconv::kpctom,
 						z_data.at(i)*unitconv::kpctom,
 						vx_data.at(i)*unitconv::kmpstomps,
@@ -664,7 +675,7 @@ int main( const int argc, const char *argv[] )
 			}
 			else
 			{
-				test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+				test_orbit.force_add_point(x_data.at(i)*unitconv::kpctom,
 						y_data.at(i)*unitconv::kpctom,
 						z_data.at(i)*unitconv::kpctom,
 						t_data.at(i)*unitconv::Gyrtos,
@@ -699,7 +710,7 @@ int main( const int argc, const char *argv[] )
 	{
 		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
-			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+			test_orbit.force_add_point(x_data.at(i)*unitconv::kpctom,
 					y_data.at(i)*unitconv::kpctom,
 					z_data.at(i)*unitconv::kpctom,
 					t_data.at(i)*unitconv::Gyrtos,
@@ -754,7 +765,7 @@ int main( const int argc, const char *argv[] )
 		// mimic the adaptive step size used, which we don't want to do here.)
 		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
-			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+			test_orbit.force_add_point(x_data.at(i)*unitconv::kpctom,
 					y_data.at(i)*unitconv::kpctom,
 					z_data.at(i)*unitconv::kpctom,
 					vx_data.at(i)*unitconv::kmpstomps,
@@ -778,11 +789,12 @@ int main( const int argc, const char *argv[] )
 	out.close();
 	out.clear();
 
-	// (Some ringing occurs here in the comparison m_ret data; this is due to spline
+	// (Some ringing may occur here in the comparison m_ret data; this is due to spline
 	// interpolation being used to guess intermediate points so a value can be plotted
 	// for them.)
 
-	// This looks bad... can we compensate for this by increasing resolution?
+	// This looks bad for the more eccentric orbits. (Try changing the orbit index to 11 or 12)
+	// Can we compensate for this by increasing resolution?
 
 	test_orbit.set_resolution(10*stripping_resolution);
 
@@ -806,7 +818,7 @@ int main( const int argc, const char *argv[] )
 	// path can lead to an underestimation of stripping, which can't simply be fixed with
 	// increasing resolution in SALTSA - only more orbit snapshots will help.
 	//
-	// This could be a significant issue, as we have to use 1000 snapshots here to get
+	// This could be a significant issue, as we have to use 10000 snapshots here to get
 	// decent results, but most simulations will only give on order of 100 snapshots
 	// (where we see a problem).
 	//
@@ -832,7 +844,7 @@ int main( const int argc, const char *argv[] )
 		// mimic the adaptive step size used, which we don't want to do here.)
 		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
-			test_orbit.add_point(x_data.at(i)*unitconv::kpctom,
+			test_orbit.force_add_point(x_data.at(i)*unitconv::kpctom,
 					y_data.at(i)*unitconv::kpctom,
 					z_data.at(i)*unitconv::kpctom,
 					vx_data.at(i)*unitconv::kmpstomps,

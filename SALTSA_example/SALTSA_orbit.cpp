@@ -60,7 +60,7 @@ SALTSA::stripping_orbit::allowed_interpolation_type SALTSA::stripping_orbit::_de
 // Alternatively, set step_length_power to 1 for even steps in position
 double SALTSA::stripping_orbit::_default_v_0_ = 400 * unitconv::kmpstomps; // 400 km/s
 double SALTSA::stripping_orbit::_default_r_0_ = 400 * unitconv::kpctom; // 400 kpc
-double SALTSA::stripping_orbit::_default_step_length_power_ = 2;
+double SALTSA::stripping_orbit::_default_step_length_power_ = 3;
 double SALTSA::stripping_orbit::_default_step_factor_max_ = 10; // Maximum allowed value of (v_0/v)^(step_length_power)
 double SALTSA::stripping_orbit::_default_step_factor_min_ = 0.001; // Minimum allowed value of (v_0/v)^(step_length_power)
 #endif
@@ -69,8 +69,8 @@ double SALTSA::stripping_orbit::_default_step_factor_min_ = 0.001; // Minimum al
 
 #if(1)
 // Tuning parameters, for how strong stripping and shocking are and when shocking is active
-double SALTSA::stripping_orbit::_default_tidal_stripping_amplification_ = 0.6; // Tuned
-double SALTSA::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.175; // Tuned
+double SALTSA::stripping_orbit::_default_tidal_stripping_amplification_ = 0.825; // Tuned
+double SALTSA::stripping_orbit::_default_tidal_stripping_deceleration_ = 0.025; // Tuned
 double SALTSA::stripping_orbit::_default_tidal_stripping_radialness_ = 0; // Tuned
 double SALTSA::stripping_orbit::_default_tidal_shocking_amplification_ = 3.0; // Tuned
 double SALTSA::stripping_orbit::_default_tidal_shocking_persistance_ = 1.0; // How long shocking is active for
@@ -3150,7 +3150,7 @@ const int SALTSA::stripping_orbit::get_quality_of_fit( double & Q, const bool us
 const double SALTSA::stripping_orbit::quality_of_fit(const bool use_virial, const unsigned int samples)
 {
 	double Q=-1;
-	if(get_quality_of_fit(Q,samples))
+	if(get_quality_of_fit(Q,use_virial,samples))
 	{
 		throw std::runtime_error("Cannot determine quality of fit for stripping_orbit.");
 	}

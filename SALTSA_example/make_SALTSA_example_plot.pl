@@ -9,7 +9,7 @@ $cmd = "stilts plot2d ofmt=png out='SALTSA_example_orbits.png' legend=true " .
 
 for($i=0;$i<=9;$i++) {
     $cmd = $cmd . "ifmt".$i."=ascii in".$i."=SALTSA_example_orbit_".$i.".dat " .
-	"cmd".$i."='addcol log\\(M/M0\\) log10(m_ret)' ydata".$i."=log\\(M/M0\\) " .
+	"cmd".$i."='addcol log\\(Mvir/M0\\) log10(m_vir_ret)' ydata".$i."=log\\(Mvir/M0\\) " .
 	"cmd".$i."='addcol t/P t/8.77683' xdata".$i."=t/P " .
         "shape".$i."=filled_circle " .
 	"size".$i."=0 line".$i."=DotToDot "
@@ -17,7 +17,7 @@ for($i=0;$i<=9;$i++) {
 
 for($i=0;$i<=2;$i++) {
     $cmd = $cmd . "ifmt9".$i."=ascii in9".$i."=SALTSA_example_orbit_1".$i.".dat " .
-	"cmd9".$i."='addcol log\\(M/M0\\) log10(m_ret)' ydata9".$i."=log\\(M/M0\\) " .
+	"cmd9".$i."='addcol log\\(Mvir/M0\\) log10(m_vir_ret)' ydata9".$i."=log\\(Mvir/M0\\) " .
 	"cmd9".$i."='addcol t/P t/8.77683' xdata9".$i."=t/P " .
         "shape9".$i."=filled_circle " .
 	"size9".$i."=0 line9".$i."=DotToDot "
