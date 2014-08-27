@@ -1,6 +1,6 @@
-/**********************************************************************
+/**********************************************************************\
  @file SALTSA.h
- -----------
+ --------------
 
  This is the header file for classes and functions which handle tidal
  stripping along orbits.
@@ -10,7 +10,24 @@
  class for use notes, and see the include SALTSA_example.cpp file for an
  example on using this class.
 
- \**********************************************************************/
+ **********************************************************************
+
+ Copyright (C) 2014  Bryan R. Gillis
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ \*********************************************************************/
 
 #ifndef __SALTSA_H_INCLUDED__
 #define __SALTSA_H_INCLUDED__

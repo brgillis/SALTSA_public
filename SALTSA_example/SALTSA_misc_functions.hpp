@@ -1,17 +1,24 @@
-/**********************************************************************
- @file SALTSA_misc_functions.hpp
- -------------------------------
+/**********************************************************************\
+  @file SALTSA_misc_functions.hpp
 
- This is a self-contained header file, automatically included along with
- brg_functions.h. This file contains various template and inline
- functions. Note that some functions declared as "inline" cannot actually
- be inlined. They are all declared as such so they'll have local scope,
- and this header can be included in multiple source files without linker
- errors.
+ **********************************************************************
 
- All functions in this file are declared in the namespace SALTSA.
+ Copyright (C) 2014  Bryan R. Gillis
 
- \**********************************************************************/
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+\**********************************************************************/
 
 #ifndef __SALTSA_MISC_FUNCTIONS_HPP_INCLUDED__
 #define __SALTSA_MISC_FUNCTIONS_HPP_INCLUDED__
@@ -207,13 +214,29 @@ inline const long double inv_quart(long double v1)
 
 // Integer power - use only when you know it'll be an integer, but not the specific value,
 // and when it isn't likely to be too high
+
+#if (1)
+// This version is optimized so that it won't check for the p==0 and p<0 cases, and generally
+// shouldn't be called directly
 template< typename T >
-const T ipow( T v, unsigned int p )
+const T _ipow( T v, int p )
 {
-	if(p>=2) return v*ipow(v,p-1);
 	if(p==1) return v;
-	if(p<0) return 1/ipow(v,-p);
-	return 1;
+	T tmp = _ipow(v,p/2);
+	if(p%2==0) return tmp*tmp;
+	return v*tmp*tmp;
+}
+#endif
+
+template< typename T >
+const T ipow( T v, int p )
+{
+	if(p<0) return 1/_ipow(v,-p);
+	if(p==0) return 1;
+	if(p==1) return v;
+	T tmp = _ipow(v,p/2);
+	if(p%2==0) return tmp*tmp;
+	return v*tmp*tmp;
 }
 
 // "Safe" functions - perform the operation specified, but will

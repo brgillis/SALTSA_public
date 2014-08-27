@@ -1,25 +1,24 @@
 /**********************************************************************\
  @file SALTSA_functor.hpp
- ------------------------
 
- If this header is used, the source file SALTSA_misc_functions.cpp must be included
- and compiled with the project. This file automatically includes
- brg_functions.hpp, which contains all template and inline functions.
- More complex functions are declared in this file and implemented in
- brg_functions.cpp.
+ **********************************************************************
 
- This file includes various classes and functions for general-purpose
- use. The file is split into two primary sections:
+ Copyright (C) 2014  Bryan R. Gillis
 
- -Class definitions
- -Global function declarations
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
- These sections are explained in further detail in their respective
- documentation blocks.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- Everything in this file is declared in the namespace SALTSA.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- \**********************************************************************/
+\**********************************************************************/
 
 #ifndef __SALTSA_MISC_FUNCTIONS_H_INCLUDED__
 #define __SALTSA_MISC_FUNCTIONS_H_INCLUDED__
