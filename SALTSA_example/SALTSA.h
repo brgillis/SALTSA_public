@@ -7,8 +7,8 @@
 
  See the documentation of the stripping_orbit class below and the
  documentation of its member functions in the public section of this
- class for use notes, and see the include SALTSA_example.cpp file for an
- example on using this class.
+ class for use notes, and see the included SALTSA_example.cpp file for
+ an example on using this class.
 
  **********************************************************************
 
