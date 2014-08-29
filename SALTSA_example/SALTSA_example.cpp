@@ -29,9 +29,9 @@
 #include <vector>
 #include <utility> // Just needed for some file loading here
 
-#include "SALTSA.h"
-#include "SALTSA_calculus.hpp" // This is just used to generate an orbit in this file.
-#include "SALTSA_file_functions.h" // This is just used for file loading done here
+#include "brg/physics/astro/SALTSA/stripping_orbit.h"
+#include "brg/math/calculus/DE.hpp" // This is just used to generate an orbit in this file.
+#include "brg/file_functions.h" // This is just used for file loading done here
 #include "SALTSA_tSIS_profile.hpp" // In case we want to use this "user-defined" profile instead
 
 /**
