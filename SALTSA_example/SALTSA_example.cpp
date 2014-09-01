@@ -55,9 +55,9 @@ int main( const int argc, const char *argv[] )
 
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
-	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 100; // Base number of steps to take to integrate stripping
-	const int spline_points = 1000; // Number of points in the orbit we tell the stripping integrator
+	const int orbit_resolution = 10000000; // How many steps we take to integrate each orbit's path
+	const int stripping_resolution = 1000; // Base number of steps to take to integrate stripping
+	const int spline_points = 10000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 									// Note that this is a factor of 10 lower than what was used for the
 	                                // plots presented in the paper to speed up this script. If increased,
