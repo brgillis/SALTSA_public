@@ -47,6 +47,9 @@ template< typename T >
 inline const bool isinf( T val )
 {
 	using std::fabs;
+#ifdef _BRG_USE_UNITS_
+	if(std::numeric_limits<T>::max()==0) return fabs( (double)val ) > std::numeric_limits<double>::max();
+#endif
 	return fabs( val ) > std::numeric_limits<T>::max();
 }
 

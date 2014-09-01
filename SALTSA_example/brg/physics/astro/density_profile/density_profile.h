@@ -293,7 +293,10 @@ public:
 	BRG_UNITS accel( CONST_BRG_DISTANCE_REF r,
 			const bool silent = false ) const // Gravitational acceleration at radius r
 	{
-		return r == 0 ? 0 : -Gc * enc_mass( r, silent ) / square( r );
+		if(r==0)
+			return 0;
+		else
+			return -Gc * enc_mass( r, silent ) / square( r );
 	}
 	virtual BRG_UNITS Daccel( CONST_BRG_DISTANCE_REF r, const bool silent =
 			false ) const; // Derivative of acceleration at radius r

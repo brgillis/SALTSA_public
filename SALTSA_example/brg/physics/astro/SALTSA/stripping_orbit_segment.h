@@ -267,14 +267,12 @@ public:
 
 	// Output-modifying functions
 	const int set_satellite_output_parameters(
-			const unsigned int num_parameters,
 			const std::vector< bool > &satellite_output_parameters );
 	const int set_satellite_parameter_unitconvs(
-			const unsigned int num_parameters,
 			const std::vector< double > &satellite_unitconvs );
-	const int set_host_output_parameters( const unsigned int num_parameters,
+	const int set_host_output_parameters(
 			const std::vector< bool > &host_output_parameters );
-	const int set_host_parameter_unitconvs( const unsigned int num_parameters,
+	const int set_host_parameter_unitconvs(
 			const std::vector< double > &host_unitconvs );
 	const int clear_satellite_output_parameters();
 	const int clear_satellite_parameter_unitconvs();
@@ -297,8 +295,8 @@ public:
 	const int & spline_resolution() const {return _spline_resolution_;}
 	const stripping_orbit::allowed_interpolation_type & interpolation_type()
 		{return _interpolation_type_;}
-	CONST_BRG_VELOCITY_REF  v_0() const {return _v_0_;}
-	CONST_BRG_DISTANCE_REF  r_0() const {return _r_0_;}
+	BRG_VELOCITY  v_0() const {return _v_0_;}
+	BRG_DISTANCE  r_0() const {return _r_0_;}
 	const double & step_length_power() const {return _step_length_power_;}
 	const double & step_factor_max() const {return _step_factor_max_;}
 	const double & step_factor_min() const {return _step_factor_min_;}

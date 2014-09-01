@@ -26,7 +26,7 @@
 // Global compiler directives
 // Alter these by switching between #define and #undef
 
-#undef _BRG_WARN_FOR_SAFE_FUNCTIONS_TRIGGERED_ // Warns if a function like "safe_d" prevents an error
+//#define _BRG_WARN_FOR_SAFE_FUNCTIONS_TRIGGERED_ // Warns if a function like "safe_d" prevents an error
 // This may be expected or not an issue in some cases though,
 // so just undef this for release builds if you're satisfied
 // there's no actual problem.
@@ -37,8 +37,11 @@
 #undef _BRG_USE_CPP_11_STD_
 #endif
 
-#undef _BRG_USE_UNITS_ // Will use "number-with-units" class for applicable values in code
-// This slows things down a bit, but can be useful in debugging.
+#ifndef NDEBUG
+#define _BRG_USE_UNITS_ // Will use "number-with-units" class for applicable values in code
+// This slows things down a bit, but can be useful in debugging. Comment/uncomment or define
+// at command line to decide whether or not to use this
+#endif // #ifndef NDEBUG
 
 #define _BRG_WARN_FOR_UNIT_MISMATCH_
 // Warns in the following scenarios:

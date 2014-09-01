@@ -55,9 +55,9 @@ int main( const int argc, const char *argv[] )
 
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
-	const int orbit_resolution = 10000000; // How many steps we take to integrate each orbit's path
-	const int stripping_resolution = 1000; // Base number of steps to take to integrate stripping
-	const int spline_points = 10000; // Number of points in the orbit we tell the stripping integrator
+	const int orbit_resolution = 1000000; // How many steps we take to integrate each orbit's path
+	const int stripping_resolution = 100; // Base number of steps to take to integrate stripping
+	const int spline_points = 1000; // Number of points in the orbit we tell the stripping integrator
 	                                // (It will use spline interpolation to estimate the rest.)
 									// Note that this is a factor of 10 lower than what was used for the
 	                                // plots presented in the paper to speed up this script. If increased,
@@ -81,8 +81,8 @@ int main( const int argc, const char *argv[] )
 	// Mass of host and satellite. Note unit conversion here. SALTSA uses SI units at all times, so
 	// to input something in units of Msun, we multiply it by unitconv::Msuntokg to get the value
 	// in kg.
-	const double host_mass = std::pow(10,14)*unitconv::Msuntokg;
-	const double satellite_mass = std::pow(10,11)*unitconv::Msuntokg;
+	const BRG_MASS host_mass = std::pow(10,14)*unitconv::Msuntokg;
+	const BRG_MASS satellite_mass = std::pow(10,11)*unitconv::Msuntokg;
 
 	// Set up density profiles representing the host now
 
@@ -103,7 +103,7 @@ int main( const int argc, const char *argv[] )
 	else
 		host_group = &host_group_tNFW;
 
-	const int num_host_parameters=host_group->num_parameters(); // How many parameters are used to define
+	const unsigned int num_host_parameters=host_group->num_parameters(); // How many parameters are used to define
 	                                                            // the host halo.
 
 	// Also get a point mass profile representing the group. We need this to properly calculate
@@ -138,7 +138,7 @@ int main( const int argc, const char *argv[] )
 
 	// Get the total time, using the otvir method (orbital time at virial velocity), and the
 	// step length for our orbit integration.
-	const double total_time = num_periods*host_group->otvir(),
+	const BRG_TIME total_time = num_periods*host_group->otvir(),
 			t_step = total_time/orbit_resolution;
 
 	// Set-up for the names of files we want to output
@@ -160,10 +160,10 @@ int main( const int argc, const char *argv[] )
 #if (1)
 
 	// Declarations for position, velocity, and time variables
-	double x=0, y=0, z=0;
-	double vx=0, vy=0, vz=0;
-	double t=0;
-	std::vector< double > host_parameters(num_host_parameters,0);
+	BRG_DISTANCE x=0, y=0, z=0;
+	BRG_VELOCITY vx=0, vy=0, vz=0;
+	BRG_TIME t=0;
+	std::vector< BRG_UNITS > host_parameters(num_host_parameters,0);
 
 	brgastro::accel_functor accel_func(host_group_orbit);
 
@@ -259,9 +259,9 @@ int main( const int argc, const char *argv[] )
         // Note that we don't tell it anything about the satellite's output parameter's units,
         // so they'll come out in default units. (In this case, only tau is output, which is unitless,
         // so that's what we want anyway.)
-		test_orbit.set_satellite_output_parameters(num_satellite_parameters, satellite_output_parameters);
-		test_orbit.set_host_output_parameters(num_host_parameters, host_output_parameters);
-		test_orbit.set_host_parameter_unitconvs(num_host_parameters, host_output_parameter_unitconvs);
+		test_orbit.set_satellite_output_parameters(satellite_output_parameters);
+		test_orbit.set_host_output_parameters(host_output_parameters);
+		test_orbit.set_host_parameter_unitconvs(host_output_parameter_unitconvs);
 
 		// Set up the initial position of the orbit, starting at the virial radius
 		x = 0;
@@ -342,9 +342,14 @@ int main( const int argc, const char *argv[] )
 
 		// Tell SALTSA to calculate now. This doesn't have to be called explicitly - it will be done
 		// when needed and the results cached for quick access afterward.
-		if(test_orbit.calc())
+		try
 		{
-			std::cerr << "Something went wrong in calculating stripping.\n";
+			test_orbit.calc();
+		}
+		catch(const std::runtime_error &e)
+		{
+			std::cerr << "Something went wrong in calculating stripping: \n"
+					<< e.what();
 			return 1;
 		}
 
@@ -502,9 +507,9 @@ int main( const int argc, const char *argv[] )
 #if (1)
 
 	// General set-up for the orbit
-	test_orbit.set_satellite_output_parameters(num_satellite_parameters, satellite_output_parameters);
-	test_orbit.set_host_output_parameters(num_host_parameters, host_output_parameters);
-	test_orbit.set_host_parameter_unitconvs(num_host_parameters, host_output_parameter_unitconvs);
+	test_orbit.set_satellite_output_parameters( satellite_output_parameters);
+	test_orbit.set_host_output_parameters( host_output_parameters);
+	test_orbit.set_host_parameter_unitconvs( host_output_parameter_unitconvs);
 	test_orbit.set_resolution(stripping_resolution);
 
 	test_orbit.set_resolution(stripping_resolution);

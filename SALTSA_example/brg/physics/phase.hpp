@@ -26,7 +26,7 @@
 #include "brg/global.h"
 
 #ifdef _BRG_USE_UNITS_
-#include "brg_units.h"
+#include "brg/physics/units/unit_obj.h"
 #endif
 
 namespace brgastro

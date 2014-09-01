@@ -30,11 +30,12 @@
 #include <sstream>
 #include <memory>
 
+#include "brg/math/misc_math.hpp"
 #include "brg/physics/units/unit_conversions.hpp"
 
 #include "unit_obj.h"
 
-using namespace unitconv;
+using namespace brgastro::unitconv;
 using std::cout;
 using std::cerr;
 using std::string;
@@ -307,8 +308,7 @@ const double brgastro::unit_obj::get_value(const double d_units, const float d_u
 const std::vector<float> brgastro::unit_obj::get_unit_powers() const
 {
 	// Returns a 6-component std::vector<float> in the format [d_units_power,t_units_power,m_units_power,T_units_power,a_units_power,c_units_power]
-	std::vector<float> _unit_powers_copy(_unit_powers_);
-	return _unit_powers_copy;
+	return _unit_powers_;
 }
 
 const std::string brgastro::unit_obj::get_string() const
@@ -674,8 +674,7 @@ const double brgastro::unit_obj::esu() const
 // Copy constructor
 brgastro::unit_obj::unit_obj(const brgastro::unit_obj& old_unit_obj, bool maintain_unit_fix)
 {
-	make_array(_unit_powers_, NUM_UNIT_TYPES);
-	for(int i = 0; i < NUM_UNIT_TYPES; i++) _unit_powers_[i]=old_unit_obj._unit_powers_[i];
+	_unit_powers_ = old_unit_obj._unit_powers_;
 	_value_ = old_unit_obj._value_;
 	if(maintain_unit_fix)
 	{
@@ -734,17 +733,32 @@ brgastro::unit_obj & brgastro::unit_obj::operator=(const brgastro::unit_obj &old
 	}
 	return *this;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator=(const int &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator=(int new__value_ue)
 {
 	_value_ = new__value_ue;
 	return *this;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator=(const double &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator=(long int new__value_ue)
 {
 	_value_ = new__value_ue;
 	return *this;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator=(const float &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator=(unsigned int new__value_ue)
+{
+	_value_ = new__value_ue;
+	return *this;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator=(double new__value_ue)
+{
+	_value_ = new__value_ue;
+	return *this;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator=(long double new__value_ue)
+{
+	_value_ = new__value_ue;
+	return *this;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator=(float new__value_ue)
 {
 	_value_ = new__value_ue;
 	return *this;
@@ -802,40 +816,73 @@ brgastro::unit_obj & brgastro::unit_obj::operator+=(const brgastro::unit_obj &ot
 
 #endif // #ifndef _BRG_WARN_FOR_UNIT_MISMATCH_ -> #else
 }
-const brgastro::unit_obj brgastro::unit_obj::operator+(const brgastro::unit_obj &other_unit_obj) const
+brgastro::unit_obj brgastro::unit_obj::operator+(const brgastro::unit_obj &other_unit_obj) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result += other_unit_obj;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator+=(const double &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator+=(double new__value_ue)
 {
 	_value_ += new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator+(const double &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator+(double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result += new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator+=(const float &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator+=(long double new__value_ue)
 {
 	_value_ += new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator+(const float &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator+(long double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result += new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator+=(const int &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator+=(float new__value_ue)
 {
 	_value_ += new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator+(const int &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator+(float new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result += new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator+=(int new__value_ue)
+{
+	_value_ += new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator+(int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result += new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator+=(long int new__value_ue)
+{
+	_value_ += new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator+(long int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result += new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator+=(unsigned int new__value_ue)
+{
+	_value_ += new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator+(unsigned int new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result += new__value_ue;
@@ -894,40 +941,73 @@ brgastro::unit_obj & brgastro::unit_obj::operator-=(const brgastro::unit_obj &ot
 
 #endif // #ifndef _BRG_WARN_FOR_UNIT_MISMATCH_ -> #else
 }
-const brgastro::unit_obj brgastro::unit_obj::operator-(const brgastro::unit_obj &other_unit_obj) const
+brgastro::unit_obj brgastro::unit_obj::operator-(const brgastro::unit_obj &other_unit_obj) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result -= other_unit_obj;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator-=(const double &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator-=(double new__value_ue)
 {
 	_value_ -= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator-(const double &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator-(double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result -= new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator-=(const float &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator-=(long double new__value_ue)
 {
 	_value_ -= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator-(const float &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator-(long double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result -= new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator-=(const int &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator-=(float new__value_ue)
 {
 	_value_ -= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator-(const int &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator-(float new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result -= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator-=(int new__value_ue)
+{
+	_value_ -= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator-(int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result -= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator-=(long int new__value_ue)
+{
+	_value_ -= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator-(long int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result -= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator-=(unsigned int new__value_ue)
+{
+	_value_ -= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator-(unsigned int new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result -= new__value_ue;
@@ -944,40 +1024,73 @@ brgastro::unit_obj & brgastro::unit_obj::operator*=(const brgastro::unit_obj &ot
 	_value_ *= other_unit_obj._value_;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator*(const brgastro::unit_obj &other_unit_obj) const
+brgastro::unit_obj brgastro::unit_obj::operator*(const brgastro::unit_obj &other_unit_obj) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result *= other_unit_obj;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator*=(const double &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator*=(double new__value_ue)
 {
 	_value_ *= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator*(const double &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator*(double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result *= new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator*=(const float &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator*=(long double new__value_ue)
 {
 	_value_ *= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator*(const float &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator*(long double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result *= new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator*=(const int &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator*=(float new__value_ue)
 {
 	_value_ *= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator*(const int &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator*(float new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result *= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator*=(int new__value_ue)
+{
+	_value_ *= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator*(int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result *= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator*=(long int new__value_ue)
+{
+	_value_ *= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator*(long int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result *= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator*=(unsigned int new__value_ue)
+{
+	_value_ *= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator*(unsigned int new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result *= new__value_ue;
@@ -994,40 +1107,73 @@ brgastro::unit_obj & brgastro::unit_obj::operator/=(const brgastro::unit_obj &ot
 	_value_ /= other_unit_obj._value_;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator/(const brgastro::unit_obj &other_unit_obj) const
+brgastro::unit_obj brgastro::unit_obj::operator/(const brgastro::unit_obj &other_unit_obj) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result /= other_unit_obj;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator/=(const double &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator/=(double new__value_ue)
 {
 	_value_ /= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator/(const double &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator/(double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result /= new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator/=(const float &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator/=(long double new__value_ue)
 {
 	_value_ /= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator/(const float &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator/(long double new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result /= new__value_ue;
 	return result;
 }
-brgastro::unit_obj & brgastro::unit_obj::operator/=(const int &new__value_ue)
+brgastro::unit_obj & brgastro::unit_obj::operator/=(float new__value_ue)
 {
 	_value_ /= new__value_ue;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator/(const int &new__value_ue) const
+brgastro::unit_obj brgastro::unit_obj::operator/(float new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result /= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator/=(int new__value_ue)
+{
+	_value_ /= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator/(int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result /= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator/=(long int new__value_ue)
+{
+	_value_ /= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator/(long int new__value_ue) const
+{
+	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
+	result /= new__value_ue;
+	return result;
+}
+brgastro::unit_obj & brgastro::unit_obj::operator/=(unsigned int new__value_ue)
+{
+	_value_ /= new__value_ue;
+	return *this;
+}
+brgastro::unit_obj brgastro::unit_obj::operator/(unsigned int new__value_ue) const
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this,true);
 	result /= new__value_ue;
@@ -1038,7 +1184,7 @@ brgastro::unit_obj & brgastro::unit_obj::operator++()   //Prefix
 	_value_ += 1;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator++(int)   //Postfix
+brgastro::unit_obj brgastro::unit_obj::operator++(int)   //Postfix
 {
 	brgastro::unit_obj obj_copy = brgastro::unit_obj(*this);
 	_value_ += 1;
@@ -1049,13 +1195,13 @@ brgastro::unit_obj & brgastro::unit_obj::operator--()   //Prefix
 	_value_ -= 1;
 	return *this;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator--(int)   //Postfix
+brgastro::unit_obj brgastro::unit_obj::operator--(int)   //Postfix
 {
 	brgastro::unit_obj obj_copy = brgastro::unit_obj(*this);
 	_value_ -= 1;
 	return obj_copy;
 }
-const brgastro::unit_obj brgastro::unit_obj::operator-() const   //Prefix
+brgastro::unit_obj brgastro::unit_obj::operator-() const   //Prefix
 {
 	brgastro::unit_obj result = brgastro::unit_obj(*this);
 	return result *= -1;
@@ -1064,15 +1210,27 @@ const bool brgastro::unit_obj::operator<(const brgastro::unit_obj & other_unit_o
 {
 	return (_value_ < other_unit_obj._value_);
 }
-const bool brgastro::unit_obj::operator<(const int &comp__value_) const
+const bool brgastro::unit_obj::operator<(int comp__value_) const
 {
 	return (_value_ < comp__value_);
 }
-const bool brgastro::unit_obj::operator<(const double &comp__value_) const
+const bool brgastro::unit_obj::operator<(long int comp__value_) const
 {
 	return (_value_ < comp__value_);
 }
-const bool brgastro::unit_obj::operator<(const float &comp__value_) const
+const bool brgastro::unit_obj::operator<(unsigned int comp__value_) const
+{
+	return (_value_ < comp__value_);
+}
+const bool brgastro::unit_obj::operator<(double comp__value_) const
+{
+	return (_value_ < comp__value_);
+}
+const bool brgastro::unit_obj::operator<(long double comp__value_) const
+{
+	return (_value_ < comp__value_);
+}
+const bool brgastro::unit_obj::operator<(float comp__value_) const
 {
 	return (_value_ < comp__value_);
 }
@@ -1080,15 +1238,27 @@ const bool brgastro::unit_obj::operator>(const brgastro::unit_obj & other_unit_o
 {
 	return (_value_ > other_unit_obj._value_);
 }
-const bool brgastro::unit_obj::operator>(const int &comp__value_) const
+const bool brgastro::unit_obj::operator>(int comp__value_) const
 {
 	return (_value_ > comp__value_);
 }
-const bool brgastro::unit_obj::operator>(const double &comp__value_) const
+const bool brgastro::unit_obj::operator>(long int comp__value_) const
 {
 	return (_value_ > comp__value_);
 }
-const bool brgastro::unit_obj::operator>(const float &comp__value_) const
+const bool brgastro::unit_obj::operator>(unsigned int comp__value_) const
+{
+	return (_value_ > comp__value_);
+}
+const bool brgastro::unit_obj::operator>(double comp__value_) const
+{
+	return (_value_ > comp__value_);
+}
+const bool brgastro::unit_obj::operator>(long double comp__value_) const
+{
+	return (_value_ > comp__value_);
+}
+const bool brgastro::unit_obj::operator>(float comp__value_) const
 {
 	return (_value_ > comp__value_);
 }
@@ -1096,15 +1266,27 @@ const bool brgastro::unit_obj::operator==(const brgastro::unit_obj & other_unit_
 {
 	return (_value_ == other_unit_obj._value_);
 }
-const bool brgastro::unit_obj::operator==(const int &comp__value_) const
+const bool brgastro::unit_obj::operator==(int comp__value_) const
 {
 	return (_value_ == comp__value_);
 }
-const bool brgastro::unit_obj::operator==(const double &comp__value_) const
+const bool brgastro::unit_obj::operator==(long int comp__value_) const
 {
 	return (_value_ == comp__value_);
 }
-const bool brgastro::unit_obj::operator==(const float &comp__value_) const
+const bool brgastro::unit_obj::operator==(unsigned int comp__value_) const
+{
+	return (_value_ == comp__value_);
+}
+const bool brgastro::unit_obj::operator==(double comp__value_) const
+{
+	return (_value_ == comp__value_);
+}
+const bool brgastro::unit_obj::operator==(long double comp__value_) const
+{
+	return (_value_ == comp__value_);
+}
+const bool brgastro::unit_obj::operator==(float comp__value_) const
 {
 	return (_value_ == comp__value_);
 }
@@ -1112,15 +1294,27 @@ const bool brgastro::unit_obj::operator<=(const brgastro::unit_obj & other_unit_
 {
 	return (_value_ <= other_unit_obj._value_);
 }
-const bool brgastro::unit_obj::operator<=(const int &comp__value_) const
+const bool brgastro::unit_obj::operator<=(int comp__value_) const
 {
 	return (_value_ <= comp__value_);
 }
-const bool brgastro::unit_obj::operator<=(const double &comp__value_) const
+const bool brgastro::unit_obj::operator<=(long int comp__value_) const
 {
 	return (_value_ <= comp__value_);
 }
-const bool brgastro::unit_obj::operator<=(const float &comp__value_) const
+const bool brgastro::unit_obj::operator<=(unsigned int comp__value_) const
+{
+	return (_value_ <= comp__value_);
+}
+const bool brgastro::unit_obj::operator<=(double comp__value_) const
+{
+	return (_value_ <= comp__value_);
+}
+const bool brgastro::unit_obj::operator<=(long double comp__value_) const
+{
+	return (_value_ <= comp__value_);
+}
+const bool brgastro::unit_obj::operator<=(float comp__value_) const
 {
 	return (_value_ <= comp__value_);
 }
@@ -1128,15 +1322,27 @@ const bool brgastro::unit_obj::operator>=(const brgastro::unit_obj & other_unit_
 {
 	return (_value_ >= other_unit_obj._value_);
 }
-const bool brgastro::unit_obj::operator>=(const int &comp__value_) const
+const bool brgastro::unit_obj::operator>=(int comp__value_) const
 {
 	return (_value_ >= comp__value_);
 }
-const bool brgastro::unit_obj::operator>=(const double &comp__value_) const
+const bool brgastro::unit_obj::operator>=(long int comp__value_) const
 {
 	return (_value_ >= comp__value_);
 }
-const bool brgastro::unit_obj::operator>=(const float &comp__value_) const
+const bool brgastro::unit_obj::operator>=(unsigned int comp__value_) const
+{
+	return (_value_ >= comp__value_);
+}
+const bool brgastro::unit_obj::operator>=(double comp__value_) const
+{
+	return (_value_ >= comp__value_);
+}
+const bool brgastro::unit_obj::operator>=(long double comp__value_) const
+{
+	return (_value_ >= comp__value_);
+}
+const bool brgastro::unit_obj::operator>=(float comp__value_) const
 {
 	return (_value_ >= comp__value_);
 }
@@ -1144,15 +1350,27 @@ const bool brgastro::unit_obj::operator!=(const brgastro::unit_obj & other_unit_
 {
 	return (_value_ != other_unit_obj._value_);
 }
-const bool brgastro::unit_obj::operator!=(const int &comp__value_) const
+const bool brgastro::unit_obj::operator!=(int comp__value_) const
 {
 	return (_value_ != comp__value_);
 }
-const bool brgastro::unit_obj::operator!=(const double &comp__value_) const
+const bool brgastro::unit_obj::operator!=(long int comp__value_) const
 {
 	return (_value_ != comp__value_);
 }
-const bool brgastro::unit_obj::operator!=(const float &comp__value_) const
+const bool brgastro::unit_obj::operator!=(unsigned int comp__value_) const
+{
+	return (_value_ != comp__value_);
+}
+const bool brgastro::unit_obj::operator!=(double comp__value_) const
+{
+	return (_value_ != comp__value_);
+}
+const bool brgastro::unit_obj::operator!=(long double comp__value_) const
+{
+	return (_value_ != comp__value_);
+}
+const bool brgastro::unit_obj::operator!=(float comp__value_) const
 {
 	return (_value_ != comp__value_);
 }
@@ -1164,124 +1382,204 @@ brgastro::unit_obj::operator double() const
 
 // Overloaded operators relating to unit_objs
 
-const brgastro::unit_obj operator+(const int lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator+(int lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs+lhs;
 }
-const brgastro::unit_obj operator+(const double lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator+(long int lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs+lhs;
 }
-const brgastro::unit_obj operator+(const float lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator+(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs+lhs;
 }
-const brgastro::unit_obj operator-(const int lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator+(long double lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs+lhs;
+}
+const brgastro::unit_obj operator+(float lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs+lhs;
+}
+const brgastro::unit_obj operator-(int lhs, const brgastro::unit_obj & rhs)
 {
 	return -(rhs-lhs);
 }
-const brgastro::unit_obj operator-(const double lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator-(long int lhs, const brgastro::unit_obj & rhs)
 {
 	return -(rhs-lhs);
 }
-const brgastro::unit_obj operator-(const float lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator-(double lhs, const brgastro::unit_obj & rhs)
 {
 	return -(rhs-lhs);
 }
-const brgastro::unit_obj operator*(const int lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator-(long double lhs, const brgastro::unit_obj & rhs)
+{
+	return -(rhs-lhs);
+}
+const brgastro::unit_obj operator-(float lhs, const brgastro::unit_obj & rhs)
+{
+	return -(rhs-lhs);
+}
+const brgastro::unit_obj operator*(int lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs*lhs;
 }
-const brgastro::unit_obj operator*(const double lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator*(long int lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs*lhs;
 }
-const brgastro::unit_obj operator*(const float lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator*(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs*lhs;
 }
-const brgastro::unit_obj operator/(const int lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator*(long double lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs*lhs;
+}
+const brgastro::unit_obj operator*(float lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs*lhs;
+}
+const brgastro::unit_obj operator/(int lhs, const brgastro::unit_obj & rhs)
 {
 	return brgastro::unit_obj(lhs)/rhs;
 }
-const brgastro::unit_obj operator/(const double lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator/(long int lhs, const brgastro::unit_obj & rhs)
 {
 	return brgastro::unit_obj(lhs)/rhs;
 }
-const brgastro::unit_obj operator/(const float lhs, const brgastro::unit_obj & rhs)
+const brgastro::unit_obj operator/(double lhs, const brgastro::unit_obj & rhs)
+{
+	return brgastro::unit_obj(lhs)/rhs;
+}
+const brgastro::unit_obj operator/(long double lhs, const brgastro::unit_obj & rhs)
+{
+	return brgastro::unit_obj(lhs)/rhs;
+}
+const brgastro::unit_obj operator/(float lhs, const brgastro::unit_obj & rhs)
 {
 	return brgastro::unit_obj(lhs)/rhs;
 }
 
-const bool operator<(const double lhs, const brgastro::unit_obj & rhs)
+const bool operator<(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs > lhs;
 }
-const bool operator<(const float lhs, const brgastro::unit_obj & rhs)
+const bool operator<(long double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs > lhs;
 }
-const bool operator<(const int lhs, const brgastro::unit_obj & rhs)
+const bool operator<(float lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs > lhs;
 }
-const bool operator>(const double lhs, const brgastro::unit_obj & rhs)
+const bool operator<(int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs > lhs;
+}
+const bool operator<(unsigned int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs > lhs;
+}
+const bool operator>(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs < lhs;
 }
-const bool operator>(const float lhs, const brgastro::unit_obj & rhs)
+const bool operator>(long double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs < lhs;
 }
-const bool operator>(const int lhs, const brgastro::unit_obj & rhs)
+const bool operator>(float lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs < lhs;
 }
-const bool operator<=(const double lhs, const brgastro::unit_obj & rhs)
+const bool operator>(int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs < lhs;
+}
+const bool operator>(unsigned int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs < lhs;
+}
+const bool operator<=(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs >= lhs;
 }
-const bool operator<=(const float lhs, const brgastro::unit_obj & rhs)
+const bool operator<=(long double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs >= lhs;
 }
-const bool operator<=(const int lhs, const brgastro::unit_obj & rhs)
+const bool operator<=(float lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs >= lhs;
 }
-const bool operator>=(const double lhs, const brgastro::unit_obj & rhs)
+const bool operator<=(int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs >= lhs;
+}
+const bool operator<=(unsigned int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs >= lhs;
+}
+const bool operator>=(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs <= lhs;
 }
-const bool operator>=(const float lhs, const brgastro::unit_obj & rhs)
+const bool operator>=(long double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs <= lhs;
 }
-const bool operator>=(const int lhs, const brgastro::unit_obj & rhs)
+const bool operator>=(float lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs <= lhs;
 }
-const bool operator==(const double lhs, const brgastro::unit_obj & rhs)
+const bool operator>=(int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs <= lhs;
+}
+const bool operator>=(unsigned int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs <= lhs;
+}
+const bool operator==(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs == lhs;
 }
-const bool operator==(const float lhs, const brgastro::unit_obj & rhs)
+const bool operator==(long double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs == lhs;
 }
-const bool operator==(const int lhs, const brgastro::unit_obj & rhs)
+const bool operator==(float lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs == lhs;
 }
-const bool operator!=(const double lhs, const brgastro::unit_obj & rhs)
+const bool operator==(int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs == lhs;
+}
+const bool operator==(unsigned int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs == lhs;
+}
+const bool operator!=(double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs != lhs;
 }
-const bool operator!=(const float lhs, const brgastro::unit_obj & rhs)
+const bool operator!=(long double lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs != lhs;
 }
-const bool operator!=(const int lhs, const brgastro::unit_obj & rhs)
+const bool operator!=(float lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs != lhs;
+}
+const bool operator!=(int lhs, const brgastro::unit_obj & rhs)
+{
+	return rhs != lhs;
+}
+const bool operator!=(unsigned int lhs, const brgastro::unit_obj & rhs)
 {
 	return rhs != lhs;
 }

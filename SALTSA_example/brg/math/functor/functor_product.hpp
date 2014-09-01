@@ -30,6 +30,7 @@
 
 #include "brg/global.h"
 
+#include "brg/physics/units/unit_obj.h"
 #include "brg/vector/elementwise_functions.hpp"
 
 namespace brgastro

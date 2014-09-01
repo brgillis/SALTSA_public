@@ -102,7 +102,7 @@ private:
 #if(1)
 	/** Default number of steps for which stripping is calculated. Implemented in
 	 *  brg_orbit.cpp. */
-	static int _default_spline_resolution_;
+	static unsigned int _default_spline_resolution_;
 
 	/// Default interpolation method. Implemented in brg_orbit.cpp.
 	static allowed_interpolation_type _default_interpolation_type_;
@@ -114,8 +114,8 @@ private:
 	 * If you want to turn off adaptive step size, set step_length_power to 0
 	 * Alternatively, set step_length_power to 1 for even steps in position
 	 */
-	static double _default_v_0_; /// "Pivot" velocity
-	static double _default_r_0_; /// "Pivot" radial distance
+	static BRG_VELOCITY _default_v_0_; /// "Pivot" velocity
+	static BRG_DISTANCE _default_r_0_; /// "Pivot" radial distance
 	static double _default_step_length_power_; /// How strongly variable step length is implemented
 	static double _default_step_factor_max_; /// Maximum allowed value of (v_0/v)^(step_length_power)
 	static double _default_step_factor_min_; /// Minimum allowed value of (v_0/v)^(step_length_power)
@@ -126,7 +126,7 @@ private:
 #if(1)
 	/// Estimated number of steps for which stripping is calculated. The actual number of steps
 	/// will depend on the adaptive step size calculations, and will usually be larger than this.
-	int _base_resolution_;
+	unsigned int _base_resolution_;
 
 	/// Interpolation method for this orbit
 	allowed_interpolation_type _interpolation_type_;
@@ -139,8 +139,8 @@ private:
 	 * If you want to turn off adaptive step size, set step_length_power to 0
 	 * Alternatively, set step_length_power to 1 for even steps in position
 	 */
-	double _v_0_; /// "Pivot" velocity
-	double _r_0_; /// "Pivot" radial distance
+	BRG_VELOCITY _v_0_; /// "Pivot" velocity
+	BRG_DISTANCE _r_0_; /// "Pivot" radial distance
 	double _step_length_power_; /// How strongly variable step length is implemented
 	double _step_factor_max_; /// Maximum allowed value of (v_0/v)^(step_length_power)
 	double _step_factor_min_; /// Minimum allowed value of (v_0/v)^(step_length_power)
@@ -182,7 +182,7 @@ private:
 	// Global info for the orbit
 #if(1)
 
-	mutable int _num_segments_; ///< Number of segments the orbit is split up into.
+	mutable unsigned int _num_segments_; ///< Number of segments the orbit is split up into.
 
 	//@{
 	/// The values of t_min/max based only on the points passed to the orbit.
@@ -232,10 +232,10 @@ private:
 	//@}
 
 	/// Any discontinuity times the user has told us about.
-	std::vector< double > _discontinuity_times_;
+	std::vector< BRG_TIME > _discontinuity_times_;
 
 	/// Discontinuity times, cleaned of duplicates and out-of-bounds values, then sorted
-	mutable std::vector< double > _cleaned_discontinuity_times_;
+	mutable std::vector< BRG_TIME > _cleaned_discontinuity_times_;
 
 	/// Interpolator for calculated retained mass fraction, so we can estimate it at any time.
 	mutable brgastro::interpolator _m_ret_interpolator_;
@@ -318,9 +318,8 @@ private:
 	 * @param segment_init_satellite The satellite's halo profile at the beginning of this segment
 	 * @param segment_init_host The host's halo profile at the beginning of this segment
 	 * @param resolution The resolution for this segment
-	 * @return Flag for whether it succeeded (zero) or had an error (other)
 	 */
-	const int _pass_parameters_to_segment(
+	void _pass_parameters_to_segment(
 			brgastro::stripping_orbit_segment & segment,
 			brgastro::density_profile *segment_init_satellite=NULL,
 			brgastro::density_profile *segment_init_host=NULL,
@@ -403,34 +402,34 @@ public:
 	 * override_current==true.
 	 */
 
-	static const int set_default_resolution( const int new_default_spline_resolution);
-	const int set_default_resolution( const int new_default_spline_resolution,
+	static void set_default_resolution( const unsigned int new_default_spline_resolution);
+	void set_default_resolution( const unsigned int new_default_spline_resolution,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_interpolation_type(
+	static void set_default_interpolation_type(
 			const allowed_interpolation_type new_default_interpolation_type);
-	const int set_default_interpolation_type(
+	void set_default_interpolation_type(
 			const allowed_interpolation_type new_default_interpolation_type,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_v_0( const double new_default_v_0);
-	const int set_default_v_0( const double new_default_v_0,
+	static void set_default_v_0( const double new_default_v_0);
+	void set_default_v_0( const double new_default_v_0,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_r_0( const double new_default_r_0);
-	const int set_default_r_0( const double new_default_r_0,
+	static void set_default_r_0( const double new_default_r_0);
+	void set_default_r_0( const double new_default_r_0,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_step_length_power( const double new_default_step_length_power);
-	const int set_default_step_length_power( const double new_default_step_length_power,
+	static void set_default_step_length_power( const double new_default_step_length_power);
+	void set_default_step_length_power( const double new_default_step_length_power,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_step_factor_max( const double new_default_step_factor_max);
-	const int set_default_step_factor_max( const double new_default_step_factor_max,
+	static void set_default_step_factor_max( const double new_default_step_factor_max);
+	void set_default_step_factor_max( const double new_default_step_factor_max,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_step_factor_min( const double new_default_step_factor_min);
-	const int set_default_step_factor_min( const double new_default_step_factor_min,
+	static void set_default_step_factor_min( const double new_default_step_factor_min);
+	void set_default_step_factor_min( const double new_default_step_factor_min,
 			const bool override_current,
 			const bool silent=false );
 	//@}
@@ -446,39 +445,39 @@ public:
 	 * The multiple-argument version can override the current value as well if
 	 * override_current==true.
 	 */
-	static const int set_default_tidal_stripping_amplification(
+	static void set_default_tidal_stripping_amplification(
 			const double new_default_tidal_stripping_amplification);
-	const int set_default_tidal_stripping_amplification(
+	void set_default_tidal_stripping_amplification(
 			const double new_default_tidal_stripping_amplification,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_tidal_stripping_deceleration(
+	static void set_default_tidal_stripping_deceleration(
 			const double new_default_tidal_stripping_deceleration);
-	const int set_default_tidal_stripping_deceleration(
+	void set_default_tidal_stripping_deceleration(
 			const double new_default_tidal_stripping_deceleration,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_tidal_stripping_radialness(
+	static void set_default_tidal_stripping_radialness(
 			const double new_default_tidal_stripping_radialness);
-	const int set_default_tidal_stripping_radialness(
+	void set_default_tidal_stripping_radialness(
 			const double new_default_tidal_stripping_radialness,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_tidal_shocking_amplification(
+	static void set_default_tidal_shocking_amplification(
 			const double new_default_tidal_shocking_amplification);
-	const int set_default_tidal_shocking_amplification(
+	void set_default_tidal_shocking_amplification(
 			const double new_default_tidal_shocking_amplification,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_tidal_shocking_persistance(
+	static void set_default_tidal_shocking_persistance(
 			const double new_default_tidal_shocking_persistance);
-	const int set_default_tidal_shocking_persistance(
+	void set_default_tidal_shocking_persistance(
 			const double new_default_tidal_shocking_persistance,
 			const bool override_current,
 			const bool silent=false );
-	static const int set_default_tidal_shocking_power(
+	static void set_default_tidal_shocking_power(
 			const double new_default_tidal_shocking_power);
-	const int set_default_tidal_shocking_power(
+	void set_default_tidal_shocking_power(
 			const double new_default_tidal_shocking_power,
 			const bool override_current,
 			const bool silent=false );
@@ -492,9 +491,8 @@ public:
 	 *
 	 * @param new_spline_resolution The new resolution.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_resolution( const int new_spline_resolution,
+	void set_resolution( const unsigned int new_spline_resolution,
 			const bool silent=false );
 	/**
 	 * Set the type of interpolation to be used for all interpolators, using the
@@ -502,9 +500,8 @@ public:
 	 *
 	 * @param new_type The new interpolation type.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_interpolation_type( const allowed_interpolation_type new_type,
+	void set_interpolation_type( const allowed_interpolation_type new_type,
 			const bool silent=false );
 	/**
 	 * Set the "pivot" velocity for adaptive step size calculations. If the satellite
@@ -515,9 +512,8 @@ public:
 	 *
 	 * @param new_v_0 The new "pivot" velocity.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_v_0( const double new_v_0,
+	void set_v_0( const double new_v_0,
 			const bool silent=false );
 	/**
 	 * Set the "pivot" radial distance for adaptive step size calculations. If the satellite
@@ -528,9 +524,8 @@ public:
 	 *
 	 * @param new_r_0 The new "pivot" radial distance.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_r_0( const double new_r_0,
+	void set_r_0( const double new_r_0,
 			const bool silent=false );
 	/**
 	 * Set how powerful the adaptive step size correction is.
@@ -539,9 +534,8 @@ public:
 	 *
 	 * @param new_step_length_power The new step length power.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_step_length_power( const double new_step_length_power,
+	void set_step_length_power( const double new_step_length_power,
 			const bool silent=false );
 	/**
 	 * Set the maximum allowed step size factor. eg. if this is 10, the
@@ -550,9 +544,8 @@ public:
 	 *
 	 * @param new_step_factor_max The new maximum step length factor.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_step_factor_max( const double new_step_factor_max,
+	void set_step_factor_max( const double new_step_factor_max,
 			const bool silent=false );
 	/**
 	 * Set the minimum allowed step size factor. eg. if this is 0.1, the
@@ -561,9 +554,8 @@ public:
 	 *
 	 * @param new_step_factor_min The new minimum step length factor.
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_step_factor_min( const double new_step_factor_min,
+	void set_step_factor_min( const double new_step_factor_min,
 			const bool silent=false );
 #endif
 
@@ -575,47 +567,48 @@ public:
 	 *
 	 * @param new_tidal_stripping_amplification
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
+	void set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
 			const bool silent=false );
 	/**
 	 * Set the new value for tidal stripping deceleration (alpha_s in the paper).
 	 *
 	 * @param new_tidal_stripping_deceleration
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
+	void set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
 			const bool silent=false );
-	const int set_tidal_stripping_radialness( const double new_tidal_stripping_radialness,
+	/**
+	 * Set the new value for tidal stripping radialness (alpha_v in the paper).
+	 *
+	 * @param new_tidal_stripping_deceleration
+	 * @param silent Whether or not to suppress error messages.
+	 */
+	void set_tidal_stripping_radialness( const double new_tidal_stripping_radialness,
 			const bool silent=false );
 	/**
 	 * Set the new value for tidal shocking amplification (A_h in the paper).
 	 *
 	 * @param new_tidal_shocking_amplification
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
+	void set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
 			const bool silent=false );
 	/**
 	 * Set the new value for tidal shocking persistance (fixed to 1 in the paper).
 	 *
 	 * @param new_tidal_shocking_persistance
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tidal_shocking_persistance( const double new_tidal_shocking_persistance,
+	void set_tidal_shocking_persistance( const double new_tidal_shocking_persistance,
 			const bool silent=false );
 	/**
 	 * Set the new value for tidal shocking power (alpha_h in the paper).
 	 *
 	 * @param new_tidal_shocking_power
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tidal_shocking_power( const double new_tidal_shocking_power,
+	void set_tidal_shocking_power( const double new_tidal_shocking_power,
 			const bool silent=false );
 #endif
 
@@ -623,13 +616,13 @@ public:
 #if(1)
 	//@{
 	/// Reset integration parameters to their default values
-	const int reset_resolution();
-	const int reset_interpolation_type();
-	const int reset_v_0();
-	const int reset_r_0();
-	const int reset_step_length_power();
-	const int reset_step_factor_max();
-	const int reset_step_factor_min();
+	void reset_resolution();
+	void reset_interpolation_type();
+	void reset_v_0();
+	void reset_r_0();
+	void reset_step_length_power();
+	void reset_step_factor_max();
+	void reset_step_factor_min();
 	//@}
 #endif
 
@@ -637,12 +630,12 @@ public:
 #if(1)
 	//@{
 	/// Reset tuning parameters to their default values
-	const int reset_tidal_stripping_amplification();
-	const int reset_tidal_stripping_deceleration();
-	const int reset_tidal_stripping_radialness();
-	const int reset_tidal_shocking_amplification();
-	const int reset_tidal_shocking_persistance();
-	const int reset_tidal_shocking_power();
+	void reset_tidal_stripping_amplification();
+	void reset_tidal_stripping_deceleration();
+	void reset_tidal_stripping_radialness();
+	void reset_tidal_shocking_amplification();
+	void reset_tidal_shocking_persistance();
+	void reset_tidal_shocking_power();
 	//@}
 #endif
 
@@ -671,9 +664,8 @@ public:
 	 * @param t The time of this point. If only redshift is available, use the function SALTSA::zft(z).
 	 * @param test_mass Optional: A comparison retained mass fraction at this point in the orbit.
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
+	void add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
 			CONST_BRG_DISTANCE_REF z, CONST_BRG_VELOCITY_REF vx,
 			CONST_BRG_VELOCITY_REF vy, CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t,
 			const double test_mass = 1, const double test_mass_error = 1 );
@@ -698,9 +690,8 @@ public:
 	 * @param t The time of this point. If only redshift is available, use the function SALTSA::zft(z).
 	 * @param test_mass Optional: A comparison retained mass fraction at this point in the orbit.
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int force_add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
+	void force_add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
 			CONST_BRG_DISTANCE_REF z, CONST_BRG_VELOCITY_REF vx,
 			CONST_BRG_VELOCITY_REF vy, CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t,
 			const double test_mass = 1, const double test_mass_error = 1 );
@@ -725,9 +716,8 @@ public:
 	 * @param t The time of this point. If only redshift is available, use the function SALTSA::zft(z).
 	 * @param test_mass Optional: A comparison retained mass fraction at this point in the orbit.
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
+	void add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
 			CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t,
 			const double new_test_mass = 1, const double test_mass_error = 1 ); // Only use if v is unknown
 	/**
@@ -750,9 +740,8 @@ public:
 	 * @param t The time of this point. If only redshift is available, use the function SALTSA::zft(z).
 	 * @param test_mass Optional: A comparison retained mass fraction at this point in the orbit.
 	 * @param test_mass_error Optional: Error on the comparison retained mass fraction.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int force_add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
+	void force_add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
 			CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t,
 			const double new_test_mass = 1, const double test_mass_error = 1 ); // Only use if v is unknown
 	/**
@@ -761,9 +750,8 @@ public:
 	 *
 	 * @param t The time of a discontinuity in seconds.
 	 *          Use the function SALTSA::zft(z) if only redshift is known.
-	 * @return
 	 */
-	const int add_discontinuity_time( CONST_BRG_TIME_REF t ); // Splits into segments to be calculated individually
+	void add_discontinuity_time( CONST_BRG_TIME_REF t ); // Splits into segments to be calculated individually
 	/**
 	 * Tell the orbit about the state of the host halo at a given time. This version checks
 	 * to ensure that no duplicate times are added (only among host parameter point times).
@@ -778,9 +766,8 @@ public:
 	 * @param parameters A vector of parameters which define the state of the host group at this time.
 	 * @param t The time of this point. If only redshift is available, use the function SALTSA::zft(z).
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
+	void add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
 			const bool silent = false );
 	/**
 	 * Tell the orbit about the state of the host halo at a given time. This version does
@@ -795,28 +782,21 @@ public:
 	 * @param parameters A vector of parameters which define the state of the host group at this time.
 	 * @param t The time of this point. If only redshift is available, use the function SALTSA::zft(z).
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int force_add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
+	void force_add_host_parameter_point( const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
 			const bool silent = false );
 	/**
 	 * Clears all phase-space points that the orbit has been told about.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_points();
+	void clear_points();
 	/**
 	 * Clears all discontinuity times that the orbit has been told about.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_discontinuity_times();
+	void clear_discontinuity_times();
 	/**
 	 * Clears all host parameter points that the orbit has been told about.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_host_parameter_points();
+	void clear_host_parameter_points();
 
 #endif // Adding data points and clearing those vectors
 
@@ -826,16 +806,14 @@ public:
 	 * Set a profile for the initial state of the satellite halo.
 	 *
 	 * @param new_init_satellite Const pointer to a derived class of density_profile.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_init_satellite( const density_profile *new_init_satellite );
+	void set_init_satellite( const density_profile *new_init_satellite );
 	/**
 	 * Set a profile for the initial state of the host halo.
 	 *
 	 * @param new_init_host Const pointer to a derived class of density_profile.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_init_host( const density_profile *new_init_host );
+	void set_init_host( const density_profile *new_init_host );
 	/**
 	 * Tell the orbit to generate its own tNFW halo to be used for the initial state of the satellite.
 	 *
@@ -844,9 +822,8 @@ public:
 	 * @param new_init_c Concentration of the profile; will be determined through a fitting function with
 	 *                   mass if left to default.
 	 * @param new_init_tau Truncation parameter tau of the profile. Will be 2*c if left to default
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tNFW_init_satellite( CONST_BRG_MASS_REF new_init_mvir0,
+	void set_tNFW_init_satellite( CONST_BRG_MASS_REF new_init_mvir0,
 			const double z = 0, const double new_init_c = -1,
 			const double new_init_tau = -1 );
 	/**
@@ -857,24 +834,19 @@ public:
 	 * @param new_init_c Concentration of the profile; will be determined through a fitting function with
 	 *                   mass if left to default.
 	 * @param new_init_tau Truncation parameter tau of the profile. Will be 2*c if left to default
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_tNFW_init_host( CONST_BRG_MASS_REF new_mvir0, const double z = 0,
+	void set_tNFW_init_host( CONST_BRG_MASS_REF new_mvir0, const double z = 0,
 			const double new_c = -1, const double new_tau = -1 );
 	/**
 	 * Clears initial satellite profile. Not actually necessary to do at any point, as setting to
 	 * something else will get the job done, but this is here in case someone wants to use it.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_init_satellite();
+	void clear_init_satellite();
 	/**
 	 * Clears initial host profile. Not actually necessary to do at any point, as setting to
 	 * something else will get the job done, but this is here in case someone wants to use it.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_init_host();
+	void clear_init_host();
 
 #endif // Setting and clearing init satellite/host_ptr
 
@@ -886,31 +858,25 @@ public:
 	 * you only want to calculate stripping for a subsection of the orbit.
 	 *
 	 * @param new_t_min The new minimum time.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_t_min( CONST_BRG_TIME_REF  new_t_min );
+	void set_t_min( CONST_BRG_TIME_REF  new_t_min );
 	/**
 	 * Override the default maximum time for stripping calculation. For instance, use this if
 	 * you only want to calculate stripping for a subsection of the orbit.
 	 *
 	 * @param new_t_min The new maximum time.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_t_max( CONST_BRG_TIME_REF  new_t_max );
+	void set_t_max( CONST_BRG_TIME_REF  new_t_max );
 	/**
 	 * Reset the minimum time to the default value (which will be the lowest time point passed
 	 * to the orbit).
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int reset_t_min();
+	void reset_t_min();
 	/**
 	 * Reset the maximum time to the default value (which will be the highest time point passed
 	 * to the orbit).
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int reset_t_max();
+	void reset_t_max();
 
 #endif // Setting and resetting _t_min_/max
 
@@ -921,31 +887,25 @@ public:
 	 * defaults to not storing this data to save memory.
 	 *
 	 * @param new_record_full_data Whether or not to save full data on the orbit.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_record_full_data( const bool new_record_full_data ) const;
+	void set_record_full_data( const bool new_record_full_data ) const;
 
 	// Global clearing functions
 	/**
 	 * Clear everything about the orbit, making it as good as new.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear();
+	void clear();
 	/**
 	 * Clears all calculated results from the orbit.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_calcs() const;
+	void clear_calcs() const;
 
 	/**
 	 * Tell the orbit to calculate stripping now.
 	 *
 	 * @param silent Whether or not to suppress error messages.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int calc( const bool silent = false ) const; // Using conceptual const-ness
+	void calc( const bool silent = false ) const; // Using conceptual const-ness
 
 	// Output-modifying functions
 #if(1)
@@ -954,13 +914,10 @@ public:
 	 * Tell the orbit which of the satellite halo's defining parameters you want to be
 	 * output.
 	 *
-	 * @param num_parameters Number of parameters which define the satellite profile.
 	 * @param satellite_output_parameters Vector of bools, saying whether each parameter should be
 	 *                                    output or not.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_satellite_output_parameters(
-			const unsigned int num_parameters,
+	void set_satellite_output_parameters(
 			const std::vector< bool > &satellite_output_parameters );
 	/**
 	 * Tell the orbit what unit conversions to use in outputting the satellite halo's
@@ -970,62 +927,46 @@ public:
 	 * @param satellite_unitconvs vector of unit conversion factors to use. Use the unitconv namespace
 	 *                            for these, with the form unitconv::ttMsuntokg to output mass in
 	 *                            10^10 Msun, for instance (units you want first).
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_satellite_parameter_unitconvs(
-			const unsigned int num_parameters,
+	void set_satellite_parameter_unitconvs(
 			const std::vector< double > &satellite_unitconvs );
 	/**
 	 * Tell the orbit which of the host halo's defining parameters you want to be
 	 * output.
 	 *
-	 * @param num_parameters Number of parameters which define the host profile.
-	 * @param satellite_output_parameters Vector of bools, saying whether each parameter should be
+	 * @param host_output_parameters Vector of bools, saying whether each parameter should be
 	 *                                    output or not.
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_host_output_parameters( const unsigned int num_parameters,
-			const std::vector< bool > &host_output_parameters );
+	void set_host_output_parameters( const std::vector< bool > &host_output_parameters );
 	/**
 	 * Tell the orbit what unit conversions to use in outputting the host halo's
 	 * defining parameters.
 	 *
-	 * @param num_parameters Number of parameters which define the host profile.
-	 * @param satellite_unitconvs vector of unit conversion factors to use. Use the unitconv namespace
+	 * @param host_unitconvs vector of unit conversion factors to use. Use the unitconv namespace
 	 *                            for these, with the form unitconv::ttMsuntokg to output mass in
 	 *                            10^10 Msun, for instance (units you want first).
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int set_host_parameter_unitconvs( const unsigned int num_parameters,
-			const std::vector< double > &host_unitconvs );
+	void set_host_parameter_unitconvs( const std::vector< double > &host_unitconvs );
 	/**
 	 * Clear the vector of which satellite parameters to output. This will result in the default
 	 * behaviour of all being output.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_satellite_output_parameters();
+	void clear_satellite_output_parameters();
 	/**
 	 * Clear the vector of what unit conversions to use for the satellite's parameters. This will
 	 * result in all parameters being output in SI units (or as they are if they're unitless).
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_satellite_parameter_unitconvs();
+	void clear_satellite_parameter_unitconvs();
 	/**
 	 * Clear the vector of which host parameters to output. This will result in the default
 	 * behaviour of all being output.
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_host_output_parameters();
+	void clear_host_output_parameters();
 	/**
 	 * Clear the vector of what unit conversions to use for the host parameters. This will
 	 * result in all parameters being output in SI units (or as they are if they're unitless).
-	 *
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int clear_host_parameter_unitconvs();
+	void clear_host_parameter_unitconvs();
 #endif
 
 	/**
@@ -1034,9 +975,8 @@ public:
 	 * functions.
 	 *
 	 * @param out Out stream to print the orbit data into (for instance, an open ofstream).
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int print_full_data( std::ostream *out ) const;
+	void print_full_data( std::ostream *out ) const;
 	/**
 	 * Print data for the a specific segment into the given stream. What data will be output and what
 	 * units it uses are determined by the set_output_parameters and set_output_parameter_unitconvs
@@ -1044,9 +984,8 @@ public:
 	 *
 	 * @param out Out stream to print the orbit data into (for instance, an open ofstream).
 	 * @param segment_number Index for the segment you want to be output
-	 * @return Int flag - zero for success, otherwise for error.
 	 */
-	const int print_segment_data( std::ostream *out,
+	void print_segment_data( std::ostream *out,
 			const int segment_number ) const;
 
 	// Accessors to private data
@@ -1056,11 +995,11 @@ public:
 #if(1)
 	//@{
 	/// Accessors to default integration parameters.
-	static const int & default_spline_resolution() {return _default_spline_resolution_;}
-	static const allowed_interpolation_type & default_interpolation_type()
+	static const unsigned int default_spline_resolution() {return _default_spline_resolution_;}
+	static const allowed_interpolation_type default_interpolation_type()
 		{return _default_interpolation_type_;}
-	static CONST_BRG_VELOCITY_REF  default_v_0() {return _default_v_0_;}
-	static CONST_BRG_DISTANCE_REF  default_r_0() {return _default_r_0_;}
+	static BRG_VELOCITY  default_v_0() {return _default_v_0_;}
+	static BRG_DISTANCE  default_r_0() {return _default_r_0_;}
 	static const double  default_step_length_power() {return _default_step_length_power_;}
 	static const double  default_step_factor_max() {return _default_step_factor_max_;}
 	static const double  default_step_factor_min() {return _default_step_factor_min_;}
@@ -1085,14 +1024,14 @@ public:
 #if(1)
 	//@{
 	/// Accessors to integration parameters for this orbit.
-	const int & spline_resolution() const {return _base_resolution_;}
-	const allowed_interpolation_type & interpolation_type()
+	const unsigned int spline_resolution() const {return _base_resolution_;}
+	const allowed_interpolation_type interpolation_type()
 		{return _interpolation_type_;}
-	CONST_BRG_VELOCITY_REF  v_0() const {return _v_0_;}
-	CONST_BRG_DISTANCE_REF  r_0() const {return _r_0_;}
-	const double  step_length_power() const {return _step_length_power_;}
-	const double  step_factor_max() const {return _step_factor_max_;}
-	const double  step_factor_min() const {return _step_factor_min_;}
+	BRG_VELOCITY v_0() const {return _v_0_;}
+	BRG_DISTANCE r_0() const {return _r_0_;}
+	const double step_length_power() const {return _step_length_power_;}
+	const double step_factor_max() const {return _step_factor_max_;}
+	const double step_factor_min() const {return _step_factor_min_;}
 	//@}
 #endif
 
@@ -1100,28 +1039,28 @@ public:
 #if(1)
 	//@{
 	/// Accessors to tuning parameters for this orbit.
-	const double  tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
-	const double  tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
-	const double  tidal_stripping_radialness() const {return _tidal_stripping_radialness_;}
-	const double  tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
-	const double  tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
-	const double  tidal_shocking_power() const {return _tidal_shocking_power_;}
+	const double tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
+	const double tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
+	const double tidal_stripping_radialness() const {return _tidal_stripping_radialness_;}
+	const double tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
+	const double tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
+	const double tidal_shocking_power() const {return _tidal_shocking_power_;}
 	//@}
 #endif
 
 	/// Accessor to the number of segments this orbit has.
-	const int & num_segments() const {return _num_segments_;}
+	const unsigned int num_segments() const {return _num_segments_;}
 
 	/// Accessor to what t_min would be if not overridden.
-	CONST_BRG_TIME_REF   t_min_natural_value() const {return _t_min_natural_value_;}
+	BRG_TIME t_min_natural_value() const {return _t_min_natural_value_;}
 	/// Accessor to what t_max would be if not overridden.
-	CONST_BRG_TIME_REF   t_max_natural_value() const {return _t_max_natural_value_;}
+	BRG_TIME t_max_natural_value() const {return _t_max_natural_value_;}
 	/// Accessor to the override value of t_min
-	CONST_BRG_TIME_REF   t_min_override_value() const {return _t_min_override_value_;}
+	BRG_TIME t_min_override_value() const {return _t_min_override_value_;}
 	/// Accessor to the override value of t_max
-	CONST_BRG_TIME_REF   t_max_override_value() const {return _t_max_override_value_;}
+	BRG_TIME t_max_override_value() const {return _t_max_override_value_;}
 	/// Accessor to the current value of t_min
-	CONST_BRG_TIME_REF   t_min() const
+	BRG_TIME t_min() const
 	{
 		if(_override_t_min_)
 			return _t_min_override_value_;
@@ -1129,7 +1068,7 @@ public:
 			return _t_min_natural_value_;
 	}
 	/// Accessor to the current value of t_max
-	CONST_BRG_TIME_REF   t_max() const
+	BRG_TIME t_max() const
 	{
 		if(_override_t_max_)
 			return _t_max_override_value_;
@@ -1137,38 +1076,38 @@ public:
 			return _t_max_natural_value_;
 	}
 	/// Accessor to whether or not to use a user-defined value of t_min
-	const bool & override_t_min() const {return _override_t_min_;}
+	const bool override_t_min() const {return _override_t_min_;}
 	/// Accessor to whether or not to use a user-defined value of t_max
-	const bool & override_t_max() const {return _override_t_max_;}
+	const bool override_t_max() const {return _override_t_max_;}
 
 	/// Accessor to vector of satellite halo parameter unit conversion factors
-	const std::vector< double > & satellite_parameter_unitconvs() const {return _satellite_parameter_unitconvs_;}
+	std::vector< double > satellite_parameter_unitconvs() const {return _satellite_parameter_unitconvs_;}
 	/// Accessor to vector of host halo parameter unit conversion factors
-	const std::vector< double > & host_parameter_unitconvs() const {return _host_parameter_unitconvs_;}
+	std::vector< double > host_parameter_unitconvs() const {return _host_parameter_unitconvs_;}
 	/// Accessor to vector of which satellite halo parameters to output
-	const std::vector< bool > & satellite_output_parameters() const {return _satellite_output_parameters_;}
+	std::vector< bool > satellite_output_parameters() const {return _satellite_output_parameters_;}
 	/// Accessor to vector of which host halo parameters to output
-	const std::vector< bool > & host_output_parameters() const {return _host_output_parameters_;}
+	std::vector< bool > host_output_parameters() const {return _host_output_parameters_;}
 
 	//@{
 	/// Accessors to stored data on points passed to the orbit.
-	const std::vector< std::pair< double, double > > & x_spline_points() const {return _x_points_;}
-	const std::vector< std::pair< double, double > > & y_spline_points() const {return _y_points_;}
-	const std::vector< std::pair< double, double > > & z_spline_points() const {return _z_points_;}
-	const std::vector< std::pair< double, double > > & vx_spline_points() const {return _vx_points_;}
-	const std::vector< std::pair< double, double > > & vy_spline_points() const {return _vy_points_;}
-	const std::vector< std::pair< double, double > > & vz_spline_points() const {return _vz_points_;}
-	const std::vector< double > & vx_spline_unknown_points() const {return _vx_unknown_points_;}
-	const std::vector< double > & vy_spline_unknown_points() const {return _vy_unknown_points_;}
-	const std::vector< double > & vz_spline_unknown_points() const {return _vz_unknown_points_;}
-	const std::vector< std::pair< double, double > > & test_mass_spline_points() const
+	std::vector< std::pair< double, double > > x_spline_points() const {return _x_points_;}
+	std::vector< std::pair< double, double > > y_spline_points() const {return _y_points_;}
+	std::vector< std::pair< double, double > > z_spline_points() const {return _z_points_;}
+	std::vector< std::pair< double, double > > vx_spline_points() const {return _vx_points_;}
+	std::vector< std::pair< double, double > > vy_spline_points() const {return _vy_points_;}
+	std::vector< std::pair< double, double > > vz_spline_points() const {return _vz_points_;}
+	std::vector< double > vx_spline_unknown_points() const {return _vx_unknown_points_;}
+	std::vector< double > vy_spline_unknown_points() const {return _vy_unknown_points_;}
+	std::vector< double > vz_spline_unknown_points() const {return _vz_unknown_points_;}
+	std::vector< std::pair< double, double > > test_mass_spline_points() const
 			{return _test_mass_points_;}
-	const std::vector< std::pair< double, std::vector< BRG_UNITS > > > & host_parameter_spline_points() const
+	std::vector< std::pair< double, std::vector< BRG_UNITS > > > host_parameter_spline_points() const
 			{return _host_parameter_points_;}
 	//@}
 
 	/// Accessor to the list of discontinuity times
-	const std::vector< double > & discontinuity_times() const {return _discontinuity_times_;}
+	std::vector< BRG_TIME > discontinuity_times() const {return _discontinuity_times_;}
 
 	/// Accessor to initial satellite halo pointer
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;}
@@ -1176,29 +1115,29 @@ public:
 	const density_profile * init_host_ptr() const {return _init_host_ptr_;}
 
 	/// Accessor to whether or not to record full data
-	const bool & record_full_data() const {return _record_full_data_;}
+	const bool record_full_data() const {return _record_full_data_;}
 	/// Accessor to whether or not the host is changing over time
-	const bool & host_is_evolving() const {return _host_is_evolving_;}
+	const bool host_is_evolving() const {return _host_is_evolving_;}
 	/// Accessor to whether or not the satellite is loaded
-	const bool & satellite_loaded() const {return _satellite_loaded_;}
+	const bool satellite_loaded() const {return _satellite_loaded_;}
 	/// Accessor to whether or not the host is loaded
-	const bool & host_loaded() const {return _host_loaded_;}
+	const bool host_loaded() const {return _host_loaded_;}
 	/// Accessor to whether or not the orbit has been calculated
-	const bool & calculated() const {return _calculated_;}
+	const bool calculated() const {return _calculated_;}
 	/// Accessor to whether or not there was some error in calculation
-	const bool & bad_result() const {return _bad_result_;}
+	const bool bad_result() const {return _bad_result_;}
 	/// Accessor to whether or not the orbit is using an internal initial host halo
-	const bool & using_private_init_satellite() const {return _using_private_init_satellite_;}
+	const bool using_private_init_satellite() const {return _using_private_init_satellite_;}
 	/// Accessor to whether or not the orbit is using an internal initial satellite halo
-	const bool & using_private_init_host() const {return _using_private_init_host_;}
+	const bool using_private_init_host() const {return _using_private_init_host_;}
 
 	/// Accessor to the orbit's private initial satellite halo
-	const tNFW_profile & private_tNFW_init_satellite() const {return _private_tNFW_init_satellite_;}
+	tNFW_profile private_tNFW_init_satellite() const {return _private_tNFW_init_satellite_;}
 	/// Accessor to the orbit's private initial host halo
-	const tNFW_profile & private_tNFW_init_host() const {return _private_tNFW_init_host_;}
+	tNFW_profile private_tNFW_init_host() const {return _private_tNFW_init_host_;}
 
 	/// Accessor to the vector of segments this orbit has
-	const std::vector<stripping_orbit_segment> & orbit_segments() const {return _orbit_segments_;}
+	std::vector<stripping_orbit_segment> orbit_segments() const {return _orbit_segments_;}
 #endif
 
 	// Getting resultant data

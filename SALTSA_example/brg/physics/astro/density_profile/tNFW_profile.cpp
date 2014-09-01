@@ -220,10 +220,10 @@ BRG_DISTANCE brgastro::tNFW_profile::rvir() const
 			// Iteratively didn't work, so we go to the grid option
 			tNFW_solve_rvir_minimize_functor min_solver(this);
 
-			BRG_DISTANCE max_rvir = rvir0();
+			BRG_UNITS max_rvir = rvir0();
 			try
 			{
-				_rvir_cache_ =  solve_grid( &min_solver, 0., max_rvir, 100, 0.);
+				_rvir_cache_ =  solve_grid( &min_solver, (BRG_UNITS)0., max_rvir, 100, (BRG_UNITS)0.);
 			}
 			catch(const std::exception &e)
 			{

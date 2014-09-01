@@ -98,7 +98,7 @@ inline T differentiate( const f * func, const T & in_param,
 		if ( small_factor_with_units == 0 )
 		{
 #ifdef _BRG_USE_UNITS_
-			d_in_param.set(SMALL_FACTOR,in_params.get_unit_powers());
+			d_in_param.set(SMALL_FACTOR,in_param.get_unit_powers());
 #else
 			d_in_param = SMALL_FACTOR;
 #endif
@@ -108,7 +108,7 @@ inline T differentiate( const f * func, const T & in_param,
 			if ( in_param == 0 )
 			{
 #ifdef _BRG_USE_UNITS_
-				d_in_param.set(SMALL_FACTOR_units.get_value(),in_params.get_unit_powers());
+				d_in_param.set(small_factor_with_units.get_value(),in_param.get_unit_powers());
 #else
 				d_in_param = small_factor_with_units;
 #endif
@@ -231,7 +231,7 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 				if ( in_params[i] == 0 )
 				{
 #ifdef _BRG_USE_UNITS_
-					d_in_params[i].set(SMALL_FACTOR_units.get_value(),in_params[i].get_unit_powers());
+					d_in_params[i].set(small_factor_with_units.get_value(),in_params[i].get_unit_powers());
 #else
 					d_in_params[i] = small_factor_with_units;
 #endif

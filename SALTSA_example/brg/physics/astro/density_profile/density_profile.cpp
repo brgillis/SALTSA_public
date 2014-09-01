@@ -68,7 +68,7 @@ BRG_DISTANCE brgastro::density_profile::rhmtot( const bool silent ) const
 
 	try
 	{
-		rhm_test = solve_grid( func_ptr, 0., max_r, 10, 0. );
+		rhm_test = solve_grid( func_ptr, static_cast<BRG_UNITS>(0), max_r, 10, static_cast<BRG_UNITS>(0.) );
 	}
 	catch(const std::exception &e)
 	{
@@ -107,7 +107,7 @@ BRG_DISTANCE brgastro::density_profile::rhmvir( const bool silent ) const
 
 	try
 	{
-		rhm_test = solve_grid( func_ptr, 0., max_r, 10, 0.);
+		rhm_test = solve_grid( func_ptr, static_cast<BRG_UNITS>(0.), max_r, 10, static_cast<BRG_UNITS>(0.));
 	}
 	catch(const std::exception &e)
 	{

@@ -31,6 +31,7 @@
 
 #include "brg/physics/astro/astro.h"
 #include "brg/physics/astro/density_profile/density_profile.h"
+#include "brg/physics/units/unit_obj.h"
 #include "brg/math/misc_math.hpp"
 
 namespace SALTSA {
@@ -126,7 +127,7 @@ public:
 	 *
 	 * @return The virial mass in kg
 	 */
-	double mvir() const // Virial mass
+	BRG_MASS mvir() const // Virial mass
 	{
 		return std::pow(_sigma_v_,3.) / (10 * brgastro::Gc * H());
 	}
@@ -149,7 +150,7 @@ public:
 	 * @param r The radiuse we want to get the density at.
 	 * @return The density at this radius, in kg/m^3
 	 */
-	double dens( const double r ) const // Local density at radius r
+	BRG_UNITS dens( CONST_BRG_DISTANCE_REF r ) const // Local density at radius r
 	{
 		if(r>rvir())
 			return 0;
@@ -225,7 +226,7 @@ public:
 	 *
 	 * @return Total mass of the halo.
 	 */
-	double mtot() const // Total mass
+	BRG_MASS mtot() const // Total mass
 	{
 		return mvir();
 	}
@@ -236,7 +237,7 @@ public:
 	 * @param silent
 	 * @return The truncation radius
 	 */
-	double rt( const bool silent = false ) const // Tidal/truncation radius
+	BRG_DISTANCE rt( const bool silent = false ) const // Tidal/truncation radius
 	{
 		return rvir();
 	}
@@ -258,9 +259,9 @@ public:
 	 *
 	 * @return
 	 */
-	std::vector< double > get_parameters( const bool silent = false ) const // Returns a set of parameters for this halo (all the variables needed to define it - must be defined for each child)
+	std::vector< BRG_UNITS > get_parameters( const bool silent = false ) const // Returns a set of parameters for this halo (all the variables needed to define it - must be defined for each child)
 	{
-		std::vector< double > parameters;
+		std::vector< BRG_UNITS > parameters;
 		parameters.push_back(_sigma_v_);
 		parameters.push_back(z());
 		return parameters;
@@ -327,7 +328,7 @@ public:
 	 * @param silent
 	 * @return
 	 */
-	double rhmvir( const bool silent = false ) const // Half-virial-mass radius
+	BRG_DISTANCE rhmvir( const bool silent = false ) const // Half-virial-mass radius
 	{
 		return rvir()/2;
 	}
@@ -339,7 +340,7 @@ public:
 	 * @param silent
 	 * @return
 	 */
-	double rhmtot( const bool silent = false ) const // Half-total-mass radius
+	BRG_DISTANCE rhmtot( const bool silent = false ) const // Half-total-mass radius
 	{
 		return rvir()/2;
 	}
@@ -350,7 +351,7 @@ public:
 	 *
 	 * @return
 	 */
-	double vvir() const // Orbital velocity at rvir
+	BRG_VELOCITY vvir() const // Orbital velocity at rvir
 	{
 		return _sigma_v_;
 	}
@@ -361,7 +362,7 @@ public:
 	 *
 	 * @return
 	 */
-	double vhmvir( const bool silent = false ) const // Orbital velocity at rhmvir
+	BRG_VELOCITY vhmvir( const bool silent = false ) const // Orbital velocity at rhmvir
 	{
 		return _sigma_v_;
 	}
@@ -372,7 +373,7 @@ public:
 	 *
 	 * @return
 	 */
-	double vhmtot( const bool silent = false ) const // Orbital velocity at rhmtot
+	BRG_VELOCITY vhmtot( const bool silent = false ) const // Orbital velocity at rhmtot
 	{
 		return _sigma_v_;
 	}

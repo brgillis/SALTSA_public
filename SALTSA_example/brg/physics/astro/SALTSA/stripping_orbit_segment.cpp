@@ -1572,14 +1572,12 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 }
 
 const int brgastro::stripping_orbit_segment::set_satellite_output_parameters(
-		const unsigned int num_out_parameters,
 		const std::vector< bool > & new_satellite_output_parameters )
 {
 	_satellite_output_parameters_ = new_satellite_output_parameters;
 	return 0;
 }
 const int brgastro::stripping_orbit_segment::set_satellite_parameter_unitconvs(
-		const unsigned int num_out_parameters,
 		const std::vector< double > &new_satellite_parameter_unitconvs )
 {
 	_satellite_parameter_unitconvs_ = new_satellite_parameter_unitconvs;
@@ -1587,14 +1585,12 @@ const int brgastro::stripping_orbit_segment::set_satellite_parameter_unitconvs(
 }
 
 const int brgastro::stripping_orbit_segment::set_host_output_parameters(
-		const unsigned int num_out_parameters,
 		const std::vector< bool > & new_host_output_parameters )
 {
 	_host_output_parameters_ = new_host_output_parameters;
 	return 0;
 }
 const int brgastro::stripping_orbit_segment::set_host_parameter_unitconvs(
-		const unsigned int num_out_parameters,
 		const std::vector< double > & new_host_parameter_unitconvs )
 {
 	_host_parameter_unitconvs_ = new_host_parameter_unitconvs;
@@ -2283,7 +2279,7 @@ long double & final_sum_deltarho, const bool silent ) const
 }
 
 const int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
-		double & final_sum_deltarho, const bool silent ) const
+		BRG_UNITS & final_sum_deltarho, const bool silent ) const
 {
 	if ( !_calculated_ )
 	{

@@ -75,12 +75,6 @@ inline void set_zero( float & obj )
 {
 	obj = 0;
 }
-#ifdef _BRG_USE_UNITS_
-inline void set_zero( unit_obj obj)
-{
-	obj = unit_obj(0);
-}
-#endif
 inline void set_zero( std::string obj )
 {
 	obj = "";

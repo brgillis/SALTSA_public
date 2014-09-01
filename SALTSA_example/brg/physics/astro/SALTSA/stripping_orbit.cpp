@@ -54,7 +54,7 @@ using namespace std;
 // Default integration parameters
 #if(1)
 // Default number of steps for which stripping is calculated
-int brgastro::stripping_orbit::_default_spline_resolution_ = 100;
+unsigned int brgastro::stripping_orbit::_default_spline_resolution_ = 100;
 
 // Default interpolation type
 brgastro::stripping_orbit::allowed_interpolation_type brgastro::stripping_orbit::_default_interpolation_type_ = UNSET;
@@ -63,8 +63,8 @@ brgastro::stripping_orbit::allowed_interpolation_type brgastro::stripping_orbit:
 // This gives smaller steps when the satellite is moving faster.
 // If you want to turn off adaptive step size, set step_length_power to 0
 // Alternatively, set step_length_power to 1 for even steps in position
-double brgastro::stripping_orbit::_default_v_0_ = 400 * unitconv::kmpstomps; // 400 km/s
-double brgastro::stripping_orbit::_default_r_0_ = 400 * unitconv::kpctom; // 400 kpc
+BRG_VELOCITY brgastro::stripping_orbit::_default_v_0_ = 400 * unitconv::kmpstomps; // 400 km/s
+BRG_DISTANCE brgastro::stripping_orbit::_default_r_0_ = 400 * unitconv::kpctom; // 400 kpc
 double brgastro::stripping_orbit::_default_step_length_power_ = 3.0;
 double brgastro::stripping_orbit::_default_step_factor_max_ = 10; // Maximum allowed value of (v_0/v)^(step_length_power)
 double brgastro::stripping_orbit::_default_step_factor_min_ = 0.001; // Minimum allowed value of (v_0/v)^(step_length_power)
@@ -92,61 +92,56 @@ double brgastro::stripping_orbit::_default_tidal_shocking_power_ = -1.5; // Affe
 // brgastro::stripping_orbit class method implementations
 #if (1)
 
-const int brgastro::stripping_orbit::_pass_parameters_to_segment(
+void brgastro::stripping_orbit::_pass_parameters_to_segment(
 		brgastro::stripping_orbit_segment & segment,
 		brgastro::density_profile *segment_init_satellite,
 		brgastro::density_profile *segment_init_host,
 		unsigned int resolution) const
 {
-	int err_code = 0;
-
 	if(segment_init_satellite==NULL)
 	{
-		err_code += ( segment.set_init_satellite(
-				_init_satellite_ptr_ ) );
+		segment.set_init_satellite(
+				_init_satellite_ptr_ );
 	}
 	else
 	{
-		err_code += ( segment.set_init_satellite(
-				segment_init_satellite ) );
+		segment.set_init_satellite(
+				segment_init_satellite );
 	}
 
 	if(segment_init_host==NULL)
 	{
-		err_code += ( segment.set_init_host( _init_host_ptr_ ) );
+		segment.set_init_host( _init_host_ptr_ );
 	}
 	else
 	{
-		err_code += ( segment.set_init_host( segment_init_host ) );
+		segment.set_init_host( segment_init_host );
 	}
 
 	if(resolution==0)
 	{
-		err_code += ( segment.set_resolution( _base_resolution_) );
+		segment.set_resolution( _base_resolution_);
 	}
 	else
 	{
-		err_code += ( segment.set_resolution( resolution ) );
+		segment.set_resolution( resolution );
 	}
 
-	err_code += ( segment.set_interpolation_type(_interpolation_type_));
-	err_code += ( segment.set_v_0(_v_0_ ) );
-	err_code += ( segment.set_r_0(_r_0_ ) );
-	err_code += ( segment.set_step_length_power(_step_length_power_ ) );
-	err_code += ( segment.set_step_factor_min(_step_factor_min_ ) );
-	err_code += ( segment.set_step_factor_max(_step_factor_max_ ) );
-	err_code += ( segment.set_tidal_stripping_amplification(_tidal_stripping_amplification_ ) );
-	err_code += ( segment.set_tidal_stripping_deceleration(_tidal_stripping_deceleration_ ) );
-	err_code += ( segment.set_tidal_stripping_radialness(_tidal_stripping_radialness_ ) );
-	err_code += ( segment.set_tidal_shocking_amplification(_tidal_shocking_amplification_ ) );
-	err_code += ( segment.set_tidal_shocking_persistance(_tidal_shocking_persistance_ ) );
-	err_code += ( segment.set_tidal_shocking_power(_tidal_shocking_power_ ) );
-	err_code += ( segment.set_record_full_data(_record_full_data_ ) );
+	segment.set_interpolation_type(_interpolation_type_);
+	segment.set_v_0(_v_0_ );
+	segment.set_r_0(_r_0_ );
+	segment.set_step_length_power(_step_length_power_ );
+	segment.set_step_factor_min(_step_factor_min_ );
+	segment.set_step_factor_max(_step_factor_max_ );
+	segment.set_tidal_stripping_amplification(_tidal_stripping_amplification_ );
+	segment.set_tidal_stripping_deceleration(_tidal_stripping_deceleration_ );
+	segment.set_tidal_stripping_radialness(_tidal_stripping_radialness_ );
+	segment.set_tidal_shocking_amplification(_tidal_shocking_amplification_ );
+	segment.set_tidal_shocking_persistance(_tidal_shocking_persistance_ );
+	segment.set_tidal_shocking_power(_tidal_shocking_power_ );
+	segment.set_record_full_data(_record_full_data_ );
 
-	if(err_code != 0)
-		return LOWER_LEVEL_ERROR + err_code;
-	else
-		return 0;
+	return;
 }
 
 const std::vector< brgastro::stripping_orbit_segment >::iterator brgastro::stripping_orbit::_final_good_segment() const
@@ -453,7 +448,7 @@ brgastro::stripping_orbit *brgastro::stripping_orbit::stripping_orbit_clone()
 	return new stripping_orbit( *this );
 }
 
-const int brgastro::stripping_orbit::clear()
+void brgastro::stripping_orbit::clear()
 {
 	clear_calcs();
 	clear_points();
@@ -498,11 +493,9 @@ const int brgastro::stripping_orbit::clear()
 	_using_private_init_host_ = false;
 	_using_private_init_satellite_ = false;
 	_host_is_evolving_ = false;
-
-	return 0;
 }
 
-const int brgastro::stripping_orbit::clear_calcs() const
+void brgastro::stripping_orbit::clear_calcs() const
 {
 	_orbit_segments_.clear();
 	_num_segments_ = 0;
@@ -515,10 +508,9 @@ const int brgastro::stripping_orbit::clear_calcs() const
 	_calculated_ = false;
 	_bad_result_ = false;
 	_likely_disrupted_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::add_point( CONST_BRG_DISTANCE_REF x,
+void brgastro::stripping_orbit::add_point( CONST_BRG_DISTANCE_REF x,
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t,
 		const double test_mass, const double test_mass_error )
 {
@@ -528,10 +520,10 @@ const int brgastro::stripping_orbit::add_point( CONST_BRG_DISTANCE_REF x,
 		if(t==_t_points_[i])
 			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
 	}
-	return force_add_point(x, y, z, t, test_mass, test_mass_error );
+	force_add_point(x, y, z, t, test_mass, test_mass_error );
 }
 
-const int brgastro::stripping_orbit::force_add_point( CONST_BRG_DISTANCE_REF x,
+void brgastro::stripping_orbit::force_add_point( CONST_BRG_DISTANCE_REF x,
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t,
 		const double test_mass, const double test_mass_error )
 {
@@ -556,15 +548,12 @@ const int brgastro::stripping_orbit::force_add_point( CONST_BRG_DISTANCE_REF x,
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
+		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n";
+		throw;
 	}
-	return 0;
 }
 
-const int brgastro::stripping_orbit::add_point( CONST_BRG_DISTANCE_REF x,
+void brgastro::stripping_orbit::add_point( CONST_BRG_DISTANCE_REF x,
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_DISTANCE_REF z, CONST_BRG_VELOCITY_REF vx,
 		CONST_BRG_VELOCITY_REF vy, CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t,
 		const double test_mass, const double test_mass_error )
@@ -578,7 +567,7 @@ const int brgastro::stripping_orbit::add_point( CONST_BRG_DISTANCE_REF x,
 	return force_add_point(x, y, z, vx, vy, vz, t, test_mass, test_mass_error );
 }
 
-const int brgastro::stripping_orbit::force_add_point( CONST_BRG_DISTANCE_REF x,
+void brgastro::stripping_orbit::force_add_point( CONST_BRG_DISTANCE_REF x,
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_DISTANCE_REF z, CONST_BRG_VELOCITY_REF vx,
 		CONST_BRG_VELOCITY_REF vy, CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t,
 		const double test_mass, const double test_mass_error )
@@ -604,15 +593,12 @@ const int brgastro::stripping_orbit::force_add_point( CONST_BRG_DISTANCE_REF x,
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
+		std::cerr << "ERROR: Exception in stripping_orbit::add_point().\n";
+		throw;
 	}
-	return 0;
 }
 
-const int brgastro::stripping_orbit::add_host_parameter_point(
+void brgastro::stripping_orbit::add_host_parameter_point(
 		const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
 		const bool silent )
 {
@@ -622,20 +608,17 @@ const int brgastro::stripping_orbit::add_host_parameter_point(
 		if(t==_host_param_t_points_[i])
 			throw std::runtime_error("Attempt to add duplicate t value to stripping_orbit.");
 	}
-	return force_add_host_parameter_point( parameters, t, silent );
+	force_add_host_parameter_point( parameters, t, silent );
 }
 
-const int brgastro::stripping_orbit::force_add_host_parameter_point(
+void brgastro::stripping_orbit::force_add_host_parameter_point(
 		const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
 		const bool silent )
 {
 	// Check num_parameters matches vector size
 	if ( _init_host_ptr_->num_parameters() != parameters.size() )
 	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: num_parameters must == parameters.size() in stripping_orbit::add_host_parameter_point.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("ERROR: num_parameters must == parameters.size() in stripping_orbit::add_host_parameter_point.\n");
 	}
 
 	_host_parameter_points_.push_back(
@@ -646,11 +629,9 @@ const int brgastro::stripping_orbit::force_add_host_parameter_point(
 		_host_is_evolving_ = true;
 
 	_calculated_ = false;
-
-	return 0;
 }
 
-const int brgastro::stripping_orbit::add_discontinuity_time(
+void brgastro::stripping_orbit::add_discontinuity_time(
 		CONST_BRG_TIME_REF t )
 {
 	try
@@ -659,15 +640,12 @@ const int brgastro::stripping_orbit::add_discontinuity_time(
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "ERROR: Exception in stripping_orbit::add_discontinuity_time().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
+		std::cerr << "ERROR: Exception in stripping_orbit::add_discontinuity_time().\n";
+		throw;
 	}
-	return 0;
 }
 
-const int brgastro::stripping_orbit::clear_points()
+void brgastro::stripping_orbit::clear_points()
 {
 	_x_points_.clear();
 	_y_points_.clear();
@@ -692,43 +670,38 @@ const int brgastro::stripping_orbit::clear_points()
 	_t_max_natural_value_ = ( -DBL_MAX );
 
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit::clear_discontinuity_times()
+void brgastro::stripping_orbit::clear_discontinuity_times()
 {
 	_discontinuity_times_.clear();
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit::clear_host_parameter_points()
+void brgastro::stripping_orbit::clear_host_parameter_points()
 {
 	_host_parameter_points_.clear();
 	_host_param_t_points_.clear();
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_init_host(
+void brgastro::stripping_orbit::set_init_host(
 		const density_profile *new_init_host )
 {
 	_init_host_ptr_ = new_init_host;
 	_host_loaded_ = true;
 	_using_private_init_host_ = false;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_init_satellite(
+void brgastro::stripping_orbit::set_init_satellite(
 		const density_profile *new_init_satellite )
 {
 	_init_satellite_ptr_ = new_init_satellite;
 	_satellite_loaded_ = true;
 	_using_private_init_satellite_ = false;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_tNFW_init_satellite(
+void brgastro::stripping_orbit::set_tNFW_init_satellite(
 		CONST_BRG_MASS_REF new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
@@ -745,10 +718,9 @@ const int brgastro::stripping_orbit::set_tNFW_init_satellite(
 
 	_satellite_loaded_ = true;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_tNFW_init_host(
+void brgastro::stripping_orbit::set_tNFW_init_host(
 		CONST_BRG_MASS_REF new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
@@ -767,744 +739,631 @@ const int brgastro::stripping_orbit::set_tNFW_init_host(
 
 	_host_loaded_ = true;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::clear_init_satellite()
+void brgastro::stripping_orbit::clear_init_satellite()
 {
 	_init_satellite_ptr_ = 0;
 	_satellite_loaded_ = false;
 	_using_private_init_satellite_ = false;
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit::clear_init_host()
+void brgastro::stripping_orbit::clear_init_host()
 {
 	_init_host_ptr_ = 0;
 	_host_loaded_ = false;
 	_using_private_init_host_ = false;
 	_calculated_ = false;
-	return 0;
 }
 
 // Setting default integration parameters
 #if(1)
-const int brgastro::stripping_orbit::set_default_resolution( const int new_default_resolution)
+void brgastro::stripping_orbit::set_default_resolution( const unsigned int new_default_resolution)
 {
 	if ( new_default_resolution < 2 )
 	{
-		std::cerr
-				<< "WARNING: Attempt to set default resolution to value below minimum of 2.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("ERROR: Attempt to set default resolution to value below minimum of 2.\n");
 	}
 	_default_spline_resolution_ = new_default_resolution;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_resolution( const int new_default_resolution,
+void brgastro::stripping_orbit::set_default_resolution( const unsigned int new_default_resolution,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_resolution == _default_spline_resolution_ )
-		return 0;
+		return;
 
 	if ( new_default_resolution < 2 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default resolution to value below minimum of 2.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("WARNING: Attempt to set default resolution to value below minimum of 2.\n");
 	}
 	_default_spline_resolution_ = new_default_resolution;
 
 	if(override_current) reset_resolution();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_interpolation_type(
+void brgastro::stripping_orbit::set_default_interpolation_type(
 		const allowed_interpolation_type new_default_interpolation_type)
 {
 	_default_interpolation_type_ = new_default_interpolation_type;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_interpolation_type(
+void brgastro::stripping_orbit::set_default_interpolation_type(
 		const allowed_interpolation_type new_default_interpolation_type,
 		const bool override_current,
 		const bool silent)
 {
 	// Check if anything is actually changing here
 	if ( new_default_interpolation_type == _default_interpolation_type_ )
-		return 0;
+		return;
 	_default_interpolation_type_ = new_default_interpolation_type;
 
 	if(override_current) reset_interpolation_type();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0)
+void brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0)
 {
 
 	if ( new_default_v_0 <= 0 )
 	{
-		std::cerr
-				<< "WARNING: Attempt to set default v_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("WARNING: Attempt to set default v_0 to value at or below minimum of 0.\n");
 	}
 	_default_v_0_ = new_default_v_0;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0,
+void brgastro::stripping_orbit::set_default_v_0( const double new_default_v_0,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_v_0 == _default_v_0_ )
-		return 0;
+		return;
 
 	if ( new_default_v_0 <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default v_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("WARNING: Attempt to set default v_0 to value at or below minimum of 0.\n");
 	}
 	_default_v_0_ = new_default_v_0;
 
 	if(override_current) reset_v_0();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0)
+void brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0)
 {
 
 	if ( new_default_r_0 <= 0 )
 	{
-		std::cerr
-				<< "WARNING: Attempt to set default r_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default r_0 to value at or below minimum of 0.");
 	}
 	_default_r_0_ = new_default_r_0;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0,
+void brgastro::stripping_orbit::set_default_r_0( const double new_default_r_0,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_r_0 == _default_r_0_ )
-		return 0;
+		return;
 
 	if ( new_default_r_0 <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default r_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default r_0 to value at or below minimum of 0.");
 	}
 	_default_r_0_ = new_default_r_0;
 
 	if(override_current) reset_r_0();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_step_length_power(
+void brgastro::stripping_orbit::set_default_step_length_power(
 		const double new_default_step_length_power)
 {
 	_default_step_length_power_ = new_default_step_length_power;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_step_length_power(
+void brgastro::stripping_orbit::set_default_step_length_power(
 		const double new_default_step_length_power,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_step_length_power == _default_step_length_power_ )
-		return 0;
+		return;
 	_default_step_length_power_ = new_default_step_length_power;
 
 	if(override_current) reset_step_length_power();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_step_factor_max(
+void brgastro::stripping_orbit::set_default_step_factor_max(
 		const double new_default_step_factor_max)
 {
 
 	if ( new_default_step_factor_max < 1 )
 	{
-		std::cerr
-				<< "WARNING: Attempt to set default step_factor_max to value below minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default step_factor_max to value below minimum of 1.");
 	}
 	_default_step_factor_max_ = new_default_step_factor_max;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_step_factor_max(
+void brgastro::stripping_orbit::set_default_step_factor_max(
 		const double new_default_step_factor_max,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_step_factor_max == _default_step_factor_max_ )
-		return 0;
+		return;
 
 	if ( new_default_step_factor_max < 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default step_factor_max to value below minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default step_factor_max to value below minimum of 1.");
 	}
 	_default_step_factor_max_ = new_default_step_factor_max;
 
 	if(override_current) reset_step_factor_max();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_step_factor_min(
+void brgastro::stripping_orbit::set_default_step_factor_min(
 		const double new_default_step_factor_min)
 {
 	_default_step_factor_min_ = new_default_step_factor_min;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_step_factor_min(
+void brgastro::stripping_orbit::set_default_step_factor_min(
 		const double new_default_step_factor_min,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_step_factor_min == _default_step_factor_min_ )
-		return 0;
+		return;
 
 	if ( new_default_step_factor_min > 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default step_factor_min to value above minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default step_factor_min to value above minimum of 1.");
 	}
 	_default_step_factor_min_ = new_default_step_factor_min;
 
 	if(override_current) reset_step_factor_min();
-	return 0;
 }
 #endif
 
 // Setting default tuning parameters
 #if(1)
 
-const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
+void brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 		const double new_default_tidal_stripping_amplification)
 {
 	_default_tidal_stripping_amplification_ = new_default_tidal_stripping_amplification;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
+void brgastro::stripping_orbit::set_default_tidal_stripping_amplification(
 		const double new_default_tidal_stripping_amplification,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_tidal_stripping_amplification == _default_tidal_stripping_amplification_ )
-		return 0;
+		return;
 
 	if ( new_default_tidal_stripping_amplification < 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default tidal_stripping_amplification to value below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default tidal_stripping_amplification to value below minimum of 0.");
 	}
 	_default_tidal_stripping_amplification_ = new_default_tidal_stripping_amplification;
 
 	if(override_current)
 		reset_tidal_stripping_amplification();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
+void brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
 		const double new_default_tidal_stripping_deceleration)
 {
 	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
+void brgastro::stripping_orbit::set_default_tidal_stripping_deceleration(
 		const double new_default_tidal_stripping_deceleration,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_tidal_stripping_deceleration == _default_tidal_stripping_deceleration_ )
-		return 0;
+		return;
 	_default_tidal_stripping_deceleration_ = new_default_tidal_stripping_deceleration;
 
 	if(override_current)
 			reset_tidal_stripping_deceleration();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_stripping_radialness(
+void brgastro::stripping_orbit::set_default_tidal_stripping_radialness(
 		const double new_default_tidal_stripping_radialness)
 {
 	_default_tidal_stripping_radialness_ = new_default_tidal_stripping_radialness;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_stripping_radialness(
+void brgastro::stripping_orbit::set_default_tidal_stripping_radialness(
 		const double new_default_tidal_stripping_radialness,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_tidal_stripping_radialness == _default_tidal_stripping_radialness_ )
-		return 0;
+		return;
 	_default_tidal_stripping_radialness_ = new_default_tidal_stripping_radialness;
 
 	if(override_current)
 			reset_tidal_stripping_radialness();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
+void brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
 		const double new_default_tidal_shocking_amplification)
 {
 	_default_tidal_shocking_amplification_ = new_default_tidal_shocking_amplification;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
+void brgastro::stripping_orbit::set_default_tidal_shocking_amplification(
 		const double new_default_tidal_shocking_amplification,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_tidal_shocking_amplification == _default_tidal_shocking_amplification_ )
-		return 0;
+		return;
 
 	if ( new_default_tidal_shocking_amplification < 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default tidal_shocking_amplification to value below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default tidal_shocking_amplification to value below minimum of 0.");
 	}
 	_default_tidal_shocking_amplification_ = new_default_tidal_shocking_amplification;
 
 	if(override_current)
 			reset_tidal_shocking_amplification();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
+void brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
 		const double new_default_tidal_shocking_persistance)
 {
 	_default_tidal_shocking_persistance_ = new_default_tidal_shocking_persistance;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
+void brgastro::stripping_orbit::set_default_tidal_shocking_persistance(
 		const double new_default_tidal_shocking_persistance,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_tidal_shocking_persistance == _default_tidal_shocking_persistance_ )
-		return 0;
+		return;
 
 	if ( new_default_tidal_shocking_persistance <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set default tidal_stripping_persistance to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set default tidal_stripping_persistance to value at or below minimum of 0.");
 	}
 	_default_tidal_shocking_persistance_ = new_default_tidal_shocking_persistance;
 
 	if(override_current)
 			reset_tidal_shocking_persistance();
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_shocking_power(
+void brgastro::stripping_orbit::set_default_tidal_shocking_power(
 		const double new_default_tidal_shocking_power)
 {
 	_default_tidal_shocking_power_ = new_default_tidal_shocking_power;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_default_tidal_shocking_power(
+void brgastro::stripping_orbit::set_default_tidal_shocking_power(
 		const double new_default_tidal_shocking_power,
 		const bool override_current,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_default_tidal_shocking_power == _default_tidal_shocking_power_ )
-		return 0;
+		return;
 	_default_tidal_shocking_power_ = new_default_tidal_shocking_power;
 
 	if(override_current)
 			reset_tidal_shocking_power();
-	return 0;
 }
 #endif
 
 // Setting integration parameters
 #if(1)
-const int brgastro::stripping_orbit::set_resolution( const int new_resolution,
+void brgastro::stripping_orbit::set_resolution( const unsigned int new_resolution,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_resolution == _base_resolution_ )
-		return 0;
+		return;
 
 	if ( new_resolution < 2 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set resolution to value below minimum of 2.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set resolution to value below minimum of 2.");
 	}
 	clear_calcs();
 	_base_resolution_ = new_resolution;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_interpolation_type(
+void brgastro::stripping_orbit::set_interpolation_type(
 		const allowed_interpolation_type new_type,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( _interpolation_type_ == new_type )
-		return 0;
+		return;
 	clear_calcs();
 	_interpolation_type_ = new_type;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_v_0( const double new_v_0,
+void brgastro::stripping_orbit::set_v_0( const double new_v_0,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_v_0 == _v_0_ )
-		return 0;
+		return;
 
 	if ( new_v_0 <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set v_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set v_0 to value at or below minimum of 0.");
 	}
 	clear_calcs();
 	_v_0_ = new_v_0;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_r_0( const double new_r_0,
+void brgastro::stripping_orbit::set_r_0( const double new_r_0,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_r_0 == _r_0_ )
-		return 0;
+		return;
 
 	if ( new_r_0 <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set r_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set r_0 to value at or below minimum of 0.");
 	}
 	clear_calcs();
 	_r_0_ = new_r_0;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_step_length_power( const double new_step_length_power,
+void brgastro::stripping_orbit::set_step_length_power( const double new_step_length_power,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_step_length_power == _step_length_power_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_step_length_power_ = new_step_length_power;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_step_factor_max( const double new_step_factor_max,
+void brgastro::stripping_orbit::set_step_factor_max( const double new_step_factor_max,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_step_factor_max == _step_factor_max_ )
-		return 0;
+		return;
 
 	if ( new_step_factor_max < 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set step_factor_max to value below minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set step_factor_max to value below minimum of 1.");
 	}
 	clear_calcs();
 	_step_factor_max_ = new_step_factor_max;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_step_factor_min( const double new_step_factor_min,
+void brgastro::stripping_orbit::set_step_factor_min( const double new_step_factor_min,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_step_factor_min == _step_factor_min_ )
-		return 0;
+		return;
 
 	if ( new_step_factor_min > 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set step_factor_min to value above minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set step_factor_min to value above minimum of 1.");
 	}
 	clear_calcs();
 	_step_factor_min_ = new_step_factor_min;
-	return 0;
 }
 #endif
 
 // Setting tuning parameters
 #if(1)
 
-const int brgastro::stripping_orbit::set_tidal_stripping_amplification(
+void brgastro::stripping_orbit::set_tidal_stripping_amplification(
 		const double new_tidal_stripping_amplification,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_stripping_amplification == _tidal_stripping_amplification_ )
-		return 0;
+		return;
 
 	if ( new_tidal_stripping_amplification < 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set tidal_stripping_amplification to value below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("WARNING: Attempt to set tidal_stripping_amplification to value below minimum of 0.");
 	}
 
 	clear_calcs();
 	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_tidal_stripping_deceleration(
+void brgastro::stripping_orbit::set_tidal_stripping_deceleration(
 		const double new_tidal_stripping_deceleration,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_stripping_deceleration == _tidal_stripping_deceleration_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_tidal_stripping_radialness(
+void brgastro::stripping_orbit::set_tidal_stripping_radialness(
 		const double new_tidal_stripping_radialness,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_stripping_radialness == _tidal_stripping_radialness_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_radialness_ = new_tidal_stripping_radialness;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_tidal_shocking_amplification(
+void brgastro::stripping_orbit::set_tidal_shocking_amplification(
 		const double new_tidal_shocking_amplification,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_shocking_amplification == _tidal_shocking_amplification_ )
-		return 0;
+		return;
 
 	if ( new_tidal_shocking_amplification < 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set tidal_shocking_amplification to value below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("WARNING: Attempt to set tidal_shocking_amplification to value below minimum of 0.");
 	}
 
 	clear_calcs();
 	_tidal_shocking_amplification_ = new_tidal_shocking_amplification;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_tidal_shocking_persistance(
+void brgastro::stripping_orbit::set_tidal_shocking_persistance(
 		const double new_tidal_shocking_persistance,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_shocking_persistance == _tidal_shocking_persistance_ )
-		return 0;
+		return;
 
 	if ( new_tidal_shocking_persistance <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set tidal_shocking_persistance to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("WARNING: Attempt to set tidal_shocking_persistance to value at or below minimum of 0.");
 	}
 	clear_calcs();
 	_tidal_shocking_persistance_ = new_tidal_shocking_persistance;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_tidal_shocking_power(
+void brgastro::stripping_orbit::set_tidal_shocking_power(
 		const double new_tidal_shocking_power,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_shocking_power == _tidal_shocking_power_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_shocking_power_ = new_tidal_shocking_power;
-	return 0;
 }
 #endif
 
 // Setting integration parameters
 #if(1)
-const int brgastro::stripping_orbit::reset_resolution()
+void brgastro::stripping_orbit::reset_resolution()
 {
 	// Check if anything is actually changing here
 	if ( _base_resolution_ == _default_spline_resolution_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_base_resolution_ = _default_spline_resolution_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_interpolation_type()
+void brgastro::stripping_orbit::reset_interpolation_type()
 {
 	// Check if anything is actually changing here
 	if ( _interpolation_type_ == _default_interpolation_type_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_interpolation_type_ = _default_interpolation_type_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_v_0()
+void brgastro::stripping_orbit::reset_v_0()
 {
 	// Check if anything is actually changing here
 	if ( _default_v_0_ == _v_0_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_v_0_ = _default_v_0_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_r_0()
+void brgastro::stripping_orbit::reset_r_0()
 {
 	// Check if anything is actually changing here
 	if ( _default_r_0_ == _r_0_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_r_0_ = _default_r_0_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_step_length_power()
+void brgastro::stripping_orbit::reset_step_length_power()
 {
 	// Check if anything is actually changing here
 	if ( _default_step_length_power_ == _step_length_power_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_step_length_power_ = _default_step_length_power_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_step_factor_max()
+void brgastro::stripping_orbit::reset_step_factor_max()
 {
 	// Check if anything is actually changing here
 	if ( _default_step_factor_max_ == _step_factor_max_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_step_factor_max_ = _default_step_factor_max_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_step_factor_min()
+void brgastro::stripping_orbit::reset_step_factor_min()
 {
 	// Check if anything is actually changing here
 	if ( _default_step_factor_min_ == _step_factor_min_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_step_factor_min_ = _default_step_factor_min_;
-	return 0;
 }
 #endif
 
 // Resetting tuning parameters
 #if(1)
 
-const int brgastro::stripping_orbit::reset_tidal_stripping_amplification()
+void brgastro::stripping_orbit::reset_tidal_stripping_amplification()
 {
 	// Check if anything is actually changing here
 	if ( _default_tidal_stripping_amplification_ == _tidal_stripping_amplification_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_amplification_ = _default_tidal_stripping_amplification_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_tidal_stripping_deceleration()
+void brgastro::stripping_orbit::reset_tidal_stripping_deceleration()
 {
 	// Check if anything is actually changing here
 	if ( _default_tidal_stripping_deceleration_ == _tidal_stripping_deceleration_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_deceleration_ = _default_tidal_stripping_deceleration_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_tidal_stripping_radialness()
+void brgastro::stripping_orbit::reset_tidal_stripping_radialness()
 {
 	// Check if anything is actually changing here
 	if ( _default_tidal_stripping_radialness_ == _tidal_stripping_radialness_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_radialness_ = _default_tidal_stripping_radialness_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_tidal_shocking_amplification()
+void brgastro::stripping_orbit::reset_tidal_shocking_amplification()
 {
 	// Check if anything is actually changing here
 	if ( _default_tidal_shocking_amplification_ == _tidal_shocking_amplification_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_shocking_amplification_ = _default_tidal_shocking_amplification_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_tidal_shocking_persistance()
+void brgastro::stripping_orbit::reset_tidal_shocking_persistance()
 {
 	// Check if anything is actually changing here
 	if ( _default_tidal_shocking_persistance_ == _tidal_shocking_persistance_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_shocking_persistance_ = _default_tidal_shocking_persistance_;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_tidal_shocking_power()
+void brgastro::stripping_orbit::reset_tidal_shocking_power()
 {
 	// Check if anything is actually changing here
 	if ( _default_tidal_shocking_power_ == _tidal_shocking_power_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_shocking_power_ = _default_tidal_shocking_power_;
-	return 0;
 }
 #endif
 
-const int brgastro::stripping_orbit::set_t_min( CONST_BRG_TIME_REF new_t_min )
+void brgastro::stripping_orbit::set_t_min( CONST_BRG_TIME_REF new_t_min )
 {
 	_t_min_override_value_ = new_t_min;
 	_override_t_min_ = true;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_t_max( CONST_BRG_TIME_REF new_t_max )
+void brgastro::stripping_orbit::set_t_max( CONST_BRG_TIME_REF new_t_max )
 {
 	_t_max_override_value_ = new_t_max;
 	_override_t_max_ = true;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::reset_t_min()
+void brgastro::stripping_orbit::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
 	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
@@ -1513,9 +1372,8 @@ const int brgastro::stripping_orbit::reset_t_min()
 			_t_min_natural_value_ = _x_points_.at( i ).first;
 	}
 	_override_t_min_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit::reset_t_max()
+void brgastro::stripping_orbit::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
 	for ( unsigned int i = 0; i < _x_points_.size(); i++ )
@@ -1524,28 +1382,26 @@ const int brgastro::stripping_orbit::reset_t_max()
 			_t_max_natural_value_ = _x_points_.at( i ).first;
 	}
 	_override_t_max_ = false;
-	return 0;
 }
 
 // Functions for determining how calc() will be called
-const int brgastro::stripping_orbit::set_record_full_data(
+void brgastro::stripping_orbit::set_record_full_data(
 		const bool new_record_full_data ) const
 {
 	// Check if anything is actually changing here
 	if ( new_record_full_data == _record_full_data_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_record_full_data_ = new_record_full_data;
-	return 0;
 }
 
 // Function to calculate stripping
-const int brgastro::stripping_orbit::calc( const bool silent ) const
+void brgastro::stripping_orbit::calc( const bool silent ) const
 {
 	std::vector< int > segment_resolutions( 0 );
 	std::vector< bool > segments_to_skip( 0 );
-	int num_segments_to_skip = 0;
+	unsigned int num_segments_to_skip = 0;
 	double t_min_to_use = (
 			_override_t_min_ ? _t_min_override_value_ : _t_min_natural_value_ );
 	double t_max_to_use = (
@@ -1584,7 +1440,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _x_points_.at( i ).first;
 		double x = _x_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1597,7 +1453,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _y_points_.at( i ).first;
 		double y = _y_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1610,7 +1466,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _z_points_.at( i ).first;
 		double z = _z_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1623,7 +1479,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _vx_points_.at( i ).first;
 		double vx = _vx_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1636,7 +1492,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _vy_points_.at( i ).first;
 		double vy = _vy_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1649,7 +1505,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _vz_points_.at( i ).first;
 		double vz = _vz_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1661,7 +1517,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 	{
 		double t = _vx_unknown_points_.at( i );
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1673,7 +1529,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 	{
 		double t = _vy_unknown_points_.at( i );
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1685,7 +1541,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 	{
 		double t = _vz_unknown_points_.at( i );
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1698,7 +1554,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		double t = _test_mass_points_.at( i ).first;
 		double test_mass = _test_mass_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1713,7 +1569,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 		std::vector< BRG_UNITS > host_parameters =
 				_host_parameter_points_.at( i ).second;
 		int segment_counter = 0;
-		for ( int j = 0; j < _num_segments_ - 1; j++ )
+		for ( unsigned int j = 0; j < _num_segments_ - 1; j++ )
 		{
 			if ( t > _cleaned_discontinuity_times_.at( j ) )
 				segment_counter++;
@@ -1726,11 +1582,11 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 	// and check for segments with too few spline points
 	if ( t_max_to_use <= t_min_to_use )
 	{
-		if ( !silent )
-			std::cerr << "ERROR: t_max is <= t_min for stripping_orbit.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		if(t_max_to_use==t_min_to_use)
+			throw std::logic_error("t_min==t_max in stripping orbit; cannot integrate.");
+		std::swap(t_max_to_use,t_min_to_use);
 	}
-	for ( int i = 0; i < _num_segments_; i++ )
+	for ( unsigned int i = 0; i < _num_segments_; i++ )
 	{
 		// Adjust t_min and t_max
 		double new_t_min;
@@ -1771,10 +1627,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 	// Check to make sure we have at least one segment we can calculate stripping for
 	if ( num_segments_to_skip == _num_segments_ )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Cannot calculate stripping for any segments of orbit.\n";
-		return UNSPECIFIED_ERROR;
+		throw std::runtime_error("Cannot calculate stripping for any segments of orbit.\n");
 	}
 
 	// Now loop through and calculate stripping for each segment in turn
@@ -1786,7 +1639,7 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 
 	try
 	{
-		for ( int i = 0; i < _num_segments_; i++ )
+		for ( unsigned int i = 0; i < _num_segments_; i++ )
 		{
 			double frac_m_ret = 1;
 			double fmvirret = 1;
@@ -1828,13 +1681,10 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 					last_good_segment = i;
 
 					// Pass parameters to the segment
-					if(_pass_parameters_to_segment(_orbit_segments_.at( i ),
+					_pass_parameters_to_segment(_orbit_segments_.at( i ),
 							temp_satellite,
 							temp_host,
-							segment_resolutions.at(i)))
-					{
-						throw std::runtime_error("ERROR: Could not pass parameters to orbit segment.\n");
-					}
+							segment_resolutions.at(i));
 					// Calculate it at this stage, and check if it's disrupted or some other suspicious
 					// result
 					if (_orbit_segments_.at( i ).likely_disrupted())
@@ -1943,152 +1793,141 @@ const int brgastro::stripping_orbit::calc( const bool silent ) const
 
 		_calculated_ = true;
 		_bad_result_ = true;
-
-		return UNSPECIFIED_ERROR;
 	}
-
-	if((_bad_result_) || (_likely_disrupted_))
-	{
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	return;
 
 }
 
-const int brgastro::stripping_orbit::set_satellite_output_parameters(
-		const unsigned int num_out_parameters,
+void brgastro::stripping_orbit::set_satellite_output_parameters(
 		const std::vector< bool > & new_output_parameters )
 {
 	_satellite_output_parameters_ = new_output_parameters;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_satellite_parameter_unitconvs(
-		const unsigned int num_out_parameters,
+void brgastro::stripping_orbit::set_satellite_parameter_unitconvs(
 		const std::vector< double > & new_parameter_unitconvs )
 {
 	_satellite_parameter_unitconvs_ = new_parameter_unitconvs;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::set_host_output_parameters(
-		const unsigned int num_out_parameters,
+void brgastro::stripping_orbit::set_host_output_parameters(
 		const std::vector< bool > & new_output_parameters )
 {
 	_host_output_parameters_ = new_output_parameters;
-	return 0;
 }
-const int brgastro::stripping_orbit::set_host_parameter_unitconvs(
-		const unsigned int num_out_parameters,
+void brgastro::stripping_orbit::set_host_parameter_unitconvs(
 		const std::vector< double > & new_parameter_unitconvs )
 {
 	_host_parameter_unitconvs_ = new_parameter_unitconvs;
-	return 0;
 }
 
-const int brgastro::stripping_orbit::clear_satellite_output_parameters()
+void brgastro::stripping_orbit::clear_satellite_output_parameters()
 {
 	_satellite_output_parameters_.clear();
-	return 0;
 }
-const int brgastro::stripping_orbit::clear_satellite_parameter_unitconvs()
+void brgastro::stripping_orbit::clear_satellite_parameter_unitconvs()
 {
 	_satellite_parameter_unitconvs_.clear();
-	return 0;
 }
 
-const int brgastro::stripping_orbit::clear_host_output_parameters()
+void brgastro::stripping_orbit::clear_host_output_parameters()
 {
 	_host_output_parameters_.clear();
-	return 0;
 }
-const int brgastro::stripping_orbit::clear_host_parameter_unitconvs()
+void brgastro::stripping_orbit::clear_host_parameter_unitconvs()
 {
 	_host_parameter_unitconvs_.clear();
-	return 0;
 }
 
-const int brgastro::stripping_orbit::print_full_data( std::ostream *out ) const
+void brgastro::stripping_orbit::print_full_data( std::ostream *out ) const
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
-	}
-	if( _bad_result_ )
-	{
-		return UNSPECIFIED_ERROR;
+		set_record_full_data( true );
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
+			std::cerr << "WARNING: Printing data for orbit which had a bad calculation.\n";
+		}
 	}
 
 	// Loop through segments, printing each of them in turn
 	bool first_good_segment = true;
-	for ( int i = 0; i < _num_segments_; i++ )
+	for ( unsigned int i = 0; i < _num_segments_; i++ )
 	{
 		if ( _orbit_segments_.at( i ).length() >= 2 )
 		{
 			_orbit_segments_.at( i ).set_satellite_output_parameters(
-					_satellite_output_parameters_.size(),
 					_satellite_output_parameters_ );
 			_orbit_segments_.at( i ).set_satellite_parameter_unitconvs(
-					_satellite_parameter_unitconvs_.size(),
 					_satellite_parameter_unitconvs_ );
 			_orbit_segments_.at( i ).set_host_output_parameters(
-					_host_output_parameters_.size(),
 					_host_output_parameters_ );
 			_orbit_segments_.at( i ).set_host_parameter_unitconvs(
-					_host_parameter_unitconvs_.size(),
 					_host_parameter_unitconvs_ );
 			if ( first_good_segment ) // Special handling for first segment
 			{
-				if ( _orbit_segments_.at( i ).print_full_data( out, true, 1 ) )
-					return 1; // Print header, m_ret_multiplier = 1
+				_orbit_segments_.at( i ).print_full_data( out, true, 1 );
 				first_good_segment = false;
 			}
 			else
 			{
 				if ( _orbit_segments_.at( i ).print_full_data( out, false,
 						_final_frac_m_ret_list_.at( i - 1 ), _final_frac_m_vir_ret_list_.at( i - 1 ) ) )
-					return 1; // Don't print header, m_ret_multiplier = frac_m_ret after last segment
+					return; // Don't print header, m_ret_multiplier = frac_m_ret after last segment
 			}
 		}
 	}
-	return 0;
 }
 
 const int brgastro::stripping_orbit::get_final_m_ret( BRG_MASS & m_ret ) const
 {
-	if(likely_disrupted())
+	if(_likely_disrupted_)
 	{
 		m_ret = 0;
+		return 1;
 	}
-	else
+	else if(_bad_result_)
 	{
-		if ( !_calculated_ )
-		{
-			if ( calc() )
-				return UNSPECIFIED_ERROR;
-		}
-		if( _bad_result_ )
-		{
-			return UNSPECIFIED_ERROR;
-		}
-		m_ret = _init_satellite_ptr_->mtot()*_final_frac_m_ret_list_.back();
+		m_ret = _init_satellite_ptr_->mtot();
+		return 1;
 	}
+	else if ( !_calculated_ )
+	{
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
+			if(_likely_disrupted_)
+			{
+				m_ret = 0;
+				return 1;
+			}
+			else
+			{
+				m_ret = _init_satellite_ptr_->mtot();
+				return 1;
+			}
+		}
+	}
+	m_ret = _init_satellite_ptr_->mtot()*_final_frac_m_ret_list_.back();
 	return 0;
 }
-const int brgastro::stripping_orbit::get_m_ret_at_t( CONST_BRG_TIME_REF  t, BRG_MASS & m_ret) const
+const int brgastro::stripping_orbit::get_m_ret_at_t( CONST_BRG_TIME_REF t, BRG_MASS & m_ret) const
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		set_record_full_data( true );
+		calc();
 	}
 	if( _bad_result_ )
 	{
-		return UNSPECIFIED_ERROR;
+		m_ret = _init_satellite_ptr_->mtot();
+		return 1;
 	}
 	m_ret = _init_satellite_ptr_->mtot()*max( _m_ret_interpolator_(t), 0. );
 	return 0;
@@ -2103,8 +1942,14 @@ const int brgastro::stripping_orbit::get_final_frac_m_ret( double & frac_m_ret )
 	{
 		if ( !_calculated_ )
 		{
-			if ( calc() )
+			try
+			{
+				calc();
+			}
+			catch(const std::runtime_error &e)
+			{
 				return UNSPECIFIED_ERROR;
+			}
 		}
 		if( _bad_result_ )
 		{
@@ -2118,10 +1963,15 @@ const int brgastro::stripping_orbit::get_frac_m_ret_at_t( CONST_BRG_TIME_REF  t,
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
+		set_record_full_data( true );
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2140,8 +1990,14 @@ const int brgastro::stripping_orbit::get_final_m_vir_ret( BRG_MASS & m_ret ) con
 	{
 		if ( !_calculated_ )
 		{
-			if ( calc() )
+			try
+			{
+				calc();
+			}
+			catch(const std::runtime_error &e)
+			{
 				return UNSPECIFIED_ERROR;
+			}
 		}
 		if( _bad_result_ )
 		{
@@ -2156,10 +2012,15 @@ const int brgastro::stripping_orbit::get_m_vir_ret_at_t( CONST_BRG_TIME_REF  t, 
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
+		set_record_full_data( true );
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2179,8 +2040,14 @@ const int brgastro::stripping_orbit::get_final_frac_m_vir_ret( double & frac_m_r
 	{
 		if ( !_calculated_ )
 		{
-			if ( calc() )
+			try
+			{
+				calc();
+			}
+			catch(const std::runtime_error &e)
+			{
 				return UNSPECIFIED_ERROR;
+			}
 		}
 		if( _bad_result_ )
 		{
@@ -2194,10 +2061,15 @@ const int brgastro::stripping_orbit::get_frac_m_vir_ret_at_t( CONST_BRG_TIME_REF
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
+		set_record_full_data( true );
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2236,8 +2108,14 @@ const int brgastro::stripping_orbit::get_final_sum_deltarho(
 {
 	if ( !_calculated_ )
 	{
-		if ( calc() )
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2248,12 +2126,18 @@ const int brgastro::stripping_orbit::get_final_sum_deltarho(
 }
 
 const int brgastro::stripping_orbit::get_final_sum_deltarho(
-		double & final_sum_deltarho ) const
+		BRG_UNITS & final_sum_deltarho ) const
 {
 	if ( !_calculated_ )
 	{
-		if ( calc() )
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2268,8 +2152,14 @@ const int brgastro::stripping_orbit::get_final_sum_gabdt(
 {
 	if ( !_calculated_ )
 	{
-		if ( calc() )
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2284,8 +2174,14 @@ const int brgastro::stripping_orbit::get_last_infall_time(
 {
 	if ( !_calculated_ )
 	{
-		if ( calc() )
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2300,7 +2196,11 @@ const int brgastro::stripping_orbit::clone_final_satellite(
 {
 	if ( !_calculated_ )
 	{
-		if ( calc() )
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
 		{
 			// If this function is being called, something being assigned is expected.
 
@@ -2338,7 +2238,11 @@ const int brgastro::stripping_orbit::clone_final_host(
 {
 	if ( !_calculated_ )
 	{
-		if ( calc() )
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
 		{
 			// If this function is being called, something being assigned is expected.
 
@@ -2499,7 +2403,11 @@ const brgastro::density_profile * brgastro::stripping_orbit::final_satellite() c
 	{
 		if(_satellite_loaded_)
 		{
-			if ( calc() )
+			try
+			{
+				calc();
+			}
+			catch(const std::runtime_error &e)
 			{
 				return _init_satellite_ptr_;
 			}
@@ -2522,7 +2430,11 @@ const brgastro::density_profile * brgastro::stripping_orbit::final_host() const
 	{
 		if(_host_loaded_)
 		{
-			if ( calc() )
+			try
+			{
+				calc();
+			}
+			catch(const std::runtime_error &e)
 			{
 				return _init_host_ptr_;
 			}
@@ -2544,10 +2456,15 @@ const int brgastro::stripping_orbit::get_quality_of_fit( double & Q, const bool 
 {
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
+		set_record_full_data( true );
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
 			return UNSPECIFIED_ERROR;
+		}
 	}
 	if( _bad_result_ )
 	{
@@ -2672,7 +2589,7 @@ const BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_pro
 		old_rt = new_rt;
 		try
 		{
-			new_rt = solve_grid( &rt_grid_solver, 0., max_rt, 100, 0.);
+			new_rt = solve_grid( &rt_grid_solver, (BRG_UNITS)0., max_rt, 100, (BRG_UNITS)0.);
 		}
 		catch(const std::exception &e)
 		{
