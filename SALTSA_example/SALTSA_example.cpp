@@ -29,10 +29,18 @@
 #include <vector>
 #include <utility> // Just needed for some file loading here
 
-#include "brg/physics/astro/SALTSA/stripping_orbit.h"
-#include "brg/math/calculus/DE.hpp" // This is just used to generate an orbit in this file.
-#include "brg/file_functions.h" // This is just used for file loading done here
+#include "brg/physics/astro/SALTSA/stripping_orbit.h" // The primary file needed to be included.
+
+#include "brg/physics/astro/density_profile/tNFW_profile.h" // A truncated NFW halo we'll use here
+#include "brg/physics/astro/density_profile/point_mass_profile.h" // A point-mass density profile for calculating Keplerian orbits
 #include "SALTSA_tSIS_profile.hpp" // In case we want to use this "user-defined" profile instead
+
+#include "brg/physics/units/unit_conversions.hpp" // Some convenient unit conversions
+
+#include "brg/physics/astro/density_profile/density_profile_functors.h"
+#include "brg/math/calculus/DE.hpp" // These are used to generate an orbit in this file.
+
+#include "brg/file_functions.h" // This is used for file loading done here
 
 /**
  *
@@ -42,6 +50,8 @@
  */
 int main( const int argc, const char *argv[] )
 {
+	// Give the unit conversion namespace a shorter name
+	namespace unitconv = brgastro::unitconv;
 
 	// Set-up const values
 #if (1) // This dummy compiler directive can be used for folding in Eclipse, and possibly other IDEs
@@ -54,7 +64,7 @@ int main( const int argc, const char *argv[] )
 	                                // the resultant plot should match the left panel of Figure 2. The
 									// increased number of spline points helps better calculate stripping
 									// of extremely eccentric orbits.
-	const int spline_skip = SALTSA::max(orbit_resolution/spline_points,1); // How many points we skip between
+	const int spline_skip = brgastro::max(orbit_resolution/spline_points,1); // How many points we skip between
 	                                                                       // orbit points we report.
 
 	// Toggle this flag to use a different mass profile, which is defined in header
@@ -78,7 +88,7 @@ int main( const int argc, const char *argv[] )
 
 	// Get a truncated NFW profile for the host, and a pointer to it (which we need to use to
 	// exploit polymorphism).
-	SALTSA::tNFW_profile host_group_tNFW(host_mass,host_z,host_c);
+	brgastro::tNFW_profile host_group_tNFW(host_mass,host_z,host_c);
 
 	// Or instead use a truncated SIS profile for the host
 	SALTSA::tSIS_profile host_group_tSIS;
@@ -86,7 +96,7 @@ int main( const int argc, const char *argv[] )
 	host_group_tSIS.set_mvir(host_mass);
 	host_group_tSIS.set_z(host_z);
 
-	const SALTSA::density_profile *host_group;
+	const brgastro::density_profile *host_group;
 
 	if(use_tSIS_profile)
 		host_group = &host_group_tSIS;
@@ -99,13 +109,13 @@ int main( const int argc, const char *argv[] )
 	// Also get a point mass profile representing the group. We need this to properly calculate
 	// the orbits, as Taylor and Babul 2004 used elliptical orbits, which we can only get with a
 	// Keplerian potential (from a point mass).
-	const SALTSA::point_mass_profile host_group_pm_val( host_mass, host_z );
-	const SALTSA::density_profile *host_group_orbit = &host_group_pm_val; // And a pointer to it as well, again
+	const brgastro::point_mass_profile host_group_pm_val( host_mass, host_z );
+	const brgastro::density_profile *host_group_orbit = &host_group_pm_val; // And a pointer to it as well, again
 	                                                                      // needed for polymorphism.
 
 	// Get a truncated NFW profile for the satellite, and a pointer to it (which we need to use to
 	// exploit polymorphism).
-	SALTSA::tNFW_profile init_satellite_tNFW(satellite_mass,satellite_z,satellite_c);
+	brgastro::tNFW_profile init_satellite_tNFW(satellite_mass,satellite_z,satellite_c);
 
 	// Or instead use a truncated SIS profile for the satellite
 	SALTSA::tSIS_profile init_satellite_tSIS;
@@ -113,7 +123,7 @@ int main( const int argc, const char *argv[] )
 	init_satellite_tSIS.set_mvir(host_mass);
 	init_satellite_tSIS.set_z(host_z);
 
-	const SALTSA::density_profile *init_satellite;
+	const brgastro::density_profile *init_satellite;
 
 	if(use_tSIS_profile)
 		init_satellite = &init_satellite_tSIS;
@@ -155,14 +165,14 @@ int main( const int argc, const char *argv[] )
 	double t=0;
 	std::vector< double > host_parameters(num_host_parameters,0);
 
-	SALTSA::accel_function accel_func(host_group_orbit);
+	brgastro::accel_functor accel_func(host_group_orbit);
 
 	std::ofstream out;
 	std::stringstream ss;
 
 	std::string output_file_name = "";
 
-	SALTSA::stripping_orbit test_orbit(host_group,init_satellite);
+	brgastro::stripping_orbit test_orbit(host_group,init_satellite);
 
 	// Vectors for setting up which parameters of the satellite we'll output
 	std::vector<bool> satellite_output_parameters(num_satellite_parameters,false);
@@ -216,7 +226,7 @@ int main( const int argc, const char *argv[] )
 
 	// Get the initial parameters array of the host. I'll use this here to demonstrate how you
 	// would tell SALTSA about changes to the host over time.
-	host_group->get_parameters(host_parameters);
+	host_parameters = host_group->get_parameters();
 
 #endif // set-up for how to run SALTSA
 
@@ -233,7 +243,7 @@ int main( const int argc, const char *argv[] )
         	test_orbit.clear();
 
         	// Set up the host and initial satellite pointers now
-        	test_orbit = SALTSA::stripping_orbit(host_group, init_satellite);
+        	test_orbit = brgastro::stripping_orbit(host_group, init_satellite);
 
         	// Alternatively, you could do the below:
         	// test_orbit.set_init_host(host_group);
@@ -260,7 +270,7 @@ int main( const int argc, const char *argv[] )
 
 		// Determine the initial angle we want the satellite's velocity to be at relative to
 		// a circular orbit
-        double a = std::acos(orbital_circularity[i]/SALTSA::safe_d(orbital_v_factor));
+        double a = std::acos(orbital_circularity[i]/brgastro::safe_d(orbital_v_factor));
 
 		// Set up the initial velocity, depending on the angle calculated above
 		vx = host_group_orbit->vvir()*orbital_v_factor*cos(a);
@@ -284,7 +294,7 @@ int main( const int argc, const char *argv[] )
 		{
 
 			// Every spline_skip point, we'll tell the stripping_orbit about this position
-			if( SALTSA::divisible(j,spline_skip) )
+			if( brgastro::divisible(j,spline_skip) )
 			{
 				// Tell SALTSA about this point. We won't always get these values from orbit integration -
 				// they could also be extracted from a file, for instance.
@@ -313,7 +323,7 @@ int main( const int argc, const char *argv[] )
 
 			// Integrate to next point with leapfrog-ish method (Not strictly leapfrog since we don't
 			// start out with x and v staggered, but it converges to the same result for large N).
-			SALTSA::leapfrog_step( x, y, z, vx, vy, vz, t_step, &accel_func );
+			brgastro::leapfrog_step( x, y, z, vx, vy, vz, t_step, &accel_func );
 			t += t_step;
 		}
 
@@ -439,12 +449,12 @@ int main( const int argc, const char *argv[] )
 	// And now actually load it
 	// An exception will be thrown here if a column we want isn't found in the file, or if it's
 	// improperly formatted.
-	SALTSA::load_table_columns(comparison_file_name, header_keys);
+	brgastro::load_table_columns(comparison_file_name, header_keys);
 
 	// Now, all the vectors should be loaded. Let's pass the data into SALTSA
 
 	test_orbit.clear();
-	test_orbit = SALTSA::stripping_orbit(host_group, init_satellite);
+	test_orbit = brgastro::stripping_orbit(host_group, init_satellite);
 
 	// We'll simulate the original data through skipping some points (since the data we read
 	// reflects the adaptive step size)
@@ -564,7 +574,7 @@ int main( const int argc, const char *argv[] )
 #if (1)
 
 	// Linear interpolation
-	test_orbit.set_interpolation_type(SALTSA::stripping_orbit::LINEAR);
+	test_orbit.set_interpolation_type(brgastro::stripping_orbit::LINEAR);
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << "_lininterp_comp" << output_file_name_tail;
@@ -581,7 +591,7 @@ int main( const int argc, const char *argv[] )
 	out.clear();
 
 	// No interpolation (LOWER just uses the closest value below it)
-	test_orbit.set_interpolation_type(SALTSA::stripping_orbit::LOWER);
+	test_orbit.set_interpolation_type(brgastro::stripping_orbit::LOWER);
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << "_nointerp_comp" << output_file_name_tail;
@@ -598,7 +608,7 @@ int main( const int argc, const char *argv[] )
 	out.clear();
 
 	// Change interpolation back to how it was before
-	test_orbit.set_interpolation_type(SALTSA::stripping_orbit::UNSET); // Which results in spline interpolation here
+	test_orbit.set_interpolation_type(brgastro::stripping_orbit::UNSET); // Which results in spline interpolation here
 
 #endif // Different interpolation types
 
