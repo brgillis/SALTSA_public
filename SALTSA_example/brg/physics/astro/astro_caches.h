@@ -30,7 +30,6 @@
 #include "brg/global.h"
 
 #include "brg/math/cache/cache.hpp"
-#include "brg/math/cache/cache_2d.hpp"
 #include "brg/physics/units/unit_obj.h"
 
 namespace brgastro
@@ -73,45 +72,6 @@ public:
 
 };
 // class dfa_cache
-
-class add_cache : public brg_cache_2d<add_cache>
-{
-	// Angular diameter distance
-private:
-
-	DECLARE_BRG_CACHE_2D_STATIC_VARS();
-
-	friend class brg_cache_2d<add_cache>;
-
-protected:
-
-	const std::string _name_base() const throw()
-	{
-		char name_base[BRG_CACHE_ND_NAME_SIZE] = "ang_di_d";
-		return name_base;
-	}
-
-#ifdef _BRG_USE_UNITS_
-
-	// Tells what units the result should have. Only the units matter in the return, not the value
-	const brgastro::unit_obj _units() const throw()
-	{
-		return brgastro::unit_obj(0,1,0,0,0,0,0); // Distance units
-	}
-	const brgastro::unit_obj _inverse_units() const throw()
-	{
-		return brgastro::unit_obj(0); // Unitless (redshift)
-	}
-
-#endif // _BRG_USE_UNITS_
-
-	// Long-form calculation function.
-	const double _calculate( const double in_param_1, const double in_param_2 ) const;
-
-public:
-
-};
-// class add_cache
 
 class tfa_cache : public brg_cache<tfa_cache>
 {

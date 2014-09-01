@@ -27,27 +27,13 @@
 #include "brg/global.h"
 
 #include "brg/math/cache/cache.hpp"
-#include "brg/math/cache/cache_2d.hpp"
 
 #include "brg/physics/astro/astro_caches.h"
 #include "brg/physics/astro/astro.h"
-#include "brg/physics/astro/sky_obj/position_grid_cache.h"
 #include "brg/physics/units/unit_obj.h"
 
 // brgastro::redshift_obj class methods
 #if (1)
-int brgastro::redshift_obj::z_grid() const
-{
-	if ( _z_grid_cached_ )
-	{
-		if ( _local_z_grid_change_num_ == grid_cache().z_grid_change_num() )
-			return _z_grid_;
-	}
-	_z_grid_ = brgastro::get_z_grid( z() );
-	_z_grid_cached_ = true;
-	_local_z_grid_change_num_ = grid_cache().z_grid_change_num();
-	return _z_grid_;
-}
 
 BRG_UNITS brgastro::redshift_obj::H() const
 {
@@ -88,74 +74,6 @@ BRG_UNITS brgastro::H( const double test_z )
 							+ Omega_m * cube( zp1 )
 							+ Omega_k * square( zp1 ) + Omega_l );
 }
-
-// grid functions
-#if (1)
-int brgastro::get_ra_grid( CONST_BRG_ANGLE_REF ra )
-{
-	grid_cache cache;
-	return (int)floor(
-			( ra - cache.ra_grid_min() ) / safe_d( cache.ra_grid_step() ) );
-}
-int brgastro::get_dec_grid( CONST_BRG_ANGLE_REF dec )
-{
-	grid_cache cache;
-	return (int)floor( ( dec - cache.dec_grid_min() ) / cache.dec_grid_step() );
-}
-int brgastro::get_z_grid( const double z )
-{
-	grid_cache cache;
-	return (int)floor( ( z - cache.z_grid_min() ) / cache.z_grid_step() );
-}
-
-BRG_ANGLE brgastro::get_ra_grid_lower( const int ra_grid )
-{
-	grid_cache cache;
-	return cache.ra_grid_min() + cache.ra_grid_step() * ra_grid;
-}
-BRG_ANGLE brgastro::get_dec_grid_lower( const int dec_grid )
-{
-	grid_cache cache;
-	return cache.dec_grid_min() + cache.dec_grid_step() * dec_grid;
-}
-double brgastro::get_z_grid_lower( const int z_grid )
-{
-	grid_cache cache;
-	return cache.z_grid_min() + cache.z_grid_step() * z_grid;
-}
-
-BRG_ANGLE brgastro::get_ra_grid_upper( const int ra_grid )
-{
-	grid_cache cache;
-	return cache.ra_grid_min() + cache.ra_grid_step() * ( ra_grid + 1 );
-}
-BRG_ANGLE brgastro::get_dec_grid_upper( const int dec_grid )
-{
-	grid_cache cache;
-	return cache.dec_grid_min() + cache.dec_grid_step() * ( dec_grid + 1 );
-}
-double brgastro::get_z_grid_upper( const int z_grid )
-{
-	grid_cache cache;
-	return cache.z_grid_min() + cache.z_grid_step() * ( z_grid + 1 );
-}
-
-BRG_ANGLE brgastro::get_ra_grid_mid( const int ra_grid )
-{
-	grid_cache cache;
-	return cache.ra_grid_min() + cache.ra_grid_step() * ( ra_grid + 0.5 );
-}
-BRG_ANGLE brgastro::get_dec_grid_mid( const int dec_grid )
-{
-	grid_cache cache;
-	return cache.dec_grid_min() + cache.dec_grid_step() * ( dec_grid + 0.5 );
-}
-double brgastro::get_z_grid_mid( const int z_grid )
-{
-	grid_cache cache;
-	return cache.z_grid_min() + cache.z_grid_step() * ( z_grid + 0.5 );
-}
-#endif // end grid functions
 
 // dfa and afd functions
 #if (1)
@@ -353,26 +271,5 @@ double brgastro::integrate_distance( const double z1_init,
 	}
 }
 #endif
-
-// Other functions
-#if (1)
-
-BRG_DISTANCE brgastro::ad_distance( double z1, double z2 )
-{
-	if ( z2 < z1 )
-		std::swap( z1, z2 );
-	return brgastro::add_cache().get( z1, z2 );
-}
-
-BRG_UNITS brgastro::sigma_crit( const double z_lens,
-		const double z_source )
-{
-	return square( c ) / ( 4. * pi * Gc )
-			* brgastro::ad_distance( 0, z_source )
-			/ ( brgastro::ad_distance( 0, z_lens )
-					* brgastro::ad_distance( z_lens, z_source ) );
-
-}
-#endif // end other functions
 
 #endif // end Global function definitions

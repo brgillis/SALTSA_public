@@ -122,23 +122,6 @@ const float default_tau_factor = 2;
 
 BRG_UNITS H( const double z );
 
-// Functions to get grid integers or grid boundaries from integers
-int get_ra_grid( CONST_BRG_ANGLE_REF ra );
-int get_dec_grid( CONST_BRG_ANGLE_REF dec );
-int get_z_grid( const double z );
-
-BRG_ANGLE get_ra_grid_lower( const int ra_grid );
-BRG_ANGLE get_dec_grid_lower( const int dec_grid );
-double get_z_grid_lower( const int z_grid );
-
-BRG_ANGLE get_ra_grid_upper( const int ra_grid );
-BRG_ANGLE get_dec_grid_upper( const int dec_grid );
-double get_z_grid_upper( const int z_grid );
-
-BRG_ANGLE get_ra_grid_mid( const int ra_grid );
-BRG_ANGLE get_dec_grid_mid( const int dec_grid );
-double get_z_grid_mid( const int z_grid );
-
 // Functions to get transverse distance (in m) from angle (in rad) or vice-versa
 BRG_DISTANCE dfa( CONST_BRG_ANGLE_REF da, const double z );
 BRG_DISTANCE dfa( CONST_BRG_ANGLE_REF a1, CONST_BRG_ANGLE_REF a2,
@@ -172,10 +155,6 @@ double integrate_Ld( const double z );
 double integrate_ltd( const double z );
 double integrate_distance( const double z1, const double z2,
 		const int mode, const int resolution = 10000 );
-
-// Lensing functions
-BRG_DISTANCE ad_distance( double z1, double z2 = 0 );
-BRG_UNITS sigma_crit( const double z_lens, const double z_source );
 
 // Like dist2d, but using corrections for spherical geometry
 template< typename Tr1, typename Td1, typename Tr2, typename Td2 >
@@ -211,9 +190,6 @@ private:
 	double _z_, _z_err_;
 	mutable BRG_UNITS _H_cache_;
 	mutable bool _H_cached_;
-	mutable int _z_grid_;
-	mutable bool _z_grid_cached_;
-	mutable int _local_z_grid_change_num_;
 public:
 
 	// Constructor
@@ -223,9 +199,6 @@ public:
 		_z_err_ = init_z_err;
 		_H_cache_ = 0;
 		_H_cached_ = false;
-		_z_grid_ = 0;
-		_z_grid_cached_ = false;
-		_local_z_grid_change_num_ = -1;
 	}
 
 	// Copy constructor
@@ -242,7 +215,6 @@ public:
 	{
 		_z_ = new_z;
 		_H_cached_ = false;
-		_z_grid_cached_ = false;
 	}
 	virtual void set_z_err( const double new_z_err ) // Sets z error
 	{
@@ -260,7 +232,6 @@ public:
 	{
 		return _z_err_;
 	}
-	int z_grid() const;
 #endif
 
 	// Astro calculations
