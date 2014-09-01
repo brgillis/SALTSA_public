@@ -1623,10 +1623,10 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 		std::ostream *out, const bool include_header,
 		const double m_ret_multiplier, const double m_vir_ret_multiplier, const bool silent ) const
 {
-	const int num_columns_base = 18;
-	int num_extra_satellite_columns = 0;
-	int num_extra_host_columns = 0;
-	int num_rows = 0;
+	const unsigned int num_columns_base = 18;
+	unsigned int num_extra_satellite_columns = 0;
+	unsigned int num_extra_host_columns = 0;
+	unsigned int num_rows = 0;
 	std::vector< std::string > header;
 	std::vector< std::vector< std::string > > data;
 	std::stringstream ss;
@@ -1641,6 +1641,16 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 	}
 
 	num_rows = _phase_output_list_.size();
+	if(_bad_result_ || _likely_disrupted_)
+	{
+		// Check how many rows we can actually output
+		num_rows = min(num_rows,_m_ret_list_.size());
+		num_rows = min(num_rows,_m_vir_ret_list_.size());
+		num_rows = min(num_rows,_rt_list_.size());
+		num_rows = min(num_rows,_rt_ratio_list_.size());
+		num_rows = min(num_rows,_host_parameter_data_.size());
+		num_rows = min(num_rows,_satellite_parameter_data_.size());
+	}
 	if ( num_rows < 2 )
 	{
 		if ( !silent )
@@ -1849,7 +1859,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 		return INVALID_ARGUMENTS_ERROR;
 	}
 
-	for ( int i = 0; i < num_rows; i++ )
+	for ( unsigned int i = 0; i < num_rows; i++ )
 	{
 		data[0][i] = "";
 		ss.str( "" );

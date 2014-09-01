@@ -37,7 +37,7 @@ using namespace std;
 
 /** Global function implementations **/
 #if (1)
-void brgastro::_print_table( std::ostream & out_stream,
+void brgastro::print_table( std::ostream & out_stream,
 		const std::vector< std::vector< std::string > > &data,
 		const std::vector< std::string > & header,
 		const bool silent )
@@ -107,7 +107,7 @@ void brgastro::_print_table( std::ostream & out_stream,
 
 // Load table, either loading in the entire table, or only loading in certain columns into pointed-to
 // variables, found by matching header entries to the strings passed
-std::vector<std::vector<std::string> > brgastro::_load_table( const std::string & table_file_name, const bool silent)
+std::vector<std::vector<std::string> > brgastro::load_table( const std::string & table_file_name, const bool silent)
 {
 	std::vector<std::vector<std::string> > table_data;
 	std::ifstream fi;
@@ -144,7 +144,7 @@ std::vector<std::vector<std::string> > brgastro::_load_table( const std::string 
 
 	return table_data;
 }
-void brgastro::_load_table_and_header( const std::string & table_file_name,
+void brgastro::load_table_and_header( const std::string & table_file_name,
 		std::vector<std::vector<std::string> > & table_data,
 		std::vector<std::string> & header, const bool silent)
 {
@@ -211,7 +211,7 @@ void brgastro::_load_table_and_header( const std::string & table_file_name,
 	    table_data.push_back(temp_vector);
 	}
 }
-void brgastro::_load_table_columns( const std::string & table_file_name,
+void brgastro::load_table_columns( const std::string & table_file_name,
 		std::vector< std::pair< std::string, std::vector<std::string>* > > & header_links,
 		const bool case_sensitive, const bool silent)
 {
@@ -219,7 +219,7 @@ void brgastro::_load_table_columns( const std::string & table_file_name,
 	std::vector<std::vector<std::string> > table_data;
 	std::vector<std::string> header;
 
-	brgastro::_load_table_and_header( table_file_name, table_data, header, silent);
+	brgastro::load_table_and_header( table_file_name, table_data, header, silent);
 
 	// Now, loop through each key and search for it in the header.
 	for(unsigned int i = 0; i < header_links.size(); i++)

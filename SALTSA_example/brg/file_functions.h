@@ -44,7 +44,7 @@ namespace brgastro
 // Prints a formatted table in the passed stream. header is a vector of strings representing the labels for each column,
 // and data is a 2-d vector of the data to be printed, in the format data[c][r], where c is the column index and r is the row index.
 // Prints an error message and returns 1 if an error arises (for instance, vectors are too short).
-void _print_table( std::ostream & out_stream,
+void print_table( std::ostream & out_stream,
 		const std::vector< std::vector< std::string > > & data,
 		const std::vector< std::string > & header = std::vector< std::string >(0),
 		const bool silent = false );
@@ -69,19 +69,12 @@ void print_table( std::ostream & out_stream,
 			string_data[i].at(j) = ss.str();
 		}
 	}
-	_print_table(out_stream, string_data, header, silent);
-}
-inline void print_table( std::ostream & out_stream,
-		const std::vector< std::vector< std::string > > & data,
-		const std::vector< std::string > & header = std::vector< std::string >(0),
-		const bool silent = false )
-{
-	_print_table(out_stream, data, header, silent);
+	print_table(out_stream, string_data, header, silent);
 }
 
 // Load table, either loading in the entire table, or only loading in certain columns into pointed-to
 // variables, found by matching header entries to the strings passed
-std::vector<std::vector<std::string> > _load_table( const std::string & table_file_name,
+std::vector<std::vector<std::string> > load_table( const std::string & table_file_name,
 		const bool silent=false);
 
 template<typename T>
@@ -90,7 +83,7 @@ std::vector<std::vector<T> > load_table( const std::string & table_file_name,
 {
 	std::stringstream ss;
 
-	std::vector< std::vector<std::string> > string_data(_load_table( table_file_name, silent ));
+	std::vector< std::vector<std::string> > string_data(load_table( table_file_name, silent ));
 	std::vector< std::vector<T> > data;
 
 	make_array2d(data,string_data.size(),string_data.at(0).size());
@@ -105,13 +98,8 @@ std::vector<std::vector<T> > load_table( const std::string & table_file_name,
 	}
 	return data;
 }
-inline std::vector<std::vector<std::string> > load_table( const std::string & table_file_name,
-		const bool silent)
-{
-	return _load_table( table_file_name, silent );
-}
 
-void _load_table_and_header( const std::string & table_file_name,
+void load_table_and_header( const std::string & table_file_name,
 		std::vector<std::vector<std::string> > & table_data,
 		std::vector<std::string> & header, const bool silent=false);
 
@@ -123,7 +111,7 @@ void load_table_and_header( const std::string & table_file_name,
 	std::stringstream ss;
 
 	std::vector< std::vector<std::string> > string_data;
-	_load_table_and_header( table_file_name, string_data, header, silent );
+	load_table_and_header( table_file_name, string_data, header, silent );
 
 	make_array2d(table_data,string_data.size(),string_data.at(0).size());
 
@@ -136,14 +124,8 @@ void load_table_and_header( const std::string & table_file_name,
 		}
 	}
 }
-inline void load_table_and_header( const std::string & table_file_name,
-		std::vector<std::vector<std::string> > & table_data,
-		std::vector<std::string> & header, const bool silent)
-{
-	_load_table_and_header( table_file_name, table_data, header, silent );
-}
 
-void _load_table_columns( const std::string & table_file_name,
+void load_table_columns( const std::string & table_file_name,
 		std::vector< std::pair< std::string, std::vector<std::string>* > > & header_links,
 		const bool case_sensitive=false, const bool silent=false);
 
@@ -162,7 +144,7 @@ void load_table_columns( const std::string & table_file_name,
 				header_links[i].first,&(string_data[i])));
 	}
 
-	_load_table_columns( table_file_name, string_header_links, case_sensitive, silent);
+	load_table_columns( table_file_name, string_header_links, case_sensitive, silent);
 
 	for(unsigned int i=0; i<header_links.size(); ++i)
 	{
@@ -175,12 +157,6 @@ void load_table_columns( const std::string & table_file_name,
 			ss >> header_links[i].second->at(j);
 		}
 	}
-}
-inline void load_table_columns( const std::string & table_file_name,
-		std::vector< std::pair< std::string, std::vector<std::string>* > > & header_links,
-		const bool case_sensitive, const bool silent)
-{
-	_load_table_columns( table_file_name, header_links, case_sensitive, silent);
 }
 
 // Functions to open a file and check that it's been opened successfully. An exception will be thrown
