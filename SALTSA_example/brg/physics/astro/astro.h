@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: astro.cpp
+// body file: brg/physics/astro/astro.cpp
 
 #ifndef __BRG_ASTRO_H_INCLUDED__
 #define __BRG_ASTRO_H_INCLUDED__

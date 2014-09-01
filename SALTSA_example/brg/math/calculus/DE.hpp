@@ -23,8 +23,6 @@
 
 \**********************************************************************/
 
-// body file: DE.cpp
-
 #ifndef _BRG_DE_HPP_INCLUDED_
 #define _BRG_DE_HPP_INCLUDED_
 

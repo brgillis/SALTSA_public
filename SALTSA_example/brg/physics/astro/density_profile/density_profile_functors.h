@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: density_profile_functors.cpp
+// body file: brg/physics/astro/density_profile/density_profile_functors.cpp
 
 #ifndef _BRG_DENSITY_PROFILE_FUNCTORS_H_
 #define _BRG_DENSITY_PROFILE_FUNCTORS_H_

@@ -23,8 +23,6 @@
 
 \**********************************************************************/
 
-// body file: differentiate.cpp
-
 #ifndef _BRG_DIFFERENTIATE_HPP_INCLUDED_
 #define _BRG_DIFFERENTIATE_HPP_INCLUDED_
 

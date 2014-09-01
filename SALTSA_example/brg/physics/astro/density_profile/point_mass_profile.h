@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: point_mass_profile.cpp
+// body file: brg/physics/astro/density_profile/point_mass_profile.cpp
 
 #ifndef _BRG_POINT_MASS_PROFILE_H_
 #define _BRG_POINT_MASS_PROFILE_H_

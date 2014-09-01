@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: interpolator.cpp
+// body file: brg/math/interpolator/interpolator.cpp
 
 #ifndef _BRG_INTERPOLATOR_H_INCLUDED_
 #define _BRG_INTERPOLATOR_H_INCLUDED_

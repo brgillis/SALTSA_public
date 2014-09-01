@@ -20,8 +20,6 @@
 
 \**********************************************************************/
 
-// body file: random_functions.cpp
-
 #ifndef _BRG_SAFE_MATH_HPP_INCLUDED_
 #define _BRG_SAFE_MATH_HPP_INCLUDED_
 

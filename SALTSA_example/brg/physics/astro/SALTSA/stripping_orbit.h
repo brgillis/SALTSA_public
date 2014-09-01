@@ -28,7 +28,7 @@
 
 \**********************************************************************/
 
-// body file: stripping_orbit.cpp
+// body file: brg/physics/astro/SALTSA/stripping_orbit.cpp
 
 #ifndef _STRIPPING_ORBIT_H_INCLUDED_
 #define _STRIPPING_ORBIT_H_INCLUDED_

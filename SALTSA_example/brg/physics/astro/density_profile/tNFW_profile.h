@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: tNFW_profile.cpp
+// body file: brg/physics/astro/density_profile/tNFW_profile.cpp
 
 #ifndef _BRG_TNFW_PROFILE_H_
 #define _BRG_TNFW_PROFILE_H_

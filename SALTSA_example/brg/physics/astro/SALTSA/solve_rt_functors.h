@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: solve_rt_functors.cpp
+// body file: brg/physics/astro/SALTSA/solve_rt_functors.cpp
 
 #ifndef _SOLVE_RT_FUNCTORS_H_INCLUDED_
 #define _SOLVE_RT_FUNCTORS_H_INCLUDED_

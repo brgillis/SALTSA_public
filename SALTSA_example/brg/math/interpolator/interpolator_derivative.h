@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: interpolator_derivative.cpp
+// body file: brg/math/interpolator/interpolator_derivative.cpp
 
 #ifndef _INTERPOLATOR_DERIVATIVE_H_INCLUDED_
 #define _INTERPOLATOR_DERIVATIVE_H_INCLUDED_

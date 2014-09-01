@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: gabdt.cpp
+// body file: brg/physics/astro/SALTSA/gabdt.cpp
 
 #ifndef _GABDT_H_INCLUDED_
 #define _GABDT_H_INCLUDED_

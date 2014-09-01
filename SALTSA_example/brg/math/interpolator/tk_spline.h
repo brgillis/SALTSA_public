@@ -25,7 +25,7 @@
  *
  */
 
-// body file: tk_spline.cpp
+// body file: brg/math/interpolator/tk_spline.cpp
 
 #ifndef _tk_spline_h
 #define _tk_spline_h

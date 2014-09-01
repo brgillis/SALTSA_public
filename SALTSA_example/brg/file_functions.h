@@ -20,7 +20,7 @@
 
 \**********************************************************************/
 
-// body file: file_functions.cpp
+// body file: brg/file_functions.cpp
 
 #ifndef _BRG_FILE_FUNCTIONS_H_INCLUDED_
 #define _BRG_FILE_FUNCTIONS_H_INCLUDED_
