@@ -260,6 +260,11 @@ namespace std
 		same.swap(other);
 	}
 }
+void swap(brgastro::stripping_orbit_segment &same,
+		brgastro::stripping_orbit_segment &other)
+{
+	same.swap(other);
+}
 
 brgastro::stripping_orbit_segment::stripping_orbit_segment(
 		const stripping_orbit_segment &other )
