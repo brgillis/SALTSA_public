@@ -132,15 +132,19 @@ public:
 		return std::pow(_sigma_v_,3.) / (10 * brgastro::Gc * H());
 	}
 
-	const int set_parameters( const unsigned int new_num_parameters,
-			const std::vector< double > & new_parameters,
+	/**
+	 * Function to set all critical parameters of the profile through a vector.
+	 *
+	 * @param new_parameters The parameter vector
+	 * @param silent Set to true to silence any errors (not relevent in this implementation)
+	 */
+	void set_parameters(const std::vector< BRG_UNITS > & new_parameters,
 			const bool silent = false )
 	{
 		if(new_parameters.size() != num_parameters())
-			throw std::runtime_error("Invalid number of parameters for tSIS profile: Exactly 2 required.");
+			throw std::logic_error("Invalid number of parameters for tSIS profile: Exactly 2 required.");
 		set_sigma_v(new_parameters[0]);
 		set_z(new_parameters[1]);
-		return 0;
 	}
 
 	/**
@@ -174,7 +178,7 @@ public:
 #endif // Critical overloaded functions
 
 	/**
-	 * All we actually need to define are the three critical functions here, which are
+	 * All we actually need to define are the four critical functions here, which are
 	 * declared as pure virtual in the density_profile class. If we stop here though,
 	 * the class will have to integrate certain other needed values and will be very
 	 * slow, so we'll implement some analytic forms that we know. We'll also be missing
@@ -191,9 +195,8 @@ public:
 	 *
 	 * @param new_mvir New mvir value
 	 * @param silent Whether or not to silence errors.
-	 * @return
 	 */
-	void set_mvir( const double new_mvir,
+	void set_mvir( CONST_BRG_MASS_REF new_mvir,
 			const bool silent=false )
 	{
 		if((new_mvir<0) || (brgastro::isbad(new_mvir)))
@@ -213,9 +216,8 @@ public:
 	 *
 	 * @param new_vvir
 	 * @param silent
-	 * @return
 	 */
-	void set_vvir( const double new_vvir,
+	void set_vvir( CONST_BRG_VELOCITY_REF new_vvir,
 			const bool silent=false )
 	{
 		set_sigma_v(new_vvir);
@@ -246,9 +248,9 @@ public:
 	 * Function to get the number of parameters which define this profile. Here we
 	 * just have 2: Sigma_v and redshift.
 	 *
-	 * @return
+	 * @return The number of parameters
 	 */
-	unsigned int num_parameters() const
+	size_t num_parameters() const
 	{
 		return 2;
 	}
@@ -271,15 +273,15 @@ public:
 	 * Function to get the names of the parameters which define this profile, which are
 	 * Sigma_v and redshift.
 	 *
-	 * @return
+	 * @param silent
+	 * @return A vector of strings, each being the name of one of the parameters
 	 */
-	const int get_parameter_names( std::vector< std::string > & parameter_names,
-			const bool silent = false ) const // Returns a set of names of this halo's parameters
+	std::vector< std::string > get_parameter_names( const bool silent = false ) const // Returns a set of names of this halo's parameters
 	{
-		parameter_names.clear();
+		std::vector< std::string > parameter_names;
 		parameter_names.push_back("sigma_v");
 		parameter_names.push_back("z");
-		return 0;
+		return parameter_names;
 	}
 
 	/**
@@ -287,12 +289,11 @@ public:
 	 * this through scaling down the virial mass (which happens to equal total mass here),
 	 * using the set_mvir() function we defined above.
 	 *
-	 * @param fraction
+	 * @param fraction to truncate to
 	 * @param silent
-	 * @return
 	 */
 	void truncate_to_fraction( const double fraction,
-			bool silent = false ) // Adjusts parameters of this class to decrease the mass to fraction of its previous mass. Must be defined for each child
+			const bool silent = false ) // Adjusts parameters of this class to decrease the mass to fraction of its previous mass. Must be defined for each child
 	{
 		set_mvir(fraction*mvir());
 	}
@@ -312,7 +313,7 @@ public:
 	 * @param silent
 	 * @return
 	 */
-	double enc_mass( const double r, const bool silent =
+	BRG_MASS enc_mass( const double r, const bool silent =
 			true ) const // Mass enclosed with sphere of radius r
 	{
 		if(r>rvir())

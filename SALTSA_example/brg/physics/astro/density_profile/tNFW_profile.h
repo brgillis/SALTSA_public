@@ -156,7 +156,7 @@ public:
 	BRG_UNITS dens( CONST_BRG_DISTANCE_REF r ) const;
 	BRG_MASS enc_mass( CONST_BRG_DISTANCE_REF r,
 			const bool silent = false ) const;
-	unsigned int num_parameters() const
+	size_t num_parameters() const
 	{
 		return 4; // Mass, redshift, c, and tau
 	}

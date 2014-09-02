@@ -122,37 +122,37 @@ public:
 
 #if (1) // Set functions - will return 1 if profile doesn't support this method of setting
 	// All take values in default unit set (m, s, kg, K, rad, C)
-	virtual void set_mvir( CONST_BRG_MASS_REF new_mvir, bool silent = false )
+	virtual void set_mvir( CONST_BRG_MASS_REF new_mvir, const bool silent = false )
 	{
 		throw std::logic_error("density_profile::set_mvir(...) must be overloaded to be used.\n");
 	}
-	virtual void set_vvir( CONST_BRG_VELOCITY_REF new_vvir, bool silent =
+	virtual void set_vvir( CONST_BRG_VELOCITY_REF new_vvir, const bool silent =
 			false )
 	{
 		throw std::logic_error("density_profile::set_vvir(...) must be overloaded to be used.\n");
 	}
-	virtual void set_rvir( CONST_BRG_DISTANCE_REF new_rvir, bool silent =
+	virtual void set_rvir( CONST_BRG_DISTANCE_REF new_rvir, const bool silent =
 			false )
 	{
 		throw std::logic_error("density_profile::set_rvir(...) must be overloaded to be used.\n");
 	}
-	virtual void set_rs( CONST_BRG_DISTANCE_REF new_rs, bool silent = false ) // Scale radius
+	virtual void set_rs( CONST_BRG_DISTANCE_REF new_rs, const bool silent = false ) // Scale radius
 	{
 		throw std::logic_error("density_profile::set_rs(...) must be overloaded to be used.\n");
 	}
-	virtual void set_rt( CONST_BRG_DISTANCE_REF new_rt, bool silent = false ) // Tidal/truncation radius
+	virtual void set_rt( CONST_BRG_DISTANCE_REF new_rt, const bool silent = false ) // Tidal/truncation radius
 	{
 		throw std::logic_error("density_profile::set_rt(...) must be overloaded to be used.\n");
 	}
-	virtual void set_parameters( const std::vector< BRG_UNITS > &parameters, bool silent = false )
+	virtual void set_parameters( const std::vector< BRG_UNITS > &parameters, const bool silent = false )
 	{
 		throw std::logic_error("density_profile::set_parameters(...) must be overloaded to be used.\n");
 	}
-	virtual void set_tau( const double new_tau, bool silent = false ) // Truncation parameter
+	virtual void set_tau( const double new_tau, const bool silent = false ) // Truncation parameter
 	{
 		throw std::logic_error("density_profile::set_tau(...) must be overloaded to be used.\n");
 	}
-	virtual void set_c( const double new_c, bool silent = false ) // Concentration
+	virtual void set_c( const double new_c, const bool silent = false ) // Concentration
 	{
 		throw std::logic_error("density_profile::set_c(...) must be overloaded to be used.\n");
 	}
@@ -186,7 +186,7 @@ public:
 
 #endif // end basic get functions
 
-	virtual unsigned int num_parameters() const
+	virtual size_t num_parameters() const
 	{
 		throw std::logic_error("density_profile::num_parameters() must be overloaded to be used.\n");
 	}

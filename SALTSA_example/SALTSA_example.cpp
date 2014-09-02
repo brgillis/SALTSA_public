@@ -103,7 +103,7 @@ int main( const int argc, const char *argv[] )
 	else
 		host_group = &host_group_tNFW;
 
-	const unsigned int num_host_parameters=host_group->num_parameters(); // How many parameters are used to define
+	const size_t num_host_parameters=host_group->num_parameters(); // How many parameters are used to define
 	                                                            // the host halo.
 
 	// Also get a point mass profile representing the group. We need this to properly calculate
@@ -377,7 +377,7 @@ int main( const int argc, const char *argv[] )
 	// Get the name of the file we'll use
 
 	// We'll use the orbit with circularity .8 for comparison
-	unsigned int comparison_index = 4;
+	size_t comparison_index = 4;
 
 	ss.str("");
 	ss << output_file_name_base << comparison_index << output_file_name_tail;
@@ -466,7 +466,7 @@ int main( const int argc, const char *argv[] )
 	double t_skip_interval = total_time/spline_points/2; // /2 correction
 	double t_next = 0;
 
-	for(unsigned int i=0; i<t_data.size(); i++)
+	for(size_t i=0; i<t_data.size(); i++)
 	{
 		// Load the first point after each t interval (to simulate the way we initially
 		// assigned points)
@@ -685,7 +685,7 @@ int main( const int argc, const char *argv[] )
 
 	t_next = 0;
 
-	for(unsigned int i=0; i<t_data.size(); i++)
+	for(size_t i=0; i<t_data.size(); i++)
 	{
 		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
@@ -734,7 +734,7 @@ int main( const int argc, const char *argv[] )
 
 	t_next = 0;
 
-	for(unsigned int i=0; i<t_data.size(); i++)
+	for(size_t i=0; i<t_data.size(); i++)
 	{
 		if(t_data.at(i)*unitconv::Gyrtos >= t_next)
 		{
@@ -786,7 +786,7 @@ int main( const int argc, const char *argv[] )
 	                           // but not host parameter points
 	t_next = 0;
 
-	for(unsigned int i=0; i<t_data.size(); i++)
+	for(size_t i=0; i<t_data.size(); i++)
 	{
 		// Load the first point after each t interval (to simulate initially using
 		// only one-tenth the points. If we just only input every tenth, we'll also
@@ -865,7 +865,7 @@ int main( const int argc, const char *argv[] )
 	test_orbit.clear_points();
 	t_next = 0;
 
-	for(unsigned int i=0; i<t_data.size(); i++)
+	for(size_t i=0; i<t_data.size(); i++)
 	{
 		// Load the first point after each t interval (to simulate initially using
 		// only one-tenth the points. If we just only input every tenth, we'll also

@@ -42,8 +42,8 @@ void brgastro::print_table( std::ostream & out_stream,
 		const std::vector< std::string > & header,
 		const bool silent )
 {
-	unsigned int num_columns = data.size();
-	unsigned int num_rows = data.at(0).size();
+	size_t num_columns = data.size();
+	size_t num_rows = data.at(0).size();
 	vector< int > width(num_columns,0);
 
 	const bool skip_header = (header.size()==0);
@@ -54,7 +54,7 @@ void brgastro::print_table( std::ostream & out_stream,
 		// Check the header first
 		if(!skip_header)
 		{
-			for ( unsigned int c = 0; c < num_columns; c++ )
+			for ( size_t c = 0; c < num_columns; c++ )
 			{
 				if ( (int)header[c].length() > width[c] )
 				{
@@ -64,9 +64,9 @@ void brgastro::print_table( std::ostream & out_stream,
 		}
 
 		// Now loop through the data
-		for ( unsigned int i = 0; i < num_rows; i++ )
+		for ( size_t i = 0; i < num_rows; i++ )
 		{
-			for ( unsigned int c = 0; c < num_columns; c++ )
+			for ( size_t c = 0; c < num_columns; c++ )
 			{
 				if ( (int)data[c].at(i).length() > width[c] )
 				{
@@ -76,20 +76,20 @@ void brgastro::print_table( std::ostream & out_stream,
 		} // for( int i = 0; i < num_rows; i++ ) (testing width)
 
 		// Increase all widths by 1 to ensure spacing
-		for ( unsigned int c = 0; c < num_columns; c++ )
+		for ( size_t c = 0; c < num_columns; c++ )
 			width[c] += 1;
 
 		// Output the header
 		if ( !skip_header )
-			for ( unsigned int c = 0; c < num_columns; c++ )
+			for ( size_t c = 0; c < num_columns; c++ )
 				out_stream << setfill( ' ' ) << setw( width[c] ) << header[c];
 
 		out_stream << std::endl;
 
 		// Output the data
-		for ( unsigned int i = 0; i < num_rows; i++ )
+		for ( size_t i = 0; i < num_rows; i++ )
 		{
-			for ( unsigned int c = 0; c < num_columns; c++ )
+			for ( size_t c = 0; c < num_columns; c++ )
 			{
 				out_stream << setfill( ' ' ) << setw( width[c] ) << data[c][i];
 			}
@@ -222,7 +222,7 @@ void brgastro::load_table_columns( const std::string & table_file_name,
 	brgastro::load_table_and_header( table_file_name, table_data, header, silent);
 
 	// Now, loop through each key and search for it in the header.
-	for(unsigned int i = 0; i < header_links.size(); i++)
+	for(size_t i = 0; i < header_links.size(); i++)
 	{
 		std::string test_string_key( header_links.at(i).first );
 
@@ -234,7 +234,7 @@ void brgastro::load_table_columns( const std::string & table_file_name,
 
 		bool key_found = false;
 
-		for(unsigned int j = 0; j < header.size(); j++)
+		for(size_t j = 0; j < header.size(); j++)
 		{
 			std::string test_string_header(header.at(j));
 
@@ -252,7 +252,7 @@ void brgastro::load_table_columns( const std::string & table_file_name,
 				std::vector<std::string> column_data(table_data.size());
 				try
 				{
-					for(unsigned int k = 0; k < table_data.size(); k++)
+					for(size_t k = 0; k < table_data.size(); k++)
 					{
 						column_data.at(k) = table_data.at(k).at(j);
 					}

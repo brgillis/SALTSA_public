@@ -99,7 +99,7 @@ public:
 			const bool silent = false ) const;
 	BRG_MASS enc_mass( CONST_BRG_DISTANCE_REF r, const bool silent =
 				true ) const; // Mass enclosed with sphere of radius r
-	unsigned int num_parameters() const
+	size_t num_parameters() const
 	{
 		return 2; // Mass and redshift
 	}

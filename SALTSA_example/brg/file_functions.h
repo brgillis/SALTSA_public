@@ -59,9 +59,9 @@ void print_table( std::ostream & out_stream,
 	std::vector< std::vector<std::string> > string_data(0);
 
 	make_array(string_data, data.size(), data.at(0).size());
-	for( unsigned int i=0; i<data.size(); ++i )
+	for( size_t i=0; i<data.size(); ++i )
 	{
-		for( unsigned int j=0; i<data[0].size(); ++j )
+		for( size_t j=0; i<data[i].size(); ++j )
 		{
 			ss.str("");
 			ss << data[i][j];
@@ -87,9 +87,9 @@ std::vector<std::vector<T> > load_table( const std::string & table_file_name,
 
 	make_array2d(data,string_data.size(),string_data.at(0).size());
 
-	for(unsigned int i=0; i<string_data.size(); ++i)
+	for(size_t i=0; i<string_data.size(); ++i)
 	{
-		for(unsigned int j=0; j<string_data[i].size(); ++j)
+		for(size_t j=0; j<string_data[i].size(); ++j)
 		{
 			ss.str(string_data[i][j]);
 			ss >> data[i].at(j);
@@ -114,9 +114,9 @@ void load_table_and_header( const std::string & table_file_name,
 
 	make_array2d(table_data,string_data.size(),string_data.at(0).size());
 
-	for(unsigned int i=0; i<string_data.size(); ++i)
+	for(size_t i=0; i<string_data.size(); ++i)
 	{
-		for(unsigned int j=0; j<string_data[i].size(); ++j)
+		for(size_t j=0; j<string_data[i].size(); ++j)
 		{
 			ss.str(string_data[i][j]);
 			ss >> table_data[i].at(j);
@@ -137,7 +137,7 @@ void load_table_columns( const std::string & table_file_name,
 
 	std::vector< std::pair< std::string, std::vector<std::string>* > > string_header_links;
 	std::vector< std::vector< std::string > > string_data(header_links.size());
-	for(unsigned int i=0; i<header_links.size(); ++i)
+	for(size_t i=0; i<header_links.size(); ++i)
 	{
 		string_header_links.push_back(std::make_pair(
 				header_links[i].first,&(string_data[i])));
@@ -145,10 +145,10 @@ void load_table_columns( const std::string & table_file_name,
 
 	load_table_columns( table_file_name, string_header_links, case_sensitive, silent);
 
-	for(unsigned int i=0; i<header_links.size(); ++i)
+	for(size_t i=0; i<header_links.size(); ++i)
 	{
 		header_links[i].second->resize(string_data[i].size());
-		for(unsigned int j=0; j<string_data[i].size(); ++j)
+		for(size_t j=0; j<string_data[i].size(); ++j)
 		{
 			ss.str("");
 			ss.clear();

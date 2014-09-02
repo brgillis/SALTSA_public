@@ -123,10 +123,10 @@ inline void make_array( std::unique_ptr<array_type []> & array_pointer, const un
 #endif
 template< class array_type >
 inline void make_array1d( std::vector< array_type > & array_pointer,
-		const unsigned int num_elem, const bool silent = false )
+		const size_t num_elem, const bool silent = false )
 {
 	array_pointer.resize( num_elem );
-	for ( unsigned int i = 0; i < num_elem; i++ )
+	for ( size_t i = 0; i < num_elem; i++ )
 		set_zero( array_pointer[i] );
 }
 template< class array_type >
@@ -138,10 +138,10 @@ inline void make_array( std::vector< array_type > & array_pointer,
 
 #ifdef _BRG_USE_CPP_11_STD_
 template <class array_type>
-inline void make_array2d( std::unique_ptr<std::unique_ptr<array_type []> []> & array_pointer, const unsigned int num_elem1, const unsigned int num_elem2, const bool silent=false )
+inline void make_array2d( std::unique_ptr<std::unique_ptr<array_type []> []> & array_pointer, const size_t num_elem1, const size_t num_elem2, const bool silent=false )
 {
 	array_pointer = std::unique_ptr<std::unique_ptr<array_type []> []>(new std::unique_ptr<array_type []> [num_elem1]);
-	for( unsigned int i = 0; i < num_elem1; i++)
+	for( size_t i = 0; i < num_elem1; i++)
 	{
 		make_array(array_pointer[i], num_elem2);
 	}
@@ -150,10 +150,10 @@ inline void make_array2d( std::unique_ptr<std::unique_ptr<array_type []> []> & a
 template< class array_type >
 inline void make_array2d(
 		std::vector< std::vector< array_type > > & array_pointer,
-		const unsigned int num_elem1, const unsigned int num_elem2, const bool silent = false )
+		const size_t num_elem1, const size_t num_elem2, const bool silent = false )
 {
 	array_pointer.resize( num_elem1 );
-	for ( unsigned int i = 0; i < num_elem1; i++ )
+	for ( size_t i = 0; i < num_elem1; i++ )
 	{
 		make_array( array_pointer[i], num_elem2 );
 	}
@@ -161,13 +161,13 @@ inline void make_array2d(
 
 #ifdef _BRG_USE_CPP_11_STD_
 template <class array_type>
-inline void make_array3d( std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> & array_pointer, const unsigned int num_elem1,
-		const unsigned int num_elem2, const unsigned int num_elem3, const bool silent=false )
+inline void make_array3d( std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> & array_pointer, const size_t num_elem1,
+		const size_t num_elem2, const size_t num_elem3, const bool silent=false )
 {
 	array_pointer = std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []>(new
 			std::unique_ptr<std::unique_ptr<array_type []> []> [num_elem1]);
 
-	for( unsigned int i = 0; i < num_elem1; i++)
+	for( size_t i = 0; i < num_elem1; i++)
 	{
 		make_array2d(array_pointer[i], num_elem2, num_elem3);
 	}
@@ -176,11 +176,11 @@ inline void make_array3d( std::unique_ptr<std::unique_ptr<std::unique_ptr<array_
 template< class array_type >
 inline void make_array3d(
 		std::vector< std::vector< std::vector< array_type > > > & array_pointer,
-		const unsigned int num_elem1, const unsigned int num_elem2, const unsigned int num_elem3,
+		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
 		const bool silent = false )
 {
 	array_pointer.resize( num_elem1 );
-	for ( unsigned int i = 0; i < num_elem1; i++ )
+	for ( size_t i = 0; i < num_elem1; i++ )
 	{
 		make_array2d( array_pointer[i], num_elem2, num_elem3 );
 	}
@@ -189,12 +189,12 @@ inline void make_array3d(
 #ifdef _BRG_USE_CPP_11_STD_
 template <class array_type>
 inline void make_array4d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []> & array_pointer,
-		const unsigned int num_elem1, const unsigned int num_elem2, const unsigned int num_elem3, const unsigned int num_elem4, const bool silent=false )
+		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3, const size_t num_elem4, const bool silent=false )
 {
 	array_pointer = std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []>(new
 			std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> [num_elem1]);
 
-	for( unsigned int i = 0; i < num_elem1; i++)
+	for( size_t i = 0; i < num_elem1; i++)
 	{
 		make_array3d(array_pointer[i], num_elem2, num_elem3, num_elem4);
 	}
@@ -203,11 +203,11 @@ inline void make_array4d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::u
 template< class array_type >
 inline void make_array4d(
 		std::vector< std::vector< std::vector< std::vector< array_type > > > > & array_pointer,
-		const unsigned int num_elem1, const unsigned int num_elem2, const unsigned int num_elem3,
-		const unsigned int num_elem4, const bool silent = false )
+		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
+		const size_t num_elem4, const bool silent = false )
 {
 	array_pointer.resize( num_elem1 );
-	for ( unsigned int i = 0; i < num_elem1; i++ )
+	for ( size_t i = 0; i < num_elem1; i++ )
 	{
 		make_array3d( array_pointer[i], num_elem2, num_elem3, num_elem4 );
 	}
@@ -216,8 +216,8 @@ inline void make_array4d(
 #ifdef _BRG_USE_CPP_11_STD_
 template <class array_type>
 inline void make_array5d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []> []>
-		& array_pointer, const unsigned int num_elem1, const unsigned int num_elem2, const unsigned int num_elem3,
-		const unsigned int num_elem4, const unsigned int num_elem5, const bool silent=false )
+		& array_pointer, const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
+		const size_t num_elem4, const size_t num_elem5, const bool silent=false )
 {
 	array_pointer = std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []> []>(new
 			std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []> [num_elem1]);
@@ -233,11 +233,11 @@ inline void make_array5d(
 		std::vector<
 				std::vector<
 						std::vector< std::vector< std::vector< array_type > > > > > & array_pointer,
-		const unsigned int num_elem1, const unsigned int num_elem2, const unsigned int num_elem3,
-		const unsigned int num_elem4, const unsigned int num_elem5, const bool silent = false )
+		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
+		const size_t num_elem4, const size_t num_elem5, const bool silent = false )
 {
 	array_pointer.resize( num_elem1 );
-	for ( unsigned int i = 0; i < num_elem1; i++ )
+	for ( size_t i = 0; i < num_elem1; i++ )
 	{
 		make_array4d( array_pointer[i], num_elem2,
 				num_elem3, num_elem4, num_elem5 );

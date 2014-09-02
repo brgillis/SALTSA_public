@@ -38,7 +38,7 @@ template< typename T >
 const T sum(const std::vector<T> &v)
 {
 	T result = 0;
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		result += v[i];
 	}
@@ -60,7 +60,7 @@ template< typename T >
 const T product(const std::vector<T> &v)
 {
 	T result = 1;
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		result *= v[i];
 	}
@@ -128,7 +128,7 @@ const T stddev(const T v)
 #if (1)
 inline const bool all_true(const std::vector<bool> v)
 {
-	for(unsigned int i=0; i < v.size(); i++)
+	for(size_t i=0; i < v.size(); i++)
 	{
 		if(!(v[i])) return false;
 	}
@@ -145,7 +145,7 @@ inline const bool all_true(const bool v)
 #if (1)
 inline const bool all_false(const std::vector<bool> v)
 {
-	for(unsigned int i=0; i < v.size(); i++)
+	for(size_t i=0; i < v.size(); i++)
 	{
 		if(v[i]) return false;
 	}

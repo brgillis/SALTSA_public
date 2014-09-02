@@ -66,7 +66,7 @@ const std::vector<T1> apply( const f func, const T1 & v1, const std::vector<T2> 
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++) result = func(v1,v2[i]);
+	for(size_t i = 0; i < v2.size(); i++) result = func(v1,v2[i]);
 
 	return result;
 }
@@ -76,7 +76,7 @@ const std::vector<T1> apply( const f func, const std::vector<T1> & v1, const T2 
 {
 	std::vector<T1> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++) result = func(v1,v2[i]);
+	for(size_t i = 0; i < v1.size(); i++) result = func(v1,v2[i]);
 
 	return result;
 }
@@ -95,31 +95,31 @@ const T1 apply( const f * func, const T1 & v1, const T2 &v2 )
 #if (1)
 
 template<typename T, typename f>
-const std::vector<T> rand_vector_of_size(const f func, const int size)
+const std::vector<T> rand_vector_of_size(const f func, const size_t size)
 {
 	std::vector<T> result(size);
 
-	for(unsigned int i = 0; i < size; i++) result[i] = func();
+	for(size_t i = 0; i < size; i++) result[i] = func();
 
 	return result;
 }
 
 template<typename f, typename T1>
-const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const int size)
+const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const size_t size)
 {
 	std::vector<T1> result(size);
 
-	for(unsigned int i = 0; i < size; i++) result[i] = func(v1);
+	for(size_t i = 0; i < size; i++) result[i] = func(v1);
 
 	return result;
 }
 
 template<typename f, typename T1, typename T2>
-const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const T2 & v2, const int size)
+const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const T2 & v2, const size_t size)
 {
 	std::vector<T1> result(size);
 
-	for(unsigned int i = 0; i < size; i++) result[i] = func(v1,v2);
+	for(size_t i = 0; i < size; i++) result[i] = func(v1,v2);
 
 	return result;
 }
@@ -127,7 +127,7 @@ const std::vector<T1> rand_vector_of_size(const f func, const T1 & v1, const T2 
 template<typename f, typename T1>
 const std::vector<T1> rand_vector(const f func, std::vector<T1> v1)
 {
-	for(unsigned int i = 0; i < v1.size(); i++) v1[i] = func(v1[i]);
+	for(size_t i = 0; i < v1.size(); i++) v1[i] = func(v1[i]);
 
 	return v1;
 }
@@ -137,7 +137,7 @@ const std::vector<T1> rand_vector(const f func, std::vector<T1> v1, const std::v
 {
 	assert(v1.size()==v2.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++) v1[i] = (func)(v1[i],v2[i]);
+	for(size_t i = 0; i < v1.size(); i++) v1[i] = (func)(v1[i],v2[i]);
 
 	return v1;
 }
@@ -145,7 +145,7 @@ const std::vector<T1> rand_vector(const f func, std::vector<T1> v1, const std::v
 template<typename f, typename T1, typename T2>
 const std::vector<T1> rand_vector(const f func, std::vector<T1> v1, const T2 & v2)
 {
-	for(unsigned int i = 0; i < v1.size(); i++) v1[i] = func(v1[i],v2);
+	for(size_t i = 0; i < v1.size(); i++) v1[i] = func(v1[i],v2);
 
 	return v1;
 }
@@ -155,7 +155,7 @@ const std::vector<T1> rand_vector(const f func, const T1 & v1, const std::vector
 {
 	std::vector<T1> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++) result[i] = func(v1,v2[i]);
+	for(size_t i = 0; i < v2.size(); i++) result[i] = func(v1,v2[i]);
 
 	return result;
 }
@@ -173,7 +173,7 @@ const std::vector<T1> add( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 	assert(v1.size()==v2.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] += v2[i];
 	}
@@ -184,7 +184,7 @@ const std::vector<T1> add( std::vector<T1> v1, const std::vector<T2> &v2 )
 template< typename T1, typename T2 >
 const std::vector<T1> add( std::vector<T1> v1, const T2 &v2 )
 {
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] += v2;
 	}
@@ -195,7 +195,7 @@ const std::vector<T1> add( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> add( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] += v1;
 	}
@@ -218,7 +218,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> subtract( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] -= v2[i];
 	}
@@ -229,7 +229,7 @@ const std::vector<T1> subtract( std::vector<T1> v1, const std::vector<T2> &v2 )
 template< typename T1, typename T2 >
 const std::vector<T1> subtract( std::vector<T1> v1, const T2 &v2 )
 {
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] -= v2;
 	}
@@ -240,7 +240,7 @@ const std::vector<T1> subtract( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> subtract( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = v1-v2[i];
 	}
@@ -263,7 +263,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> multiply( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] *= v2[i];
 	}
@@ -274,7 +274,7 @@ const std::vector<T1> multiply( std::vector<T1> v1, const std::vector<T2> &v2 )
 template< typename T1, typename T2 >
 const std::vector<T1> multiply( std::vector<T1> v1, const T2 &v2 )
 {
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] *= v2;
 	}
@@ -285,7 +285,7 @@ const std::vector<T1> multiply( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> multiply( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] *= v1;
 	}
@@ -308,7 +308,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> divide( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] /= v2[i];
 	}
@@ -320,7 +320,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> divide( std::vector<T1> v1, const T2 &v2 )
 {
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] /= v2;
 	}
@@ -331,7 +331,7 @@ const std::vector<T1> divide( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> divide( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = v1/v2[i];
 	}
@@ -354,7 +354,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> pow( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = pow(v1[i], v2[i]);
 	}
@@ -365,7 +365,7 @@ const std::vector<T1> pow( std::vector<T1> v1, const std::vector<T2> &v2 )
 template< typename T1, typename T2 >
 const std::vector<T1> pow( std::vector<T1> v1, const T2 &v2 )
 {
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = pow(v1[i], v2);
 	}
@@ -376,7 +376,7 @@ const std::vector<T1> pow( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T1> pow( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = pow(v1, v2[i]);
 	}
@@ -394,7 +394,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> ipow( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = ipow(v1[i], v2[i]);
 	}
@@ -405,7 +405,7 @@ const std::vector<T1> ipow( std::vector<T1> v1, const std::vector<T2> &v2 )
 template< typename T1, typename T2 >
 const std::vector<T1> ipow( std::vector<T1> v1, const T2 &v2 )
 {
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = ipow(v1[i], v2);
 	}
@@ -416,7 +416,7 @@ const std::vector<T1> ipow( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> ipow( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = ipow(v1, v2[i]);
 	}
@@ -434,7 +434,7 @@ const std::vector<T1> safe_pow( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = safe_pow(v1[i], v2[i]);
 	}
@@ -446,7 +446,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> safe_pow( std::vector<T1> v1, const T2 &v2 )
 {
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = safe_pow(v1[i], v2);
 	}
@@ -457,7 +457,7 @@ const std::vector<T1> safe_pow( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> safe_pow( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = safe_pow(v1, v2[i]);
 	}
@@ -475,7 +475,7 @@ const std::vector<T1> max( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = max(v1[i], v2[i]);
 	}
@@ -487,7 +487,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> max( std::vector<T1> v1, const T2 &v2 )
 {
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = max(v1[i], v2);
 	}
@@ -498,7 +498,7 @@ const std::vector<T1> max( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> max( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = max(v1, v2[i]);
 	}
@@ -516,7 +516,7 @@ const std::vector<T1> min( std::vector<T1> v1, const std::vector<T2> &v2 )
 {
 
 	assert(v1.size()==v2.size());
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = min(v1[i], v2[i]);
 	}
@@ -528,7 +528,7 @@ template< typename T1, typename T2 >
 const std::vector<T1> min( std::vector<T1> v1, const T2 &v2 )
 {
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		v1[i] = min(v1[i], v2);
 	}
@@ -539,7 +539,7 @@ const std::vector<T1> min( std::vector<T1> v1, const T2 &v2 )
 template< typename T1, typename T2 >
 const std::vector<T2> min( const T1 & v1, std::vector<T2> v2 )
 {
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		v2[i] = min(v1, v2[i]);
 	}
@@ -555,7 +555,7 @@ const std::vector<T2> min( const T1 & v1, std::vector<T2> v2 )
 template< typename T >
 const std::vector<T> negate( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = negate(v[i]);
 	}
@@ -580,7 +580,7 @@ const std::vector<T> abs( std::vector<T> v )
 	using std::abs;
 	using brgastro::abs;
 
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = abs(v[i]);
 	}
@@ -599,7 +599,7 @@ const std::vector<T> sqrt( std::vector<T> v )
 	using std::sqrt;
 	using brgastro::sqrt;
 
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = sqrt(v[i]);
 	}
@@ -617,7 +617,7 @@ const std::vector<T> safe_sqrt( std::vector<T> v )
 {
 	std::vector<T> result(v.size(),0);
 
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		result[i] = safe_sqrt(v[i]);
 	}
@@ -636,7 +636,7 @@ const std::vector<T> exp( std::vector<T> v )
 	using std::exp;
 	using brgastro::exp;
 
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 		v[i] = exp(v[i]);
 
 	return v;
@@ -650,7 +650,7 @@ const std::vector<T> exp( std::vector<T> v )
 template< typename T >
 const std::vector<T> square( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = square(v[i]);
 	}
@@ -666,7 +666,7 @@ const std::vector<T> square( std::vector<T> v )
 template< typename T >
 const std::vector<T> cube( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = cube(v[i]);
 	}
@@ -682,7 +682,7 @@ const std::vector<T> cube( std::vector<T> v )
 template< typename T >
 const std::vector<T> quart( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = quart(v[i]);
 	}
@@ -698,7 +698,7 @@ const std::vector<T> quart( std::vector<T> v )
 template< typename T >
 const std::vector<T> inverse( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = inverse(v[i]);
 	}
@@ -714,7 +714,7 @@ const std::vector<T> inverse( std::vector<T> v )
 template< typename T >
 const std::vector<T> inv_square( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = inv_square(v[i]);
 	}
@@ -730,7 +730,7 @@ const std::vector<T> inv_square( std::vector<T> v )
 template< typename T >
 const std::vector<T> inv_cube( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = inv_cube(v[i]);
 	}
@@ -746,7 +746,7 @@ const std::vector<T> inv_cube( std::vector<T> v )
 template< typename T >
 const std::vector<T> inv_quart( std::vector<T> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = inv_quart(v[i]);
 	}
@@ -764,7 +764,7 @@ const std::vector<T> safe_d( const std::vector<T> & v )
 {
 	std::vector<T> result(v.size());
 
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 		result[i] = safe_d(v[i]);
 
 	return result;
@@ -782,7 +782,7 @@ const std::vector<T> safe_d( const std::vector<T> & v )
 
 inline const std::vector<bool> operator!( std::vector<bool> v )
 {
-	for(unsigned int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		v[i] = !v[i];
 	}
@@ -800,7 +800,7 @@ const std::vector<bool> equal( const std::vector<T1> & v1, const std::vector<T2>
 
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] == v2[i]);
 	}
@@ -813,7 +813,7 @@ const std::vector<bool> equal( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] == v2);
 	}
@@ -826,7 +826,7 @@ const std::vector<bool> equal( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<bool> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		result[i] = (v2[i] == v1);
 	}
@@ -851,7 +851,7 @@ const std::vector<bool> not_equal( const std::vector<T1> & v1, const std::vector
 
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] != v2[i]);
 	}
@@ -864,7 +864,7 @@ const std::vector<bool> not_equal( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] != v2);
 	}
@@ -877,7 +877,7 @@ const std::vector<bool> not_equal( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<bool> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		result[i] = (v2[i] != v1);
 	}
@@ -902,7 +902,7 @@ const std::vector<bool> less_than( const std::vector<T1> & v1, const std::vector
 
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] < v2[i]);
 	}
@@ -915,7 +915,7 @@ const std::vector<bool> less_than( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] < v2);
 	}
@@ -928,7 +928,7 @@ const std::vector<bool> less_than( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<bool> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		result[i] = (v1 < v2[i]);
 	}
@@ -953,7 +953,7 @@ const std::vector<bool> greater_than( const std::vector<T1> & v1, const std::vec
 
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] > v2[i]);
 	}
@@ -966,7 +966,7 @@ const std::vector<bool> greater_than( const std::vector<T1> & v1, const T2 &v2 )
 {
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] > v2);
 	}
@@ -979,7 +979,7 @@ const std::vector<bool> greater_than( const T2 & v1, const std::vector<T1> &v2 )
 {
 	std::vector<bool> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		result[i] = (v1 > v2[i]);
 	}
@@ -1004,7 +1004,7 @@ const std::vector<bool> less_than_or_equal( const std::vector<T1> & v1, const st
 
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] <= v2[i]);
 	}
@@ -1017,7 +1017,7 @@ const std::vector<bool> less_than_or_equal( const std::vector<T1> & v1, const T2
 {
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] <= v2);
 	}
@@ -1030,7 +1030,7 @@ const std::vector<bool> less_than_or_equal( const T2 & v1, const std::vector<T1>
 {
 	std::vector<bool> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		result[i] = (v1 <= v2[i]);
 	}
@@ -1055,7 +1055,7 @@ const std::vector<bool> greater_than_or_equal( const std::vector<T1> & v1, const
 
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] >= v2[i]);
 	}
@@ -1068,7 +1068,7 @@ const std::vector<bool> greater_than_or_equal( const std::vector<T1> & v1, const
 {
 	std::vector<bool> result(v1.size());
 
-	for(unsigned int i = 0; i < v1.size(); i++)
+	for(size_t i = 0; i < v1.size(); i++)
 	{
 		result[i] = (v1[i] >= v2);
 	}
@@ -1081,7 +1081,7 @@ const std::vector<bool> greater_than_or_equal( const T2 & v1, const std::vector<
 {
 	std::vector<bool> result(v2.size());
 
-	for(unsigned int i = 0; i < v2.size(); i++)
+	for(size_t i = 0; i < v2.size(); i++)
 	{
 		result[i] = (v1 >= v2[i]);
 	}
@@ -1107,7 +1107,7 @@ const bool greater_than_or_equal( const T1 & v1, const T2 & v2 )
 template<typename T>
 inline const std::vector<T> v_not(const std::vector<T> v)
 {
-	for(unsigned int i=0; i < v.size(); i++)
+	for(size_t i=0; i < v.size(); i++)
 	{
 		v[i] = v_not(v[i]);
 	}
