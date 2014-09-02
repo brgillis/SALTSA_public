@@ -128,27 +128,27 @@ private:
 	mutable std::vector< brgastro::phase > _phase_list_, _phase_output_list_;
 
 	// Output-modifying parameters
-	int _num_parameters_;
+	unsigned int _num_parameters_;
 	mutable std::vector< double > _satellite_parameter_unitconvs_,
 			_host_parameter_unitconvs_;
 	std::vector< bool > _satellite_output_parameters_,
 			_host_output_parameters_;
 
 	// Private functions
-	const int _init();
-	const int _reserve( int n, const bool silent = false ) const;
-	const BRG_UNITS _delta_rho( const int index, const double x,
+	void _init();
+	void _reserve( const unsigned int n, const bool silent = false ) const;
+	BRG_UNITS _delta_rho( const int index, const double x,
 			CONST_BRG_TIME_REF t_step, const bool silent = false ) const;
 	const double _step_length_factor( CONST_BRG_VELOCITY_REF  v, CONST_BRG_DISTANCE_REF  r ) const;
-	const BRG_DISTANCE _rvir( const int index = 0 ) const;
-	const int _pass_interpolation_type() const;
+	BRG_DISTANCE _rvir( const int index = 0 ) const;
+	void _pass_interpolation_type() const;
 
 	// Calculation assistance functions
-	const double _tidal_strip_retained( const density_profile *host,
+	double _tidal_strip_retained( const density_profile *host,
 			const density_profile *satellite, CONST_BRG_DISTANCE_REF r,
 			CONST_BRG_VELOCITY_REF vr, CONST_BRG_VELOCITY_REF vt,
 			CONST_BRG_TIME_REF time_step, const long double &sum_delta_rho = 0 ) const;
-	const BRG_DISTANCE _get_rt( const density_profile *host,
+	BRG_DISTANCE _get_rt( const density_profile *host,
 			const density_profile *satellite, CONST_BRG_DISTANCE_REF r,
 			CONST_BRG_VELOCITY_REF vr, CONST_BRG_VELOCITY_REF vt,
 			CONST_BRG_TIME_REF time_step, const long double &sum_delta_rho,
@@ -157,9 +157,8 @@ private:
 
 public:
 
-	// Swap functions
+	// Swap function
 	void swap(stripping_orbit_segment &other);
-	friend void swap(stripping_orbit_segment &same, stripping_orbit_segment &other) {same.swap(other);}
 
 	// Constructors, destructors, and related operations
 	stripping_orbit_segment();
@@ -169,191 +168,206 @@ public:
 			stripping_orbit_segment other );
 	stripping_orbit_segment( const density_profile *host,
 			const density_profile *satellite,
-			const int init_resolution = 200 );
+			const unsigned int init_resolution = 200 );
 	virtual ~stripping_orbit_segment();
 	stripping_orbit_segment *stripping_orbit_spline_clone() const;
 
+	// Move constructor and move assignment (C++11 only)
+#ifdef _BRG_USE_CPP_11_STD_
+	stripping_orbit_segment(stripping_orbit_segment &&other)
+	: stripping_orbit_segment()
+	{
+		swap(other);
+	}
+	stripping_orbit_segment & operator=(stripping_orbit_segment &&other)
+	{
+		swap(other);
+		return *this;
+	}
+#endif
+
 	// Functions to add points to the splines
-	const int add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
+	void add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
 			CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t,
 			double new_test_mass = 1 );
-	const int add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
+	void add_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_DISTANCE_REF y,
 			CONST_BRG_DISTANCE_REF z, CONST_BRG_VELOCITY_REF vx,
 			CONST_BRG_VELOCITY_REF vy, CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t,
 			double new_test_mass = 1 );
-	const int add_x_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_TIME_REF t );
-	const int add_y_point( CONST_BRG_DISTANCE_REF y, CONST_BRG_TIME_REF t );
-	const int add_z_point( CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t );
-	const int add_vx_point( CONST_BRG_VELOCITY_REF vx, CONST_BRG_TIME_REF t );
-	const int add_vy_point( CONST_BRG_VELOCITY_REF vy, CONST_BRG_TIME_REF t );
-	const int add_vz_point( CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t );
-	const int add_unknown_vx_point( CONST_BRG_TIME_REF t );
-	const int add_unknown_vy_point( CONST_BRG_TIME_REF t );
-	const int add_unknown_vz_point( CONST_BRG_TIME_REF t );
-	const int add_test_mass_point( const double test_mass, CONST_BRG_TIME_REF t );
-	const int add_host_parameter_point( const unsigned int num_parameters,
+	void add_x_point( CONST_BRG_DISTANCE_REF x, CONST_BRG_TIME_REF t );
+	void add_y_point( CONST_BRG_DISTANCE_REF y, CONST_BRG_TIME_REF t );
+	void add_z_point( CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t );
+	void add_vx_point( CONST_BRG_VELOCITY_REF vx, CONST_BRG_TIME_REF t );
+	void add_vy_point( CONST_BRG_VELOCITY_REF vy, CONST_BRG_TIME_REF t );
+	void add_vz_point( CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t );
+	void add_unknown_vx_point( CONST_BRG_TIME_REF t );
+	void add_unknown_vy_point( CONST_BRG_TIME_REF t );
+	void add_unknown_vz_point( CONST_BRG_TIME_REF t );
+	void add_test_mass_point( const double test_mass, CONST_BRG_TIME_REF t );
+	void add_host_parameter_point(
 			const std::vector< BRG_UNITS > &parameters, CONST_BRG_TIME_REF t,
 			const bool silent = false );
 
 
 	// Setting integration parameters
 #if(1)
-	const int set_resolution( const int new_spline_resolution,
+	void set_resolution( const unsigned int new_spline_resolution,
 			const bool silent=false );
-	const int set_interpolation_type( const stripping_orbit::allowed_interpolation_type new_type,
+	void set_interpolation_type( const stripping_orbit::allowed_interpolation_type new_type,
 			const bool silent=false );
-	const int set_v_0( const double new_v_0,
+	void set_v_0( const double new_v_0,
 			const bool silent=false );
-	const int set_r_0( const double new_r_0,
+	void set_r_0( const double new_r_0,
 			const bool silent=false );
-	const int set_step_length_power( const double new_step_length_power,
+	void set_step_length_power( const double new_step_length_power,
 			const bool silent=false );
-	const int set_step_factor_max( const double new_step_factor_max,
+	void set_step_factor_max( const double new_step_factor_max,
 			const bool silent=false );
-	const int set_step_factor_min( const double new_step_factor_min,
+	void set_step_factor_min( const double new_step_factor_min,
 			const bool silent=false );
 #endif
 
 	// Setting tuning parameters
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
-	const int set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
+	void set_tidal_stripping_amplification( const double new_tidal_stripping_amplification,
 			const bool silent=false );
-	const int set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
+	void set_tidal_stripping_deceleration( const double new_tidal_stripping_deceleration,
 			const bool silent=false );
-	const int set_tidal_stripping_radialness( const double new_tidal_stripping_radialness,
+	void set_tidal_stripping_radialness( const double new_tidal_stripping_radialness,
 			const bool silent=false );
-	const int set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
+	void set_tidal_shocking_amplification( const double new_tidal_shocking_amplification,
 			const bool silent=false );
-	const int set_tidal_shocking_persistance( const double new_tidal_shocking_persistance,
+	void set_tidal_shocking_persistance( const double new_tidal_shocking_persistance,
 			const bool silent=false );
-	const int set_tidal_shocking_power( const double new_tidal_shocking_power,
+	void set_tidal_shocking_power( const double new_tidal_shocking_power,
 			const bool silent=false );
 #endif
 
 
 	// Set initial/global parameters
-	const int set_tNFW_init_satellite( CONST_BRG_MASS_REF new_init_mvir0,
+	void set_tNFW_init_satellite( CONST_BRG_MASS_REF new_init_mvir0,
 			const double z = 0, const double new_init_c = -1,
 			const double new_init_tau = -1 );
-	const int set_tNFW_host( CONST_BRG_MASS_REF new_mvir0, const double z = 0,
+	void set_tNFW_host( CONST_BRG_MASS_REF new_mvir0, const double z = 0,
 			const double new_c = -1, const double new_tau = -1 );
-	const int set_t_min( CONST_BRG_TIME_REF new_t_min );
-	const int set_t_max( CONST_BRG_TIME_REF new_t_max );
-	const int reset_t_min();
-	const int reset_t_max();
-	const int set_init_sum_deltarho( const long double &new_init_sum_deltarho );
-	const int set_init_sum_gabdt( const gabdt &new_init_gabdt );
-	const int set_init_satellite( const density_profile *new_init_satellite );
-	const int set_init_host( const density_profile *new_init_host );
+	void set_t_min( CONST_BRG_TIME_REF new_t_min );
+	void set_t_max( CONST_BRG_TIME_REF new_t_max );
+	void reset_t_min();
+	void reset_t_max();
+	void set_init_sum_deltarho( const long double &new_init_sum_deltarho );
+	void set_init_sum_gabdt( const gabdt &new_init_gabdt );
+	void set_init_satellite( const density_profile *new_init_satellite );
+	void set_init_host( const density_profile *new_init_host );
 
 	// Clear orbit data or initial parameters
-	const int clear_points();
-	const int clear_host_parameter_points();
-	const int clear_init_sum_deltarho();
-	const int clear_init_sum_gabdt();
-	const int clear_init_satellite();
-	const int clear_init_host();
+	void clear_points();
+	void clear_host_parameter_points();
+	void clear_init_sum_deltarho();
+	void clear_init_sum_gabdt();
+	void clear_init_satellite();
+	void clear_init_host();
 
 	// Global clearing functions
-	const int clear();
-	const int clear_calcs() const; // Only clears calculations
+	void clear();
+	void clear_calcs() const; // Only clears calculations
 
 	// Functions for determining how calc() will be called
-	const int set_record_full_data( const bool new_record_full_data ) const;
+	void set_record_full_data( const bool new_record_full_data ) const;
 
 	// Function to calculate stripping
-	const int calc( const bool silent = false ) const;
+	void calc( const bool silent = false ) const;
 
 	// Output-modifying functions
-	const int set_satellite_output_parameters(
+	void set_satellite_output_parameters(
 			const std::vector< bool > &satellite_output_parameters );
-	const int set_satellite_parameter_unitconvs(
+	void set_satellite_parameter_unitconvs(
 			const std::vector< double > &satellite_unitconvs );
-	const int set_host_output_parameters(
+	void set_host_output_parameters(
 			const std::vector< bool > &host_output_parameters );
-	const int set_host_parameter_unitconvs(
+	void set_host_parameter_unitconvs(
 			const std::vector< double > &host_unitconvs );
-	const int clear_satellite_output_parameters();
-	const int clear_satellite_parameter_unitconvs();
-	const int clear_host_output_parameters();
-	const int clear_host_parameter_unitconvs();
+	void clear_satellite_output_parameters();
+	void clear_satellite_parameter_unitconvs();
+	void clear_host_output_parameters();
+	void clear_host_parameter_unitconvs();
 
 	// Print output function
-	const int print_full_data( std::ostream *out, const bool include_header =
+	void print_full_data( std::ostream *out, const bool include_header =
 			true, const double m_ret_multiplier = 1, const double m_vir_ret_multiplier = 1,
 			const bool silent = false ) const;
 
 	// Get current state of object
-	const unsigned int length() const;
+	unsigned int length() const;
 
 	// Accessors
 #if(1)
 
 	// Integration parameters
 #if(1)
-	const int & spline_resolution() const {return _spline_resolution_;}
-	const stripping_orbit::allowed_interpolation_type & interpolation_type()
+	unsigned int spline_resolution() const {return _spline_resolution_;}
+	stripping_orbit::allowed_interpolation_type interpolation_type()
 		{return _interpolation_type_;}
-	BRG_VELOCITY  v_0() const {return _v_0_;}
-	BRG_DISTANCE  r_0() const {return _r_0_;}
-	const double & step_length_power() const {return _step_length_power_;}
-	const double & step_factor_max() const {return _step_factor_max_;}
-	const double & step_factor_min() const {return _step_factor_min_;}
+	BRG_VELOCITY v_0() const {return _v_0_;}
+	BRG_DISTANCE r_0() const {return _r_0_;}
+	double step_length_power() const {return _step_length_power_;}
+	double step_factor_max() const {return _step_factor_max_;}
+	double step_factor_min() const {return _step_factor_min_;}
 #endif
 
 	// Tuning parameters
 #if(1)
 	// Tuning parameters, for how strong stripping and shocking are and when shocking is active
-	const double & tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
-	const double & tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
-	const double & tidal_stripping_radialness() const {return _tidal_stripping_radialness_;}
-	const double & tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
-	const double & tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
-	const double & tidal_shocking_power() const {return _tidal_shocking_power_;}
+	double tidal_stripping_amplification() const {return _tidal_stripping_amplification_;}
+	double tidal_stripping_deceleration() const {return _tidal_stripping_deceleration_;}
+	double tidal_stripping_radialness() const {return _tidal_stripping_radialness_;}
+	double tidal_shocking_amplification() const {return _tidal_shocking_amplification_;}
+	double tidal_shocking_persistance() const {return _tidal_shocking_persistance_;}
+	double tidal_shocking_power() const {return _tidal_shocking_power_;}
 #endif
 
-	const bool & calculated() const {return _calculated_;};
-	const bool & bad_result() const {return _bad_result_;};
+	bool calculated() const {return _calculated_;};
+	bool bad_result() const {return _bad_result_;};
 	const density_profile * init_satellite_ptr() const {return _init_satellite_ptr_;};
 	const density_profile * init_host_ptr() const {return _init_host_ptr_;};
-	CONST_BRG_TIME_REF  t_min_natural_value() const {return _t_min_natural_value_;};
+	BRG_TIME t_min_natural_value() const {return _t_min_natural_value_;};
 #endif
 
 	// Get final data (returns 1 on error)
-	const int get_final_m_ret( BRG_MASS & m_ret,
+	int get_final_m_ret( BRG_MASS & m_ret,
 			const bool silent = false ) const;
-	const int get_final_frac_m_ret( double & final_frac_m_ret,
+	int get_final_frac_m_ret( double & final_frac_m_ret,
 			const bool silent = false ) const;
-	const int get_final_m_vir_ret( BRG_MASS & m_vir_ret,
+	int get_final_m_vir_ret( BRG_MASS & m_vir_ret,
 			const bool silent = false ) const;
-	const int get_final_frac_m_vir_ret( double & final_frac_m_vir_ret,
+	int get_final_frac_m_vir_ret( double & final_frac_m_vir_ret,
 			const bool silent = false ) const;
-	const int get_final_sum_deltarho( long double & final_sum_deltarho,
+	int get_final_sum_deltarho( long double & final_sum_deltarho,
 			const bool silent = false ) const;
-	const int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho,
+	int get_final_sum_deltarho( BRG_UNITS & final_sum_deltarho,
 			const bool silent = false ) const;
-	const int get_m_ret_points( std::vector< std::pair<double,double> > & m_ret_points,
+	int get_m_ret_points( std::vector< std::pair<double,double> > & m_ret_points,
 			const bool silent = false ) const;
-	const int get_m_vir_ret_points( std::vector< std::pair<double,double> > & m_vir_ret_points,
+	int get_m_vir_ret_points( std::vector< std::pair<double,double> > & m_vir_ret_points,
 			const bool silent = false ) const;
-	const int get_final_sum_gabdt( gabdt & final_sum_gabdt, const bool silent =
+	int get_final_sum_gabdt( gabdt & final_sum_gabdt, const bool silent =
 			false ) const;
-	const int clone_final_satellite( density_profile * & final_satellite_clone,
+	int clone_final_satellite( density_profile * & final_satellite_clone,
 			const bool silent = false ) const; // Creates a clone. Make sure to delete!
-	const int clone_final_host( density_profile * & final_host_clone,
+	int clone_final_host( density_profile * & final_host_clone,
 			const bool silent = false ) const; // Creates a clone. Make sure to delete!
 
 	// Get final data (throws exception on error)
-	const BRG_MASS final_m_ret() const;
-	const double final_frac_m_ret() const;
-	const BRG_MASS final_m_vir_ret() const;
-	const double final_frac_m_vir_ret() const;
-	const long double final_sum_deltarho() const;
-	const std::vector< std::pair<double,double> > m_ret_points() const;
-	const std::vector< std::pair<double,double> > m_vir_ret_points() const;
-	const gabdt final_sum_gabdt() const;
-	const bool & likely_disrupted() const;
+	BRG_MASS final_m_ret() const;
+	double final_frac_m_ret() const;
+	BRG_MASS final_m_vir_ret() const;
+	double final_frac_m_vir_ret() const;
+	BRG_UNITS final_sum_deltarho() const;
+	long double long_final_sum_deltarho() const;
+	std::vector< std::pair<double,double> > m_ret_points() const;
+	std::vector< std::pair<double,double> > m_vir_ret_points() const;
+	gabdt final_sum_gabdt() const;
+	bool likely_disrupted() const;
 	const density_profile * final_satellite() const; // Creates a clone. Make sure to delete!
 	const density_profile * final_host() const; // Creates a clone. Make sure to delete!
 

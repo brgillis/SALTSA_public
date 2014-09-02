@@ -40,12 +40,105 @@
 // brgastro::stripping_orbit_segment class method implementations
 #if (1)
 
+double brgastro::stripping_orbit_segment::_tidal_strip_retained( const density_profile *host_group,
+		const density_profile *satellite, CONST_BRG_DISTANCE_REF r,
+		CONST_BRG_VELOCITY_REF vr, CONST_BRG_VELOCITY_REF vt,
+		CONST_BRG_TIME_REF time_step, const long double &sum_delta_rho ) const
+{
+	BRG_DISTANCE new_rt;
+	BRG_TIME inst_tangential_orbital_period, inst_full_orbital_period,
+		inst_orbital_period, hm_period, stripping_period;
+	double mass_frac_retained, mass_frac_lost_total;
+	inst_tangential_orbital_period = 2 * pi * r / safe_d(vt);
+	inst_full_orbital_period = 2 * pi * r / safe_d(quad_add(vt,vr));
+
+	inst_orbital_period = inst_tangential_orbital_period *
+			std::pow(inst_full_orbital_period/safe_d(inst_tangential_orbital_period),
+				_tidal_stripping_radialness_);
+
+	hm_period = satellite->othm();
+
+	if(isbad(hm_period) or (hm_period<=0))
+		stripping_period = inst_orbital_period;
+	else
+		stripping_period = inst_orbital_period *
+			std::pow(hm_period/safe_d(inst_orbital_period), _tidal_stripping_deceleration_);
+
+	new_rt = _get_rt( host_group, satellite, r, vr, vt, time_step, sum_delta_rho );
+
+	if ( !( new_rt > 0 ) )
+		mass_frac_lost_total = 0;
+	else
+	{
+		mass_frac_lost_total = max(
+				1. - satellite->enc_mass( new_rt ) / safe_d(satellite->mtot()), 0. );
+	}
+	mass_frac_retained = max(
+			min(
+					1.
+							- mass_frac_lost_total * time_step / stripping_period
+									* _tidal_stripping_amplification_, 1 ), 0. );
+
+	return mass_frac_retained;
+}
+
+BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_profile *host_group,
+		const density_profile *satellite, CONST_BRG_DISTANCE_REF r,
+		CONST_BRG_VELOCITY_REF vr, CONST_BRG_VELOCITY_REF vt,
+		CONST_BRG_TIME_REF time_step, const long double &sum_delta_rho,
+		const bool silent ) const
+{
+	BRG_UNITS omega;
+	BRG_DISTANCE new_rt, old_rt;
+	BRG_UNITS max_rt = 0;
+
+	omega = vt / safe_d( r );
+
+	// Check for null case
+	if ( satellite->mtot() <= 0 )
+	{
+		return 0;
+	}
+
+	solve_rt_grid_functor rt_grid_solver( omega, satellite,
+			host_group->Daccel( r ), sum_delta_rho );
+	solve_rt_it_functor rt_it_solver( omega, satellite,
+			host_group->Daccel( r ), sum_delta_rho );
+
+	if ( satellite->mtot() <= 0 )
+		return 0;
+
+	old_rt = satellite->rt();
+
+	// First, we try solving iteratively
+	new_rt = solve_iterate( &rt_it_solver, old_rt, 1, 0.0001, 1000, true );
+	if ( ( new_rt == 0 ) || ( isbad( new_rt ) ) )
+	{
+		// Iteratively didn't work, so we go to the grid option
+
+		max_rt = 2 * default_tau_factor * satellite->rvir();
+		old_rt = new_rt;
+		try
+		{
+			new_rt = solve_grid( &rt_grid_solver, (BRG_UNITS)0., max_rt, 100, (BRG_UNITS)0.);
+		}
+		catch(const std::exception &e)
+		{
+			if ( !silent )
+				std::cerr << "WARNING: Could not solve rt:\n" << e.what() << std::endl;
+			new_rt = 0; // Most likely value in the case where we can't solve it
+		}
+	}
+
+	return ( max( new_rt, 0 ) );
+}
+
 brgastro::stripping_orbit_segment::stripping_orbit_segment()
 {
 	_init();
 }
 
-const int brgastro::stripping_orbit_segment::_init()
+void brgastro::stripping_orbit_segment::_init()
 {
 	_current_satellite_in_use_ = false;
 	_current_host_in_use_ = false;
@@ -288,7 +381,7 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 
 brgastro::stripping_orbit_segment::stripping_orbit_segment(
 		const density_profile *init_init_host,
-		const density_profile *init_init_satellite, const int init_resolution )
+		const density_profile *init_init_satellite, const unsigned int init_resolution )
 {
 	_init();
 	_init_host_ptr_ = init_init_host;
@@ -322,7 +415,7 @@ brgastro::stripping_orbit_segment *brgastro::stripping_orbit_segment::stripping_
 	return new stripping_orbit_segment( *this );
 }
 
-const int brgastro::stripping_orbit_segment::clear()
+void brgastro::stripping_orbit_segment::clear()
 {
 	clear_calcs();
 
@@ -404,11 +497,9 @@ const int brgastro::stripping_orbit_segment::clear()
 	_using_private_init_host_ = false;
 	_using_private_init_satellite_ = false;
 	_evolving_host_ = false;
-
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::clear_calcs() const
+void brgastro::stripping_orbit_segment::clear_calcs() const
 {
 	_rt_list_.clear();
 	_rt_ratio_list_.clear();
@@ -423,607 +514,356 @@ const int brgastro::stripping_orbit_segment::clear_calcs() const
 	_calculated_ = false;
 	_bad_result_ = false;
 	_likely_disrupted_ = false;
-	return 0;
 }
 
 // Setting integration parameters
 #if(1)
-const int brgastro::stripping_orbit_segment::set_resolution( const int new_resolution,
+void brgastro::stripping_orbit_segment::set_resolution( const unsigned int new_resolution,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_resolution == _spline_resolution_ )
-		return 0;
+		return;
 
 	if ( new_resolution < 2 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set resolution to value below minimum of 2.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to set resolution to value below minimum of 2.");
 	}
 	clear_calcs();
 	_spline_resolution_ = new_resolution;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_interpolation_type(
+void brgastro::stripping_orbit_segment::set_interpolation_type(
 		const brgastro::stripping_orbit::allowed_interpolation_type new_type,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( _interpolation_type_ == new_type )
-		return 0;
+		return;
 	clear_calcs();
 	_interpolation_type_ = new_type;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_v_0( const double new_v_0,
+void brgastro::stripping_orbit_segment::set_v_0( const double new_v_0,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_v_0 == _v_0_ )
-		return 0;
+		return;
 
 	if ( new_v_0 <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set v_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set v_0 to value at or below minimum of 0.");
 	}
 	clear_calcs();
 	_v_0_ = new_v_0;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_r_0( const double new_r_0,
+void brgastro::stripping_orbit_segment::set_r_0( const double new_r_0,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_r_0 == _r_0_ )
-		return 0;
+		return;
 
 	if ( new_r_0 <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set r_0 to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set r_0 to value at or below minimum of 0.");
 	}
 	clear_calcs();
 	_r_0_ = new_r_0;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_step_length_power( const double new_step_length_power,
+void brgastro::stripping_orbit_segment::set_step_length_power( const double new_step_length_power,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_step_length_power == _step_length_power_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_step_length_power_ = new_step_length_power;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_step_factor_max( const double new_step_factor_max,
+void brgastro::stripping_orbit_segment::set_step_factor_max( const double new_step_factor_max,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_step_factor_max == _step_factor_max_ )
-		return 0;
+		return;
 
 	if ( new_step_factor_max < 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set step_factor_max to value below minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set step_factor_max to value below minimum of 1.");
 	}
 	clear_calcs();
 	_step_factor_max_ = new_step_factor_max;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_step_factor_min( const double new_step_factor_min,
+void brgastro::stripping_orbit_segment::set_step_factor_min( const double new_step_factor_min,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_step_factor_min == _step_factor_min_ )
-		return 0;
+		return;
 
 	if ( new_step_factor_min > 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set step_factor_min to value above minimum of 1.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set step_factor_min to value above minimum of 1.");
 	}
 	clear_calcs();
 	_step_factor_min_ = new_step_factor_min;
-	return 0;
 }
 #endif
 
 // Setting tuning parameters
 #if(1)
 
-const int brgastro::stripping_orbit_segment::set_tidal_stripping_amplification(
+void brgastro::stripping_orbit_segment::set_tidal_stripping_amplification(
 		const double new_tidal_stripping_amplification,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_stripping_amplification == _tidal_stripping_amplification_ )
-		return 0;
+		return;
 
 	if ( new_tidal_stripping_amplification < 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set tidal_stripping_amplification to value below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set tidal_stripping_amplification to value below minimum of 0.");
 	}
 
 	clear_calcs();
 	_tidal_stripping_amplification_ = new_tidal_stripping_amplification;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_tidal_stripping_deceleration(
+void brgastro::stripping_orbit_segment::set_tidal_stripping_deceleration(
 		const double new_tidal_stripping_deceleration,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_stripping_deceleration == _tidal_stripping_deceleration_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_deceleration_ = new_tidal_stripping_deceleration;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_tidal_stripping_radialness(
+void brgastro::stripping_orbit_segment::set_tidal_stripping_radialness(
 		const double new_tidal_stripping_radialness,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_stripping_radialness == _tidal_stripping_radialness_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_stripping_radialness_ = new_tidal_stripping_radialness;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_tidal_shocking_amplification(
+void brgastro::stripping_orbit_segment::set_tidal_shocking_amplification(
 		const double new_tidal_shocking_amplification,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_shocking_amplification == _tidal_shocking_amplification_ )
-		return 0;
+		return;
 
 	if ( new_tidal_shocking_amplification < 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set tidal_shocking_amplification to value below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set tidal_shocking_amplification to value below minimum of 0.");
 	}
 
 	clear_calcs();
 	_tidal_shocking_amplification_ = new_tidal_shocking_amplification;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_tidal_shocking_persistance(
+void brgastro::stripping_orbit_segment::set_tidal_shocking_persistance(
 		const double new_tidal_shocking_persistance,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_shocking_persistance == _tidal_shocking_persistance_ )
-		return 0;
+		return;
 
 	if ( new_tidal_shocking_persistance <= 0 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to set tidal_shocking_persistance to value at or below minimum of 0.\n";
-		return INVALID_ARGUMENTS_ERROR;
+
+		throw std::logic_error("Attempt to set tidal_shocking_persistance to value at or below minimum of 0.");
 	}
 	clear_calcs();
 	_tidal_shocking_persistance_ = new_tidal_shocking_persistance;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_tidal_shocking_power(
+void brgastro::stripping_orbit_segment::set_tidal_shocking_power(
 		const double new_tidal_shocking_power,
 		const bool silent )
 {
 	// Check if anything is actually changing here
 	if ( new_tidal_shocking_power == _tidal_shocking_power_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_tidal_shocking_power_ = new_tidal_shocking_power;
-	return 0;
 }
 #endif
 
 
-const int brgastro::stripping_orbit_segment::add_point( CONST_BRG_DISTANCE_REF x,
+void brgastro::stripping_orbit_segment::add_point( CONST_BRG_DISTANCE_REF x,
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t,
 		const double new_mass )
 {
 	_calculated_ = false;
-	try
-	{
-		_x_spline_.add_point( t, x );
-		_y_spline_.add_point( t, y );
-		_z_spline_.add_point( t, z );
-		_vx_spline_.add_unknown_point( t );
-		_vy_spline_.add_unknown_point( t );
-		_vz_spline_.add_unknown_point( t );
-		_test_mass_spline_.add_point( t, new_mass );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_x_spline_.add_point( t, x );
+	_y_spline_.add_point( t, y );
+	_z_spline_.add_point( t, z );
+	_vx_spline_.add_unknown_point( t );
+	_vy_spline_.add_unknown_point( t );
+	_vz_spline_.add_unknown_point( t );
+	_test_mass_spline_.add_point( t, new_mass );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_point( CONST_BRG_DISTANCE_REF x,
+void brgastro::stripping_orbit_segment::add_point( CONST_BRG_DISTANCE_REF x,
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_DISTANCE_REF z, CONST_BRG_VELOCITY_REF vx,
 		CONST_BRG_VELOCITY_REF vy, CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t,
 		const double new_test_mass )
 {
 	_calculated_ = false;
-	try
-	{
-		_x_spline_.add_point( t, x );
-		_y_spline_.add_point( t, y );
-		_z_spline_.add_point( t, z );
-		_vx_spline_.add_point( t, vx );
-		_vy_spline_.add_point( t, vy );
-		_vz_spline_.add_point( t, vz );
-		_test_mass_spline_.add_point( t, new_test_mass );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_x_spline_.add_point( t, x );
+	_y_spline_.add_point( t, y );
+	_z_spline_.add_point( t, z );
+	_vx_spline_.add_point( t, vx );
+	_vy_spline_.add_point( t, vy );
+	_vz_spline_.add_point( t, vz );
+	_test_mass_spline_.add_point( t, new_test_mass );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_x_point(
+void brgastro::stripping_orbit_segment::add_x_point(
 		CONST_BRG_DISTANCE_REF x, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_x_spline_.add_point( t, x );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_x_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_x_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+
+	_x_spline_.add_point( t, x );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
+
 }
 
-const int brgastro::stripping_orbit_segment::add_y_point(
+void brgastro::stripping_orbit_segment::add_y_point(
 		CONST_BRG_DISTANCE_REF y, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_y_spline_.add_point( t, y );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_y_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_y_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_y_spline_.add_point( t, y );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_z_point(
+void brgastro::stripping_orbit_segment::add_z_point(
 		CONST_BRG_DISTANCE_REF z, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_z_spline_.add_point( t, z );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_z_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_z_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_z_spline_.add_point( t, z );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_vx_point(
+void brgastro::stripping_orbit_segment::add_vx_point(
 		CONST_BRG_VELOCITY_REF vx, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_vx_spline_.add_point( t, vx );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_vx_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_vx_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_vx_spline_.add_point( t, vx );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_vy_point(
+void brgastro::stripping_orbit_segment::add_vy_point(
 		CONST_BRG_VELOCITY_REF vy, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_vy_spline_.add_point( t, vy );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_vy_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_vy_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_vy_spline_.add_point( t, vy );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_vz_point(
+void brgastro::stripping_orbit_segment::add_vz_point(
 		CONST_BRG_VELOCITY_REF vz, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_vz_spline_.add_point( t, vz );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_vz_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_vz_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_vz_spline_.add_point( t, vz );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_unknown_vx_point(
+void brgastro::stripping_orbit_segment::add_unknown_vx_point(
 		CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_vx_spline_.add_unknown_point( t );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_unknown_vx_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_unknown_vx_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_vx_spline_.add_unknown_point( t );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_unknown_vy_point(
+void brgastro::stripping_orbit_segment::add_unknown_vy_point(
 		CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_vy_spline_.add_unknown_point( t );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_unknown_vy_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_unknown_vy_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_vy_spline_.add_unknown_point( t );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_unknown_vz_point(
+void brgastro::stripping_orbit_segment::add_unknown_vz_point(
 		CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_vz_spline_.add_unknown_point( t );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_unknown_vz_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_unknown_vz_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_vz_spline_.add_unknown_point( t );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_test_mass_point(
+void brgastro::stripping_orbit_segment::add_test_mass_point(
 		const double test_mass, CONST_BRG_TIME_REF t )
 {
 	_calculated_ = false;
-	try
-	{
-		_test_mass_spline_.add_point( t, test_mass );
-		if ( t < _t_min_natural_value_ )
-			_t_min_natural_value_ = t;
-		if ( t > _t_max_natural_value_ )
-			_t_max_natural_value_ = t;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_test_mass_point().\n"
-				<< "Exception: " << e.what();
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: Exception in stripping_orbit_segment::add_test_mass_point().\n";
-		std::cerr.flush();
-		return UNSPECIFIED_ERROR;
-	}
-	return 0;
+	_test_mass_spline_.add_point( t, test_mass );
+	if ( t < _t_min_natural_value_ )
+		_t_min_natural_value_ = t;
+	if ( t > _t_max_natural_value_ )
+		_t_max_natural_value_ = t;
 }
 
-const int brgastro::stripping_orbit_segment::add_host_parameter_point(
-		const unsigned int num_parameters,
+void brgastro::stripping_orbit_segment::add_host_parameter_point(
 		const std::vector< BRG_UNITS > & parameters, CONST_BRG_TIME_REF t,
 		const bool silent )
 {
-	// Check num_parameters matches vector size
-	if ( num_parameters != parameters.size() )
-	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: num_parameters must == parameters.size() in stripping_orbit_segment::add_host_parameter_point.\n";
-		return INVALID_ARGUMENTS_ERROR;
-	}
-	if ( num_parameters <= 0 )
-	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: num_parameters must be > 0 in stripping_orbit_segment::add_host_parameter_point.\n";
-		return INVALID_ARGUMENTS_ERROR;
-	}
+	const unsigned int num_parameters = parameters.size();
 
 	if ( _host_parameter_splines_.size() == 0 )
 		_host_parameter_splines_.resize( num_parameters );
 
 	if ( _host_parameter_splines_.size() != num_parameters )
 	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: All parameter lists passed to stripping_orbit_segment must have same size.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("All parameter lists passed to stripping_orbit_segment must have same size.");
 	}
 
 	for ( unsigned int i = 0; i < num_parameters; i++ )
@@ -1037,19 +877,14 @@ const int brgastro::stripping_orbit_segment::add_host_parameter_point(
 		_t_min_natural_value_ = t;
 	if ( t > _t_max_natural_value_ )
 		_t_max_natural_value_ = t;
-
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::_reserve( const int n,
+void brgastro::stripping_orbit_segment::_reserve( const unsigned int n,
 		const bool silent ) const
 {
 	if ( n < 1 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "WARNING: Attempt to reserve length of 0 or less in stripping_orbit_segment::reserve.\n";
-		return INVALID_ARGUMENTS_ERROR;
+		throw std::logic_error("Attempt to reserve length of 0 or less in stripping_orbit_segment::reserve.");
 	}
 	_phase_list_.reserve( n );
 	_m_ret_list_.reserve( n );
@@ -1061,10 +896,9 @@ const int brgastro::stripping_orbit_segment::_reserve( const int n,
 	_sum_delta_rho_list_.reserve( n );
 	_gabdt_list_.reserve( n );
 	_sum_gabdt_list_.reserve( n );
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_init_host(
+void brgastro::stripping_orbit_segment::set_init_host(
 		const density_profile *new_init_host )
 {
 	_init_host_ptr_ = new_init_host;
@@ -1078,10 +912,9 @@ const int brgastro::stripping_orbit_segment::set_init_host(
 	_host_loaded_ = true;
 	_using_private_init_host_ = false;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_init_satellite(
+void brgastro::stripping_orbit_segment::set_init_satellite(
 		const density_profile *new_init_satellite )
 {
 	_init_satellite_ptr_ = new_init_satellite;
@@ -1095,24 +928,21 @@ const int brgastro::stripping_orbit_segment::set_init_satellite(
 	_satellite_loaded_ = true;
 	_using_private_init_satellite_ = false;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_init_sum_deltarho(
+void brgastro::stripping_orbit_segment::set_init_sum_deltarho(
 		const long double &new_init_sum_deltarho )
 {
 	_init_sum_delta_rho_ = new_init_sum_deltarho;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_init_sum_gabdt(
+void brgastro::stripping_orbit_segment::set_init_sum_gabdt(
 		const gabdt &new_init_sum_gabdt )
 {
 	_init_sum_gabdt_ = new_init_sum_gabdt;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_tNFW_init_satellite(
+void brgastro::stripping_orbit_segment::set_tNFW_init_satellite(
 		CONST_BRG_MASS_REF new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
@@ -1137,10 +967,9 @@ const int brgastro::stripping_orbit_segment::set_tNFW_init_satellite(
 
 	_satellite_loaded_ = true;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_tNFW_host(
+void brgastro::stripping_orbit_segment::set_tNFW_host(
 		CONST_BRG_MASS_REF new_init_mvir0, const double z,
 		const double new_init_c, const double new_init_tau )
 {
@@ -1168,26 +997,23 @@ const int brgastro::stripping_orbit_segment::set_tNFW_host(
 
 	_host_loaded_ = true;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_t_min(
+void brgastro::stripping_orbit_segment::set_t_min(
 		CONST_BRG_TIME_REF new_t_min )
 {
 	_t_min_override_val_ = new_t_min;
 	_override_t_min_ = true;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_t_max(
+void brgastro::stripping_orbit_segment::set_t_max(
 		CONST_BRG_TIME_REF new_t_max )
 {
 	_t_max_override_val_ = new_t_max;
 	_override_t_max_ = true;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::reset_t_min()
+void brgastro::stripping_orbit_segment::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
 	for ( unsigned int i = 0; i < _x_spline_.size(); i++ )
@@ -1196,10 +1022,9 @@ const int brgastro::stripping_orbit_segment::reset_t_min()
 			_t_min_natural_value_ = _x_spline_.sorted_data().at( i ).first;
 	}
 	_override_t_min_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::reset_t_max()
+void brgastro::stripping_orbit_segment::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
 	for ( unsigned int i = 0; i < _x_spline_.size(); i++ )
@@ -1208,10 +1033,9 @@ const int brgastro::stripping_orbit_segment::reset_t_max()
 			_t_max_natural_value_ = _x_spline_.sorted_data().at( i ).first;
 	}
 	_override_t_min_ = false;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::clear_points()
+void brgastro::stripping_orbit_segment::clear_points()
 {
 	_x_spline_.clear();
 	_y_spline_.clear();
@@ -1221,28 +1045,24 @@ const int brgastro::stripping_orbit_segment::clear_points()
 	_vz_spline_.clear();
 	_test_mass_spline_.clear();
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_host_parameter_points()
+void brgastro::stripping_orbit_segment::clear_host_parameter_points()
 {
 	_host_parameter_splines_.clear();
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_init_sum_deltarho()
+void brgastro::stripping_orbit_segment::clear_init_sum_deltarho()
 {
 	_init_sum_delta_rho_ = 0;
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_init_sum_gabdt()
+void brgastro::stripping_orbit_segment::clear_init_sum_gabdt()
 {
 	_init_sum_gabdt_.clear();
 	_init_sum_gabdt_.override_zero();
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_init_satellite()
+void brgastro::stripping_orbit_segment::clear_init_satellite()
 {
 	_init_satellite_ptr_ = NULL;
 	if ( _current_satellite_in_use_ )
@@ -1255,9 +1075,8 @@ const int brgastro::stripping_orbit_segment::clear_init_satellite()
 	_satellite_loaded_ = false;
 	_using_private_init_satellite_ = false;
 	_calculated_ = false;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_init_host()
+void brgastro::stripping_orbit_segment::clear_init_host()
 {
 	_init_host_ptr_ = NULL;
 	if ( _current_host_in_use_ )
@@ -1270,10 +1089,9 @@ const int brgastro::stripping_orbit_segment::clear_init_host()
 	_host_loaded_ = false;
 	_using_private_init_host_ = false;
 	_calculated_ = false;
-	return 0;
 }
 
-const unsigned int brgastro::stripping_orbit_segment::length() const
+unsigned int brgastro::stripping_orbit_segment::length() const
 {
 	unsigned int result = INT_MAX;
 	if ( _x_spline_.size() < result )
@@ -1282,24 +1100,29 @@ const unsigned int brgastro::stripping_orbit_segment::length() const
 		result = _y_spline_.size();
 	if ( _z_spline_.size() < result )
 		result = _z_spline_.size();
+	if ( _vx_spline_.size() < result )
+		result = _x_spline_.size();
+	if ( _vy_spline_.size() < result )
+		result = _y_spline_.size();
+	if ( _vz_spline_.size() < result )
+		result = _z_spline_.size();
 	return result;
 }
 
 // Functions for determining how calc() will be called
-const int brgastro::stripping_orbit_segment::set_record_full_data(
+void brgastro::stripping_orbit_segment::set_record_full_data(
 		const bool new_record_full_data ) const
 {
 	// Check if anything is actually changing here
 	if ( new_record_full_data == _record_full_data_ )
-		return 0;
+		return;
 
 	clear_calcs();
 	_record_full_data_ = new_record_full_data;
-	return 0;
 }
 
 // Function to calculate stripping
-const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
+void brgastro::stripping_orbit_segment::calc( const bool silent ) const
 {
 	BRG_DISTANCE r;
 	BRG_VELOCITY v, vt, vr;
@@ -1314,18 +1137,12 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 
 	if ( ( !_host_loaded_ ) || ( !_satellite_loaded_ ) )
 	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: Host or satellite not loaded in stripping_orbit_segment::calc.\n";
-		return NOT_SET_UP_ERROR;
+		throw std::logic_error("Host or satellite not loaded in stripping_orbit_segment::calc().");
 	}
 
 	if ( length() < 2 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: Too few data points to calculate stripping in stripping_orbit_segment::calc().\n";
-		return UNSPECIFIED_ERROR;
+		throw std::runtime_error("Too few data points to calculate stripping in stripping_orbit_segment::calc().");
 	}
 
 	// Initialisation
@@ -1348,13 +1165,16 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 		t_max_to_use = _t_max_natural_value_;
 	}
 
-	t_step = ( t_max_to_use - t_min_to_use ) / _spline_resolution_;
-	if ( t_step <= 0 )
+	if( t_max_to_use <= t_min_to_use)
 	{
-		if ( !silent )
-			std::cerr << "ERROR t_max <= t_min for stripping_orbit_segment!\n";
-		return INVALID_ARGUMENTS_ERROR;
+		if(t_max_to_use==t_min_to_use)
+			throw std::runtime_error("t_max == t_min for stripping_orbit_segment!\n");
+		if(!silent)
+			std::cerr << "WARNING: t_max < t_min for stripping_orbit segment. They'll be swapped for\n calculation.\n";
+		std::swap(t_min_to_use,t_max_to_use);
 	}
+
+	t_step = ( t_max_to_use - t_min_to_use ) / _spline_resolution_;
 	gabdt current_gabdt = _init_sum_gabdt_;
 	t = 0;
 	r = 0;
@@ -1557,7 +1377,7 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 		{
 			_calculated_ = true; // We know there's an issue, so we won't calculate again unless something changes
 			_bad_result_ = true;
-			return UNSPECIFIED_ERROR;
+			throw;
 		}
 	}
 	if ( _record_full_data_ )
@@ -1567,59 +1387,59 @@ const int brgastro::stripping_orbit_segment::calc( const bool silent ) const
 						t ) );
 	_calculated_ = true;
 
-	if((_bad_result_) || (_likely_disrupted_)) return UNSPECIFIED_ERROR;
-	return 0;
+	if((_bad_result_) || (_likely_disrupted_))
+		throw std::runtime_error("Error in calculating stripping for orbit segment.\n");
 }
 
-const int brgastro::stripping_orbit_segment::set_satellite_output_parameters(
+void brgastro::stripping_orbit_segment::set_satellite_output_parameters(
 		const std::vector< bool > & new_satellite_output_parameters )
 {
+	assert(_init_satellite_ptr_->num_parameters()==new_satellite_output_parameters.size());
+
 	_satellite_output_parameters_ = new_satellite_output_parameters;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_satellite_parameter_unitconvs(
+void brgastro::stripping_orbit_segment::set_satellite_parameter_unitconvs(
 		const std::vector< double > &new_satellite_parameter_unitconvs )
 {
+	assert(_init_satellite_ptr_->num_parameters()==new_satellite_parameter_unitconvs.size());
+
 	_satellite_parameter_unitconvs_ = new_satellite_parameter_unitconvs;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::set_host_output_parameters(
+void brgastro::stripping_orbit_segment::set_host_output_parameters(
 		const std::vector< bool > & new_host_output_parameters )
 {
+	assert(_init_host_ptr_->num_parameters()==new_host_output_parameters.size());
+
 	_host_output_parameters_ = new_host_output_parameters;
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::set_host_parameter_unitconvs(
+void brgastro::stripping_orbit_segment::set_host_parameter_unitconvs(
 		const std::vector< double > & new_host_parameter_unitconvs )
 {
+	assert(_init_host_ptr_->num_parameters()==new_host_parameter_unitconvs.size());
+
 	_host_parameter_unitconvs_ = new_host_parameter_unitconvs;
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::clear_satellite_output_parameters()
+void brgastro::stripping_orbit_segment::clear_satellite_output_parameters()
 {
 	_satellite_output_parameters_.clear();
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_satellite_parameter_unitconvs()
+void brgastro::stripping_orbit_segment::clear_satellite_parameter_unitconvs()
 {
 	_satellite_parameter_unitconvs_.clear();
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::clear_host_output_parameters()
+void brgastro::stripping_orbit_segment::clear_host_output_parameters()
 {
 	_host_output_parameters_.clear();
-	return 0;
 }
-const int brgastro::stripping_orbit_segment::clear_host_parameter_unitconvs()
+void brgastro::stripping_orbit_segment::clear_host_parameter_unitconvs()
 {
 	_host_parameter_unitconvs_.clear();
-	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::print_full_data(
+void brgastro::stripping_orbit_segment::print_full_data(
 		std::ostream *out, const bool include_header,
 		const double m_ret_multiplier, const double m_vir_ret_multiplier, const bool silent ) const
 {
@@ -1634,10 +1454,15 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 	// Calculate data if necessary
 	if ( ( !_calculated_ ) || ( !_record_full_data_ ) )
 	{
-		if ( int errcode = set_record_full_data( true ) )
-			return errcode + LOWER_LEVEL_ERROR;
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		set_record_full_data( true );
+		try
+		{
+			calc();
+		}
+		catch(const std::runtime_error &e)
+		{
+			std::cerr << "WARNING: Printing data for orbit which had a bad calculation.\n";
+		}
 	}
 
 	num_rows = _phase_output_list_.size();
@@ -1653,10 +1478,7 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 	}
 	if ( num_rows < 2 )
 	{
-		if ( !silent )
-			std::cerr
-					<< "ERROR: No stripping data to output in stripping_orbit_segment::print_full_data.\n";
-		return UNSPECIFIED_ERROR;
+		throw std::runtime_error("No stripping data to output in stripping_orbit_segment::print_full_data.");
 	}
 
 	// Check that vectors for density_profile params are sane.
@@ -1854,9 +1676,10 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 
 	if ( t_max_to_use <= t_min_to_use )
 	{
-		if ( !silent )
-			std::cerr << "ERROR t_max <= t_min for stripping_orbit_segment!\n";
-		return INVALID_ARGUMENTS_ERROR;
+		if(t_max_to_use == t_min_to_use)
+			throw std::logic_error("t_max == t_min for stripping_orbit_segment.");
+		std::cerr << "WARNING: t_max < t_min for stripping_orbit_segment; they'll be swapped for printing.\n";
+		std::swap(t_max_to_use,t_min_to_use);
 	}
 
 	for ( unsigned int i = 0; i < num_rows; i++ )
@@ -2020,10 +1843,9 @@ const int brgastro::stripping_orbit_segment::print_full_data(
 		print_table( *out, data, header, silent );
 	else
 		print_table( *out, data, std::vector<std::string>(), silent );
-	return 0;
 }
 
-const BRG_UNITS brgastro::stripping_orbit_segment::_delta_rho(
+BRG_UNITS brgastro::stripping_orbit_segment::_delta_rho(
 		const int index, const double x, CONST_BRG_TIME_REF t_step,
 		const bool silent ) const
 {
@@ -2117,12 +1939,12 @@ const double brgastro::stripping_orbit_segment::_step_length_factor( CONST_BRG_V
 	return min(step_length_factor_v,step_length_factor_r);
 }
 
-const BRG_DISTANCE brgastro::stripping_orbit_segment::_rvir(
+BRG_DISTANCE brgastro::stripping_orbit_segment::_rvir(
 		const int index ) const
 {
 	return _current_satellite_ptr_->rvir();
 }
-const int brgastro::stripping_orbit_segment::_pass_interpolation_type() const
+void brgastro::stripping_orbit_segment::_pass_interpolation_type() const
 {
 	brgastro::interpolator::allowed_interpolation_type type_to_pass = brgastro::interpolator::SPLINE;
 	if(_interpolation_type_ == brgastro::stripping_orbit::UNSET)
@@ -2142,354 +1964,263 @@ const int brgastro::stripping_orbit_segment::_pass_interpolation_type() const
 			type_to_pass = brgastro::interpolator::LOWER;
 	}
 
-	int err_code = 0;
-
 	_x_spline_.set_interpolation_type(type_to_pass);
 	_y_spline_.set_interpolation_type(type_to_pass);
 	_z_spline_.set_interpolation_type(type_to_pass);
-	err_code += _vx_spline_.set_interpolation_type(type_to_pass);
-	err_code += _vy_spline_.set_interpolation_type(type_to_pass);
-	err_code += _vz_spline_.set_interpolation_type(type_to_pass);
+	_vx_spline_.set_interpolation_type(type_to_pass);
+	_vy_spline_.set_interpolation_type(type_to_pass);
+	_vz_spline_.set_interpolation_type(type_to_pass);
 	for(unsigned int i=0; i<_host_parameter_splines_.size(); i++)
 	{
 		_host_parameter_splines_[i].set_interpolation_type(type_to_pass);
 	}
-	if(err_code != 0)
-		return LOWER_LEVEL_ERROR + err_code;
+}
+
+int brgastro::stripping_orbit_segment::get_final_m_ret(
+BRG_MASS & m_ret, const bool silent ) const
+{
+	try
+	{
+		m_ret = final_m_ret();
+	}
+	catch(const std::runtime_error &e)
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	return 0;
+}
+int brgastro::stripping_orbit_segment::get_final_frac_m_ret( double & frac_m_ret,
+		const bool silent ) const
+{
+	try
+	{
+		frac_m_ret = final_frac_m_ret();
+	}
+	catch(const std::runtime_error &e)
+	{
+		return UNSPECIFIED_ERROR;
+	}
+	return 0;
+}
+int brgastro::stripping_orbit_segment::get_m_ret_points(
+		std::vector< std::pair<double,double> > & m_ret_points_output,
+		const bool silent ) const
+{
+	try
+	{
+		m_ret_points_output = m_ret_points();
+	}
+	catch(const std::runtime_error &e)
+	{
+		return UNSPECIFIED_ERROR;
+	}
 	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::get_final_m_ret(
+int brgastro::stripping_orbit_segment::get_final_m_vir_ret(
 BRG_MASS & m_ret, const bool silent ) const
 {
-	if ( !_calculated_ )
+	try
 	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		m_ret = final_m_vir_ret();
 	}
-	if( _bad_result_ )
+	catch(const std::runtime_error &e)
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	m_ret = _init_satellite_ptr_->mtot()*_m_ret_list_.back();
 	return 0;
 }
-const int brgastro::stripping_orbit_segment::get_final_frac_m_ret( double & frac_m_ret,
+int brgastro::stripping_orbit_segment::get_final_frac_m_vir_ret( double & frac_m_ret,
 		const bool silent ) const
 {
-	if ( !_calculated_ )
+	try
 	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		frac_m_ret = final_frac_m_vir_ret();
 	}
-	if( _bad_result_ )
+	catch(const std::runtime_error &e)
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	frac_m_ret = _m_ret_list_.back() / safe_d(_m_ret_list_.front());
 	return 0;
 }
-const int brgastro::stripping_orbit_segment::get_m_ret_points(
+int brgastro::stripping_orbit_segment::get_m_vir_ret_points(
 		std::vector< std::pair<double,double> > & m_ret_points,
 		const bool silent ) const
 {
-	if ( (!_calculated_) || (!_record_full_data_) )
+	try
 	{
-		set_record_full_data(true);
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		m_ret_points = m_vir_ret_points();
 	}
-	if( _bad_result_ )
+	catch(const std::runtime_error &e)
 	{
 		return UNSPECIFIED_ERROR;
 	}
-
-	m_ret_points.clear();
-	for(size_t i = 0; i<_phase_output_list_.size(); i++)
-	{
-		m_ret_points.push_back( std::make_pair(
-				_phase_output_list_[i].t,
-				_m_ret_list_.at(i)));
-	}
-
 	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::get_final_m_vir_ret(
-BRG_MASS & m_ret, const bool silent ) const
+int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
+long double & sum_deltarho, const bool silent ) const
 {
-	if ( !_calculated_ )
+	try
 	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		sum_deltarho = long_final_sum_deltarho();
 	}
-	if( _bad_result_ )
+	catch(const std::runtime_error &e)
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	m_ret = _init_satellite_ptr_->mvir()*_m_vir_ret_list_.back();
 	return 0;
 }
-const int brgastro::stripping_orbit_segment::get_final_frac_m_vir_ret( double & frac_m_ret,
-		const bool silent ) const
+
+int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
+		BRG_UNITS & sum_deltarho, const bool silent ) const
 {
-	if ( !_calculated_ )
+	try
 	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		sum_deltarho = final_sum_deltarho();
 	}
-	if( _bad_result_ )
+	catch(const std::runtime_error &e)
 	{
 		return UNSPECIFIED_ERROR;
 	}
-	frac_m_ret = _m_vir_ret_list_.back() / safe_d(_m_vir_ret_list_.front());
 	return 0;
 }
-const int brgastro::stripping_orbit_segment::get_m_vir_ret_points(
-		std::vector< std::pair<double,double> > & m_ret_points,
-		const bool silent ) const
+
+int brgastro::stripping_orbit_segment::get_final_sum_gabdt(
+		gabdt & sum_gabdt, const bool silent ) const
 {
-	if ( (!_calculated_) || (!_record_full_data_) )
+	try
 	{
-		set_record_full_data(true);
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
+		sum_gabdt = final_sum_deltarho();
 	}
-	if( _bad_result_ )
+	catch(const std::runtime_error &e)
 	{
 		return UNSPECIFIED_ERROR;
 	}
-
-	m_ret_points.clear();
-	for(size_t i = 0; i<_phase_output_list_.size(); i++)
-	{
-		m_ret_points.push_back( std::make_pair(
-				_phase_output_list_[i].t,
-				_m_vir_ret_list_.at(i)));
-	}
-
 	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
-long double & final_sum_deltarho, const bool silent ) const
-{
-	if ( !_calculated_ )
-	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
-	}
-	if( _bad_result_ )
-	{
-		return UNSPECIFIED_ERROR;
-	}
-	if(_bad_result_) return UNSPECIFIED_ERROR;
-	final_sum_deltarho = _sum_delta_rho_list_.back();
-	return 0;
-}
-
-const int brgastro::stripping_orbit_segment::get_final_sum_deltarho(
-		BRG_UNITS & final_sum_deltarho, const bool silent ) const
-{
-	if ( !_calculated_ )
-	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
-	}
-	if( _bad_result_ )
-	{
-		return UNSPECIFIED_ERROR;
-	}
-	if(_bad_result_) return UNSPECIFIED_ERROR;
-	final_sum_deltarho = (double)_sum_delta_rho_list_.back();
-	return 0;
-}
-
-const int brgastro::stripping_orbit_segment::get_final_sum_gabdt(
-		gabdt & final_sum_gabdt, const bool silent ) const
-{
-	if ( !_calculated_ )
-	{
-		if ( calc() )
-			return UNSPECIFIED_ERROR;
-	}
-	if( _bad_result_ )
-	{
-		return UNSPECIFIED_ERROR;
-	}
-	final_sum_gabdt = _sum_gabdt_list_.back();
-	return 0;
-}
-
-const int brgastro::stripping_orbit_segment::clone_final_satellite(
+int brgastro::stripping_orbit_segment::clone_final_satellite(
 		density_profile * & final_satellite_clone, const bool silent ) const
 {
-	if ( !_calculated_ )
+	if(!_satellite_loaded_)
 	{
-		if ( calc() )
-		{
-			// We can't calculate. Next most logical option is to use the initial
-			// host
-			if(_host_loaded_)
-			{
-				final_satellite_clone = _init_satellite_ptr_->density_profile_clone();
-				return UNSPECIFIED_ERROR;
-			}
-			else
-			{
-				// If this function is being called, something being assigned is expected,
-				// so we'll assign a new tNFW profile as a default
-				final_satellite_clone = new brgastro::tNFW_profile;
-				return NOT_SET_UP_ERROR;
-			}
-		}
-	}
-	if( _bad_result_ )
-	{
-		final_satellite_clone = _init_satellite_ptr_->density_profile_clone(); // Sanest option in this case
+		final_satellite_clone = new tNFW_profile();
 		return UNSPECIFIED_ERROR;
 	}
-	else
+	try
 	{
-		final_satellite_clone = _current_satellite_ptr_->density_profile_clone(); // Successful!
-		return 0;
+		final_satellite_clone = final_satellite()->density_profile_clone();
 	}
+	catch(const std::runtime_error &e)
+	{
+		final_satellite_clone = _init_satellite_ptr_->density_profile_clone();
+		return UNSPECIFIED_ERROR;
+	}
+	return 0;
 }
 
-const int brgastro::stripping_orbit_segment::clone_final_host(
+int brgastro::stripping_orbit_segment::clone_final_host(
 		density_profile * & final_host_clone, const bool silent ) const
 {
-	if ( !_calculated_ )
+	if(!_host_loaded_)
 	{
-		if ( calc() )
-		{
-			// We can't calculate. Next most logical option is to use the initial
-			// host
-			if(_host_loaded_)
-			{
-				final_host_clone = _init_host_ptr_->density_profile_clone();
-				return UNSPECIFIED_ERROR;
-			}
-			else
-			{
-				// If this function is being called, something being assigned is expected,
-				// so we'll assign a new tNFW profile as a default
-				final_host_clone = new brgastro::tNFW_profile;
-				return NOT_SET_UP_ERROR;
-			}
-		}
-	}
-	if( _bad_result_ )
-	{
-		final_host_clone = _init_host_ptr_->density_profile_clone(); // Sanest option in this case
+		final_host_clone = new tNFW_profile();
 		return UNSPECIFIED_ERROR;
 	}
-	else
+	try
 	{
-		final_host_clone = _current_host_ptr_->density_profile_clone(); // Successful!
-		return 0;
+		final_host_clone = final_host()->density_profile_clone();
 	}
+	catch(const std::runtime_error &e)
+	{
+		final_host_clone = _init_host_ptr_->density_profile_clone();
+		return UNSPECIFIED_ERROR;
+	}
+	return 0;
 }
 
 #if (1) // Get final data (throws exception on error)
 
-const BRG_MASS brgastro::stripping_orbit_segment::final_m_ret() const
+BRG_MASS brgastro::stripping_orbit_segment::final_m_ret() const
 {
-	BRG_MASS result = -1;
+	if(!_calculated_) calc();
 
-	if ( get_final_m_ret( result ) )
-	{
-		std::cerr << "ERROR: Could not calculate in stripping_orbit_segment::final_m_ret.\n";
-		std::cerr.flush();
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_m_ret.\n");
-	}
-	return result;
+	return _init_satellite_ptr_->mtot()*_m_ret_list_.back();
 }
-const double brgastro::stripping_orbit_segment::final_frac_m_ret() const
+double brgastro::stripping_orbit_segment::final_frac_m_ret() const
 {
-	double result = -1;
+	if(!_calculated_) calc();
 
-	if ( get_final_frac_m_ret( result ) )
-	{
-		std::cerr << "ERROR: Could not calculate in stripping_orbit_segment::final_frac_m_ret.\n";
-		std::cerr.flush();
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_frac_m_ret.\n");
-	}
-	return result;
+	return _m_ret_list_.back();
 }
-const std::vector< std::pair<double,double> > brgastro::stripping_orbit_segment::m_ret_points() const
+std::vector< std::pair<double,double> > brgastro::stripping_orbit_segment::m_ret_points() const
 {
+	if(!_calculated_) calc();
+
 	std::vector< std::pair<double,double> > result;
-	if( get_m_ret_points(result) )
+	for(size_t i = 0; i<_phase_output_list_.size(); i++)
 	{
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::m_ret_points.\n");
+		result.push_back( std::make_pair(
+				_phase_output_list_[i].t,
+				_m_ret_list_.at(i)));
 	}
 
 	return result;
 }
-const BRG_MASS brgastro::stripping_orbit_segment::final_m_vir_ret() const
+BRG_MASS brgastro::stripping_orbit_segment::final_m_vir_ret() const
 {
-	BRG_MASS result = -1;
+	if(!_calculated_) calc();
 
-	if ( get_final_m_vir_ret( result ) )
-	{
-		std::cerr << "ERROR: Could not calculate in stripping_orbit_segment::final_m_vir_ret.\n";
-		std::cerr.flush();
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_m_vir_ret.\n");
-	}
-	return result;
+	return _init_satellite_ptr_->mvir()*_m_vir_ret_list_.back();
 }
-const double brgastro::stripping_orbit_segment::final_frac_m_vir_ret() const
+double brgastro::stripping_orbit_segment::final_frac_m_vir_ret() const
 {
-	double result = -1;
+	if(!_calculated_) calc();
 
-	if ( get_final_frac_m_vir_ret( result ) )
-	{
-		std::cerr << "ERROR: Could not calculate in stripping_orbit_segment::final_frac_m_vir_ret.\n";
-		std::cerr.flush();
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_frac_m_vir_ret.\n");
-	}
-	return result;
+	return _m_vir_ret_list_.back();
 }
-const std::vector< std::pair<double,double> > brgastro::stripping_orbit_segment::m_vir_ret_points() const
+std::vector< std::pair<double,double> > brgastro::stripping_orbit_segment::m_vir_ret_points() const
 {
+	if(!_calculated_) calc();
+
 	std::vector< std::pair<double,double> > result;
-	if( get_m_vir_ret_points(result) )
+	for(size_t i = 0; i<_phase_output_list_.size(); i++)
 	{
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::m_vir_ret_points.\n");
+		result.push_back( std::make_pair(
+				_phase_output_list_[i].t,
+				_m_vir_ret_list_.at(i)));
 	}
 
 	return result;
 }
 
-const long double brgastro::stripping_orbit_segment::final_sum_deltarho() const
+BRG_UNITS brgastro::stripping_orbit_segment::final_sum_deltarho() const
 {
-	long double result;
+	if(!_calculated_) calc();
 
-	if ( get_final_sum_deltarho( result ) )
-	{
-		std::cerr << "ERROR: Could not calculate in stripping_orbit_segment::final_sum_deltarho.\n";
-		std::cerr.flush();
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_sum_deltarho.\n");
-		result = -1;
-	}
-	return result;
+#ifdef _BRG_USE_UNITS_
+	return brgastro::unit_obj(_sum_delta_rho_list_.back(),-3,0,1,0,0);
+#else
+	return _sum_delta_rho_list_.back();
+#endif
 }
 
-const brgastro::gabdt brgastro::stripping_orbit_segment::final_sum_gabdt() const
+long double brgastro::stripping_orbit_segment::long_final_sum_deltarho() const
 {
-	gabdt result;
+	if(!_calculated_) calc();
 
-	if ( get_final_sum_gabdt( result ) )
-	{
-		std::cerr << "ERROR: Could not calculate in stripping_orbit_segment::final_sum_gabdt.\n";
-		std::cerr.flush();
-		throw std::runtime_error("ERROR: Could not calculate in stripping_orbit_segment::final_sum_gabdt.\n");
-	}
-	return result;
+	return _sum_delta_rho_list_.back();
 }
 
-const bool & brgastro::stripping_orbit_segment::likely_disrupted() const
+brgastro::gabdt brgastro::stripping_orbit_segment::final_sum_gabdt() const
+{
+	if(!_calculated_) calc();
+
+	return _sum_gabdt_list_.back();
+}
+
+bool brgastro::stripping_orbit_segment::likely_disrupted() const
 {
 	if(!_calculated_)
 	{
@@ -2511,15 +2242,16 @@ const brgastro::density_profile * brgastro::stripping_orbit_segment::final_satel
 	{
 		if(_satellite_loaded_)
 		{
-			if ( calc() )
+			try
 			{
-				return _init_satellite_ptr_;
+				calc();
+			} catch (const std::exception &e)
+			{
 			}
 		}
 		else
 		{
-			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_satellite() without init_satellite assigned.\n");
-			return NULL;
+			throw std::logic_error("Attempt to call stripping_orbit::final_satellite() without init_satellite assigned.\n");
 		}
 	}
 	if( _bad_result_ || _likely_disrupted_ )
@@ -2534,15 +2266,16 @@ const brgastro::density_profile * brgastro::stripping_orbit_segment::final_host(
 	{
 		if(_host_loaded_)
 		{
-			if ( calc() )
+			try
 			{
-				return _init_host_ptr_;
+				calc();
+			} catch (const std::exception &e)
+			{
 			}
 		}
 		else
 		{
-			throw std::runtime_error("ERROR: Attempt to call stripping_orbit::final_host() without init_host assigned.\n");
-			return NULL;
+			throw std::logic_error("Attempt to call stripping_orbit::final_host() without init_host assigned.\n");
 		}
 	}
 	if( _bad_result_ || _likely_disrupted_ )

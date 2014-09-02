@@ -125,6 +125,10 @@ public:
 
 	// Get functions
 	const double operator()( double xval, bool silent = false ) const;
+	unsigned int size() const
+	{
+		return _known_interpolator_.size() + _unknown_t_list_.size();
+	}
 };
 // class interpolator_derivative
 

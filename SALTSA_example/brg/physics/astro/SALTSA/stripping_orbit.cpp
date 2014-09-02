@@ -1575,7 +1575,7 @@ void brgastro::stripping_orbit::calc( const bool silent ) const
 				segment_counter++;
 		}
 		_orbit_segments_.at( segment_counter ).add_host_parameter_point(
-				host_parameters.size(), host_parameters, t );
+				host_parameters, t );
 	}
 
 	// Adjust t_min and t_max for each segment to leave no gaps, get segment resolution,
@@ -2506,100 +2506,3 @@ const double brgastro::stripping_orbit::quality_of_fit(const bool use_virial, co
 
 
 #endif // end class function definitions
-
-// brgastro function definitions
-#if (1)
-const double brgastro::stripping_orbit_segment::_tidal_strip_retained( const density_profile *host_group,
-		const density_profile *satellite, CONST_BRG_DISTANCE_REF r,
-		CONST_BRG_VELOCITY_REF vr, CONST_BRG_VELOCITY_REF vt,
-		CONST_BRG_TIME_REF time_step, const long double &sum_delta_rho ) const
-{
-	BRG_DISTANCE new_rt;
-	BRG_TIME inst_tangential_orbital_period, inst_full_orbital_period,
-		inst_orbital_period, hm_period, stripping_period;
-	double mass_frac_retained, mass_frac_lost_total;
-	inst_tangential_orbital_period = 2 * pi * r / safe_d(vt);
-	inst_full_orbital_period = 2 * pi * r / safe_d(quad_add(vt,vr));
-
-	inst_orbital_period = inst_tangential_orbital_period *
-			std::pow(inst_full_orbital_period/safe_d(inst_tangential_orbital_period),
-				_tidal_stripping_radialness_);
-
-	hm_period = satellite->othm();
-
-	if(isbad(hm_period) or (hm_period<=0))
-		stripping_period = inst_orbital_period;
-	else
-		stripping_period = inst_orbital_period *
-			std::pow(hm_period/safe_d(inst_orbital_period), _tidal_stripping_deceleration_);
-
-	new_rt = _get_rt( host_group, satellite, r, vr, vt, time_step, sum_delta_rho );
-
-	if ( !( new_rt > 0 ) )
-		mass_frac_lost_total = 0;
-	else
-	{
-		mass_frac_lost_total = max(
-				1. - satellite->enc_mass( new_rt ) / safe_d(satellite->mtot()), 0. );
-	}
-	mass_frac_retained = max(
-			min(
-					1.
-							- mass_frac_lost_total * time_step / stripping_period
-									* _tidal_stripping_amplification_, 1 ), 0. );
-
-	return mass_frac_retained;
-}
-
-const BRG_DISTANCE brgastro::stripping_orbit_segment::_get_rt( const density_profile *host_group,
-		const density_profile *satellite, CONST_BRG_DISTANCE_REF r,
-		CONST_BRG_VELOCITY_REF vr, CONST_BRG_VELOCITY_REF vt,
-		CONST_BRG_TIME_REF time_step, const long double &sum_delta_rho,
-		const bool silent ) const
-{
-	BRG_UNITS omega;
-	BRG_DISTANCE new_rt, old_rt;
-	BRG_UNITS max_rt = 0;
-
-	omega = vt / safe_d( r );
-
-	// Check for null case
-	if ( satellite->mtot() <= 0 )
-	{
-		return 0;
-	}
-
-	solve_rt_grid_functor rt_grid_solver( omega, satellite,
-			host_group->Daccel( r ), sum_delta_rho );
-	solve_rt_it_functor rt_it_solver( omega, satellite,
-			host_group->Daccel( r ), sum_delta_rho );
-
-	if ( satellite->mtot() <= 0 )
-		return 0;
-
-	old_rt = satellite->rt();
-
-	// First, we try solving iteratively
-	new_rt = solve_iterate( &rt_it_solver, old_rt, 1, 0.0001, 1000, true );
-	if ( ( new_rt == 0 ) || ( isbad( new_rt ) ) )
-	{
-		// Iteratively didn't work, so we go to the grid option
-
-		max_rt = 2 * default_tau_factor * satellite->rvir();
-		old_rt = new_rt;
-		try
-		{
-			new_rt = solve_grid( &rt_grid_solver, (BRG_UNITS)0., max_rt, 100, (BRG_UNITS)0.);
-		}
-		catch(const std::exception &e)
-		{
-			if ( !silent )
-				std::cerr << "WARNING: Could not solve rt:\n" << e.what() << std::endl;
-			new_rt = 0; // Most likely value in the case where we can't solve it
-		}
-	}
-
-	return ( max( new_rt, 0 ) );
-}
-
-#endif // end brgastro function definitions
