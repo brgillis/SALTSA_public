@@ -59,7 +59,7 @@ private:
 
 	// Integration parameters
 #if(1)
-	int _spline_resolution_;
+	size_t _spline_resolution_;
 
 	// Interpolation method
 	stripping_orbit::allowed_interpolation_type _interpolation_type_;

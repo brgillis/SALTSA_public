@@ -1874,9 +1874,9 @@ void brgastro::stripping_orbit::print_full_data( std::ostream *out ) const
 			}
 			else
 			{
-				if ( _orbit_segments_.at( i ).print_full_data( out, false,
-						_final_frac_m_ret_list_.at( i - 1 ), _final_frac_m_vir_ret_list_.at( i - 1 ) ) )
-					return; // Don't print header, m_ret_multiplier = frac_m_ret after last segment
+				_orbit_segments_.at( i ).print_full_data( out, false,
+						_final_frac_m_ret_list_.at( i - 1 ), _final_frac_m_vir_ret_list_.at( i - 1 ) );
+				// Don't print header, m_ret_multiplier = frac_m_ret after last segment
 			}
 		}
 	}

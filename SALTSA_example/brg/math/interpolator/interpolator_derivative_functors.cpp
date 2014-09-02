@@ -41,12 +41,6 @@ brgastro::interpolator_functor::interpolator_functor()
 	_interpolator_ptr_set_up_ = false;
 }
 brgastro::interpolator_functor::interpolator_functor(
-		const interpolator_functor& other)
-{
-	_interpolator_ptr_ = other._interpolator_ptr_;
-	_interpolator_ptr_set_up_ = other._interpolator_ptr_set_up_;
-}
-brgastro::interpolator_functor::interpolator_functor(
 		const brgastro::interpolator *init_interpolator_ptr )
 {
 	set_interpolator_ptr( init_interpolator_ptr );
@@ -80,12 +74,6 @@ BRG_UNITS brgastro::interpolator_functor::operator()( CONST_BRG_UNITS_REF  in_pa
 brgastro::interpolator_derivative_functor::interpolator_derivative_functor()
 {
 	_interpolator_functor_set_up_ = false;
-}
-brgastro::interpolator_derivative_functor::interpolator_derivative_functor(
-		const interpolator_derivative_functor& other)
-{
-	_interpolator_functor_set_up_ = other._interpolator_functor_set_up_;
-	_interpolator_functor_ = other._interpolator_functor_;
 }
 brgastro::interpolator_derivative_functor::interpolator_derivative_functor(
 		brgastro::interpolator *init_spline_ptr )

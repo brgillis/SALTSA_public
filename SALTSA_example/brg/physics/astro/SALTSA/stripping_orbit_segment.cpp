@@ -31,8 +31,10 @@
 
 #include "brg/math/interpolator/interpolator.h"
 #include "brg/math/interpolator/interpolator_derivative.h"
+#include "brg/math/solvers/solvers.hpp"
 
 #include "brg/physics/astro/SALTSA/gabdt.h"
+#include "brg/physics/astro/SALTSA/solve_rt_functors.h"
 
 #include "stripping_orbit_segment.h"
 
@@ -2096,7 +2098,7 @@ int brgastro::stripping_orbit_segment::get_final_sum_gabdt(
 {
 	try
 	{
-		sum_gabdt = final_sum_deltarho();
+		sum_gabdt = final_sum_gabdt();
 	}
 	catch(const std::runtime_error &e)
 	{
