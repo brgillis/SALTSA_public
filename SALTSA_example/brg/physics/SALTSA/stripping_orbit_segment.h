@@ -23,7 +23,7 @@
 // body file: brg/physics/astro/SALTSA/stripping_orbit_segment.cpp
 
 #ifndef _STRIPPING_ORBIT_H_INCLUDED_
-#include "brg/physics/astro/SALTSA/stripping_orbit.h"
+#include "brg/physics/SALTSA/stripping_orbit.h"
 #else
 
 #ifndef _STRIPPING_ORBIT_SEGMENT_H_INCLUDED_
@@ -36,7 +36,7 @@
 #include "brg/math/interpolator/interpolator.h"
 #include "brg/math/interpolator/interpolator_derivative.h"
 
-#include "brg/physics/astro/SALTSA/gabdt.h"
+#include "brg/physics/SALTSA/gabdt.h"
 #include "brg/physics/units/unit_obj.h"
 
 namespace brgastro {

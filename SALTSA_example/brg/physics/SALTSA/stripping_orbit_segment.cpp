@@ -33,8 +33,8 @@
 #include "brg/math/interpolator/interpolator_derivative.h"
 #include "brg/math/solvers/solvers.hpp"
 
-#include "brg/physics/astro/SALTSA/gabdt.h"
-#include "brg/physics/astro/SALTSA/solve_rt_functors.h"
+#include "brg/physics/SALTSA/gabdt.h"
+#include "brg/physics/SALTSA/solve_rt_functors.h"
 
 #include "stripping_orbit_segment.h"
 

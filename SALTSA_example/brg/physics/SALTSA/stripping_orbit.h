@@ -43,10 +43,10 @@
 #include "brg/math/interpolator/interpolator.h"
 #include "brg/math/interpolator/interpolator_derivative.h"
 
-#include "brg/physics/astro/astro.h"
-#include "brg/physics/astro/density_profile/density_profile.h"
-#include "brg/physics/astro/density_profile/tNFW_profile.h"
-#include "brg/physics/astro/SALTSA/gabdt.h"
+#include "brg/physics/astro.h"
+#include "brg/physics/density_profile/density_profile.h"
+#include "brg/physics/density_profile/tNFW_profile.h"
+#include "brg/physics/SALTSA/gabdt.h"
 #include "brg/physics/phase.hpp"
 #include "brg/physics/units/unit_obj.h"
 
@@ -1416,7 +1416,7 @@ public:
 
 } // end namespace brgastro
 
-#include "stripping_orbit_segment.h"
+#include "brg/physics/SALTSA/stripping_orbit_segment.h"
 
 #endif //__BRG_ORBIT_H_INCLUDED__
 

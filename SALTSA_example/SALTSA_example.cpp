@@ -29,15 +29,16 @@
 #include <vector>
 #include <utility> // Just needed for some file loading here
 
-#include "brg/physics/astro/SALTSA/stripping_orbit.h" // The primary file needed to be included.
+#include "SALTSA.h" // The primary file needed to be included. This is actuall a symbolic link to
+                    // brg/physics/SALTSA/stripping_orbit
 
-#include "brg/physics/astro/density_profile/tNFW_profile.h" // A truncated NFW halo we'll use here
-#include "brg/physics/astro/density_profile/point_mass_profile.h" // A point-mass density profile for calculating Keplerian orbits
+#include "brg/physics/density_profile/tNFW_profile.h" // A truncated NFW halo we'll use here
+#include "brg/physics/density_profile/point_mass_profile.h" // A point-mass density profile for calculating Keplerian orbits
 #include "SALTSA_tSIS_profile.hpp" // In case we want to use this "user-defined" profile instead
 
 #include "brg/physics/units/unit_conversions.hpp" // Some convenient unit conversions
 
-#include "brg/physics/astro/density_profile/density_profile_functors.h"
+#include "brg/physics/density_profile/density_profile_functors.h"
 #include "brg/math/calculus/DE.hpp" // These are used to generate an orbit in this file.
 
 #include "brg/file_functions.h" // This is used for file loading done here

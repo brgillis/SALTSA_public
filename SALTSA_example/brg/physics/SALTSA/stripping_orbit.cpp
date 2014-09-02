@@ -36,9 +36,9 @@
 #include "brg/math/interpolator/interpolator_derivative.h"
 #include "brg/math/solvers/solvers.hpp"
 
-#include "brg/physics/astro/astro.h"
-#include "brg/physics/astro/SALTSA/gabdt.h"
-#include "brg/physics/astro/SALTSA/solve_rt_functors.h"
+#include "brg/physics/astro.h"
+#include "brg/physics/SALTSA/gabdt.h"
+#include "brg/physics/SALTSA/solve_rt_functors.h"
 #include "brg/physics/phase.hpp"
 #include "brg/physics/units/unit_obj.h"
 

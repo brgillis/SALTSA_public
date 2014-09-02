@@ -27,8 +27,8 @@
 
 #include "brg/global.h"
 
-#include "brg/physics/astro/density_profile/density_profile.h"
-#include "brg/physics/astro/density_profile/tNFW_profile.h"
+#include "brg/physics/density_profile/density_profile.h"
+#include "brg/physics/density_profile/tNFW_profile.h"
 
 namespace brgastro
 {

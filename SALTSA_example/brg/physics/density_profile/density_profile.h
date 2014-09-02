@@ -32,7 +32,7 @@
 
 #include "brg/math/misc_math.hpp"
 #include "brg/math/safe_math.hpp"
-#include "brg/physics/astro/astro.h"
+#include "brg/physics/astro.h"
 #include "brg/physics/units/unit_obj.h"
 
 namespace brgastro {

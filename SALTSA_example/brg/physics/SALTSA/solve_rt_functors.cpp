@@ -24,7 +24,7 @@
 
 #include "brg/global.h"
 
-#include "brg/physics/astro/density_profile/density_profile.h"
+#include "brg/physics/density_profile/density_profile.h"
 #include "brg/physics/units/unit_obj.h"
 #include "brg/utility.hpp"
 

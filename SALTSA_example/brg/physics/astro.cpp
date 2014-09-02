@@ -28,8 +28,8 @@
 
 #include "brg/math/cache/cache.hpp"
 
-#include "brg/physics/astro/astro_caches.h"
-#include "brg/physics/astro/astro.h"
+#include "brg/physics/astro_caches.h"
+#include "brg/physics/astro.h"
 #include "brg/physics/units/unit_obj.h"
 
 // brgastro::redshift_obj class methods

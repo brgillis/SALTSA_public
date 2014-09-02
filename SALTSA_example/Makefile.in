@@ -100,16 +100,15 @@ am_SALTSA_example_OBJECTS = brg/file_functions.$(OBJEXT) \
 	brg/math/interpolator/interpolator_derivative.$(OBJEXT) \
 	brg/math/interpolator/interpolator_derivative_functors.$(OBJEXT) \
 	brg/math/interpolator/tk_spline.$(OBJEXT) \
-	brg/physics/astro/astro_caches.$(OBJEXT) \
-	brg/physics/astro/astro.$(OBJEXT) \
-	brg/physics/astro/density_profile/density_profile.$(OBJEXT) \
-	brg/physics/astro/density_profile/density_profile_functors.$(OBJEXT) \
-	brg/physics/astro/density_profile/point_mass_profile.$(OBJEXT) \
-	brg/physics/astro/density_profile/tNFW_profile.$(OBJEXT) \
-	brg/physics/astro/SALTSA/gabdt.$(OBJEXT) \
-	brg/physics/astro/SALTSA/solve_rt_functors.$(OBJEXT) \
-	brg/physics/astro/SALTSA/stripping_orbit.$(OBJEXT) \
-	brg/physics/astro/SALTSA/stripping_orbit_segment.$(OBJEXT) \
+	brg/physics/astro_caches.$(OBJEXT) brg/physics/astro.$(OBJEXT) \
+	brg/physics/density_profile/density_profile.$(OBJEXT) \
+	brg/physics/density_profile/density_profile_functors.$(OBJEXT) \
+	brg/physics/density_profile/point_mass_profile.$(OBJEXT) \
+	brg/physics/density_profile/tNFW_profile.$(OBJEXT) \
+	brg/physics/SALTSA/gabdt.$(OBJEXT) \
+	brg/physics/SALTSA/solve_rt_functors.$(OBJEXT) \
+	brg/physics/SALTSA/stripping_orbit.$(OBJEXT) \
+	brg/physics/SALTSA/stripping_orbit_segment.$(OBJEXT) \
 	brg/physics/units/unit_obj.$(OBJEXT) SALTSA_example.$(OBJEXT)
 SALTSA_example_OBJECTS = $(am_SALTSA_example_OBJECTS)
 SALTSA_example_LDADD = $(LDADD)
@@ -272,7 +271,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SALTSA_example_SOURCES = brg/file_functions.cpp brg/math/interpolator/interpolator.cpp brg/math/interpolator/interpolator_derivative.cpp brg/math/interpolator/interpolator_derivative_functors.cpp brg/math/interpolator/tk_spline.cpp brg/physics/astro/astro_caches.cpp brg/physics/astro/astro.cpp brg/physics/astro/density_profile/density_profile.cpp brg/physics/astro/density_profile/density_profile_functors.cpp brg/physics/astro/density_profile/point_mass_profile.cpp brg/physics/astro/density_profile/tNFW_profile.cpp brg/physics/astro/SALTSA/gabdt.cpp brg/physics/astro/SALTSA/solve_rt_functors.cpp brg/physics/astro/SALTSA/stripping_orbit.cpp brg/physics/astro/SALTSA/stripping_orbit_segment.cpp brg/physics/units/unit_obj.cpp SALTSA_example.cpp
+SALTSA_example_SOURCES = brg/file_functions.cpp brg/math/interpolator/interpolator.cpp brg/math/interpolator/interpolator_derivative.cpp brg/math/interpolator/interpolator_derivative_functors.cpp brg/math/interpolator/tk_spline.cpp brg/physics/astro_caches.cpp brg/physics/astro.cpp brg/physics/density_profile/density_profile.cpp brg/physics/density_profile/density_profile_functors.cpp brg/physics/density_profile/point_mass_profile.cpp brg/physics/density_profile/tNFW_profile.cpp brg/physics/SALTSA/gabdt.cpp brg/physics/SALTSA/solve_rt_functors.cpp brg/physics/SALTSA/stripping_orbit.cpp brg/physics/SALTSA/stripping_orbit_segment.cpp brg/physics/units/unit_obj.cpp SALTSA_example.cpp
 AM_CPPFLAGS = -fopenmp -DNDEBUG
 AM_LDFLAGS = -fopenmp
 all: config.h
@@ -397,53 +396,52 @@ brg/math/interpolator/interpolator_derivative_functors.$(OBJEXT):  \
 brg/math/interpolator/tk_spline.$(OBJEXT):  \
 	brg/math/interpolator/$(am__dirstamp) \
 	brg/math/interpolator/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/$(am__dirstamp):
-	@$(MKDIR_P) brg/physics/astro
-	@: > brg/physics/astro/$(am__dirstamp)
-brg/physics/astro/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) brg/physics/astro/$(DEPDIR)
-	@: > brg/physics/astro/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/astro_caches.$(OBJEXT):  \
-	brg/physics/astro/$(am__dirstamp) \
-	brg/physics/astro/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/astro.$(OBJEXT): brg/physics/astro/$(am__dirstamp) \
-	brg/physics/astro/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/density_profile/$(am__dirstamp):
-	@$(MKDIR_P) brg/physics/astro/density_profile
-	@: > brg/physics/astro/density_profile/$(am__dirstamp)
-brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) brg/physics/astro/density_profile/$(DEPDIR)
-	@: > brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/density_profile/density_profile.$(OBJEXT):  \
-	brg/physics/astro/density_profile/$(am__dirstamp) \
-	brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/density_profile/density_profile_functors.$(OBJEXT):  \
-	brg/physics/astro/density_profile/$(am__dirstamp) \
-	brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/density_profile/point_mass_profile.$(OBJEXT):  \
-	brg/physics/astro/density_profile/$(am__dirstamp) \
-	brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/density_profile/tNFW_profile.$(OBJEXT):  \
-	brg/physics/astro/density_profile/$(am__dirstamp) \
-	brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/SALTSA/$(am__dirstamp):
-	@$(MKDIR_P) brg/physics/astro/SALTSA
-	@: > brg/physics/astro/SALTSA/$(am__dirstamp)
-brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) brg/physics/astro/SALTSA/$(DEPDIR)
-	@: > brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/SALTSA/gabdt.$(OBJEXT):  \
-	brg/physics/astro/SALTSA/$(am__dirstamp) \
-	brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/SALTSA/solve_rt_functors.$(OBJEXT):  \
-	brg/physics/astro/SALTSA/$(am__dirstamp) \
-	brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/SALTSA/stripping_orbit.$(OBJEXT):  \
-	brg/physics/astro/SALTSA/$(am__dirstamp) \
-	brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp)
-brg/physics/astro/SALTSA/stripping_orbit_segment.$(OBJEXT):  \
-	brg/physics/astro/SALTSA/$(am__dirstamp) \
-	brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp)
+brg/physics/$(am__dirstamp):
+	@$(MKDIR_P) brg/physics
+	@: > brg/physics/$(am__dirstamp)
+brg/physics/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) brg/physics/$(DEPDIR)
+	@: > brg/physics/$(DEPDIR)/$(am__dirstamp)
+brg/physics/astro_caches.$(OBJEXT): brg/physics/$(am__dirstamp) \
+	brg/physics/$(DEPDIR)/$(am__dirstamp)
+brg/physics/astro.$(OBJEXT): brg/physics/$(am__dirstamp) \
+	brg/physics/$(DEPDIR)/$(am__dirstamp)
+brg/physics/density_profile/$(am__dirstamp):
+	@$(MKDIR_P) brg/physics/density_profile
+	@: > brg/physics/density_profile/$(am__dirstamp)
+brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) brg/physics/density_profile/$(DEPDIR)
+	@: > brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp)
+brg/physics/density_profile/density_profile.$(OBJEXT):  \
+	brg/physics/density_profile/$(am__dirstamp) \
+	brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp)
+brg/physics/density_profile/density_profile_functors.$(OBJEXT):  \
+	brg/physics/density_profile/$(am__dirstamp) \
+	brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp)
+brg/physics/density_profile/point_mass_profile.$(OBJEXT):  \
+	brg/physics/density_profile/$(am__dirstamp) \
+	brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp)
+brg/physics/density_profile/tNFW_profile.$(OBJEXT):  \
+	brg/physics/density_profile/$(am__dirstamp) \
+	brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp)
+brg/physics/SALTSA/$(am__dirstamp):
+	@$(MKDIR_P) brg/physics/SALTSA
+	@: > brg/physics/SALTSA/$(am__dirstamp)
+brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) brg/physics/SALTSA/$(DEPDIR)
+	@: > brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp)
+brg/physics/SALTSA/gabdt.$(OBJEXT):  \
+	brg/physics/SALTSA/$(am__dirstamp) \
+	brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp)
+brg/physics/SALTSA/solve_rt_functors.$(OBJEXT):  \
+	brg/physics/SALTSA/$(am__dirstamp) \
+	brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp)
+brg/physics/SALTSA/stripping_orbit.$(OBJEXT):  \
+	brg/physics/SALTSA/$(am__dirstamp) \
+	brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp)
+brg/physics/SALTSA/stripping_orbit_segment.$(OBJEXT):  \
+	brg/physics/SALTSA/$(am__dirstamp) \
+	brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp)
 brg/physics/units/$(am__dirstamp):
 	@$(MKDIR_P) brg/physics/units
 	@: > brg/physics/units/$(am__dirstamp)
@@ -462,9 +460,9 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f brg/*.$(OBJEXT)
 	-rm -f brg/math/interpolator/*.$(OBJEXT)
-	-rm -f brg/physics/astro/*.$(OBJEXT)
-	-rm -f brg/physics/astro/SALTSA/*.$(OBJEXT)
-	-rm -f brg/physics/astro/density_profile/*.$(OBJEXT)
+	-rm -f brg/physics/*.$(OBJEXT)
+	-rm -f brg/physics/SALTSA/*.$(OBJEXT)
+	-rm -f brg/physics/density_profile/*.$(OBJEXT)
 	-rm -f brg/physics/units/*.$(OBJEXT)
 
 distclean-compile:
@@ -476,16 +474,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@brg/math/interpolator/$(DEPDIR)/interpolator_derivative.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@brg/math/interpolator/$(DEPDIR)/interpolator_derivative_functors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@brg/math/interpolator/$(DEPDIR)/tk_spline.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/$(DEPDIR)/astro.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/$(DEPDIR)/astro_caches.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/SALTSA/$(DEPDIR)/gabdt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/SALTSA/$(DEPDIR)/solve_rt_functors.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/SALTSA/$(DEPDIR)/stripping_orbit.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/SALTSA/$(DEPDIR)/stripping_orbit_segment.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/density_profile/$(DEPDIR)/density_profile.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/density_profile/$(DEPDIR)/density_profile_functors.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/density_profile/$(DEPDIR)/point_mass_profile.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/astro/density_profile/$(DEPDIR)/tNFW_profile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/$(DEPDIR)/astro.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/$(DEPDIR)/astro_caches.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/SALTSA/$(DEPDIR)/gabdt.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/SALTSA/$(DEPDIR)/solve_rt_functors.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/SALTSA/$(DEPDIR)/stripping_orbit.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/SALTSA/$(DEPDIR)/stripping_orbit_segment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/density_profile/$(DEPDIR)/density_profile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/density_profile/$(DEPDIR)/density_profile_functors.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/density_profile/$(DEPDIR)/point_mass_profile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@brg/physics/density_profile/$(DEPDIR)/tNFW_profile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@brg/physics/units/$(DEPDIR)/unit_obj.Po@am__quote@
 
 .cpp.o:
@@ -762,12 +760,12 @@ distclean-generic:
 	-rm -f brg/$(am__dirstamp)
 	-rm -f brg/math/interpolator/$(DEPDIR)/$(am__dirstamp)
 	-rm -f brg/math/interpolator/$(am__dirstamp)
-	-rm -f brg/physics/astro/$(DEPDIR)/$(am__dirstamp)
-	-rm -f brg/physics/astro/$(am__dirstamp)
-	-rm -f brg/physics/astro/SALTSA/$(DEPDIR)/$(am__dirstamp)
-	-rm -f brg/physics/astro/SALTSA/$(am__dirstamp)
-	-rm -f brg/physics/astro/density_profile/$(DEPDIR)/$(am__dirstamp)
-	-rm -f brg/physics/astro/density_profile/$(am__dirstamp)
+	-rm -f brg/physics/$(DEPDIR)/$(am__dirstamp)
+	-rm -f brg/physics/$(am__dirstamp)
+	-rm -f brg/physics/SALTSA/$(DEPDIR)/$(am__dirstamp)
+	-rm -f brg/physics/SALTSA/$(am__dirstamp)
+	-rm -f brg/physics/density_profile/$(DEPDIR)/$(am__dirstamp)
+	-rm -f brg/physics/density_profile/$(am__dirstamp)
 	-rm -f brg/physics/units/$(DEPDIR)/$(am__dirstamp)
 	-rm -f brg/physics/units/$(am__dirstamp)
 
@@ -780,7 +778,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) brg/$(DEPDIR) brg/math/interpolator/$(DEPDIR) brg/physics/astro/$(DEPDIR) brg/physics/astro/SALTSA/$(DEPDIR) brg/physics/astro/density_profile/$(DEPDIR) brg/physics/units/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) brg/$(DEPDIR) brg/math/interpolator/$(DEPDIR) brg/physics/$(DEPDIR) brg/physics/SALTSA/$(DEPDIR) brg/physics/density_profile/$(DEPDIR) brg/physics/units/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -828,7 +826,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) brg/$(DEPDIR) brg/math/interpolator/$(DEPDIR) brg/physics/astro/$(DEPDIR) brg/physics/astro/SALTSA/$(DEPDIR) brg/physics/astro/density_profile/$(DEPDIR) brg/physics/units/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) brg/$(DEPDIR) brg/math/interpolator/$(DEPDIR) brg/physics/$(DEPDIR) brg/physics/SALTSA/$(DEPDIR) brg/physics/density_profile/$(DEPDIR) brg/physics/units/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
