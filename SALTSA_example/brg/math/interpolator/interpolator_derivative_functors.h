@@ -55,13 +55,8 @@ private:
 
 public:
 
-	// Swap functions
-	void swap(interpolator_functor & other);
-	friend void swap(interpolator_functor & same, interpolator_functor & other) {same.swap(other);}
-
 	// Constructors
 	interpolator_functor();
-	interpolator_functor(const interpolator_functor& other);
 	interpolator_functor(const brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructor
@@ -73,7 +68,7 @@ public:
 	interpolator_functor& operator=(interpolator_functor other);
 
 	// Set functions
-	const int set_interpolator_ptr( const brgastro::interpolator *new_interpolator_ptr );
+	void set_interpolator_ptr( const brgastro::interpolator *new_interpolator_ptr );
 
 	// Function method
 	BRG_UNITS operator()( CONST_BRG_UNITS_REF  in_param, const bool silent = false ) const;
@@ -103,14 +98,8 @@ private:
 
 public:
 
-	// Swap functions
-	void swap(interpolator_derivative_functor& other);
-	friend void swap(interpolator_derivative_functor& same, interpolator_derivative_functor& other)
-		{same.swap(other);}
-
 	// Constructors
 	interpolator_derivative_functor();
-	interpolator_derivative_functor(const interpolator_derivative_functor& other);
 	interpolator_derivative_functor( brgastro::interpolator *init_interpolator_ptr );
 
 	// Destructor
@@ -122,7 +111,7 @@ public:
 	interpolator_derivative_functor& operator=(interpolator_derivative_functor other);
 
 	// Set functions
-	const int set_interpolator_ptr( const brgastro::interpolator *new_interpolator_ptr );
+	void set_interpolator_ptr( const brgastro::interpolator *new_interpolator_ptr );
 
 	// Function method
 	BRG_UNITS operator()( CONST_BRG_UNITS_REF  in_param, const bool silent = false ) const;
@@ -155,15 +144,8 @@ private:
 
 public:
 
-	// Swap functions
-	void swap(interpolator_derivative_weight_functor &other);
-	friend void swap(interpolator_derivative_weight_functor &same,
-			interpolator_derivative_weight_functor &other)
-				{same.swap(other);}
-
 	// Constructors
 	interpolator_derivative_weight_functor();
-	interpolator_derivative_weight_functor(const interpolator_derivative_weight_functor &other);
 
 	// Destructor
 	virtual ~interpolator_derivative_weight_functor()
@@ -174,20 +156,20 @@ public:
 	interpolator_derivative_weight_functor & operator=(interpolator_derivative_weight_functor other);
 
 	// Set functions
-	const int set_sample_scale( double new_sample_scale );
+	void set_sample_scale( double new_sample_scale );
 
-	const int set_sample_max_width( double new_sample_max_width );
+	void set_sample_max_width( double new_sample_max_width );
 
-	const int set_center_point( double new_center_point );
+	void set_center_point( double new_center_point );
 
-	const int set_t_min( double new_t_min );
+	void set_t_min( double new_t_min );
 
-	const int set_t_max( double new_t_max );
+	void set_t_max( double new_t_max );
 
 	// Function method
 	BRG_UNITS operator()( CONST_BRG_UNITS_REF  in_param, const bool silent = false ) const;
 };
-// class interpolator_derivative_sample_functor
+// class interpolator_derivative_weight_functor
 
 } // end namespace brgastro
 

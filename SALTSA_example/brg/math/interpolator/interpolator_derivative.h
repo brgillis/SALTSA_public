@@ -99,33 +99,33 @@ public:
 	interpolator_derivative & operator=(interpolator_derivative other);
 
 	// Set functions
-	const int set_spline_ptr( brgastro::interpolator *new_interpolator_ptr );
-	const int clear_spline_ptr();
-	const int set_default_sample_scale( double new_default_sample_scale );
-	const int set_default_sample_max_width(
+	void set_spline_ptr( brgastro::interpolator *new_interpolator_ptr );
+	void clear_spline_ptr();
+	void set_default_sample_scale( double new_default_sample_scale );
+	void set_default_sample_max_width(
 			double new_default_sample_max_width );
-	const int set_sample_scale( double new_sample_scale );
-	const int set_sample_max_width( double new_sample_max_width );
-	const int reset_sample_scale(); // Sets it to default
-	const int reset_sample_max_width(); // Sets it to default
-	const int set_interpolation_type(
+	void set_sample_scale( double new_sample_scale );
+	void set_sample_max_width( double new_sample_max_width );
+	void reset_sample_scale(); // Sets it to default
+	void reset_sample_max_width(); // Sets it to default
+	void set_interpolation_type(
 			brgastro::interpolator::allowed_interpolation_type new_interpolation_type);
-	const int reset_interpolation_type();
+	void reset_interpolation_type();
 
 	// Functions for adding/clearing points
-	const int add_point( const double t, const double x );
-	const int add_unknown_point( const double t );
+	void add_point( const double t, const double x );
+	void add_unknown_point( const double t );
 
-	const int clear_known_points();
-	const int clear_unknown_points();
-	const int clear_points(); // Clears all points
+	void clear_known_points();
+	void clear_unknown_points();
+	void clear_points(); // Clears all points
 
 	// Full clear function
-	const int clear();
+	void clear();
 
 	// Get functions
-	const double operator()( double xval, bool silent = false ) const;
-	unsigned int size() const
+	double operator()( double xval, bool silent = false ) const;
+	size_t size() const
 	{
 		return _known_interpolator_.size() + _unknown_t_list_.size();
 	}

@@ -106,86 +106,75 @@ brgastro::interpolator_derivative & brgastro::interpolator_derivative::operator=
 }
 
 // Set functions
-const int brgastro::interpolator_derivative::set_spline_ptr(
+void brgastro::interpolator_derivative::set_spline_ptr(
 		brgastro::interpolator *new_spline_ptr )
 {
-	if ( _interpolator_func_.set_interpolator_ptr( new_spline_ptr ) )
-		return 1;
+	_interpolator_func_.set_interpolator_ptr( new_spline_ptr );
 	_interpolator_ptr_ = new_spline_ptr;
 	_interpolator_ptr_set_up_ = true;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::clear_spline_ptr()
+void brgastro::interpolator_derivative::clear_spline_ptr()
 {
 	_interpolator_func_.set_interpolator_ptr( NULL );
 	_interpolator_ptr_ = NULL;
 	_interpolator_ptr_set_up_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::set_default_sample_scale(
+void brgastro::interpolator_derivative::set_default_sample_scale(
 		double new_default_sample_scale )
 {
 	_default_sample_scale_ = new_default_sample_scale;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::set_default_sample_max_width(
+void brgastro::interpolator_derivative::set_default_sample_max_width(
 		double new_default_sample_max_width )
 {
 	_default_sample_max_width_ = new_default_sample_max_width;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::set_sample_scale(
+void brgastro::interpolator_derivative::set_sample_scale(
 		double new_sample_scale )
 {
 	_sample_scale_ = new_sample_scale;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::set_sample_max_width(
+void brgastro::interpolator_derivative::set_sample_max_width(
 		double new_sample_max_width )
 {
 	_sample_max_width_ = new_sample_max_width;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::reset_sample_scale() // Sets it to default
+void brgastro::interpolator_derivative::reset_sample_scale() // Sets it to default
 {
 	_sample_scale_ = _default_sample_scale_;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::reset_sample_max_width() // Sets it to default
+void brgastro::interpolator_derivative::reset_sample_max_width() // Sets it to default
 {
 	_sample_max_width_ = _default_sample_max_width_;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::set_interpolation_type(
+void brgastro::interpolator_derivative::set_interpolation_type(
 		brgastro::interpolator::allowed_interpolation_type new_type)
 {
 	_known_interpolator_.set_interpolation_type(new_type);
 	_interpolation_type_ = new_type;
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::reset_interpolation_type()
+void brgastro::interpolator_derivative::reset_interpolation_type()
 {
 	_known_interpolator_.set_interpolation_type(_known_interpolator_.default_interpolation_type());
 	_interpolation_type_ = _known_interpolator_.default_interpolation_type();
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::clear_known_points()
+void brgastro::interpolator_derivative::clear_known_points()
 {
 	_known_interpolator_.clear();
 	if(_unknown_t_list_.size()==0)
@@ -194,10 +183,9 @@ const int brgastro::interpolator_derivative::clear_known_points()
 		_t_min_ = DBL_MAX;
 	}
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::clear_unknown_points()
+void brgastro::interpolator_derivative::clear_unknown_points()
 {
 	_unknown_t_list_.clear();
 	if(_known_interpolator_.size()==0)
@@ -206,18 +194,16 @@ const int brgastro::interpolator_derivative::clear_unknown_points()
 		_t_min_ = DBL_MAX;
 	}
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::clear_points()
+void brgastro::interpolator_derivative::clear_points()
 {
 	_known_interpolator_.clear();
 	_unknown_t_list_.clear();
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::clear()
+void brgastro::interpolator_derivative::clear()
 {
 	_interpolation_type_ = _known_interpolator_.default_interpolation_type();
 	_interpolator_ptr_ = 0;
@@ -228,27 +214,23 @@ const int brgastro::interpolator_derivative::clear()
 	_sample_scale_ = _default_sample_scale_;
 	_sample_max_width_ = _default_sample_max_width_;
 	_sample_precision_ = _default_sample_precision_;
-
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::add_point( const double t,
+void brgastro::interpolator_derivative::add_point( const double t,
 		const double x )
 {
 	_known_interpolator_.add_point( t, x );
 	_calculated_ = false;
-	return 0;
 }
 
-const int brgastro::interpolator_derivative::add_unknown_point( const double t )
+void brgastro::interpolator_derivative::add_unknown_point( const double t )
 {
 	_unknown_t_list_.push_back( t );
 	_calculated_ = false;
-	return 0;
 }
 
 // Get functions
-const double brgastro::interpolator_derivative::operator()( double xval, bool silent ) const
+double brgastro::interpolator_derivative::operator()( double xval, bool silent ) const
 {
 	if ( !_interpolator_ptr_set_up_ )
 	{
@@ -258,8 +240,7 @@ const double brgastro::interpolator_derivative::operator()( double xval, bool si
 		} // if(known_spline.size() >= 2)
 		else // We don't know enough to get any points
 		{
-			throw std::runtime_error("ERROR: Spline_derivative called without spline assigned to it.\n");
-			return DBL_MIN;
+			throw std::logic_error("ERROR: Spline_derivative called without spline assigned to it.\n");
 		} //  if(known_spline.size() >= 2) ... else
 	} // if(!spline_set_up)
 

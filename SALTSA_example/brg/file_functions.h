@@ -43,7 +43,6 @@ namespace brgastro
 
 // Prints a formatted table in the passed stream. header is a vector of strings representing the labels for each column,
 // and data is a 2-d vector of the data to be printed, in the format data[c][r], where c is the column index and r is the row index.
-// Prints an error message and returns 1 if an error arises (for instance, vectors are too short).
 void print_table( std::ostream & out_stream,
 		const std::vector< std::vector< std::string > > & data,
 		const std::vector< std::string > & header = std::vector< std::string >(0),
