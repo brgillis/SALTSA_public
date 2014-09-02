@@ -58,49 +58,44 @@ private:
 
 public:
 
-	// Swap functions
-	void swap(gabdt &other);
-	friend void swap(gabdt &same, gabdt &other) {same.swap(other);}
-
 	// Constructors
 	gabdt();
-	gabdt( const gabdt & other_gabdt );
 	gabdt( const density_profile *init_host, CONST_BRG_DISTANCE_REF init_x,
 			CONST_BRG_DISTANCE_REF init_y, CONST_BRG_DISTANCE_REF init_z,
 			CONST_BRG_TIME_REF init_dt );
 
 	// Destructor
-	virtual ~gabdt();
+	virtual ~gabdt()
+	{
+	}
 
 	// Full clear function
-	const int clear();
+	void clear();
 
 	// Set functions
-	const int set( const brgastro::density_profile *new_host_ptr,
+	void set( const brgastro::density_profile *new_host_ptr,
 			CONST_BRG_DISTANCE_REF new_x, CONST_BRG_DISTANCE_REF new_y,
 			CONST_BRG_DISTANCE_REF new_z, CONST_BRG_TIME_REF new_dt );
-	const int set_pos( CONST_BRG_DISTANCE_REF new_x, CONST_BRG_DISTANCE_REF new_y,
+	void set_pos( CONST_BRG_DISTANCE_REF new_x, CONST_BRG_DISTANCE_REF new_y,
 			CONST_BRG_DISTANCE_REF new_z );
-	const int set_dt( CONST_BRG_TIME_REF dt );
-	const int set_host_ptr( const density_profile *new_host_ptr );
-	const int override_zero();
+	void set_dt( CONST_BRG_TIME_REF dt );
+	void set_host_ptr( const density_profile *new_host_ptr );
+	void override_zero();
 
 	// Calculation function
-	const int calc_dv( const bool silent = false ) const;
+	void calc_dv( const bool silent = false ) const;
 
 	// Get functions
 	const density_profile * host() const;
-	const BRG_DISTANCE x() const;
-	const BRG_DISTANCE y() const;
-	const BRG_DISTANCE z() const;
-	const BRG_DISTANCE r() const;
-	const std::vector< std::vector< long double > > dv() const; // involves calculation if necessary
-	const long double dv( const int x_i, const int y_i ) const; // involves calculation if necessary
+	BRG_DISTANCE x() const;
+	BRG_DISTANCE y() const;
+	BRG_DISTANCE z() const;
+	BRG_DISTANCE r() const;
+	std::vector< std::vector< long double > > dv() const; // involves calculation if necessary
+	long double dv( const int x_i, const int y_i ) const; // involves calculation if necessary
 
 	// Operator overloading
-	const BRG_UNITS operator*( const gabdt & other_gabdt ) const; // Dot-product(ish) operator
-
-	gabdt & operator=( gabdt other_gabdt ); // Assignment
+	BRG_UNITS operator*( const gabdt & other_gabdt ) const; // Dot-product(ish) operator
 
 	gabdt & operator+=( const gabdt & other_gabdt ); // Addition
 	gabdt operator+( const gabdt & other_gabdt ) const;
@@ -124,21 +119,13 @@ class gabdt_functor
 	 \************************************************************/
 public:
 
-	// Swap functions
-	void swap(gabdt_functor &other);
-	friend void swap(gabdt_functor &same, gabdt_functor &other) {same.swap(other);}
-
 	// Constructors
 	gabdt_functor();
-	gabdt_functor(const gabdt_functor &other);
 
 	// Destructor
 	virtual ~gabdt_functor()
 	{
 	}
-
-	// Operator=
-	gabdt_functor & operator=(gabdt_functor other);
 
 	// Host accessor
 	const density_profile *host_ptr;

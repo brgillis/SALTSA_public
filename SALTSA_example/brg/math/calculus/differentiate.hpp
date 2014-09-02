@@ -195,7 +195,7 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 	make_array( test_in_params, num_in_params );
 
 	// Check if any in_params are zero. If so, estimate small factor from other in_params
-	for ( unsigned int i = 0; i < num_in_params; i++ )
+	for ( size_t i = 0; i < num_in_params; i++ )
 	{
 		if ( in_params[i] == 0 )
 		{
@@ -206,14 +206,14 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 			small_factor_with_units = in_params[i] * SMALL_FACTOR;
 			d_in_params[i] = small_factor_with_units;
 		} // else
-	} // for( unsigned int i = 0; i < num_in_params; i++ )
+	} // for( size_t i = 0; i < num_in_params; i++ )
 
 	if ( zero_in_flag )
 	{
 		if ( small_factor_with_units == 0 )
 		{
 			// At least try to get the units right
-			for ( unsigned int i = 0; i < num_in_params; i++ )
+			for ( size_t i = 0; i < num_in_params; i++ )
 			{
 #ifdef _BRG_USE_UNITS_
 				d_in_params[i].set(SMALL_FACTOR,in_params[i].get_unit_powers());
@@ -224,7 +224,7 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 		}
 		else
 		{
-			for ( unsigned int i = 0; i < num_in_params; i++ )
+			for ( size_t i = 0; i < num_in_params; i++ )
 			{
 				if ( in_params[i] == 0 )
 				{
@@ -234,7 +234,7 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 					d_in_params[i] = small_factor_with_units;
 #endif
 				} // if(in_params[i]==0)
-			} // for( unsigned int i = 0; i < num_in_params; i++ )
+			} // for( size_t i = 0; i < num_in_params; i++ )
 		}
 	}
 
@@ -252,10 +252,10 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 	do {
 		counter++;
 		bad_function_result = false;
-		for ( unsigned int j = 0; j < num_in_params; j++ )
+		for ( size_t j = 0; j < num_in_params; j++ )
 		{
 			// Set up test input parameters
-			for ( unsigned int j2 = 0; j2 < num_in_params; j2++ )
+			for ( size_t j2 = 0; j2 < num_in_params; j2++ )
 			{
 				if ( j2 == j )
 				{
@@ -275,13 +275,13 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 			catch(const std::exception &e)
 			{
 				bad_function_result = true;
-				for(unsigned int j=0; j< in_params.size(); j++)
+				for(size_t j=0; j< in_params.size(); j++)
 					d_in_params[j] /= 10; // Try again with smaller step size
 				continue;
 			}
 
 			// Record this derivative
-			for ( unsigned int i = 0; i < num_out_params; i++ )
+			for ( size_t i = 0; i < num_out_params; i++ )
 			{
 				Jacobian[i][j] = ( test_out_params[i] - base_out_params[i] )
 						/ d_in_params[j];
@@ -291,12 +291,12 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 				if(isbad(Jacobian[i][j]))
 				{
 					bad_function_result = true;
-					for(unsigned int j=0; j< in_params.size(); j++)
+					for(size_t j=0; j< in_params.size(); j++)
 						d_in_params[j] /= 10; // Try again with smaller step size
 					continue;
 				}
 			} // for( int i = 0; i < num_out_params; i++)
-		} // for( unsigned int j = 0; j < num_in_params; j++)
+		} // for( size_t j = 0; j < num_in_params; j++)
 	} while (bad_function_result && (counter<3));
 
 	if(counter>=3)

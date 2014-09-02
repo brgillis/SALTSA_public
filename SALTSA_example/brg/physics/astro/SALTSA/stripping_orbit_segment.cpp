@@ -388,7 +388,7 @@ brgastro::stripping_orbit_segment & brgastro::stripping_orbit_segment::operator=
 
 brgastro::stripping_orbit_segment::stripping_orbit_segment(
 		const density_profile *init_init_host,
-		const density_profile *init_init_satellite, const unsigned int init_resolution )
+		const density_profile *init_init_satellite, const size_t init_resolution )
 {
 	_init();
 	_init_host_ptr_ = init_init_host;
@@ -525,7 +525,7 @@ void brgastro::stripping_orbit_segment::clear_calcs() const
 
 // Setting integration parameters
 #if(1)
-void brgastro::stripping_orbit_segment::set_resolution( const unsigned int new_resolution,
+void brgastro::stripping_orbit_segment::set_resolution( const size_t new_resolution,
 		const bool silent )
 {
 	// Check if anything is actually changing here
@@ -863,7 +863,7 @@ void brgastro::stripping_orbit_segment::add_host_parameter_point(
 		const std::vector< BRG_UNITS > & parameters, CONST_BRG_TIME_REF t,
 		const bool silent )
 {
-	const unsigned int num_parameters = parameters.size();
+	const size_t num_parameters = parameters.size();
 
 	if ( _host_parameter_splines_.size() == 0 )
 		_host_parameter_splines_.resize( num_parameters );
@@ -873,7 +873,7 @@ void brgastro::stripping_orbit_segment::add_host_parameter_point(
 		throw std::logic_error("All parameter lists passed to stripping_orbit_segment must have same size.");
 	}
 
-	for ( unsigned int i = 0; i < num_parameters; i++ )
+	for ( size_t i = 0; i < num_parameters; i++ )
 	{
 		_host_parameter_splines_[i].add_point( t, parameters[i] );
 	}
@@ -886,7 +886,7 @@ void brgastro::stripping_orbit_segment::add_host_parameter_point(
 		_t_max_natural_value_ = t;
 }
 
-void brgastro::stripping_orbit_segment::_reserve( const unsigned int n,
+void brgastro::stripping_orbit_segment::_reserve( const size_t n,
 		const bool silent ) const
 {
 	if ( n < 1 )
@@ -1023,7 +1023,7 @@ void brgastro::stripping_orbit_segment::set_t_max(
 void brgastro::stripping_orbit_segment::reset_t_min()
 {
 	_t_min_natural_value_ = DBL_MAX;
-	for ( unsigned int i = 0; i < _x_spline_.size(); i++ )
+	for ( size_t i = 0; i < _x_spline_.size(); i++ )
 	{
 		if ( _x_spline_.sorted_data().at( i ).first < _t_min_natural_value_ )
 			_t_min_natural_value_ = _x_spline_.sorted_data().at( i ).first;
@@ -1034,7 +1034,7 @@ void brgastro::stripping_orbit_segment::reset_t_min()
 void brgastro::stripping_orbit_segment::reset_t_max()
 {
 	_t_max_natural_value_ = ( -DBL_MAX );
-	for ( unsigned int i = 0; i < _x_spline_.size(); i++ )
+	for ( size_t i = 0; i < _x_spline_.size(); i++ )
 	{
 		if ( _x_spline_.sorted_data().at( i ).first > _t_max_natural_value_ )
 			_t_max_natural_value_ = _x_spline_.sorted_data().at( i ).first;
@@ -1098,9 +1098,9 @@ void brgastro::stripping_orbit_segment::clear_init_host()
 	_calculated_ = false;
 }
 
-unsigned int brgastro::stripping_orbit_segment::length() const
+size_t brgastro::stripping_orbit_segment::length() const
 {
-	unsigned int result = INT_MAX;
+	size_t result = std::numeric_limits<size_t>::max();
 	if ( _x_spline_.size() < result )
 		result = _x_spline_.size();
 	if ( _y_spline_.size() < result )
@@ -1450,10 +1450,10 @@ void brgastro::stripping_orbit_segment::print_full_data(
 		std::ostream *out, const bool include_header,
 		const double m_ret_multiplier, const double m_vir_ret_multiplier, const bool silent ) const
 {
-	const unsigned int num_columns_base = 18;
-	unsigned int num_extra_satellite_columns = 0;
-	unsigned int num_extra_host_columns = 0;
-	unsigned int num_rows = 0;
+	const size_t num_columns_base = 18;
+	size_t num_extra_satellite_columns = 0;
+	size_t num_extra_host_columns = 0;
+	size_t num_rows = 0;
 	std::vector< std::string > header;
 	std::vector< std::vector< std::string > > data;
 	std::stringstream ss;
@@ -1513,7 +1513,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 			// Count up extra columns to print out
 			try
 			{
-				for ( unsigned int i = 0;
+				for ( size_t i = 0;
 						i < _satellite_output_parameters_.size(); i++ )
 				{
 					if ( _satellite_output_parameters_.at( i ) )
@@ -1556,7 +1556,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 			// Count up extra columns to print out
 			try
 			{
-				for ( unsigned int i = 0; i < _host_output_parameters_.size();
+				for ( size_t i = 0; i < _host_output_parameters_.size();
 						i++ )
 				{
 					if ( _host_output_parameters_.at( i ) )
@@ -1607,7 +1607,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 
 		parameter_names = _current_satellite_ptr_->get_parameter_names(  );
 
-		for ( unsigned int i = 0; i < _satellite_output_parameters_.size();
+		for ( size_t i = 0; i < _satellite_output_parameters_.size();
 				i++ )
 		{
 			if ( _satellite_output_parameters_.at( i ) )
@@ -1636,7 +1636,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 
 		parameter_names = _current_host_ptr_->get_parameter_names(  );
 
-		for ( unsigned int i = 0; i < _host_output_parameters_.size(); i++ )
+		for ( size_t i = 0; i < _host_output_parameters_.size(); i++ )
 		{
 			if ( _host_output_parameters_.at( i ) )
 			{
@@ -1689,7 +1689,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 		std::swap(t_max_to_use,t_min_to_use);
 	}
 
-	for ( unsigned int i = 0; i < num_rows; i++ )
+	for ( size_t i = 0; i < num_rows; i++ )
 	{
 		data[0][i] = "";
 		ss.str( "" );
@@ -1786,7 +1786,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 		if ( num_extra_satellite_columns > 0 )
 		{
 			int extra_column_counter = 0;
-			for ( unsigned int j = 0; j < _satellite_output_parameters_.size();
+			for ( size_t j = 0; j < _satellite_output_parameters_.size();
 					j++ )
 			{
 				if ( _satellite_output_parameters_.at( j ) )
@@ -1817,7 +1817,7 @@ void brgastro::stripping_orbit_segment::print_full_data(
 		if ( num_extra_host_columns > 0 )
 		{
 			int extra_column_counter = 0;
-			for ( unsigned int j = 0; j < _host_output_parameters_.size();
+			for ( size_t j = 0; j < _host_output_parameters_.size();
 					j++ )
 			{
 				if ( _host_output_parameters_.at( j ) )
@@ -1977,7 +1977,7 @@ void brgastro::stripping_orbit_segment::_pass_interpolation_type() const
 	_vx_spline_.set_interpolation_type(type_to_pass);
 	_vy_spline_.set_interpolation_type(type_to_pass);
 	_vz_spline_.set_interpolation_type(type_to_pass);
-	for(unsigned int i=0; i<_host_parameter_splines_.size(); i++)
+	for(size_t i=0; i<_host_parameter_splines_.size(); i++)
 	{
 		_host_parameter_splines_[i].set_interpolation_type(type_to_pass);
 	}

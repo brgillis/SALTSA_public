@@ -37,48 +37,9 @@
 // brgastro::gabdt class method implementations
 #if (1)
 
-// Swap functions
-void brgastro::gabdt::swap(gabdt &other)
-{
-	using std::swap;
-	swap(_is_cached_, other._is_cached_);
-	swap(_host_ptr_, other._host_ptr_);
-
-	swap(_x_, other._x_);
-	swap(_y_, other._y_);
-	swap(_z_, other._z_);
-	swap(_r_, other._r_);
-	swap(_dt_, other._dt_);
-
-	swap(_dv_, other._dv_);
-}
-namespace std
-{
-	template <>
-	void swap(brgastro::gabdt &same,
-			brgastro::gabdt &other)
-	{
-		same.swap(other);
-	}
-}
-
 brgastro::gabdt::gabdt( void )
 {
 	clear();
-}
-
-brgastro::gabdt::gabdt( const gabdt & other )
-{
-	_is_cached_ = other._is_cached_;
-	_host_ptr_ = other._host_ptr_;
-
-	_x_ = other._x_;
-	_y_ = other._y_;
-	_z_ = other._z_;
-	_r_ = other._r_;
-	_dt_ = other._dt_;
-
-	_dv_ = other._dv_;
 }
 
 brgastro::gabdt::gabdt( const density_profile *new_host,
@@ -88,23 +49,7 @@ brgastro::gabdt::gabdt( const density_profile *new_host,
 	set( new_host, new_x, new_y, new_z, new_dt );
 }
 
-brgastro::gabdt::~gabdt( void )
-{
-}
-
-const int brgastro::gabdt::clear()
-{
-	_is_cached_ = false;
-	_x_ = 0;
-	_y_ = 0;
-	_z_ = 0;
-	_r_ = 0;
-	_dt_ = 0;
-	_dv_.clear();
-	return 0;
-}
-
-const int brgastro::gabdt::set( const density_profile *new_host,
+void brgastro::gabdt::set( const density_profile *new_host,
 		CONST_BRG_DISTANCE_REF new_x, CONST_BRG_DISTANCE_REF new_y,
 		CONST_BRG_DISTANCE_REF new_z, CONST_BRG_TIME_REF new_dt )
 {
@@ -112,15 +57,13 @@ const int brgastro::gabdt::set( const density_profile *new_host,
 	_host_ptr_ = new_host;
 	_dt_ = new_dt;
 	_dv_.clear();
-	return 0;
 }
-const int brgastro::gabdt::set_host_ptr( const density_profile *new_host )
+void brgastro::gabdt::set_host_ptr( const density_profile *new_host )
 {
 	_is_cached_ = false;
 	_host_ptr_ = new_host;
-	return 0;
 }
-const int brgastro::gabdt::set_pos( CONST_BRG_DISTANCE_REF new_x,
+void brgastro::gabdt::set_pos( CONST_BRG_DISTANCE_REF new_x,
 		CONST_BRG_DISTANCE_REF new_y, CONST_BRG_DISTANCE_REF new_z )
 {
 	_is_cached_ = false;
@@ -129,9 +72,8 @@ const int brgastro::gabdt::set_pos( CONST_BRG_DISTANCE_REF new_x,
 	_z_ = new_z;
 	_r_ = dist3d( _x_, _y_, _z_ );
 	_dv_.clear();
-	return 0;
 }
-const int brgastro::gabdt::set_dt( CONST_BRG_TIME_REF new_dt )
+void brgastro::gabdt::set_dt( CONST_BRG_TIME_REF new_dt )
 {
 	if ( _is_cached_ )
 	{
@@ -143,13 +85,12 @@ const int brgastro::gabdt::set_dt( CONST_BRG_TIME_REF new_dt )
 			}
 	}
 	_dt_ = new_dt;
-	return 0;
 }
-const int brgastro::gabdt::calc_dv( const bool silent ) const
+void brgastro::gabdt::calc_dv( const bool silent ) const
 {
 	gabdt_functor gabdtf;
 	gabdtf.host_ptr = _host_ptr_;
-	unsigned int num_in_params = 3, num_out_params = 3;
+	size_t num_in_params = 3, num_out_params = 3;
 	std::vector< BRG_UNITS > in_params( num_in_params, 0 ), out_params(
 			num_out_params, 0 );
 	std::vector< std::vector< BRG_UNITS > > Jacobian;
@@ -168,20 +109,18 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 		if ( !silent )
 		{
 			std::cerr << "ERROR: Cannot differentiate in gabdt::calc_dv():\n";
-			std::cerr << e.what() << std::endl;
-			std::cerr.flush();
 		}
-		for ( unsigned int i = 0; i < num_out_params; i++ )
-			for ( unsigned int j = 0; j < num_in_params; j++ )
+		for ( size_t i = 0; i < num_out_params; i++ )
+			for ( size_t j = 0; j < num_in_params; j++ )
 				_dv_[i][j] = 0; // To be safe;
 		_is_cached_ = true;
-		return 1;
+		throw;
 	}
 
 	// Multiply by dt
 	bool bad_value = false;
-	for ( unsigned int i = 0; i < num_out_params; i++ )
-		for ( unsigned int j = 0; j < num_in_params; j++ )
+	for ( size_t i = 0; i < num_out_params; i++ )
+		for ( size_t j = 0; j < num_in_params; j++ )
 		{
 			if(isbad(Jacobian[i][j]))
 			{
@@ -201,10 +140,8 @@ const int brgastro::gabdt::calc_dv( const bool silent ) const
 	}
 
 	_is_cached_ = true;
-
-	return 0;
 }
-const int brgastro::gabdt::override_zero()
+void brgastro::gabdt::override_zero()
 {
 	make_array2d( _dv_, 3, 3 );
 	for ( int x_i = 0; x_i < 3; x_i++ )
@@ -215,29 +152,28 @@ const int brgastro::gabdt::override_zero()
 		}
 	}
 	_is_cached_ = true;
-	return 0;
 }
 const brgastro::density_profile * brgastro::gabdt::host() const
 {
 	return _host_ptr_;
 }
-const BRG_DISTANCE brgastro::gabdt::x() const
+BRG_DISTANCE brgastro::gabdt::x() const
 {
 	return _x_;
 }
-const BRG_DISTANCE brgastro::gabdt::y() const
+BRG_DISTANCE brgastro::gabdt::y() const
 {
 	return _y_;
 }
-const BRG_DISTANCE brgastro::gabdt::z() const
+BRG_DISTANCE brgastro::gabdt::z() const
 {
 	return _z_;
 }
-const BRG_DISTANCE brgastro::gabdt::r() const
+BRG_DISTANCE brgastro::gabdt::r() const
 {
 	return _r_;
 }
-const std::vector< std::vector< long double > > brgastro::gabdt::dv() const
+std::vector< std::vector< long double > > brgastro::gabdt::dv() const
 {
 	if ( !_is_cached_ )
 	{
@@ -246,26 +182,20 @@ const std::vector< std::vector< long double > > brgastro::gabdt::dv() const
 	}
 	return _dv_;
 }
-const long double brgastro::gabdt::dv( const int x_i, const int y_i ) const
+long double brgastro::gabdt::dv( const int x_i, const int y_i ) const
 {
 	return dv().at(x_i).at(y_i);
 }
 
-brgastro::gabdt & brgastro::gabdt::operator=( gabdt other )
-{
-	swap(other);
-	return *this;
-}
-
-const BRG_UNITS brgastro::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-product" operator
+BRG_UNITS brgastro::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-product" operator
 {
 	if ( !_is_cached_ )
 		if ( calc_dv() )
 			_dv_.clear();
 	double result = 0;
-	for ( int x_i = 0; x_i < 3; x_i++ )
+	for ( size_t x_i = 0; x_i < 3; x_i++ )
 	{
-		for ( int y_i = 0; y_i < 3; y_i++ )
+		for ( size_t y_i = 0; y_i < 3; y_i++ )
 		{
 			result += dv().at(x_i).at(y_i)*other_gabdt.dv().at(x_i).at(y_i);
 			if(isbad(result)) std::cerr << "WARNING: Bad result in gabdt dot-product when multiplying "
@@ -351,37 +281,10 @@ brgastro::gabdt brgastro::gabdt::operator*( const double scale_fraction ) const
 // brgastro::gabdt_functor class method implementations
 #if (1)
 
-// Swap functions
-void brgastro::gabdt_functor::swap(gabdt_functor &other)
-{
-	using std::swap;
-	swap(host_ptr,other.host_ptr);
-}
-namespace std
-{
-	template <>
-	void swap(brgastro::gabdt_functor &same,
-			brgastro::gabdt_functor &other)
-	{
-		same.swap(other);
-	}
-}
-
 // Constructors
 brgastro::gabdt_functor::gabdt_functor()
 {
 	host_ptr = NULL;
-}
-brgastro::gabdt_functor::gabdt_functor(const gabdt_functor &other)
-{
-	host_ptr = other.host_ptr;
-}
-
-// Operator=
-brgastro::gabdt_functor & brgastro::gabdt_functor::operator=(gabdt_functor other)
-{
-	swap(other);
-	return *this;
 }
 
 // Operator()
@@ -396,12 +299,12 @@ std::vector< BRG_UNITS > brgastro::gabdt_functor::operator()(
 	}
 	double R = dist3d( in_params[0], in_params[1], in_params[2] );
 
-	unsigned int num_out_params = 3;
+	size_t num_out_params = 3;
 	make_array( out_params, num_out_params );
 	if ( R == 0 )
 	{
 		// Special handling for this case, returning a zero result
-		for ( unsigned int i = 0; i < num_out_params; i++ )
+		for ( size_t i = 0; i < num_out_params; i++ )
 		{
 			out_params[i] = 0;
 		}
@@ -411,7 +314,7 @@ std::vector< BRG_UNITS > brgastro::gabdt_functor::operator()(
 	{
 		double accel_mag = host_ptr->accel( R );
 
-		for ( unsigned int i = 0; i < num_out_params; i++ )
+		for ( size_t i = 0; i < num_out_params; i++ )
 		{
 			out_params[i] = in_params[i] / R * accel_mag;
 		}

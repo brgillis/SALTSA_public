@@ -102,7 +102,7 @@ private:
 #if(1)
 	/** Default number of steps for which stripping is calculated. Implemented in
 	 *  brg_orbit.cpp. */
-	static unsigned int _default_spline_resolution_;
+	static size_t _default_spline_resolution_;
 
 	/// Default interpolation method. Implemented in brg_orbit.cpp.
 	static allowed_interpolation_type _default_interpolation_type_;
@@ -126,7 +126,7 @@ private:
 #if(1)
 	/// Estimated number of steps for which stripping is calculated. The actual number of steps
 	/// will depend on the adaptive step size calculations, and will usually be larger than this.
-	unsigned int _base_resolution_;
+	size_t _base_resolution_;
 
 	/// Interpolation method for this orbit
 	allowed_interpolation_type _interpolation_type_;
@@ -182,7 +182,7 @@ private:
 	// Global info for the orbit
 #if(1)
 
-	mutable unsigned int _num_segments_; ///< Number of segments the orbit is split up into.
+	mutable size_t _num_segments_; ///< Number of segments the orbit is split up into.
 
 	//@{
 	/// The values of t_min/max based only on the points passed to the orbit.
@@ -323,7 +323,7 @@ private:
 			brgastro::stripping_orbit_segment & segment,
 			brgastro::density_profile *segment_init_satellite=NULL,
 			brgastro::density_profile *segment_init_host=NULL,
-			unsigned int resolution=0) const;
+			size_t resolution=0) const;
 
 	/**
 	 * Calculate if necessary, then return an iterator to the final good segment.
@@ -402,8 +402,8 @@ public:
 	 * override_current==true.
 	 */
 
-	static void set_default_resolution( const unsigned int new_default_spline_resolution);
-	void set_default_resolution( const unsigned int new_default_spline_resolution,
+	static void set_default_resolution( const size_t new_default_spline_resolution);
+	void set_default_resolution( const size_t new_default_spline_resolution,
 			const bool override_current,
 			const bool silent=false );
 	static void set_default_interpolation_type(
@@ -492,7 +492,7 @@ public:
 	 * @param new_spline_resolution The new resolution.
 	 * @param silent Whether or not to suppress error messages.
 	 */
-	void set_resolution( const unsigned int new_spline_resolution,
+	void set_resolution( const size_t new_spline_resolution,
 			const bool silent=false );
 	/**
 	 * Set the type of interpolation to be used for all interpolators, using the
@@ -995,7 +995,7 @@ public:
 #if(1)
 	//@{
 	/// Accessors to default integration parameters.
-	static const unsigned int default_spline_resolution() {return _default_spline_resolution_;}
+	static const size_t default_spline_resolution() {return _default_spline_resolution_;}
 	static const allowed_interpolation_type default_interpolation_type()
 		{return _default_interpolation_type_;}
 	static BRG_VELOCITY  default_v_0() {return _default_v_0_;}
@@ -1024,7 +1024,7 @@ public:
 #if(1)
 	//@{
 	/// Accessors to integration parameters for this orbit.
-	const unsigned int spline_resolution() const {return _base_resolution_;}
+	const size_t spline_resolution() const {return _base_resolution_;}
 	const allowed_interpolation_type interpolation_type()
 		{return _interpolation_type_;}
 	BRG_VELOCITY v_0() const {return _v_0_;}
@@ -1049,7 +1049,7 @@ public:
 #endif
 
 	/// Accessor to the number of segments this orbit has.
-	const unsigned int num_segments() const {return _num_segments_;}
+	const size_t num_segments() const {return _num_segments_;}
 
 	/// Accessor to what t_min would be if not overridden.
 	BRG_TIME t_min_natural_value() const {return _t_min_natural_value_;}
