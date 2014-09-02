@@ -254,7 +254,7 @@ double brgastro::interpolator_derivative::operator()( double xval, bool silent )
 		_t_min_ = DBL_MAX;
 		_t_max_ = ( -DBL_MAX );
 
-		for ( unsigned int i = 0; i < _known_interpolator_.sorted_data().size(); i++ )
+		for ( size_t i = 0; i < _known_interpolator_.sorted_data().size(); i++ )
 		{
 			if ( _known_interpolator_.sorted_data().at( i ).first < _t_min_ )
 				_t_min_ = _known_interpolator_.sorted_data().at( i ).first;
@@ -262,7 +262,7 @@ double brgastro::interpolator_derivative::operator()( double xval, bool silent )
 				_t_max_ = _known_interpolator_.sorted_data().at( i ).first;
 		}
 
-		for ( unsigned int i = 0; i < _unknown_t_list_.size(); i++ )
+		for ( size_t i = 0; i < _unknown_t_list_.size(); i++ )
 		{
 			if ( _unknown_t_list_[i] < _t_min_ )
 				_t_min_ = _unknown_t_list_[i];
@@ -273,7 +273,7 @@ double brgastro::interpolator_derivative::operator()( double xval, bool silent )
 		// Set up the estimated spline, starting by making a copy of the known spline
 		_estimated_interpolator_ = _known_interpolator_;
 		_estimated_interpolator_.set_interpolation_type(_interpolation_type_);
-		unsigned int num_points_to_calculate = _unknown_t_list_.size();
+		size_t num_points_to_calculate = _unknown_t_list_.size();
 		interpolator_derivative_functor spline_derivative_functor_val(
 				_interpolator_ptr_ );
 		interpolator_derivative_weight_functor spline_derivative_weight_functor_val;
@@ -287,7 +287,7 @@ double brgastro::interpolator_derivative::operator()( double xval, bool silent )
 
 		double delta_t = fabs( _t_max_ - _t_min_ ) * _sample_max_width_;
 
-		for ( unsigned int i = 0; i < num_points_to_calculate; i++ ) // For each point we need to calculate
+		for ( size_t i = 0; i < num_points_to_calculate; i++ ) // For each point we need to calculate
 		{
 			double t = _unknown_t_list_[i];
 			spline_derivative_weight_functor_val.set_center_point( t );
@@ -315,7 +315,7 @@ double brgastro::interpolator_derivative::operator()( double xval, bool silent )
 
 			}
 
-		} // for(unsigned int i = 0; i < num_points_to_calculate; i++ )
+		} // for(size_t i = 0; i < num_points_to_calculate; i++ )
 	} // if(calculated) ... else
 
 	_calculated_ = true;

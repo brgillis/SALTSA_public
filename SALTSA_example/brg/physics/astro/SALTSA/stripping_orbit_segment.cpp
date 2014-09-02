@@ -1348,11 +1348,7 @@ void brgastro::stripping_orbit_segment::calc( const bool silent ) const
 			current_gabdt.set_pos( _x_spline_( t ), _y_spline_( t ),
 					_z_spline_( t ) );
 			current_gabdt.set_dt( t_step * step_length_factor );
-			if(current_gabdt.calc_dv())
-			{
-				_bad_result_ = true;
-				break;
-			}
+			current_gabdt.calc_dv();
 			_gabdt_list_.push_back( current_gabdt );
 			_sum_gabdt_list_.push_back(
 					_sum_gabdt_list_.back() * gabdt_scaling_factor

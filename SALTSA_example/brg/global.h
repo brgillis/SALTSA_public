@@ -38,7 +38,7 @@
 #endif
 
 #ifndef NDEBUG
-//#define _BRG_USE_UNITS_ // Will use "number-with-units" class for applicable values in code
+#define _BRG_USE_UNITS_ // Will use "number-with-units" class for applicable values in code
 // This slows things down a bit, but can be useful in debugging. Comment/uncomment or define
 // at command line to decide whether or not to use this
 #endif // #ifndef NDEBUG

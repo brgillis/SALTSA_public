@@ -58,6 +58,15 @@ void brgastro::gabdt::set( const density_profile *new_host,
 	_dt_ = new_dt;
 	_dv_.clear();
 }
+void brgastro::gabdt::clear()
+{
+	_is_cached_ = false;
+	_host_ptr_ =  NULL;
+
+	_x_ = _y_ = _z_ = _r_ = 0;
+	_dt_ = 0;
+	_dv_.clear();
+}
 void brgastro::gabdt::set_host_ptr( const density_profile *new_host )
 {
 	_is_cached_ = false;
@@ -177,8 +186,7 @@ std::vector< std::vector< long double > > brgastro::gabdt::dv() const
 {
 	if ( !_is_cached_ )
 	{
-		if ( calc_dv() )
-			_dv_.clear();
+		calc_dv();
 	}
 	return _dv_;
 }
@@ -190,8 +198,7 @@ long double brgastro::gabdt::dv( const int x_i, const int y_i ) const
 BRG_UNITS brgastro::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-product" operator
 {
 	if ( !_is_cached_ )
-		if ( calc_dv() )
-			_dv_.clear();
+		calc_dv();
 	double result = 0;
 	for ( size_t x_i = 0; x_i < 3; x_i++ )
 	{
@@ -207,11 +214,7 @@ BRG_UNITS brgastro::gabdt::operator*( const gabdt & other_gabdt ) const // "Dot-
 brgastro::gabdt & brgastro::gabdt::operator+=( const gabdt & other_gabdt )
 {
 	if ( !_is_cached_ )
-		if ( calc_dv() )
-		{
-			_dv_.clear();
-			return *this;
-		}
+		calc_dv();
 
 	for ( int x_i = 0; x_i < 3; x_i++ )
 	{
@@ -228,11 +231,7 @@ brgastro::gabdt & brgastro::gabdt::operator+=( const gabdt & other_gabdt )
 brgastro::gabdt brgastro::gabdt::operator+( const gabdt & other_gabdt ) const
 {
 	if ( !_is_cached_ )
-		if ( calc_dv() )
-		{
-			_dv_.clear();
-			return *this;
-		}
+		calc_dv();
 	gabdt result = gabdt( *this );
 	result += other_gabdt;
 	return result;
@@ -246,11 +245,7 @@ brgastro::gabdt & brgastro::gabdt::operator*=( const double scale_fraction )
 		return *this;
 	}
 	if ( !_is_cached_ )
-		if ( calc_dv() )
-		{
-			_dv_.clear();
-			return *this;
-		}
+		calc_dv();
 
 	for ( int x_i = 0; x_i < 3; x_i++ )
 	{
@@ -266,11 +261,7 @@ brgastro::gabdt & brgastro::gabdt::operator*=( const double scale_fraction )
 brgastro::gabdt brgastro::gabdt::operator*( const double scale_fraction ) const
 {
 	if ( !_is_cached_ )
-		if ( calc_dv() )
-		{
-			_dv_.clear();
-			return *this;
-		}
+		calc_dv();
 	gabdt result = gabdt( *this );
 	result *= scale_fraction;
 	return result;

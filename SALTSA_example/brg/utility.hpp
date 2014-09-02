@@ -108,14 +108,14 @@ inline void make_obj( BRG_UNIQUE_PTR<obj_type> & obj_pointer, const bool silent=
 
 #ifdef _BRG_USE_CPP_11_STD_
 template <class array_type>
-inline void make_array1d( std::unique_ptr<array_type []> & array_pointer, const unsigned int num_elem,
+inline void make_array1d( std::unique_ptr<array_type []> & array_pointer, const size_t num_elem,
 		const bool silent = false )
 {
 	array_pointer = std::unique_ptr<array_type []>(new array_type [num_elem]);
 	for(int i=0; i<num_elem; i++) set_zero(array_pointer[i]);
 }
 template <class array_type>
-inline void make_array( std::unique_ptr<array_type []> & array_pointer, const unsigned int num_elem,
+inline void make_array( std::unique_ptr<array_type []> & array_pointer, const size_t num_elem,
 		const bool silent = false )
 {
 	make_array1d( array_pointer, num_elem );

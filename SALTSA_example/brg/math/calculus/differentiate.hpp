@@ -220,7 +220,7 @@ inline std::vector< std::vector< T > > differentiate( const f * func, const std:
 #else
 				d_in_params[i] = SMALL_FACTOR;
 #endif
-			} // for( unsigned int i = 0; i < num_in_params; i++ )
+			} // for( size_t i = 0; i < num_in_params; i++ )
 		}
 		else
 		{

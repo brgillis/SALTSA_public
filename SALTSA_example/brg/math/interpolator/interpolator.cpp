@@ -105,7 +105,7 @@ void brgastro::interpolator::_set_spline_points() const
 {
 	std::vector<double> x_points(0), y_points(0);
 	sorted_data(); // Ensure it's cached
-	for(unsigned int i = 0; i < _sorted_data_.size(); i++)
+	for(size_t i = 0; i < _sorted_data_.size(); i++)
 	{
 		x_points.push_back(_sorted_data_[i].first);
 		y_points.push_back(_sorted_data_[i].second);
@@ -138,7 +138,7 @@ void brgastro::interpolator::add_point(const double x, const double y)
 
 void brgastro::interpolator::try_add_point(const double x, const double y)
 {
-	for (unsigned int i=0;i<_data_.size();i++)
+	for (size_t i=0;i<_data_.size();i++)
 	{
 		assert(x!=_data_[i].first);
 	}

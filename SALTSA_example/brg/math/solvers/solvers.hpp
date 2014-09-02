@@ -164,7 +164,7 @@ T solve_sd( const f * func, const T & init_in_params,
 
 	const int lambda_shortening_intervals = 10;
 	const double lambda_shortening_factor = 10;
-	unsigned int num_out_params = 0;
+	size_t num_out_params = 0;
 	int num_steps_taken = 0;
 	bool converged_flag = false;
 
@@ -365,7 +365,7 @@ T solve_grid( const f * func, const T & init_min_in_params, const T & init_max_i
 {
 
 	T d = 0, d_best = DBL_MAX;
-	unsigned int i_best = -1;
+	size_t i_best = 0;
 	T init_in_params_step( 0 );
 	T in_params_step( 0 );
 	T test_in_params( 0 );
@@ -379,8 +379,8 @@ T solve_grid( const f * func, const T & init_min_in_params, const T & init_max_i
 
 	double init_precision = init_init_precision, precision = init_precision;
 	double step_dist = 1;
-	unsigned int num_test_points = 0;
-	unsigned int num_in_params_steps( 0 );
+	size_t num_test_points = 0;
+	size_t num_in_params_steps( 0 );
 
 	// Check for sanity and set up parameters
 	if ( max_in_params < min_in_params )
@@ -410,7 +410,7 @@ T solve_grid( const f * func, const T & init_min_in_params, const T & init_max_i
 	d_best = DBL_MAX;
 	in_params_step = init_in_params_step;
 	bool starting_point_found = false;
-	for ( unsigned int i = 0; i < num_test_points; i++ )
+	for ( size_t i = 0; i < num_test_points; i++ )
 	{
 		test_in_params = min_in_params + in_params_step * i;
 
@@ -440,7 +440,7 @@ T solve_grid( const f * func, const T & init_min_in_params, const T & init_max_i
 		// Recalculate number of test points
 		num_test_points = num_in_params_steps * search_factor;
 
-		for ( unsigned int i = 0; i < num_test_points; i++ )
+		for ( size_t i = 0; i < num_test_points; i++ )
 		{
 			// Figure out test_in_params for this point and get value there
 			test_in_params = min_in_params + in_params_step * i;
@@ -484,7 +484,7 @@ T solve_grid( const f * func, const T & init_min_in_params, const T & init_max_i
 
 		i_best = 0;
 		d_best = DBL_MAX;
-		for ( unsigned int i = 0; i < num_test_points; i++ )
+		for ( size_t i = 0; i < num_test_points; i++ )
 		{
 			test_in_params = best_in_params + in_params_step * i - in_params_step;
 			try
@@ -560,7 +560,7 @@ std::vector< T > solve_grid( const f * func,
 		out_params_weight.resize( target_out_params.size(), 0 );
 	}
 	total_weight = 0;
-	for ( unsigned int i = 0; i < num_in_params; i++ )
+	for ( size_t i = 0; i < num_in_params; i++ )
 	{
 		if ( max_in_params.at( i ) < min_in_params.at( i ) )
 			std::swap( max_in_params[i], min_in_params[i] );
@@ -585,7 +585,7 @@ std::vector< T > solve_grid( const f * func,
 						/ init_in_params_step.at( i ) ) + 1;
 		num_test_points *= num_in_params_steps.at( i );
 	}
-	for(unsigned int i = 0; i < out_params_weight.size(); i++)
+	for(size_t i = 0; i < out_params_weight.size(); i++)
 	{
 		out_params_weight.at( i ) = fabs( out_params_weight.at( i ) );
 		total_weight += out_params_weight.at( i );
@@ -608,7 +608,7 @@ std::vector< T > solve_grid( const f * func,
 		// Figure out test_in_params for this point
 		i_resid = i;
 		divisor = num_test_points;
-		for ( unsigned int j = 0; j < num_in_params; j++ )
+		for ( size_t j = 0; j < num_in_params; j++ )
 		{
 			divisor /= num_in_params_steps.at( j );
 			i_temp = (int)( i_resid / divisor );
@@ -702,7 +702,7 @@ std::vector< T > solve_grid( const f * func,
 	for ( vsize_t j = 0; j < num_in_params; j++ )
 	{
 		divisor /= num_in_params_steps.at( j );
-		i_temp = (unsigned int)( i_resid / divisor );
+		i_temp = (size_t)( i_resid / divisor );
 		i_resid -= i_temp * divisor;
 		best_in_params.at( j ) = min_in_params.at( j )
 				+ in_params_step.at( j ) * i_temp;
@@ -761,7 +761,7 @@ std::vector< T > solve_grid( const f * func,
 		// Figure out test_in_params for this point
 		i_resid = i_best;
 		divisor = num_test_points;
-		for ( unsigned int j = 0; j < num_in_params; j++ )
+		for ( size_t j = 0; j < num_in_params; j++ )
 		{
 			divisor /= 3;
 			i_temp = (int)( i_resid / divisor );
@@ -782,11 +782,11 @@ std::vector< T > solve_grid( const f * func,
 // Scalar-in, scalar-out version
 template< typename f, typename T >
 T solve_grid( const f * func, const T & init_min_in_params, const T & init_max_in_params,
-		const unsigned int num_search_steps, const T & target_out_params,
+		const size_t num_search_steps, const T & target_out_params,
 		const double init_init_precision = 0.00001,
 		const int search_precision = 0.1, const bool silent = false )
 {
-	const unsigned int steps = (unsigned int)max( num_search_steps, 1 );
+	const size_t steps = (size_t)max( num_search_steps, 1 );
 
 	T in_params_step(( init_max_in_params - init_min_in_params ) / steps);
 	return brgastro::solve_grid( func, init_min_in_params,
@@ -800,14 +800,14 @@ template< typename f, typename T >
 std::vector<T> solve_grid( const f * func,
 		const std::vector< T > & init_min_in_params,
 		const std::vector< T > & init_max_in_params,
-		const unsigned int num_search_steps, const std::vector< T > & target_out_params,
+		const size_t num_search_steps, const std::vector< T > & target_out_params,
 		const double init_init_precision = 0.00001, const int search_precision = 0.1,
 		const std::vector< double > & out_params_weight =
 				std::vector< double >( 0 ), const bool silent = false )
 {
 	std::vector< T > in_params_step( init_min_in_params.size(), 0 );
 
-	const unsigned int steps = (unsigned int)max( num_search_steps, 1 );
+	const size_t steps = (size_t)max( num_search_steps, 1 );
 
 	assert(init_min_in_params.size()==init_max_in_params.size());
 

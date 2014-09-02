@@ -48,7 +48,7 @@
 
 #define DECLARE_BRG_CACHE_STATIC_VARS()		\
 	static double _min_1_, _max_1_, _step_1_; \
-	static unsigned int _resolution_1_;      \
+	static size_t _resolution_1_;      \
 	static std::vector< double > _results_; \
 											\
 	static std::string _file_name_;         \
@@ -66,7 +66,7 @@
 	bool brgastro::class_name::_initialised_ = false;						\
 	short int brgastro::class_name::_is_monotonic_ = 0;						\
 	unsigned int brgastro::class_name::_sig_digits_ = 8;					\
-	unsigned int brgastro::class_name::_resolution_1_ = 0;					\
+	size_t brgastro::class_name::_resolution_1_ = 0;					\
 	std::string brgastro::class_name::_file_name_ = "";						\
 	std::string brgastro::class_name::_header_string_ = "";					\
 	std::vector<double> brgastro::class_name::_results_;
@@ -98,7 +98,7 @@ private:
 		#pragma omp critical(init_brg_cache_nd)
 		if(!SPCP(name)->_initialised_)
 		{
-			SPCP(name)->_resolution_1_ = (unsigned int) max( ( ( SPCP(name)->_max_1_ - SPCP(name)->_min_1_ ) / safe_d(SPCP(name)->_step_1_)) + 1, 2);
+			SPCP(name)->_resolution_1_ = (size_t) max( ( ( SPCP(name)->_max_1_ - SPCP(name)->_min_1_ ) / safe_d(SPCP(name)->_step_1_)) + 1, 2);
 			SPCP(name)->_file_name_ = SPCP(name)->_name_base() + "_cache.dat";
 			SPCP(name)->_header_string_ = "# " + SPCP(name)->_name_base() + "_cache v1.0";
 
@@ -110,7 +110,7 @@ private:
 		std::ifstream in_file;
 		std::string file_data;
 		bool need_to_calc = false;
-		unsigned int i;
+		size_t i;
 		int loop_counter = 0;
 
 		if ( SPCP(name)->_loaded_ ) return;
@@ -165,7 +165,7 @@ private:
 			}
 
 			// Set up data
-			SPCP(name)->_resolution_1_ = (unsigned int) max( ( ( SPCP(name)->_max_1_ - SPCP(name)->_min_1_ ) / safe_d(SPCP(name)->_step_1_)) + 1, 2);
+			SPCP(name)->_resolution_1_ = (size_t) max( ( ( SPCP(name)->_max_1_ - SPCP(name)->_min_1_ ) / safe_d(SPCP(name)->_step_1_)) + 1, 2);
 			SPCP(name)->_results_.resize(SPCP(name)->_resolution_1_ );
 
 			// Read in data
@@ -248,7 +248,7 @@ private:
 		}
 
 		// Set up data
-		SPCP(name)->_resolution_1_ = (unsigned int) max( ( ( SPCP(name)->_max_1_ - SPCP(name)->_min_1_ ) / safe_d(SPCP(name)->_step_1_)) + 1, 2);
+		SPCP(name)->_resolution_1_ = (size_t) max( ( ( SPCP(name)->_max_1_ - SPCP(name)->_min_1_ ) / safe_d(SPCP(name)->_step_1_)) + 1, 2);
 		SPCP(name)->_results_.resize(SPCP(name)->_resolution_1_ );
 
 		// Calculate data
@@ -256,7 +256,7 @@ private:
 		bool bad_result = false;
 
 		#pragma omp parallel for
-		for ( unsigned int i = 0; i < SPCP(name)->_resolution_1_; i++ )
+		for ( size_t i = 0; i < SPCP(name)->_resolution_1_; i++ )
 		{
 			double result = 0;
 			try
@@ -297,7 +297,7 @@ private:
 		out_file << SPCP(name)->_min_1_ << "\t" << SPCP(name)->_max_1_ << "\t" << SPCP(name)->_step_1_ << "\n";
 
 		// Output data
-		for ( unsigned int i = 0; i < SPCP(name)->_resolution_1_; i++ )
+		for ( size_t i = 0; i < SPCP(name)->_resolution_1_; i++ )
 		{
 			out_file << SPCP(name)->_results_.at(i) << "\n";
 		}
@@ -377,7 +377,7 @@ public:
 		}
 	} // const int set_range()
 
-	void set_precision( const unsigned int new_precision,
+	void set_precision( const size_t new_precision,
 			const bool silent = false )
 	{
 		if ( new_precision > 0 )
@@ -410,7 +410,7 @@ public:
 		// Fill up data
 		std::vector< std::vector<std::string> > data(3);
 		std::stringstream ss;
-		for(unsigned int i_1=0; i_1<SPCP(name)->_resolution_1_; ++i_1)
+		for(size_t i_1=0; i_1<SPCP(name)->_resolution_1_; ++i_1)
 		{
 			data[0].push_back("");
 			ss.str("");
@@ -428,7 +428,7 @@ public:
 	{
 
 		double xlo, xhi;
-		unsigned int x_i; // Lower nearby array point
+		size_t x_i; // Lower nearby array point
 #ifdef _BRG_USE_UNITS_
 		BRG_UNITS result = SPCP(name)->_units(); // Ensure the result has the proper units
 		result = 0;
@@ -460,7 +460,7 @@ public:
 			}
 		}
 
-		x_i = (unsigned int)bound(0,
+		x_i = (size_t)bound(0,
 				( ( x - SPCP(name)->_min_1_ ) / SPCP(name)->_step_1_ ),
 				SPCP(name)->_resolution_1_ - 2 );
 
@@ -512,7 +512,7 @@ public:
 		if(SPCP(name)->_is_monotonic_==1)
 		{
 
-			for ( unsigned int x_i = 0; x_i < SPCP(name)->_resolution_1_ - 1; x_i++ )
+			for ( size_t x_i = 0; x_i < SPCP(name)->_resolution_1_ - 1; x_i++ )
 			{
 				// Loop through till we find the proper y or reach the end
 				yhi = SPCP(name)->_results_.at(x_i);
@@ -530,7 +530,7 @@ public:
 		else
 		{
 
-			for ( unsigned int x_i = 0; x_i < SPCP(name)->_resolution_1_ - 1; x_i++ )
+			for ( size_t x_i = 0; x_i < SPCP(name)->_resolution_1_ - 1; x_i++ )
 			{
 				// Loop through till we find the proper y or reach the end
 				ylo = SPCP(name)->_results_.at(x_i);

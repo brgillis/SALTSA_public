@@ -310,7 +310,7 @@ inline const Ta weighted_dist( std::vector< Ta > a,
 	using std::sqrt;
 	Ta result = 0;
 	assert(a.size()==b.size());
-	for ( unsigned int i = 0; i < a.size(); i++ )
+	for ( size_t i = 0; i < a.size(); i++ )
 	{
 		result += square( b[i] - a[i] );
 	}
