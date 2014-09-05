@@ -415,47 +415,41 @@ int main( const int argc, const char *argv[] )
 	// anyway. This will only fail if the density profile for the host is changed, which
 	// would change the names of its parameters.)
 
-	// To use this function, we'll need to set up "key"s, which connect strings to look
-	// for in the header to vectors to put data into. We'll then pass a vector of these
-	// keys to the load_table_columns function.
+	// To use this function, we'll need to set up a map which uses header names as keys,
+	// and pointers to the vectors we want to use as values
 
 	// Declare the key vector
-	typedef std::pair<std::string, std::vector<double> * > key;
-	std::vector<key> header_keys(0);
+	std::map<std::string, std::vector<double> * > column_map;
 
-	// Load it with keys for each column we want to use, using std::make_pair to easily
-	// construct keys
-	header_keys.push_back( std::make_pair("t",&t_data) );
+	// Load it with keys for each column we want to use
+	column_map["t"] = &t_data;
 
-	header_keys.push_back( std::make_pair("x",&x_data) );
-	header_keys.push_back( std::make_pair("y",&y_data) );
-	header_keys.push_back( std::make_pair("z",&z_data) );
+	column_map["x"] = &t_data;
+	column_map["y"] = &t_data;
+	column_map["z"] = &t_data;
 
-	header_keys.push_back( std::make_pair("vx",&vx_data) );
-	header_keys.push_back( std::make_pair("vy",&vy_data) );
-	header_keys.push_back( std::make_pair("vz",&vz_data) );
+	column_map["vx"] = &t_data;
+	column_map["vy"] = &t_data;
+	column_map["vz"] = &t_data;
+
+	column_map["Host_z"] = &host_z_data;
+	column_map["m_ret"] = &comparison_mret_data;
 
 	if(use_tSIS_profile)
 	{
-		header_keys.push_back( std::make_pair("Host_sigma_v",&host_sigma_v_data) );
-		header_keys.push_back( std::make_pair("Host_z",&host_z_data) );
-
-		header_keys.push_back( std::make_pair("m_ret",&comparison_mret_data) );
+		column_map["Host_sigma_v"] = &host_sigma_v_data;
 	}
 	else
 	{
-		header_keys.push_back( std::make_pair("Host_mvir0",&host_mvir0_data) );
-		header_keys.push_back( std::make_pair("Host_z",&host_z_data) );
-		header_keys.push_back( std::make_pair("Host_c",&host_c_data) );
-		header_keys.push_back( std::make_pair("Host_tau",&host_tau_data) );
-
-		header_keys.push_back( std::make_pair("m_ret",&comparison_mret_data) );
+		column_map["Host_mvir0"] = &host_mvir0_data;
+		column_map["Host_c"] = &host_c_data;
+		column_map["Host_tau"] = &host_tau_data;
 	}
 
 	// And now actually load it
 	// An exception will be thrown here if a column we want isn't found in the file, or if it's
 	// improperly formatted.
-	brgastro::load_table_columns(comparison_file_name, header_keys);
+	brgastro::load_table_columns(comparison_file_name, column_map);
 
 	// Now, all the vectors should be loaded. Let's pass the data into SALTSA
 

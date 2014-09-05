@@ -79,75 +79,87 @@ inline void set_zero( std::string obj )
 {
 	obj = "";
 }
-template< class T >
+template< typename T >
 inline void set_zero( std::vector< T > vec )
 {
 	vec.clear();
 }
-template< class T >
+template< typename T >
 inline void set_zero( T *obj )
 {
 	obj = NULL;
 }
-template< class obj_type >
+template< typename obj_type >
 inline void set_zero( obj_type obj )
 {
-	obj = 0;
+	obj = obj_type();
 }
 
 // Various "make" functions, to allocate dynamic memory.
 // After allocating memory, these functions initialize the new variables using the
 // set_zero function (see above).
 
-template< class obj_type >
-inline void make_obj( BRG_UNIQUE_PTR<obj_type> & obj_pointer, const bool silent=false )
+template< typename obj_type >
+inline void make_obj( BRG_UNIQUE_PTR<obj_type> & obj_pointer )
 {
 	obj_pointer = BRG_UNIQUE_PTR<obj_type>(new obj_type);
 	set_zero(*obj_pointer);
 }
 
 #ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
-inline void make_array1d( std::unique_ptr<array_type []> & array_pointer, const size_t num_elem,
-		const bool silent = false )
+template <typename array_type>
+inline void make_array1d( std::unique_ptr<array_type []> & array_pointer, const size_t num_elem )
 {
 	array_pointer = std::unique_ptr<array_type []>(new array_type [num_elem]);
 	for(int i=0; i<num_elem; i++) set_zero(array_pointer[i]);
 }
-template <class array_type>
-inline void make_array( std::unique_ptr<array_type []> & array_pointer, const size_t num_elem,
-		const bool silent = false )
+template <typename array_type>
+inline void make_array( std::unique_ptr<array_type []> & array_pointer, const size_t num_elem )
 {
 	make_array1d( array_pointer, num_elem );
 }
 #endif
-template< class array_type >
-inline void make_array1d( std::vector< array_type > & array_pointer,
-		const size_t num_elem, const bool silent = false )
+template< typename array_type >
+inline void make_array1d( array_type & array_pointer,
+		const size_t num_elem )
 {
 	array_pointer.resize( num_elem );
-	for ( size_t i = 0; i < num_elem; i++ )
-		set_zero( array_pointer[i] );
+	for ( typename array_type::iterator it=array_pointer.begin(); it != array_pointer.end(); ++it)
+		set_zero( *it );
 }
-template< class array_type >
-inline void make_array( std::vector< array_type > & array_pointer,
-		const int num_elem, const bool silent = false )
+template< typename array_type >
+inline void make_array( array_type & array_pointer,
+		const int num_elem )
 {
 	return make_array1d( array_pointer, num_elem );
 }
+template< typename array_type, typename other_array_type >
+inline void make_array1d( array_type & array_pointer,
+		const other_array_type & other_array )
+{
+	array_pointer.resize( other_array.size() );
+	for ( typename array_type::iterator it=array_pointer.begin(); it != array_pointer.end(); ++it)
+		set_zero( *it );
+}
+template< typename array_type, typename other_array_type >
+inline void make_array( array_type & array_pointer,
+		const other_array_type & other_array )
+{
+	return make_array1d( array_pointer, other_array );
+}
 
 #ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
+template <typename array_type>
 inline void make_array2d( std::unique_ptr<std::unique_ptr<array_type []> []> & array_pointer, const size_t num_elem1, const size_t num_elem2, const bool silent=false )
 {
 	array_pointer = std::unique_ptr<std::unique_ptr<array_type []> []>(new std::unique_ptr<array_type []> [num_elem1]);
 	for( size_t i = 0; i < num_elem1; i++)
 	{
-		make_array(array_pointer[i], num_elem2);
+		make_array1d(array_pointer[i], num_elem2);
 	}
 }
 #endif
-template< class array_type >
+template< typename array_type >
 inline void make_array2d(
 		std::vector< std::vector< array_type > > & array_pointer,
 		const size_t num_elem1, const size_t num_elem2, const bool silent = false )
@@ -155,12 +167,22 @@ inline void make_array2d(
 	array_pointer.resize( num_elem1 );
 	for ( size_t i = 0; i < num_elem1; i++ )
 	{
-		make_array( array_pointer[i], num_elem2 );
+		make_array1d( array_pointer[i], num_elem2 );
 	}
+}
+template< typename array_type, typename other_array_type >
+inline void make_array2d( array_type & array_pointer,
+		const other_array_type & other_array )
+{
+	array_pointer.resize( other_array.size() );
+	typename other_array_type::const_iterator it_o = other_array.begin();
+	for ( typename array_type::iterator it=array_pointer.begin(); it != array_pointer.end(); ++it)
+		make_array1d(*it,*it_o);
+		++it_o;
 }
 
 #ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
+template <typename array_type>
 inline void make_array3d( std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> & array_pointer, const size_t num_elem1,
 		const size_t num_elem2, const size_t num_elem3, const bool silent=false )
 {
@@ -173,7 +195,7 @@ inline void make_array3d( std::unique_ptr<std::unique_ptr<std::unique_ptr<array_
 	}
 }
 #endif
-template< class array_type >
+template< typename array_type >
 inline void make_array3d(
 		std::vector< std::vector< std::vector< array_type > > > & array_pointer,
 		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
@@ -185,9 +207,19 @@ inline void make_array3d(
 		make_array2d( array_pointer[i], num_elem2, num_elem3 );
 	}
 }
+template< typename array_type, typename other_array_type >
+inline void make_array3d( array_type & array_pointer,
+		const other_array_type & other_array )
+{
+	array_pointer.resize( other_array.size() );
+	typename other_array_type::const_iterator it_o = other_array.begin();
+	for ( typename array_type::iterator it=array_pointer.begin(); it != array_pointer.end(); ++it)
+		make_array2d(*it,*it_o);
+		++it_o;
+}
 
 #ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
+template <typename array_type>
 inline void make_array4d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []> & array_pointer,
 		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3, const size_t num_elem4, const bool silent=false )
 {
@@ -200,7 +232,7 @@ inline void make_array4d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::u
 	}
 }
 #endif
-template< class array_type >
+template< typename array_type >
 inline void make_array4d(
 		std::vector< std::vector< std::vector< std::vector< array_type > > > > & array_pointer,
 		const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
@@ -212,9 +244,19 @@ inline void make_array4d(
 		make_array3d( array_pointer[i], num_elem2, num_elem3, num_elem4 );
 	}
 }
+template< typename array_type, typename other_array_type >
+inline void make_array4d( array_type & array_pointer,
+		const other_array_type & other_array )
+{
+	array_pointer.resize( other_array.size() );
+	typename other_array_type::const_iterator it_o = other_array.begin();
+	for ( typename array_type::iterator it=array_pointer.begin(); it != array_pointer.end(); ++it)
+		make_array3d(*it,*it_o);
+		++it_o;
+}
 
 #ifdef _BRG_USE_CPP_11_STD_
-template <class array_type>
+template <typename array_type>
 inline void make_array5d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<std::unique_ptr<array_type []> []> []> []> []>
 		& array_pointer, const size_t num_elem1, const size_t num_elem2, const size_t num_elem3,
 		const size_t num_elem4, const size_t num_elem5, const bool silent=false )
@@ -228,7 +270,7 @@ inline void make_array5d( std::unique_ptr<std::unique_ptr<std::unique_ptr<std::u
 	}
 }
 #endif
-template< class array_type >
+template< typename array_type >
 inline void make_array5d(
 		std::vector<
 				std::vector<
@@ -242,6 +284,16 @@ inline void make_array5d(
 		make_array4d( array_pointer[i], num_elem2,
 				num_elem3, num_elem4, num_elem5 );
 	}
+}
+template< typename array_type, typename other_array_type >
+inline void make_array5d( array_type & array_pointer,
+		const other_array_type & other_array )
+{
+	array_pointer.resize( other_array.size() );
+	typename other_array_type::const_iterator it_o = other_array.begin();
+	for ( typename array_type::iterator it=array_pointer.begin(); it != array_pointer.end(); ++it)
+		make_array4d(*it,*it_o);
+		++it_o;
 }
 #endif // Ending functions
 
